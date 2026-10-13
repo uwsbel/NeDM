@@ -1,0 +1,188 @@
+{
+ "note": "Footstep-target task in the G1 contact NRD (nedm.g1_footstep_rl.footsteps_env); the env config of both released policies. Stand starts only; the course banks of scripts/g1_footstep_rl/build_course_bank.py (training levels F0-F3, P1-P3, ES; validation adds MP and MN); command-only actions (action.alpha 0: the policy sets HOMIE's velocity command, HOMIE sets the leg targets); the swept full-leg self-contact rule (2 + 2 poses, 0.004 / -0.001 m); joint_range = the training-data envelope +- 0.05 rad (rl_inputs/start_bank/envelope_v1.json); strict scoring with a 2 cm edge margin, relaxed by the curriculum (footsteps_curriculum.json) in stages S0-S3. Paths are relative to the repository root; scripts/g1_footstep_rl/reproduce.sh overrides them with absolute paths (--env-overrides). See g1_footstep_rl/README.md.",
+ "checkpoints": [
+  "artifacts/contact_nrd/g1_locomotion/models/seed61.pt",
+  "artifacts/contact_nrd/g1_locomotion/models/seed62.pt"
+ ],
+ "members": [
+  0,
+  1
+ ],
+ "homie_weights": "artifacts/g1_footstep_rl/homie/homie_weights.npz",
+ "bank_path": "artifacts/g1_footstep_rl/rl_inputs/start_bank/bank_v1.npz",
+ "bank_max": 0,
+ "start_filter": {
+  "families": [
+   "nominal"
+  ],
+  "kinds": [
+   "stand"
+  ],
+  "vx": [
+   -0.1,
+   0.1
+  ],
+  "vy_abs_max": 0.1,
+  "wz_abs_max": 0.2,
+  "height_min": 0.735
+ },
+ "course_bank": "artifacts/g1_footstep_rl/rl_inputs/courses/course_bank_v4_train.npz",
+ "val_course_bank": "artifacts/g1_footstep_rl/rl_inputs/courses/course_bank_v4_val.npz",
+ "episode_steps": 600,
+ "auto_reset": true,
+ "level_weights": {
+  "F0": 1.0
+ },
+ "action": {
+  "vx": [
+   -0.5,
+   1.2
+  ],
+  "vy": [
+   -0.5,
+   0.5
+  ],
+  "wz": [
+   -0.8,
+   0.8
+  ],
+  "height": 0.74,
+  "alpha": 0,
+  "clip": 5.0
+ },
+ "obs": {
+  "n_targets": 4,
+  "clip": 5.0,
+  "pos_clip": 3.0,
+  "slack_clip": [
+   -0.1,
+   0.3
+  ],
+  "homie_preview": true
+ },
+ "rules": {
+  "support": "spheres",
+  "support_min_off": 1,
+  "two_state": true,
+  "edge_margin": 0.02,
+  "fall_z": 0.35,
+  "fall_tilt_deg": 45.0,
+  "min_z": 0.55,
+  "max_tilt_deg": 30.0,
+  "legs_min_dist": 0.004,
+  "legs_pelvis_min_dist": -0.001,
+  "legs_sweep": [
+   2,
+   1.0,
+   2
+  ],
+  "joint_range": {
+   "min": [
+    -1.5737,
+    -0.5749,
+    -0.8896,
+    0.0297,
+    -1.0092,
+    -0.3622,
+    -1.4291,
+    -0.734,
+    -0.6617,
+    -0.006,
+    -0.9975,
+    -0.3029,
+    -0.4771,
+    -1.0103,
+    -0.0438,
+    -0.5176,
+    -0.1112,
+    -0.5513,
+    -0.6167,
+    -0.5708,
+    -1.0077,
+    -0.8302,
+    -0.5177,
+    -0.1058,
+    -0.5509,
+    -0.8083,
+    -0.5795
+   ],
+   "max": [
+    0.6818,
+    0.6984,
+    0.7588,
+    2.3257,
+    0.5195,
+    0.2967,
+    1.039,
+    0.5763,
+    1.2545,
+    2.3454,
+    0.4702,
+    0.3723,
+    0.4863,
+    0.354,
+    0.8269,
+    0.51,
+    1.3744,
+    0.5447,
+    1.0353,
+    0.5664,
+    0.3401,
+    0.0531,
+    0.5186,
+    1.3633,
+    0.5304,
+    1.0581,
+    0.5894
+   ],
+   "margin": 0.05,
+   "source": "g1_footstep_rl/rl_inputs/start_bank/envelope_v1.json"
+  }
+ },
+ "score": {
+  "tol": 0.05,
+  "tol_fail": 0.15,
+  "r_adj": 0.05,
+  "r_start": 0.15,
+  "start_window_s": 1.0,
+  "restep_budget": 3,
+  "stall_s": 1.5,
+  "confirm": true,
+  "min_swing_steps": 2,
+  "stop_still_s": 0.5,
+  "stop_v": 0.1,
+  "stop_wz": 0.3,
+  "stop_limit_s": 2.5,
+  "strict": true
+ },
+ "reward": {
+  "hit": 2.0,
+  "hit_wide": 0.06,
+  "hit_narrow": 0.02,
+  "tol_bonus": 1.0,
+  "window": 0.5,
+  "miss": 1.0,
+  "miss_dist": 0.1,
+  "yaw": 0.3,
+  "yaw_scale": 0.15,
+  "progress": 5.0,
+  "progress_clip": 0.03,
+  "lateral": 0.05,
+  "lateral_scale": 0.1,
+  "heading": 0.025,
+  "heading_scale_deg": 20.0,
+  "residual": 0.02,
+  "action_rate": 0.02,
+  "tilt": 0.05,
+  "slip": 0.02,
+  "slip_cap": 1.0,
+  "restep": 0.2,
+  "wrong_foot": 1.0,
+  "legs_clear": 0.0,
+  "stop": 2.0,
+  "complete": 5.0,
+  "success": 5.0,
+  "fail": 2.0,
+  "gamma": 0.99
+ }
+}

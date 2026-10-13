@@ -1,0 +1,470 @@
+{
+ "source": "build_model(load_config()) of the data collector (= nedm.g1_footstep_rl.g1_scene.build_model with configs/g1_footstep_rl/g1_scene.json; OpenHomie g1.xml at commit 33071f79)",
+ "bodies": [
+  {
+   "name": "left_hip_pitch_link",
+   "parent": "pelvis",
+   "pos": [
+    0.0,
+    0.064452,
+    -0.1027
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "left_hip_pitch_joint",
+   "qposadr": 7,
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "left_hip_roll_link",
+   "parent": "left_hip_pitch_link",
+   "pos": [
+    0.0,
+    0.052,
+    -0.030465
+   ],
+   "quat": [
+    0.996178685660368,
+    0.0,
+    -0.08733857244071258,
+    0.0
+   ],
+   "joint": "left_hip_roll_joint",
+   "qposadr": 8,
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "left_hip_yaw_link",
+   "parent": "left_hip_roll_link",
+   "pos": [
+    0.025001,
+    0.0,
+    -0.12412
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "left_hip_yaw_joint",
+   "qposadr": 9,
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "left_knee_link",
+   "parent": "left_hip_yaw_link",
+   "pos": [
+    -0.078273,
+    0.0021489,
+    -0.17734
+   ],
+   "quat": [
+    0.996178685660368,
+    0.0,
+    0.08733857244071258,
+    0.0
+   ],
+   "joint": "left_knee_joint",
+   "qposadr": 10,
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "left_ankle_pitch_link",
+   "parent": "left_knee_link",
+   "pos": [
+    0.0,
+    -9.4445e-05,
+    -0.30001
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "left_ankle_pitch_joint",
+   "qposadr": 11,
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "left_ankle_roll_link",
+   "parent": "left_ankle_pitch_link",
+   "pos": [
+    0.0,
+    0.0,
+    -0.017558
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "left_ankle_roll_joint",
+   "qposadr": 12,
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "right_hip_pitch_link",
+   "parent": "pelvis",
+   "pos": [
+    0.0,
+    -0.064452,
+    -0.1027
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "right_hip_pitch_joint",
+   "qposadr": 13,
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "right_hip_roll_link",
+   "parent": "right_hip_pitch_link",
+   "pos": [
+    0.0,
+    -0.052,
+    -0.030465
+   ],
+   "quat": [
+    0.996178685660368,
+    0.0,
+    -0.08733857244071258,
+    0.0
+   ],
+   "joint": "right_hip_roll_joint",
+   "qposadr": 14,
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "right_hip_yaw_link",
+   "parent": "right_hip_roll_link",
+   "pos": [
+    0.025001,
+    0.0,
+    -0.12412
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "right_hip_yaw_joint",
+   "qposadr": 15,
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "right_knee_link",
+   "parent": "right_hip_yaw_link",
+   "pos": [
+    -0.078273,
+    -0.0021489,
+    -0.17734
+   ],
+   "quat": [
+    0.996178685660368,
+    0.0,
+    0.08733857244071258,
+    0.0
+   ],
+   "joint": "right_knee_joint",
+   "qposadr": 16,
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "right_ankle_pitch_link",
+   "parent": "right_knee_link",
+   "pos": [
+    0.0,
+    9.4445e-05,
+    -0.30001
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "right_ankle_pitch_joint",
+   "qposadr": 17,
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  },
+  {
+   "name": "right_ankle_roll_link",
+   "parent": "right_ankle_pitch_link",
+   "pos": [
+    0.0,
+    0.0,
+    -0.017558
+   ],
+   "quat": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "joint": "right_ankle_roll_joint",
+   "qposadr": 18,
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "anchor": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "qpos0": 0.0
+  }
+ ],
+ "feet": {
+  "left": {
+   "geoms": [
+    "left_foot_0",
+    "left_foot_1",
+    "left_foot_2",
+    "left_foot_3"
+   ],
+   "body": "left_ankle_roll_link",
+   "pos": [
+    [
+     -0.05,
+     0.025,
+     -0.03
+    ],
+    [
+     -0.05,
+     -0.025,
+     -0.03
+    ],
+    [
+     0.12,
+     0.03,
+     -0.03
+    ],
+    [
+     0.12,
+     -0.03,
+     -0.03
+    ]
+   ],
+   "radius": [
+    0.005,
+    0.005,
+    0.005,
+    0.005
+   ],
+   "geom_quat": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  "right": {
+   "geoms": [
+    "right_foot_0",
+    "right_foot_1",
+    "right_foot_2",
+    "right_foot_3"
+   ],
+   "body": "right_ankle_roll_link",
+   "pos": [
+    [
+     -0.05,
+     0.025,
+     -0.03
+    ],
+    [
+     -0.05,
+     -0.025,
+     -0.03
+    ],
+    [
+     0.12,
+     0.03,
+     -0.03
+    ],
+    [
+     0.12,
+     -0.03,
+     -0.03
+    ]
+   ],
+   "radius": [
+    0.005,
+    0.005,
+    0.005,
+    0.005
+   ],
+   "geom_quat": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   ]
+  }
+ },
+ "pelvis_free_joint": "xpos = qpos[0:3], xquat = qpos[3:7] (state channels 0..6)"
+}

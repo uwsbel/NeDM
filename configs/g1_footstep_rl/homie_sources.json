@@ -1,0 +1,534 @@
+{
+ "schema_version": 1,
+ "fetched_and_audited_utc": "2026-10-08T23:32:27.925578+00:00",
+ "nedm_baseline_revision": "41be3efccb7eb2f74e6741610853557b288a86bc",
+ "source": {
+  "name": "OpenHomie",
+  "url": "https://github.com/InternRobotics/OpenHomie.git",
+  "revision": "33071f79f1884bb122bd45631c8c60d61dac1eb8",
+  "local_path": "artifacts/g1_footstep_rl/vendor/OpenHomie"
+ },
+ "files": [
+  {
+   "path": "README.md",
+   "bytes": 8094,
+   "sha256": "244bdab37662def8a24c9f0fc7256f5839216d1081f2565a2e050bcac2f03ed5"
+  },
+  {
+   "path": "LICENSE",
+   "bytes": 13455,
+   "sha256": "4032b2a880711bbffc57d6fc859c51c88841d13281300a5b676c51955bad27fc"
+  },
+  {
+   "path": "HomieRL/README.md",
+   "bytes": 6381,
+   "sha256": "049b1661b8852f9e3c802badedbeaf2bb07730ff6417c782500974d85064e6be"
+  },
+  {
+   "path": "HomieRL/LICENSE",
+   "bytes": 13455,
+   "sha256": "4032b2a880711bbffc57d6fc859c51c88841d13281300a5b676c51955bad27fc"
+  },
+  {
+   "path": "HomieRL/requirements.txt",
+   "bytes": 182,
+   "sha256": "7ba332b3e48e070e84988d99894a3a09a5e25e8fe304d4625986982d5564b97a"
+  },
+  {
+   "path": "HomieDeploy/deploy.onnx",
+   "bytes": 1801678,
+   "sha256": "afe6363c83c8b9ab8b1a2fed598fce7de35ff045eee1a95b336fd6720e3d3d49"
+  },
+  {
+   "path": "HomieDeploy/g1_gym_deploy/envs/lcm_agent.py",
+   "bytes": 5908,
+   "sha256": "fca5518741d9da460f7a7b6c13408ec0905f5e1043589f7df9281b758d33f342"
+  },
+  {
+   "path": "HomieDeploy/g1_gym_deploy/envs/history_wrapper.py",
+   "bytes": 1358,
+   "sha256": "7c735fa3613c7b05da1a126f7f472c50b60a8da6edc749401683925b50e19b67"
+  },
+  {
+   "path": "HomieRL/legged_gym/legged_gym/envs/g1/g1_29dof_config.py",
+   "bytes": 11989,
+   "sha256": "6ed9fd972c6babac231d541d07b21ca819a699f623c6c6056af2811f922fecca"
+  },
+  {
+   "path": "HomieRL/legged_gym/legged_gym/envs/base/legged_robot.py",
+   "bytes": 76401,
+   "sha256": "b1675f9f794834c4e4c059d1540bc7f74ad3cb69eadf3ad294c184157fdf8071"
+  },
+  {
+   "path": "HomieRL/legged_gym/legged_gym/envs/base/legged_robot_config.py",
+   "bytes": 11293,
+   "sha256": "7f4706643396039d2c3e2fca7853e591338d379738f1a50d4e8c5bb5b3ff50b7"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/g1.urdf",
+   "bytes": 44964,
+   "sha256": "449b618e3c0e640d600e73e6cc9072d06b62a8c56c393bbb83aa46b32a9e2153"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/g1.xml",
+   "bytes": 38524,
+   "sha256": "77582af0fdc371e1919aa98e7b4ff3cc90bf46f54e7da6f2853a787c42344800"
+  },
+  {
+   "path": "MujocoDeploy/README.md",
+   "bytes": 1123,
+   "sha256": "c4d4c93d7426bbc71578ce77bf7212aaaa7f3828a9be2da2105a4f81cc99f2ae"
+  },
+  {
+   "path": "MujocoDeploy/g1.yaml",
+   "bytes": 878,
+   "sha256": "cd100c04ddd718d0f2eb15f4467ce50b0ca9edb0c7ac4c948d7ae2d379662ce5"
+  },
+  {
+   "path": "MujocoDeploy/mujoco_deploy_g1.py",
+   "bytes": 7328,
+   "sha256": "9d1cba36a7479f51c4e382c45bcda8deb1f6a7b099a3f03445cbe3cd9cf59079"
+  },
+  {
+   "path": "HomieDeploy/g1_gym_deploy/scripts/deploy_policy.py",
+   "bytes": 1540,
+   "sha256": "8761abfdd4547ce1d201240a858f965a523b3a02ab2404f16127b326df092bac"
+  },
+  {
+   "path": "HomieDeploy/g1_gym_deploy/utils/cheetah_state_estimator.py",
+   "bytes": 7050,
+   "sha256": "9d2ee9fcedf6ba6b7c0fba9c8cfb59deb6e12567ec1f9d5bc62c1511dac8e8be"
+  },
+  {
+   "path": "HomieDeploy/g1_gym_deploy/utils/deployment_runner.py",
+   "bytes": 4976,
+   "sha256": "5fcf4fca4f865660663e2cb1ff7813ffbfeb0cdd121e5f5b18f8762f5337eb22"
+  },
+  {
+   "path": "HomieDeploy/unitree_sdk2/g1_control.cpp",
+   "bytes": 13480,
+   "sha256": "d422221fef44c98d21a35fc1969ab5e89e1c15b1c976b8606f4200c4734a8c8e"
+  },
+  {
+   "path": "HomieRL/legged_gym/legged_gym/utils/helpers.py",
+   "bytes": 8775,
+   "sha256": "dc949d603fb54342fbcf78890a2eee806f8a5582f90e7219ccc4234a3f80133d"
+  },
+  {
+   "path": "HomieRL/rsl_rl/rsl_rl/modules/him_actor_critic.py",
+   "bytes": 10420,
+   "sha256": "0b129d6f5fc1541b4d0e100a472224555a139b305acc118cf35274c5e815e3b6"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_ankle_roll_link.STL",
+   "bytes": 653384,
+   "sha256": "c4092af943141d4d9f74232f3cfa345afc6565f46a077793b8ae0e68b39dc33f"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_ankle_roll_link.STL",
+   "bytes": 653784,
+   "sha256": "4b66222ea56653e627711b56d0a8949b4920da5df091da0ceb343f54e884e3a5"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/head_link.STL",
+   "bytes": 932784,
+   "sha256": "005fb67fbd3eff94aa8bf4a6e83238174e9f91b6721f7111594322f223724411"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_ankle_pitch_link.STL",
+   "bytes": 71184,
+   "sha256": "d49e3abc6f5b12e532062cd575b87b5ef40cd2a3fc18f54a1ca5bba4f773d51d"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_elbow_link.STL",
+   "bytes": 88784,
+   "sha256": "fa752198accd104d5c4c3a01382e45165b944fbbc5acce085059223324e5bed3"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_index_0_link.STL",
+   "bytes": 475984,
+   "sha256": "6b35f2f77211d5a366f0b9a4e47c4ee35e536731266f1a34e9efa12db579b892"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_index_1_link.STL",
+   "bytes": 1521784,
+   "sha256": "9e315ebc8a7a0cb98e033985b586b20d81cf8aa761181ae61ce56fcb14077a06"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_middle_0_link.STL",
+   "bytes": 475984,
+   "sha256": "6b35f2f77211d5a366f0b9a4e47c4ee35e536731266f1a34e9efa12db579b892"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_middle_1_link.STL",
+   "bytes": 1521784,
+   "sha256": "9e315ebc8a7a0cb98e033985b586b20d81cf8aa761181ae61ce56fcb14077a06"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_palm_link.STL",
+   "bytes": 2140184,
+   "sha256": "23a486b75bd78a9bf03cec25d84d87f97f3dae038cf21a743b6d469b337e4004"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_thumb_0_link.STL",
+   "bytes": 8884,
+   "sha256": "a90c721661c0622685488a3c74d1e122c7da89242d3a1daef75edb83422d05e0"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_thumb_1_link.STL",
+   "bytes": 475984,
+   "sha256": "445c54a45bc13ce36001556f66bc0f49c83cb40321205ae4d676bb2874325684"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hand_thumb_2_link.STL",
+   "bytes": 1521784,
+   "sha256": "3d8dbe5085acfc213d21aa8b0782e89cd79084e9678f3a85fc7b04a86b029db5"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hip_pitch_link.STL",
+   "bytes": 181684,
+   "sha256": "4725168105ee768ee31638ef22b53f6be2d7641bfd7cfefe803488d884776fa4"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hip_roll_link.STL",
+   "bytes": 192184,
+   "sha256": "91f25922ee8a7c3152790051bebad17b4d9cd243569c38fe340285ff93a97acf"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_hip_yaw_link.STL",
+   "bytes": 296284,
+   "sha256": "a16d88aa6ddac8083aa7ad55ed317bea44b1fa003d314fba88965b7ed0f3b55b"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_knee_link.STL",
+   "bytes": 854884,
+   "sha256": "8d92b9e3d3a636761150bb8025e32514c4602b91c7028d523ee42b3e632de477"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_shoulder_pitch_link.STL",
+   "bytes": 176784,
+   "sha256": "f0d1cfd02fcf0d42f95e678eeca33da3afbcc366ffba5c052847773ec4f31d52"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_shoulder_roll_link.STL",
+   "bytes": 400284,
+   "sha256": "fb9df21687773522598dc384f1a2945c7519f11cbc8bd372a49170316d6eee88"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_shoulder_yaw_link.STL",
+   "bytes": 249184,
+   "sha256": "1aa97e9748e924336567992181f78c7cd0652fd52a4afcca3df6b2ef6f9e712e"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_wrist_pitch_link.STL",
+   "bytes": 85984,
+   "sha256": "b251d8e05047f695d0f536cd78c11973cfa4e78d08cfe82759336cc3471de3a9"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_wrist_roll_link.STL",
+   "bytes": 356184,
+   "sha256": "edc387c9a0ba8c2237e9b296d32531426fabeb6f53e58df45c76106bca74148c"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/left_wrist_yaw_link.STL",
+   "bytes": 318684,
+   "sha256": "83f8fb3a726bf9613d65dd14f0f447cb918c3c95b3938042a0c9c09749267d3b"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/logo_link.STL",
+   "bytes": 243384,
+   "sha256": "8571a0a19bc4916fa55f91449f51d5fdefd751000054865a842449429d5f155b"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/pelvis.STL",
+   "bytes": 1060884,
+   "sha256": "5ba6bbc888e630550140d3c26763f10206da8c8bd30ed886b8ede41c61f57a31"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/pelvis_contour_link.STL",
+   "bytes": 1805184,
+   "sha256": "5cc5c2c7a312329e3feeb2b03d3fc09fc29705bd01864f6767e51be959662420"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_ankle_pitch_link.STL",
+   "bytes": 71184,
+   "sha256": "15be426539ec1be70246d4d82a168806db64a41301af8b35c197a33348c787a9"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_elbow_link.STL",
+   "bytes": 88784,
+   "sha256": "1be925d7aa268bb8fddf5362b9173066890c7d32092c05638608126e59d1e2ab"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_index_0_link.STL",
+   "bytes": 475984,
+   "sha256": "12ab4300c95e437e834f9aef772b3b431c671bf34338930b52ad11aef73bbd0d"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_index_1_link.STL",
+   "bytes": 1521784,
+   "sha256": "c9c34efce4563cacdcfd29fc838a982976d40f5442c71219811dcbbf3923a33d"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_middle_0_link.STL",
+   "bytes": 475984,
+   "sha256": "12ab4300c95e437e834f9aef772b3b431c671bf34338930b52ad11aef73bbd0d"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_middle_1_link.STL",
+   "bytes": 1521784,
+   "sha256": "c9c34efce4563cacdcfd29fc838a982976d40f5442c71219811dcbbf3923a33d"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_palm_link.STL",
+   "bytes": 2140184,
+   "sha256": "86c0b231cc44477d64a6493e5a427ba16617a00738112dd187c652675b086fb9"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_thumb_0_link.STL",
+   "bytes": 8884,
+   "sha256": "544298d0ea1088f5b276a10cc6a6a9e533efdd91594955fdc956c46211d07f83"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_thumb_1_link.STL",
+   "bytes": 475984,
+   "sha256": "0a9a820da8dd10f298778b714f1364216e8a5976f4fd3a05689ea26327d44bf6"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hand_thumb_2_link.STL",
+   "bytes": 1521784,
+   "sha256": "3f1bfb37668e8f61801c8d25f171fa1949e08666be86c67acad7e0079937cc45"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hip_pitch_link.STL",
+   "bytes": 181284,
+   "sha256": "e4f3c99d7f4a7d34eadbef9461fc66e3486cb5442db1ec50c86317d459f1a9c6"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hip_roll_link.STL",
+   "bytes": 192684,
+   "sha256": "4c254ef66a356f492947f360dd931965477b631e3fcc841f91ccc46d945d54f6"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_hip_yaw_link.STL",
+   "bytes": 296284,
+   "sha256": "e479c2936ca2057e9eb2f7dff6c189b7419d7b8484dea0b298cbb36a2a6aa668"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_knee_link.STL",
+   "bytes": 852284,
+   "sha256": "63c4008449c9bbe701a6e2b557b7a252e90cf3a5abcf54cee46862b9a69f8ec8"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_shoulder_pitch_link.STL",
+   "bytes": 176784,
+   "sha256": "24cdb387e0128dfe602770a81c56cdce3a0181d34d039a11d1aaf8819b7b8c02"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_shoulder_roll_link.STL",
+   "bytes": 401884,
+   "sha256": "962b97c48f9ce9e8399f45dd9522e0865d19aa9fd299406b2d475a8fc4a53e81"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_shoulder_yaw_link.STL",
+   "bytes": 249984,
+   "sha256": "a0b76489271da0c72461a344c9ffb0f0c6e64f019ea5014c1624886c442a2fe5"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_wrist_pitch_link.STL",
+   "bytes": 79584,
+   "sha256": "d22f8f3b3127f15a63e5be1ee273cd5075786c3142f1c3d9f76cbf43d2a26477"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_wrist_roll_link.STL",
+   "bytes": 356084,
+   "sha256": "a7ee9212ff5b94d6cb7f52bb1bbf3f352194d5b598acff74f4c77d340c5b344f"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/right_wrist_yaw_link.STL",
+   "bytes": 341484,
+   "sha256": "bc9dece2d12509707e0057ba2e48df8f3d56db0c79410212963a25e8a50f61a6"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/torso_link_rev_1_0.STL",
+   "bytes": 2570584,
+   "sha256": "11ddb46f2098efbbd8816b1d65893632d8e78be936376c7cdcd6771899ccc723"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/waist_roll_link_rev_1_0.STL",
+   "bytes": 85884,
+   "sha256": "b67c347a05abc3e8ddae600d98a082bee273bb39f8e651647708b0a7140a8a97"
+  },
+  {
+   "path": "HomieRL/legged_gym/resources/robots/g1_description/meshes/waist_yaw_link_rev_1_0.STL",
+   "bytes": 619984,
+   "sha256": "ec6db442b11f25eed898b5add07940c85d804f300de24dcbd264ccd8be7d554c"
+  }
+ ],
+ "robot": {
+  "movable_joint_count": 27,
+  "joint_order": [
+   "left_hip_pitch_joint",
+   "left_hip_roll_joint",
+   "left_hip_yaw_joint",
+   "left_knee_joint",
+   "left_ankle_pitch_joint",
+   "left_ankle_roll_joint",
+   "right_hip_pitch_joint",
+   "right_hip_roll_joint",
+   "right_hip_yaw_joint",
+   "right_knee_joint",
+   "right_ankle_pitch_joint",
+   "right_ankle_roll_joint",
+   "waist_yaw_joint",
+   "left_shoulder_pitch_joint",
+   "left_shoulder_roll_joint",
+   "left_shoulder_yaw_joint",
+   "left_elbow_joint",
+   "left_wrist_roll_joint",
+   "left_wrist_pitch_joint",
+   "left_wrist_yaw_joint",
+   "right_shoulder_pitch_joint",
+   "right_shoulder_roll_joint",
+   "right_shoulder_yaw_joint",
+   "right_elbow_joint",
+   "right_wrist_roll_joint",
+   "right_wrist_pitch_joint",
+   "right_wrist_yaw_joint"
+  ],
+  "nrd_state_dimension": 67,
+  "actuator_target_dimension": 27,
+  "note": "The g1_29dof_config.py filename does not describe this asset dimension."
+ },
+ "policy": {
+  "path": "HomieDeploy/deploy.onnx",
+  "input_name": "input",
+  "input_shape": [
+   "batch_size",
+   456
+  ],
+  "history_frames": 6,
+  "frame_dimension": 76,
+  "output_name": "output",
+  "output_shape": [
+   "batch_size",
+   12
+  ],
+  "controls": "First 12 leg joints; upper-body targets are supplied separately.",
+  "nominal_period_s": 0.02
+ },
+ "simulator_sources": {
+  "native": "HomieRL/legged_gym (Isaac Gym Preview 4)",
+  "native_dt_s": 0.005,
+  "native_decimation": 4,
+  "mujoco_replay": "MujocoDeploy",
+  "mujoco_dt_s": 0.002,
+  "mujoco_decimation": 10,
+  "runtime_installed_by_this_task": false
+ },
+ "validation": {
+  "onnx_checker": "passed",
+  "reference_inference": [
+   {
+    "batch": 1,
+    "input": "all zeros, float32",
+    "output_shape": [
+     1,
+     12
+    ],
+    "finite": true,
+    "min": -0.4124297797679901,
+    "max": 0.8708591461181641
+   },
+   {
+    "batch": 32,
+    "input": "all zeros, float32",
+    "output_shape": [
+     32,
+     12
+    ],
+    "finite": true,
+    "min": -0.4124297499656677,
+    "max": 0.8708596229553223
+   }
+  ],
+  "onnx_version": "1.22.0",
+  "numpy_version": "2.4.6",
+  "walking_tested": true,
+  "gpu_simulation_tested": false,
+  "collector_implemented": true,
+  "nrd_training_started": false,
+  "limitation": "Fetch-time checks: static structure and synthetic-input inference. Walking was later verified in CPU MuJoCo only (see mujoco_teacher); no Isaac Gym comparison and no GPU simulation."
+ },
+ "license_files": [
+  "LICENSE",
+  "HomieRL/LICENSE",
+  "HomieDeploy/LICENSE"
+ ],
+ "mujoco_teacher": {
+  "checked_utc": "2026-10-09",
+  "adapter": "src/nedm/contact_nrd/collect/homie_policy.py",
+  "collector": "src/nedm/contact_nrd/collect/g1_locomotion.py",
+  "config": "configs/contact_nrd/collection/g1_locomotion.json",
+  "observation_frame": [
+   "vx, vy commands x 2",
+   "yaw-rate command x 0.5",
+   "height command (m, unscaled; 0.74 standing)",
+   "pelvis angular velocity (pelvis frame) x 0.5",
+   "gravity direction (pelvis frame)",
+   "27 joint angles minus defaults",
+   "27 joint rates x 0.05",
+   "previous 12 clipped outputs"
+  ],
+  "history": "6 frames, oldest first, zeros after reset",
+  "action": "12 leg outputs clipped to +-100; target = default + 0.25 x output; 15 upper-body targets from outside",
+  "pd": {
+   "legs_kp": [
+    100,
+    100,
+    100,
+    150,
+    40,
+    40
+   ],
+   "legs_kd": [
+    2,
+    2,
+    2,
+    4,
+    2,
+    2
+   ],
+   "upper_kp": {
+    "waist": 300,
+    "shoulder": 200,
+    "elbow": 100,
+    "wrist": 20
+   },
+   "upper_kd": {
+    "waist": 5,
+    "shoulder": 4,
+    "elbow": 1,
+    "wrist": 0.5
+   },
+   "force_limits": "URDF efforts"
+  },
+  "evidence_files": [
+   "HomieDeploy/g1_gym_deploy/envs/lcm_agent.py",
+   "HomieDeploy/g1_gym_deploy/envs/history_wrapper.py",
+   "HomieRL/legged_gym/legged_gym/envs/base/legged_robot.py",
+   "HomieRL/legged_gym/legged_gym/envs/g1/g1_29dof_config.py",
+   "HomieRL/legged_gym/legged_gym/utils/helpers.py (PolicyExporterHIM)"
+  ],
+  "mujoco_example_differences": "MujocoDeploy uses height 0.34, angular-velocity scale 0.25 and yaw-command scale 0.25 (copied from unitree_rl_gym) and a TorchScript file that is not supplied",
+  "yaw_command_scale_note": "the real-robot code writes 0.25; training uses 0.5; in MuJoCo 0.5 tracks the command",
+  "results": "contact_nrd/g1_locomotion/README.md; reports under artifacts/contact_nrd/collect_pilot/g1_locomotion/reports",
+  "model_files": {
+   "count": 50,
+   "assets_sha256": "3133e216829df6caf05767ecb7bb8ec01457d585a68bd4d700929fdcff27cac5",
+   "rule": "every file g1.xml loads (the MJCF and its 49 meshes) is in files; assets_sha256 = sha256 of the sorted 'sha256  path' lines (configs/contact_nrd/collection/g1_locomotion.json sources.assets_sha256; the collector checks it)"
+  },
+  "command_sampling_in_training": "legged_robot.py _resample_commands: every 4 s, half of the commands move (vx, vy, wz each uniform in its range), a third are squats (height 0.24-0.74 m, zero velocity), the rest stand; rewards treat a command norm below 0.1 as standing",
+  "command_dead_zone": "in CPU MuJoCo the teacher stands still under small commands (from standing, largest command that stands: vx -0.2 and +0.175 m/s, vy -0.15 and +0.125 m/s, wz -0.35 and +0.3 rad/s); the collector draws moving commands outside configs/contact_nrd/collection/g1_locomotion.json commands.dead_zone (0.25 m/s, 0.2 m/s, 0.4 rad/s); evidence: contact_nrd/g1_locomotion/README.md, artifacts/contact_nrd/collect_pilot/g1_locomotion/reports/teacher_response.json"
+ }
+}

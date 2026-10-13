@@ -1,0 +1,205 @@
+{
+ "note": "footsteps_curriculum_v4b (2026-10-11): v4 without F3 (curved F3 courses broke the step limits: 13.5 % of them have a step above 0.36 m; review finding). Its S5 weight goes to F2. footsteps_curriculum_v4 (2026-10-11): spec section 10. Each stage's env block is merged into footsteps_env_v4.json (one level deep), so every stage lists its own score / rules changes. Promotion on the deterministic NRD validation (128 validation-bank courses per val level, stand starts, members 0 and 1), every 25 iterations: all promote_rules must hold (after min_iters). S0 has no stop courses because F0 has none (stop share 0). S5 also validates MP and MN (evaluation-only levels, reported, not promoted on).",
+ "stages": [
+  {
+   "name": "S0 flat, soft",
+   "levels": {
+    "F0": 1.0
+   },
+   "env": {
+    "score": {
+     "strict": false,
+     "tol": 0.08
+    }
+   },
+   "val_levels": [
+    "F0"
+   ],
+   "promote_rules": [
+    {
+     "level": "F0",
+     "metric": "completion",
+     "min": 0.8
+    },
+    {
+     "level": "F0",
+     "metric": "hit8",
+     "min": 0.8
+    }
+   ],
+   "min_iters": 30,
+   "max_iters": 600
+  },
+  {
+   "name": "S1 flat programs",
+   "levels": {
+    "F0": 0.3,
+    "F1": 0.7
+   },
+   "env": {
+    "score": {
+     "strict": false,
+     "tol": 0.05
+    }
+   },
+   "val_levels": [
+    "F0",
+    "F1"
+   ],
+   "promote_rules": [
+    {
+     "level": "F1",
+     "metric": "completion",
+     "min": 0.7
+    },
+    {
+     "level": "F1",
+     "metric": "hit5",
+     "min": 0.8
+    }
+   ],
+   "min_iters": 50,
+   "max_iters": 800
+  },
+  {
+   "name": "S2 flat, strict",
+   "levels": {
+    "F1": 0.3,
+    "F2": 0.7
+   },
+   "env": {
+    "score": {
+     "strict": true,
+     "tol": 0.05
+    }
+   },
+   "val_levels": [
+    "F1",
+    "F2"
+   ],
+   "promote_rules": [
+    {
+     "level": "F2",
+     "metric": "completion",
+     "min": 0.7
+    },
+    {
+     "level": "F2",
+     "metric": "hit5",
+     "min": 0.8
+    }
+   ],
+   "min_iters": 50,
+   "max_iters": 1200
+  },
+  {
+   "name": "S3 planks, lenient",
+   "levels": {
+    "F2": 0.3,
+    "P1": 0.7
+   },
+   "env": {
+    "rules": {
+     "support": "spheres",
+     "support_min_off": 2,
+     "edge_margin": 0.0
+    }
+   },
+   "val_levels": [
+    "F2",
+    "P1"
+   ],
+   "promote_rules": [
+    {
+     "level": "P1",
+     "metric": "completion",
+     "min": 0.6
+    }
+   ],
+   "min_iters": 50,
+   "max_iters": 800
+  },
+  {
+   "name": "S4 planks, strict",
+   "levels": {
+    "F2": 0.2,
+    "P1": 0.3,
+    "P2": 0.5
+   },
+   "env": {
+    "rules": {
+     "support": "spheres",
+     "support_min_off": 1,
+     "edge_margin": 0.02
+    }
+   },
+   "val_levels": [
+    "F2",
+    "P1",
+    "P2"
+   ],
+   "promote_rules": [
+    {
+     "level": "P2",
+     "metric": "clean_completion",
+     "min": 0.6
+    }
+   ],
+   "min_iters": 100,
+   "max_iters": 1500
+  },
+  {
+   "name": "S5 full mix",
+   "levels": {
+    "F2": 0.3,
+    "P2": 0.2,
+    "P3": 0.35,
+    "ES": 0.15
+   },
+   "env": {
+    "rules": {
+     "support": "spheres",
+     "support_min_off": 1,
+     "edge_margin": 0.02
+    }
+   },
+   "val_levels": [
+    "F2",
+    "P2",
+    "P3",
+    "ES",
+    "MP",
+    "MN"
+   ],
+   "promote_rules": [
+    {
+     "level": "F2",
+     "metric": "completion",
+     "min": 0.75
+    },
+    {
+     "level": "F2",
+     "metric": "hit5",
+     "min": 0.85
+    },
+    {
+     "level": "P2",
+     "metric": "clean_completion",
+     "min": 0.75
+    },
+    {
+     "level": "P3",
+     "metric": "clean_completion",
+     "min": 0.6
+    },
+    {
+     "level": "ES",
+     "metric": "completion",
+     "min": 0.5
+    }
+   ],
+   "min_iters": 600,
+   "max_iters": 2000
+  }
+ ]
+}
