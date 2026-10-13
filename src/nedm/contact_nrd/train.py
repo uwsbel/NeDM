@@ -80,7 +80,7 @@ from torch.nn import functional as F
 
 from nedm.contact_nrd.data import (add_derived, add_relative, atomic_json, dilate, evaluate, file_rows, file_sha256, load_data,
                                    selected_episodes, step_average_rates, window_labels)
-from nedm.contact_nrd.model import ContactNRD, load_model, model_config
+from nedm.contact_nrd.model import ContactNRD, KinematicChain, load_model, model_config, relative_channels
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 # Data rules by channel type: (state std floor, difference std floor, contact-loss kappa).
@@ -289,7 +289,7 @@ def main():
         masks[d, : len(cm)] = torch.tensor(cm, dtype=torch.float64, device=dev)
 
     mc = model_config(data["dt"], K, cfg["network"], cfg["integrate_kinds"], derived, cfg.get("contact_mask"),
-                      bool(cfg.get("pair_preview", False)), relative)
+                      bool(cfg.get("pair_preview", False)), relative, bool(cfg.get("aux_geometry")))
     packet, init_notes = None, {}
     if init is not None:   # the checkpoint's design, masks and weights; the data must have its bodies and pairs
         packet = torch.load(Path(init["run"]) / init["checkpoint"], map_location=dev, weights_only=False)
@@ -678,6 +678,129 @@ def main():
     if sigma is None:
         raise RuntimeError("core noise scale missing")
 
+    # Optional training-only geometry heads (config "aux_geometry": {"fk": KinematicChain spec path, "body": rigid body,
+    # "frame": articulated body, "pairs": [pair names], "weight": w, "generated": true}; absent = none). The heads of
+    # the collision and contact networks (model.ContactNRD.geometry) learn the body's pose and slip in the frame
+    # point's frame (model.relative_channels of forward kinematics; units 1 mm, 0.02 and 5 mm/s; Huber): in stage 2 on
+    # the collision batches of the given pairs, in stage 3 on contact windows of those pairs (and on the collision
+    # batches with collision_cotrain). With "generated", as many again come from generated poses near the frame point
+    # (recorded joint states with N(0, 0.15 rad) on the chain joints and a uniform jaw angle, recorded rates, the body
+    # placed within 40 mm of the point, upright or aligned with the gripper, history integrated backward at constant
+    # rate). Only the heads and the shared trunks learn from them, never the switch or contact outputs. Forward
+    # kinematics enters only the loss: the state and the step stay as they are.
+    geo_cfg = cfg.get("aux_geometry")
+    if geo_cfg:
+        geo_kin = KinematicChain(json.loads((REPO_ROOT / geo_cfg["fk"]).read_text())).to(dev)
+        names_ = [b["name"] for b in moving_b]
+        geo_b, geo_f = names_.index(geo_cfg["body"]), names_.index(geo_cfg["frame"])
+        ft_, bt_ = types[geo_f], types[geo_b]
+        geo_angle = [c for c, t in enumerate(ft_) if t == "angle"]
+        geo_rate = [c for c, t in enumerate(ft_) if t == "angular_rate"]
+        geo_q, geo_qd = geo_angle[: geo_kin.n], geo_rate[: geo_kin.n]
+        geo_p = [c for c, t in enumerate(bt_) if t == "position"]
+        geo_o = [c for c, t in enumerate(bt_) if t == "quaternion"]
+        geo_v = [c for c, t in enumerate(bt_) if t == "velocity"]
+        geo_w = [c for c, t in enumerate(bt_) if t == "angular_velocity"]
+        pnames_ = [m.get("name") for m in system.get("pair_metadata", [])]
+        geo_pairs = torch.tensor([pnames_.index(n) for n in geo_cfg["pairs"]], device=dev)
+        geo_unit = torch.tensor([1e-3] * 3 + [0.02] * 6 + [5e-3] * 3, dtype=torch.float64, device=dev)
+        geo_weight, geo_gen = float(geo_cfg.get("weight", 1.0)), bool(geo_cfg.get("generated", True))
+
+        def geo_target(x):
+            """[n, D, S] -> [n, 12] (units of geo_unit)."""
+            d_ = geo_kin(x[:, geo_f, geo_q], x[:, geo_f, geo_qd], model.dt)
+            return relative_channels(d_, x[:, geo_b, geo_p], x[:, geo_b, geo_o], x[:, geo_b, geo_v]) / geo_unit
+
+        geo_src = torch.nonzero(train)
+        with torch.no_grad():   # pool of training windows with the body near the frame point; ranges for generated poses
+            cand = sample(geo_src, 200000)
+            xs = states[cand[:, 0], cand[:, 1]]
+            near = (geo_target(xs)[:, :3] * 1e-3).norm(dim=-1) < 0.06
+            geo_pool = cand[near]
+            ang_lo, ang_hi = xs[:, geo_f, geo_angle].quantile(0.001, 0), xs[:, geo_f, geo_angle].quantile(0.999, 0)
+        trace("aux_geometry_pool", geo_pool[:, 0])
+        event("aux_geometry", pool_windows=len(geo_pool), pairs=geo_cfg["pairs"], generated=geo_gen)
+
+        def _quat_of(r):
+            """Rotation matrices [n, 3, 3] -> unit quaternions [n, 4] (w first, w >= 0)."""
+            m = r
+            w = torch.sqrt((1 + m[:, 0, 0] + m[:, 1, 1] + m[:, 2, 2]).clamp_min(1e-12)) / 2
+            x_ = torch.sqrt((1 + m[:, 0, 0] - m[:, 1, 1] - m[:, 2, 2]).clamp_min(0)) / 2 * torch.sign(m[:, 2, 1] - m[:, 1, 2])
+            y_ = torch.sqrt((1 - m[:, 0, 0] + m[:, 1, 1] - m[:, 2, 2]).clamp_min(0)) / 2 * torch.sign(m[:, 0, 2] - m[:, 2, 0])
+            z_ = torch.sqrt((1 - m[:, 0, 0] - m[:, 1, 1] + m[:, 2, 2]).clamp_min(0)) / 2 * torch.sign(m[:, 1, 0] - m[:, 0, 1])
+            q = torch.stack((w, x_, y_, z_), -1)
+            return q / q.norm(dim=-1, keepdim=True)
+
+        def _rot(axis, ang):
+            """Rotation matrices about unit axes [n, 3] by angles [n]."""
+            k = torch.zeros(len(axis), 3, 3, dtype=axis.dtype, device=dev)
+            k[:, 0, 1], k[:, 0, 2], k[:, 1, 2] = -axis[:, 2], axis[:, 1], -axis[:, 0]
+            k = k - k.transpose(1, 2)
+            s_, c_ = torch.sin(ang)[:, None, None], torch.cos(ang)[:, None, None]
+            return torch.eye(3, dtype=axis.dtype, device=dev) + s_ * k + (1 - c_) * (k @ k)
+
+        def geo_generated(n):
+            """n generated (history, ok, action) inputs with the body near the frame point (see aux_geometry)."""
+            w_ = sample(geo_pool, n)
+            x = states[w_[:, 0], w_[:, 1]].clone()
+            src = sample(geo_src, n)
+            xr = states[src[:, 0], src[:, 1]]
+            ang = x[:, geo_f, geo_angle]
+            ang[:, : geo_kin.n] = ang[:, : geo_kin.n] + torch.randn_like(ang[:, : geo_kin.n]) * 0.15
+            ang[:, geo_kin.n:] = ang_lo[geo_kin.n:] + torch.rand_like(ang[:, geo_kin.n:]) * (ang_hi - ang_lo)[geo_kin.n:]
+            ang = torch.maximum(torch.minimum(ang, ang_hi), ang_lo)
+            x[:, geo_f, geo_angle] = ang
+            x[:, geo_f, geo_rate] = xr[:, geo_f, geo_rate]
+            x[:, geo_b, geo_v], x[:, geo_b, geo_w] = xr[:, geo_b, geo_v], xr[:, geo_b, geo_w]
+            d_ = geo_kin(x[:, geo_f, geo_q], x[:, geo_f, geo_qd], model.dt)
+            gp, c0, c1 = d_[:, 0:3], d_[:, 3:6], d_[:, 6:9]
+            rg = torch.stack((c0, c1, torch.cross(c0, c1, dim=-1)), -1)
+            off = torch.stack((torch.rand(n, device=dev) * 0.08 - 0.04, torch.rand(n, device=dev) * 0.08 - 0.04,
+                               torch.rand(n, device=dev) * 0.07 - 0.045), -1).to(x.dtype)
+            x[:, geo_b, geo_p] = gp + (rg @ off[..., None])[..., 0]
+            up = torch.rand(n, device=dev) < 0.7
+            zaxis = torch.tensor([0.0, 0.0, 1.0], dtype=x.dtype, device=dev).expand(n, 3)
+            yaw = _rot(zaxis, torch.rand(n, device=dev, dtype=x.dtype) * 2 * math.pi)
+            tilt_axis = torch.cat((torch.randn(n, 2, device=dev, dtype=x.dtype), torch.zeros(n, 1, device=dev, dtype=x.dtype)), -1)
+            tilt_axis = tilt_axis / tilt_axis.norm(dim=-1, keepdim=True)
+            r_up = _rot(tilt_axis, torch.rand(n, device=dev, dtype=x.dtype) * math.radians(3)) @ yaw
+            quarter = torch.randint(0, 4, (n,), device=dev).to(x.dtype) * (math.pi / 2) + (torch.rand(n, device=dev, dtype=x.dtype) - 0.5) * math.radians(20)
+            r_al = rg @ _rot(zaxis, quarter)
+            x[:, geo_b, geo_o] = _quat_of(torch.where(up[:, None, None], r_up, r_al))
+            hist = x[:, None].repeat(1, K, 1, 1)
+            for k in range(1, K):   # backward at constant rate (step averages stay consistent)
+                y = hist[:, K - 1 - k + 1].clone()
+                prev = y.clone()
+                prev[:, geo_f, geo_angle] = y[:, geo_f, geo_angle] - model.dt * y[:, geo_f, geo_rate]
+                prev[:, geo_b, geo_p] = y[:, geo_b, geo_p] - model.dt * y[:, geo_b, geo_v]
+                half = -0.5 * model.dt * y[:, geo_b, geo_w]
+                a_ = half.norm(dim=-1, keepdim=True)
+                dq = torch.cat((torch.cos(a_), torch.where(a_ > 1e-12, torch.sin(a_) / a_.clamp_min(1e-12), torch.ones_like(a_)) * half), -1)
+                prev[:, geo_b, geo_o] = model._qmul(dq, y[:, geo_b, geo_o])
+                hist[:, K - 1 - k] = prev
+            hist = model.finish(hist.reshape(n * K, n_mov, smax)).reshape(n, K, n_mov, smax)
+            ok_ = torch.ones(n, K, dtype=torch.bool, device=dev)
+            act = torch.zeros(n, n_mov, actions.shape[-1], dtype=x.dtype, device=dev)
+            act[:, geo_f, : len(geo_angle)] = ang
+            return hist, ok_, act
+
+        def geo_loss(net, h, ok, act):
+            """Huber loss of a geometry head on inputs (history noise as in training; random jaw pair)."""
+            ok = drop_history(ok)
+            cur, diff, lag_ok = model.code(h, ok, sigma)
+            pairs_ = geo_pairs[torch.randint(len(geo_pairs), (len(h),), device=dev, generator=rng)]
+            pred = model.geometry(net, cur, diff, act, lag_ok, torch.arange(len(h), device=dev), pairs_)
+            return F.huber_loss(pred, geo_target(cur), delta=1.0)
+
+        def geo_term(net, windows):
+            """Geometry loss on recorded windows (and as many generated inputs with "generated")."""
+            h, ok = hist_of(windows)
+            loss = geo_loss(net, h, ok, act_of(windows))
+            if geo_gen:
+                loss = loss + geo_loss(net, *geo_generated(len(windows)))
+            return loss
+        geo_windows = torch.nonzero(train & labels[..., geo_pairs].any(-1))   # recorded steps with a jaw pair on
+
     # ---- 2. collision -------------------------------------------------------------
     coll = model.collision
     near_rec = max(1, round(cfg["near_negative_s"] / data["record_dt"]))
@@ -836,11 +959,19 @@ def main():
             n_up = int(init["collision_updates"])
             c_lr, c_warm, count = float(init["collision_lr"]), int(init["collision_warmup"]), min(5, n_up) if smoke else n_up
         params = [p for p in coll.parameters() if p.requires_grad]
+        if geo_cfg:
+            params = params + list(model.geo_collision.parameters())
         opt = torch.optim.AdamW(params, lr=c_lr, weight_decay=0.0)
+        ema2 = {}
         for update in range(1, count + 1):
             for g in opt.param_groups:
                 g["lr"] = c_lr * cosine(update, count, c_warm, 0.01)
             loss = collision_loss(collision_batch(spec["batch"]), True)
+            if geo_cfg:   # both terms divided by their running means (as in stage 3)
+                gl = geo_term("collision", sample(geo_windows, 64 if smoke else spec["batch"] // 4))
+                for name_, v_ in (("bce", loss), ("geo", gl)):
+                    ema2[name_] = float(v_) if name_ not in ema2 else 0.99 * ema2[name_] + 0.01 * float(v_)
+                loss = loss / max(ema2["bce"], 1e-30) + geo_weight * min(1.0, update / 1000) * gl / max(ema2["geo"], 1e-30)
             opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(params, 1.0)
@@ -1113,6 +1244,33 @@ def main():
 
     rscale = scale * cfg["rollout_scale_factor"]
 
+    # Optional relative loss (config "relative_loss": {"fk": KinematicChain spec path, "body": rigid body, "frame":
+    # articulated body, "pairs": [pair names], "weight": w}; absent = none). A training signal only: the model's state
+    # and inputs stay as they are. In the rollout loss, on the steps where all the given pairs are on in the record
+    # (a held cube), the body's position and slip velocity in the frame of the frame body's point (forward kinematics
+    # of the predicted and of the recorded joint state) are compared too, Huber in the rollout scales of the body's
+    # position and velocity channels, mean over those steps, times w.
+    rel_cfg = cfg.get("relative_loss")
+    if rel_cfg:
+        rel_kin = KinematicChain(json.loads((REPO_ROOT / rel_cfg["fk"]).read_text())).to(dev)
+        names_ = [b["name"] for b in moving_b]
+        rel_b, rel_f = names_.index(rel_cfg["body"]), names_.index(rel_cfg["frame"])
+        ft, bt = types[rel_f], types[rel_b]
+        rel_q = [c for c, t in enumerate(ft) if t == "angle"][: rel_kin.n]
+        rel_qd = [c for c, t in enumerate(ft) if t == "angular_rate"][: rel_kin.n]
+        rel_p = [c for c, t in enumerate(bt) if t == "position"]
+        rel_o = [c for c, t in enumerate(bt) if t == "quaternion"]
+        rel_v = [c for c, t in enumerate(bt) if t == "velocity"]
+        pnames = [m.get("name") for m in system.get("pair_metadata", [])]
+        rel_pairs = torch.tensor([pnames.index(n) for n in rel_cfg["pairs"]], device=dev)
+        rel_w = float(rel_cfg.get("weight", 1.0))
+
+    def rel_of(x):
+        """[n, D, S] -> [n, 6]: position and slip velocity of the relative-loss body in the frame point's frame."""
+        r = relative_channels(rel_kin(x[:, rel_f, rel_q], x[:, rel_f, rel_qd], model.dt), x[:, rel_b, rel_p],
+                              x[:, rel_b, rel_o], x[:, rel_b, rel_v])
+        return torch.cat((r[:, 0:3], r[:, 9:12]), -1)
+
     def rollout_loss(horizon, batch):
         """Huber loss of free rollouts (the model's own states, recorded commands) against the recorded trajectory;
         half of the starts lie 1..horizon steps before a contact step."""
@@ -1123,6 +1281,9 @@ def main():
         h, ok = hist_of(w)
         current = h[:, -1]
         total, den = current.sum() * 0.0, 0
+        rel_total, rel_den = current.sum() * 0.0, 0
+        if rel_cfg:
+            rel_scale = torch.cat((rscale[rel_b, rel_p], rscale[rel_b, rel_v]))
         for step in range(horizon):
             t_now = w[:, 1] + step * stride
             j = t_now + stride
@@ -1132,9 +1293,16 @@ def main():
             err = F.huber_loss((pred - y) * masks / rscale, torch.zeros_like(pred), reduction="none", delta=1.0)
             total = total + (err.mean((-1, -2)) * active).sum()
             den += int(active.sum())
+            if rel_cfg:
+                held = active & labels[w[:, 0], t_now.clamp_max(n_win - 1)][:, rel_pairs].all(-1)
+                if held.any():
+                    e = (rel_of(pred[held]) - rel_of(y[held])) / rel_scale
+                    rel_total = rel_total + F.huber_loss(e, torch.zeros_like(e), reduction="none", delta=1.0).mean(-1).sum()
+                    rel_den += int(held.sum())
             current = torch.where(active[:, None, None], pred, current)
             h, ok = model.advance(h, ok, current)
-        return total / max(1, den)
+        out = total / max(1, den)
+        return out + rel_w * rel_total / max(1, rel_den) if rel_cfg else out
 
     # Optional co-training of the collision network in this stage (config "collision_cotrain", absent in train.json =
     # the released rule: frozen after stage 2): its binary cross-entropy on the stage-2 batches (contact, near-contact
@@ -1175,12 +1343,16 @@ def main():
         for p in core.parameters():
             p.requires_grad_(True)
         joint = [p for p in list(core.parameters()) + list(cont.parameters()) if p.requires_grad]
+        if geo_cfg:
+            joint = joint + list(model.geo_contact.parameters())
         count = 5 if smoke else co["updates"]
         joint_coll = []
         if coll_on:
             for name_, p in coll.named_parameters():
                 p.requires_grad_(name_ != "lin")   # the collision network has no linear path
             joint_coll = [p for p in coll.parameters() if p.requires_grad]
+            if geo_cfg:
+                joint_coll = joint_coll + list(model.geo_collision.parameters())
             opt = torch.optim.AdamW([{"params": joint, "lr_scale": 1.0},
                                      {"params": joint_coll, "lr_scale": float(coll_co.get("lr_scale", 1.0))}],
                                     lr=co["lr"], weight_decay=0.0)
@@ -1213,6 +1385,9 @@ def main():
             terms = {"core": (((core_pred(hb, okb, ab, bb, sigma) - tb) / kscale).square() * core_masks[bb]).sum() / core_masks[bb].sum()}
             push = cfg["push_prob"] if update > push_from else 0.0
             terms["contact"] = contact_loss(sample_hits(64 if smoke else co["contact_batch"]), push, core_grad=True)
+            if geo_cfg:
+                gw_ = sample(geo_windows, 64 if smoke else co["contact_batch"] // 4)
+                terms["geo"] = geo_term("contact", gw_) + (geo_term("collision", gw_) if coll_on else 0.0)
             if update % traj_every == 0:
                 horizon = 4 if smoke else round(h0 + (h1 - h0) * min(1.0, frac / co["horizon_ramp"]))
                 terms["traj"] = rollout_loss(horizon, 4 if smoke else co["traj_batch"])
@@ -1224,7 +1399,8 @@ def main():
                 v = float(value.detach())
                 ema[name] = v if name not in ema else 0.99 * ema[name] + 0.01 * v
                 weight = traj_every * min(1.0, frac / co["traj_ramp"]) if name == "traj" else \
-                    float(coll_co.get("weight", 1.0)) if name == "collision" else 1.0
+                    float(coll_co.get("weight", 1.0)) if name == "collision" else \
+                    geo_weight * min(1.0, update / 1000) if name == "geo" else 1.0
                 total = total + weight * value / max(ema[name], 1e-30)
             opt.zero_grad(set_to_none=True)
             total.backward()

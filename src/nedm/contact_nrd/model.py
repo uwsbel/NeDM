@@ -31,7 +31,8 @@ from torch.nn import functional as F
 ROLES = 3   # self, partner, other
 
 
-def model_config(dt_s, history, network, integrate_kinds, derived=None, contact_mask=None, pair_preview=False, relative=None):
+def model_config(dt_s, history, network, integrate_kinds, derived=None, contact_mask=None, pair_preview=False, relative=None,
+                 aux_geometry=False):
     """The model_config stored in a checkpoint. Only the step, the history length, the network size, the
     integrated body kinds and the derived channels (see KinematicChain) can change; the other entries are the design
     this code implements, written in the format of the released checkpoints ("contact_graph_nrd_v6" is that format's
@@ -48,6 +49,8 @@ def model_config(dt_s, history, network, integrate_kinds, derived=None, contact_
         out["pair_preview"] = True
     if relative is not None:
         out["relative"] = relative
+    if aux_geometry:
+        out["aux_geometry"] = True
     return out
 
 
@@ -221,9 +224,10 @@ class TokenNet(nn.Module):
             out = y if out is None else out + y
         return out
 
-    def forward(self, cur, diff, act, present, has_act, kind, lag_ok, fixed, query, smask, amask):
+    def forward(self, cur, diff, act, present, has_act, kind, lag_ok, fixed, query, smask, amask, return_h=False):
         """cur [M, P, S], diff [M, K-1, P, S], act [M, P, A], present/has_act [M, P], kind [M, P], lag_ok [M, K],
-        fixed [M] (-1 = none), query [M], smask [M, P, S], amask [M, P, A] -> [M, sum(out_dims)] in physical units."""
+        fixed [M] (-1 = none), query [M], smask [M, P, S], amask [M, P, A] -> [M, sum(out_dims)] in physical units
+        (with return_h also the query token's trunk output h [M, d], for training-only heads)."""
         zc, zd, za = self.scaled(cur, diff, act, present, has_act, lag_ok, query, smask, amask)
         td = torch.float32
         m = len(cur)
@@ -245,7 +249,8 @@ class TokenNet(nn.Module):
         if self.linear_path:
             design = torch.cat((zc.flatten(1), za.flatten(1), torch.ones(m, 1, dtype=zc.dtype, device=zc.device)), -1)
             out = out + torch.einsum("mf,mfo->mo", design, self.lin[query])
-        return out * self.out_std[query] + self.out_mean[query]
+        out = out * self.out_std[query] + self.out_mean[query]
+        return (out, h) if return_h else out
 
 
 class ContactNRD(nn.Module):
@@ -259,7 +264,8 @@ class ContactNRD(nn.Module):
         super().__init__()
         network = {k: v for k, v in config["network"].items() if k != "mixer"}
         if config != model_config(config["dt_s"], config["history"], network, config["integrate"]["kinds"], config.get("derived"),
-                                  config.get("contact_mask"), config.get("pair_preview", False), config.get("relative")):
+                                  config.get("contact_mask"), config.get("pair_preview", False), config.get("relative"),
+                                  config.get("aux_geometry", False)):
             raise ValueError(f"unsupported model_config {config}")
         self.config, self.system = dict(config), system
         self.dt = float(config["dt_s"])
@@ -386,6 +392,16 @@ class ContactNRD(nn.Module):
         # Contact: changes of the pair's first body and of its moving partner (two padded state vectors).
         self.contact = TokenNet(spec, positions, kp, self.n_pairs, self.n_fixed, nk, self.smax, self.amax,
                                 [self.smax, self.smax], True)
+        # Optional training-only geometry heads (model_config "aux_geometry"): one zero-initialised linear map on the
+        # query-token output of the collision and of the contact network, trained (train.py "aux_geometry") to give
+        # the rigid partner's pose and slip in the frame of a point of the articulated body. The step never uses them:
+        # the networks' inputs, outputs and the state stay as they are.
+        if config.get("aux_geometry"):
+            d = int(spec["width"])
+            self.geo_collision, self.geo_contact = nn.Linear(d, 12), nn.Linear(d, 12)
+            for head in (self.geo_collision, self.geo_contact):
+                nn.init.zeros_(head.weight)
+                nn.init.zeros_(head.bias)
 
     # ---- history -----------------------------------------------------------------
     def code(self, hist, ok, noise=None):
@@ -438,6 +454,11 @@ class ContactNRD(nn.Module):
         smask = torch.cat((self.smask, torch.zeros_like(self.smask[:1])))[idx]
         amask = torch.cat((self.amask, torch.zeros_like(self.amask[:1])))[idx]
         return c, df, a, present, has, kind, lag_ok[rows], self.pair_fixed[pairs], pairs, smask, amask
+
+    def geometry(self, net, cur, diff, act, lag_ok, rows, pairs):
+        """Training-only geometry head of the "collision" or "contact" network for (row, pair) entries -> [M, 12]."""
+        _, h = getattr(self, net)(*self.pair_inputs(cur, diff, act, lag_ok, rows, pairs), return_h=True)
+        return (self.geo_collision if net == "collision" else self.geo_contact)(h).to(torch.float64)
 
     def logits(self, cur, diff, act, lag_ok, rows=None, pairs=None):
         """Collision logits: all pairs -> [B, P_pairs], or the given (row, pair) entries -> [M]."""

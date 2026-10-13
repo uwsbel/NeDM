@@ -263,8 +263,8 @@ def cmd_tasks(a):
     from nedm.so101_policy import task as T
     from nedm.so101_policy.mujoco_env import sample_starts
     seeds = np.arange(a.seed0, a.seed0 + a.n)
-    if (seeds >= 900000).any():
-        raise ValueError("900000+ are the test seeds")
+    if (seeds >= 900000).any() and not a.final_test:
+        raise ValueError("900000+ are the test seeds (write the final test set once with --final-test)")
     t0 = time.time()
     st = sample_starts(seeds)
     s = st["state"]
@@ -894,6 +894,7 @@ def main():
     p = sub.add_parser("tasks")
     p.add_argument("--out", required=True), p.add_argument("--seed0", type=int, default=1000)
     p.add_argument("--n", type=int, default=1024), p.add_argument("--goal-seed", type=int, default=20261012)
+    p.add_argument("--final-test", action="store_true", help="allow the test seeds 900000+ (final test set, written once)")
     p = sub.add_parser("run")
     p.add_argument("--tasks", required=True), p.add_argument("--out", required=True)
     p.add_argument("--world", choices=WORLDS, required=True), p.add_argument("--config", choices=list(CONFIGS), default="base")
