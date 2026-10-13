@@ -4,7 +4,7 @@
  "prefix": "contact_nrd/",
  "hf_revision": "d68fa3c4d91539bc6a079f4b2f3ff5c27d825101",
  "case_revisions": {
-  "g1_locomotion": "PENDING"
+  "g1_locomotion": "cba82611210e401dc0155cb78fcf456a385ecef4"
  },
  "note": "Pinned copy of contact_nrd/release_manifest.json on the Hub (that file also holds the provenance). The g1_locomotion files come from the revision in case_revisions; the other cases from hf_revision.",
  "files": {

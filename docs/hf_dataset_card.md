@@ -726,7 +726,7 @@ The code repository's `contact_nrd/release_manifest.json` pins the Hub revision 
 
 BSD-3-Clause, the same as Part A and the code. The contact NRD has no publication yet: please cite the NeDM paper
 (Part A) and name the dataset revision you used (`d68fa3c4d91539bc6a079f4b2f3ff5c27d825101`; the G1 case:
-`PENDING`).
+`cba82611210e401dc0155cb78fcf456a385ecef4`).
 
 ## Part D: G1 footstep policy
 
@@ -792,4 +792,4 @@ pinned upstream commit (OpenHomie, commit `33071f79`), which has its own license
 
 BSD-3-Clause, the same as Part A and the code. HOMIE is not hosted here; it is fetched from its pinned upstream commit,
 under its own license. The G1 footstep policy has no publication yet: please cite the NeDM paper (Part A) and name the
-dataset revision you used (`PENDING`).
+dataset revision you used (`cba82611210e401dc0155cb78fcf456a385ecef4`).

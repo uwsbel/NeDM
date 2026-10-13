@@ -2,7 +2,7 @@
  "schema": "nedm-g1-footstep-rl-release/1",
  "repo_id": "harryzhang1018/NeDM",
  "prefix": "g1_footstep_rl/",
- "hf_revision": "PENDING",
+ "hf_revision": "cba82611210e401dc0155cb78fcf456a385ecef4",
  "note": "Pinned copy of g1_footstep_rl/release_manifest.json on the Hub (that file also holds the provenance). hf_revision = the Hub commit that adds this manifest; the data files come in the commit before it. The policies were trained in the NRD checkpoints contact_nrd/g1_locomotion/models/seed61.pt and seed62.pt (contact_nrd/release_manifest.json). HOMIE is not on the Hub: scripts/g1_footstep_rl/fetch_homie.py fetches it from OpenHomie at the pinned commit.",
  "files": {
   "g1_footstep_rl/policy/fs_cmd_s1/curriculum.json": {
@@ -154,8 +154,8 @@
    "sha256": "dd9e5a8d6af78e141db44fb2343ce7bdcd6a09c53ab413d26b47e9f54302418c"
   },
   "g1_footstep_rl/results/dev/environment.json": {
-   "bytes": 1559,
-   "sha256": "10a01c8579a52079c09027e5f79b6ab3379623f2117dcef1a3a13b49703a2c3b"
+   "bytes": 1592,
+   "sha256": "9ce8c70087bf173a86e3eba3f784735e7dacef9999d97783d2de090ea6a60a2f"
   },
   "g1_footstep_rl/results/dev/scatter_dev/scatter.json": {
    "bytes": 3037,
@@ -210,8 +210,8 @@
    "sha256": "a95c1376e5c850eb8eadf073d04786281522dd6e8d28e64aa53dc624b258702c"
   },
   "g1_footstep_rl/videos/videos.json": {
-   "bytes": 5339,
-   "sha256": "d5a64bc51d78afbf91aa9f08a5680cef276b50dea9bc8d5864192321671de660"
+   "bytes": 5372,
+   "sha256": "c4fe04be9ec53b8f32aea90394f3296e178d1c54d4633be5a276f9ff6b1afbd7"
   }
  }
 }
