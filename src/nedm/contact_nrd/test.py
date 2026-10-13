@@ -10,6 +10,18 @@ state with its recorded commands (data.free_metrics). One line per model, each e
 body's position error at the target time, its orientation error (only if it has a quaternion) and its path RMS error
 up to the target time; then the fraction of episodes whose contact events match the recorded ones and the fraction
 of finite rollouts.
+
+Data with an ``evaluation`` block in system.json (configs/contact_nrd/evaluation/README.md) or with episode families
+are scored with data.evaluate instead: the block's task metrics (first-state rollouts and/or rollouts from recorded
+histories at fixed horizons, contact events per pair, selection score) for all episodes, for each family and for the
+families with select: true. One block of lines per model and group: the score and the fraction of episodes whose
+rollouts in the scored modes are finite (report-only modes: see their lines), then per rollout mode and horizon the
+error of each moving body (median / p95; in brackets the windows and the rollouts that are not finite up to that
+step, which count as an error of 1000, the cap of every error), then the contact events (model convention and
+physical) and the outcome flags (recorded against predicted); for all episodes also the window errors at the longest
+horizon that has windows, by the contacts at the window start. A horizon, mode or contact group without any rollout
+(e.g. a horizon longer than every episode of a family) has no line; a family score that needs such a statistic is
+"not available".
 """
 from __future__ import annotations
 
@@ -20,8 +32,96 @@ from pathlib import Path
 
 import torch
 
-from nedm.contact_nrd.data import channel_index, file_sha256, free_metrics, load_data
+from nedm.contact_nrd.data import channel_index, evaluate, file_sha256, free_metrics, load_data, step_average_rates
 from nedm.contact_nrd.model import load_model
+
+UNITS = {"pos_m": ("position", 1000.0, "mm"), "angle_rad": ("orientation", 180 / math.pi, "deg"),
+         "joint_rms_rad": ("joint RMS", 1.0, "rad"), "vel_mps": ("velocity", 1.0, "m/s")}
+
+
+def _errors(block):
+    parts = []
+    for body, errs in block.items():
+        if not isinstance(errs, dict):
+            continue
+        for m, q in errs.items():
+            what, k, unit = UNITS[m]
+            parts.append(f"{body} {what} {k * q['median']:.3f} / {k * q['p95']:.3f} {unit}")
+    return ", ".join(parts)
+
+
+def _line(text, block, count=None):
+    """One line of errors: text (rollouts, non-finite ones): body errors."""
+    note = ([] if count is None else [str(count)]) + ([f"{block['nonfinite']} non-finite"] if block["nonfinite"] else [])
+    return f"  {text}{' (' + ', '.join(note) + ')' if note else ''}: {_errors(block)}"
+
+
+def describe(name, group, report, detail=False):
+    """Text lines of one task-metrics report (detail: also the window errors by the contacts at the start). Lines
+    without any rollout are left out."""
+    terms = [t for t in report["score_terms"] if t["value"] is not None]
+    missing = len(report["score_terms"]) - len(terms)
+    score = (f"score {report['selection_score']:.4f}" if report["selection_score"] is not None else
+             f"score not available ({missing} scored statistic{'s' if missing > 1 else ''} without rollouts)")
+    lines = [f"{name}, {group} ({report['episodes']} episodes): {score}, finite in scored modes "
+             f"{report['finite_fraction']:.4f}; "
+             + ", ".join(f"{t['stat']} {t['value']:.4g}" for t in terms)]
+    modes = [(mode, label) for mode, label in (("free", "first state"), ("windows", "windows"),
+                                                ("long_windows", "long windows"), ("event_windows", "event windows"))
+             if mode in report and report[mode].get("windows", 1)]
+    for mode, label in modes:
+        if mode == "free":
+            lines += [_line(f"{label}, at {at}", report["free"][at]) for at in ("target", "final")]
+        else:
+            lines += [_line(f"{label} {h} s", v, v["windows"]) for h, v in report[mode].items()
+                      if isinstance(v, dict) and v.get("windows")]
+    for mode, label in modes:
+        c, p = report[mode]["contacts"]["all"], report[mode]["contacts_physical"]["all"]
+        def events(x):
+            out = x["onset"]["timing_left_out"] + x["offset"]["timing_left_out"]
+            return (f"{x['onset']['true']} onsets, {x['offset']['true']} offsets, {x['onset']['missed'] + x['offset']['missed']} "
+                    f"missed, {x['onset']['false'] + x['offset']['false']} false, timing p95 {1000 * x['timing_s']['p95']:.0f} ms"
+                    + (f" ({out} matched events left out of the timing)" if out else ""))
+        lines.append(f"  {label} contacts: {events(c)}, switch accuracy {c['gate_accuracy']:.4f}; physical: {events(p)}")
+        flags = report[mode].get("flags", {})
+        if flags:
+            first = next(iter(flags.values()))
+            nonfinite = f" ({first['nonfinite']} non-finite)" if first["nonfinite"] else ""
+            lines.append(f"  {label} outcomes of {first['rollouts']} rollouts{nonfinite}, recorded / predicted "
+                         "(disagreement): " + ", ".join(f"{k} {f['recorded']} / {f['predicted']} ({f['disagreement']:.4f})"
+                                                        for k, f in flags.items()))
+    if detail and "windows" in report:
+        for start, block in report["windows"]["by_start_contact"].items():
+            reach = [h for h, v in block.items() if v["windows"]]
+            if reach:
+                h = max(reach, key=float)
+                lines.append(_line(f"windows {h} s from contacts {start}", block[h], block[h]["windows"]))
+    return lines
+
+
+def task_main(args, models, data):
+    """Data with an evaluation block or families: data.evaluate per model, all episodes and per family."""
+    system = data["system"]
+    if "evaluation" in system:
+        kinds = {tuple(sorted(m.config["integrate"]["kinds"])) for _, m in models.values()}
+        if len(kinds) != 1:
+            raise ValueError("the models integrate different body kinds; score them separately")
+        step_average_rates(data, set(kinds.pop()))
+    ids = torch.arange(len(data["splits"]), device=args.device)
+    results = {}
+    for name, (path, model) in models.items():
+        m = evaluate(model, data, ids, by_family=True)
+        groups = [("all", m)] + [(f"family {k}", v) for k, v in m.get("families", {}).items()]
+        groups += [("selected families", m["selected"])] if "selected" in m else []
+        for group, r in groups:
+            if "evaluation" in system:
+                print("\n".join(describe(name, group, r, detail=group == "all")), flush=True)
+            else:
+                print(f"{name}, {group} ({r['episodes']} episodes): target position {1000 * r['target_pos_m']['median']:.3f} / "
+                      f"{1000 * r['target_pos_m']['p95']:.3f} mm, events ok {r['event_ok_fraction']:.4f}, "
+                      f"finite {r['finite_fraction']:.4f}, score {r['selection_score']:.4f}", flush=True)
+        results[name] = dict(checkpoint=str(path), checkpoint_sha256=file_sha256(path), **m)
+    return results
 
 
 @torch.no_grad()
@@ -39,6 +139,13 @@ def main():
         models[name] = (path, load_model(path, args.device)[0])
     data = load_data(args.data, args.device, model_step_s=next(iter(models.values()))[1].dt)
     system = data["system"]
+    if "evaluation" in system or data["family"] is not None:
+        results = task_main(args, models, data)
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(dict(data=str(args.data), data_sha256=file_sha256(args.data / "unified_data.npz"),
+                                                   target_step=data["target_step"], dt_s=data["dt"], models=results), indent=1))
+        return
     has_quat = bool(channel_index(system, system["bodies"][system["target_body"]]["name"], "quaternion"))
     ids = torch.arange(len(data["splits"]), device=args.device)
     results = {}

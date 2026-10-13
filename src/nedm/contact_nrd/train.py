@@ -18,6 +18,16 @@ One configuration (configs/contact_nrd/train.json) serves every system; only the
    kept as best.pt (the test split is never used).
 4. best.pt on every validation episode -> validation.json and complete.json.
 
+Data of the collection contract (contact_nrd/collection_contract.md) can add three things; without them the run is
+the same as before. A moving body's ``channel_mask`` in system.json replaces the automatic rule (a channel is
+predicted if its spread is at least 1 % of the largest channel of its type in the same body); it must give a pose
+channel and its rate channel the same value. Contract data always carry it: data with families and a moving body
+without it get a ``mask_warning`` log row (the automatic rule decides for that body). With ``family`` and
+system.json ``families``, the checks use only validation episodes of the families with select: true, and the final
+report adds the metrics of each family. With an ``evaluation`` block in system.json, the checks and the final report
+use data.task_metrics and its selection score instead of data.free_metrics (the checks skip the rollout modes that
+the score does not use).
+
 States are velocity-level: the rate channels are step-average rates (data.step_average_rates) and the pose of
 each integrated body follows pose + step x rate (model.ContactNRD.assemble). The one-step losses train only the
 rate channels; the rollout loss compares the whole state.
@@ -45,8 +55,8 @@ from pathlib import Path
 import torch
 from torch.nn import functional as F
 
-from nedm.contact_nrd.data import (atomic_json, dilate, file_sha256, free_metrics, load_data, step_average_rates,
-                                   window_labels)
+from nedm.contact_nrd.data import (atomic_json, dilate, evaluate, file_sha256, load_data, selected_episodes,
+                                   step_average_rates, window_labels)
 from nedm.contact_nrd.model import ContactNRD, load_model, model_config
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -122,11 +132,17 @@ def main():
         if j in slot:
             involved[..., slot[j]] |= touched[..., p]
     val = torch.nonzero(splits == 1).flatten()
-    if smoke:
-        val = val[:24]
-    # Checks during training use an evenly spaced subset of the validation episodes; the final report uses all.
-    n_check = min(len(val), int(cfg["check_episodes"]))
-    val_check = val[torch.linspace(0, len(val) - 1, n_check, device=dev).round().long()]
+    family = data["family"]
+    if smoke:   # 24 episodes; with families up to 8 of each
+        val = val[:24] if family is None else torch.cat([val[family[val] == k][:8] for k in range(len(system["families"]))])
+        val = torch.sort(val).values
+    # Checks during training use an evenly spaced subset of the validation episodes (of the families with
+    # select: true); the final report uses all.
+    pick = selected_episodes(data, val)
+    if not len(pick):
+        raise ValueError("no validation episodes in the families that checkpoint selection uses")
+    n_check = min(len(pick), int(cfg["check_episodes"]))
+    val_check = pick[torch.linspace(0, len(pick) - 1, n_check, device=dev).round().long()]
     rng = torch.Generator(device=dev).manual_seed(cfg["seed"] + 1000)
     K = int(cfg["history"])
 
@@ -165,9 +181,31 @@ def main():
         for c, t in enumerate(ts):
             same = [cc for cc, tt in enumerate(ts) if tt == t]
             masks[d, c] = float(span[d, c] >= 0.01 * span[d, same].max())
+    automatic = masks.clone()
+    explicit = [d for d, b in enumerate(moving_b) if "channel_mask" in b]
+    for d in explicit:   # the data's own mask (e.g. a robot's base height, small next to its travel)
+        cm = [float(x) for x in moving_b[d]["channel_mask"]]
+        if len(cm) != len(types[d]) or set(cm) - {0.0, 1.0}:
+            raise ValueError(f"{moving_b[d]['name']}: channel_mask needs one 0/1 per channel")
+        masks[d] = 0.0
+        masks[d, : len(cm)] = torch.tensor(cm, dtype=torch.float64, device=dev)
 
     mc = model_config(data["dt"], K, cfg["network"], cfg["integrate_kinds"])
     model = ContactNRD(mc, system, masks.tolist()).to(dev)
+    # The integrator pairs pose and rate channels by order, so their masks must agree; a quaternion's mask is
+    # [any angular axis, x, y, z] of its angular velocity mask (all on, all off, or a planar body's [1, 0, 0, 1]).
+    unpaired = []
+    for n in torch.nonzero(model.integ_body).flatten().tolist():
+        pc, qc, vc, wc = (model.chan[n, k][model.chan[n, k] >= 0] for k in range(4))
+        m = masks[n]
+        agree = torch.equal(m[pc], m[vc])
+        if len(qc) == 4 and len(wc) == 3:
+            agree = agree and torch.equal(m[qc], torch.cat((m[wc].amax()[None], m[wc])))
+        if not agree:
+            unpaired.append(moving_b[n]["name"])
+            if n in explicit:
+                raise ValueError(f"{moving_b[n]['name']}: channel_mask must give a pose channel and its rate channel "
+                                 "the same value (quaternion: [any angular axis, x, y, z])")
     # Channels that are trained (core and contact losses): integrated pose channels are computed, not predicted.
     core_masks = masks.clone()
     for b in torch.nonzero(model.integ_body).flatten().tolist():
@@ -205,11 +243,21 @@ def main():
                    parameters={n: sum(p.numel() for p in getattr(model, n).parameters()) for n in ("core", "collision", "contact")},
                    data_sha256=file_sha256(args.data / "unified_data.npz"),
                    source_sha256={f.name: file_sha256(f) for f in Path(__file__).parent.glob("*.py")})
+    if family is not None:
+        runtime.update(selection_families=[f["name"] for f in system["families"] if f["select"]],
+                       check_episodes_used=len(val_check))
     if not (output / "run_config.json").exists():
         atomic_json(output / "run_config.json", runtime)
     else:
         event("resume", **job)
-    event("masks", masks=masks.tolist())
+    event("masks", masks=masks.tolist(), **({"explicit": [moving_b[d]["name"] for d in explicit],
+                                             "automatic": automatic.tolist()} if explicit else {}))
+    if unpaired:   # automatic masks only (explicit ones raise above)
+        event("mask_warning", bodies=unpaired, note="a pose channel and its rate channel have different masks")
+    unmasked = [b["name"] for d, b in enumerate(moving_b) if d not in explicit]
+    if family is not None and unmasked:   # contract data (with families) always carry channel_mask
+        event("mask_warning", bodies=unmasked, note="data with families but no channel_mask for these bodies: the "
+              "automatic rule decides (collection_contract.md requires channel_mask)")
 
     def save(path, stage, update, validation=None):
         torch.save(dict(model_config=mc, system=system, masks=masks.tolist(), model_state_dict=model.state_dict(), runtime=runtime,
@@ -229,7 +277,7 @@ def main():
         was = model.training
         model.eval()
         with torch.no_grad():
-            report = free_metrics(model, data, val_check)
+            report = evaluate(model, data, val_check, score_only=True)
         checks["count"] += 1
         if not math.isfinite(report["selection_score"]):
             report["selection_score"] = 1e9
@@ -237,13 +285,18 @@ def main():
             best["score"] = report["selection_score"]
             save(output / "best.pt", stage, update, report)
         save(output / "last.pt", stage, update, report)
-        event(stage, update=update, loss=float(loss), score=report["selection_score"],
-              target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
-              target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
-              target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
-              path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
-              moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"], events_ok=report["event_ok_fraction"],
-              finite=report["finite_fraction"], **(extra or {}))
+        if "evaluation" in system:
+            event(stage, update=update, loss=float(loss), score=report["selection_score"],
+                  terms={t["stat"]: t["value"] for t in report["score_terms"]}, finite=report["finite_fraction"],
+                  **(extra or {}))
+        else:
+            event(stage, update=update, loss=float(loss), score=report["selection_score"],
+                  target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
+                  target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
+                  target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
+                  path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
+                  moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"], events_ok=report["event_ok_fraction"],
+                  finite=report["finite_fraction"], **(extra or {}))
         if was:
             model.train()
 
@@ -353,8 +406,33 @@ def main():
             return torch.cat([core_pred(h, o, a, b) for h, o, a, b in
                               zip(pv_h.split(16384), pv_ok.split(16384), pv_a.split(16384), pv_b.split(16384))]) - pv_t
 
+    # Optional history-noise rule (config "history_noise", absent in train.json = the released rule): the noise is
+    # multiplied by "scale" and capped per channel at "cap_step_rms" x the RMS of the one-step change on training
+    # steps with one active pair (for systems whose contact-free steps are much harder than their contact steps).
+    noise_rule = cfg.get("history_noise") or {}
+    noise_scale, noise_cap = float(noise_rule.get("scale", 1.0)), noise_rule.get("cap_step_rms")
+    if noise_cap is not None:
+        with torch.no_grad():
+            one = torch.nonzero(train & (labels.sum(-1) == 1))
+            one = one[torch.linspace(0, len(one) - 1, min(len(one), 400000), device=dev).round().long()]
+            on = labels[one[:, 0], one[:, 1]]
+            change = (states[one[:, 0], one[:, 1] + stride] - states[one[:, 0], one[:, 1]]) * masks
+            cap_rms = torch.full((n_mov, smax), float("inf"), dtype=torch.float64, device=dev)
+            for b in range(n_mov):
+                hit = torch.zeros(len(one), dtype=torch.bool, device=dev)
+                for p, (i, j) in enumerate(pairs):
+                    if slot[i] == b or slot.get(j, -1) == b:
+                        hit |= on[:, p]
+                if hit.any():
+                    cap_rms[b] = float(noise_cap) * change[hit, b].square().mean(0).sqrt()
+        event("history_noise_rule", scale=noise_scale, cap_step_rms=noise_cap,
+              cap=torch.where(torch.isfinite(cap_rms), cap_rms, -1.0).tolist())
+
     def core_sigma(err):
-        return pose_noise(torch.stack([err[pv_b == b].square().mean(0).sqrt() for b in range(n_mov)]) * masks)
+        rms = torch.stack([err[pv_b == b].square().mean(0).sqrt() for b in range(n_mov)])
+        if noise_cap is not None:
+            rms = torch.minimum(rms, cap_rms)
+        return pose_noise(rms * masks) * noise_scale if noise_rule else pose_noise(rms * masks)
 
     if not (output / "core.pt").exists():
         err = core_val()   # co-training starts from the linear core; the noise follows that core's error
@@ -707,8 +785,9 @@ def main():
             opt.step()
             if update % (5 if smoke else cfg["evaluate_every"]) == 0 or update == count:
                 sigma = core_sigma(core_val())   # the noise follows the current core's one-step error
+                kept = push_stats["kept"] / max(1, push_stats["tried"])   # training pushes only (onestep adds its own)
                 check("cotrain", update, total.detach(), {**onestep(), **{f"ema_{k}": v for k, v in ema.items()},
-                                                          "push_kept_fraction": push_stats["kept"] / max(1, push_stats["tried"])})
+                                                          "push_kept_fraction": kept})
                 push_stats.update(tried=0, kept=0)
                 tmp = output / "contact_state.pt.tmp"
                 torch.save(dict(model_state_dict=model.state_dict(), optimizer=opt.state_dict(), rng=rng.get_state(),
@@ -720,18 +799,23 @@ def main():
     if not (output / "complete.json").exists():
         model_best, metadata = load_model(output / "best.pt", dev)
         with torch.no_grad():
-            report = free_metrics(model_best, data, val)
+            report = evaluate(model_best, data, val, by_family=True)
         atomic_json(output / "validation.json", report)
+        chosen = report.get("selected", report)   # the families that checkpoint selection used
         done = dict(complete=True, smoke=smoke, test_used_for_selection=False, total_elapsed_s=time.perf_counter() - start,
                     checkpoint_sha256=file_sha256(output / "best.pt"), best_stage=metadata["stage"],
-                    best_update=metadata["update"], validation_score=report["selection_score"], checkpoints_compared=checks["count"],
-                    target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
-                    target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
-                    target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
-                    moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"],
-                    moved_angle_median_deg=math.degrees(report["moved_target_angle_rad"]["median"]),
-                    path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
-                    events_ok=report["event_ok_fraction"], finite=report["finite_fraction"])
+                    best_update=metadata["update"], validation_score=chosen["selection_score"], checkpoints_compared=checks["count"])
+        if "evaluation" in system:
+            done.update(score_terms={t["stat"]: t["value"] for t in chosen["score_terms"]}, finite=report["finite_fraction"],
+                        family_scores={k: v["selection_score"] for k, v in report.get("families", {}).items()})
+        else:
+            done.update(target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
+                        target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
+                        target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
+                        moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"],
+                        moved_angle_median_deg=math.degrees(report["moved_target_angle_rad"]["median"]),
+                        path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
+                        events_ok=report["event_ok_fraction"], finite=report["finite_fraction"])
         atomic_json(output / "complete.json", done)
         event("complete", **done)
 

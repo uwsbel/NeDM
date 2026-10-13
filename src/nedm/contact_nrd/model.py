@@ -1,7 +1,10 @@
 """Contact NRD: a core network, a collision network and a contact network, all the same Transformer design.
 
 Every moving body has its own state size (the ball and a pool ball [position, velocity, angular velocity] = 9,
-the arm [joint angles, joint rates] = 10, the T [position, quaternion, velocity, angular velocity] = 13). States
+the arm [joint angles, joint rates] = 10, the T [position, quaternion, velocity, angular velocity] = 13, a
+floating articulated robot [base position, base quaternion, joint angles, base velocity, base angular velocity,
+joint rates] = 13 + 2 x joints). Two pairs of the same two bodies (two contact regions) have their own pair codes
+and their contact changes add. States
 are padded to the largest size, with a per-body channel mask. A body can have an action (the arm's joint position
 command), which enters as one extra token of that body. Each body kind has its own input maps, and a learned
 body-kind code is added to its tokens; the core has one output head per body kind. Fixed bodies (floor, wall, cushions) are not inputs; a fixed
@@ -382,6 +385,21 @@ class ContactNRD(nn.Module):
         if isinstance(actions, int):
             actions = torch.zeros(state.shape[0], actions, self.n_bodies, self.amax, dtype=state.dtype, device=state.device)
         hist, ok = self.start(state)
+        trajectory, gate_trace = [state], []
+        for t in range(actions.shape[1]):
+            state, info = self.details(hist, ok, actions[:, t].to(torch.float64))
+            hist, ok = self.advance(hist, ok, state)
+            trajectory.append(state)
+            gate_trace.append(info["gates"])
+        out = torch.stack(trajectory, 1)
+        return (out, torch.stack(gate_trace, 1)) if return_gates else out
+
+    def rollout_from(self, hist, ok, actions, return_gates=False):
+        """Rollout from a given history: hist [B, K, D, S] (newest last; recorded states inside an episode), ok [B, K]
+        (False = no entry); actions [B, steps, D, A] -> [B, steps+1, D, S], index 0 the newest history state (and the
+        switches [B, steps, P] with return_gates). rollout(x, a) is rollout_from(*start(x), a)."""
+        hist = hist.to(torch.float64)
+        state = hist[:, -1]
         trajectory, gate_trace = [state], []
         for t in range(actions.shape[1]):
             state, info = self.details(hist, ok, actions[:, t].to(torch.float64))
