@@ -1,0 +1,21 @@
+{
+ "note": "Task metrics of contact NRD training (checkpoint selection) and test for G1 walking. Every term, scale and reason: README.md in this folder. Provisional: freeze after the pilot, before main training and the sealed test.",
+ "free": {},
+ "windows": {"horizons_s": [0.02, 0.2, 0.5, 1.0], "first_start_s": 0.1, "start_every_s": 0.5, "end_window": true},
+ "long_windows": {"horizons_s": [2.0, 5.0], "first_start_s": 0.1, "start_every_s": 1.0},
+ "event_windows": {"horizons_s": [0.2, 0.5, 1.0], "lead_s": 0.1, "events": ["onset"]},
+ "flags": {
+  "fall": {"any": [{"body": "robot", "channel": "z", "below": 0.35}, {"body": "robot", "tilt_above_rad": 0.7853981633974483}]}
+ },
+ "contact_tolerance_steps": 2,
+ "batch": 2048,
+ "score": [
+  {"stat": "windows/1.0/robot/pos_m/p95", "scale": 0.05, "weight": 1.0},
+  {"stat": "windows/1.0/robot/angle_rad/p95", "scale": 0.08726646259971647, "weight": 1.0},
+  {"stat": "windows/1.0/robot/joint_rms_rad/p95", "scale": 0.1, "weight": 1.0},
+  {"stat": "windows/contacts/all/event_error_rate", "scale": 0.1, "weight": 1.0},
+  {"stat": "windows/contacts/all/timing_s/p95", "scale": 0.02, "weight": 1.0},
+  {"stat": "windows/flags/fall/disagreement", "scale": 0.01, "weight": 1.0},
+  {"stat": "nonfinite_fraction", "scale": 0.01, "weight": 1.0}
+ ]
+}

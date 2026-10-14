@@ -59,12 +59,14 @@ configs:
     data_files: raw/tracked/episodes.parquet
 ---
 
-# NeDM datasets: the paper, the traversing study and the contact NRD
+# NeDM datasets: the paper, the traversing study, the contact NRD and the G1 footstep policy
 
-This repository holds three separate releases. **Part A** is the set of datasets behind the NeDM paper, unchanged since
-its release (Hub tag `paper-v1`). **Part B**, everything under `traversing/`, holds the drives, training files, models
-and evaluation records of the traversing study, follow-on work that is not part of the paper. **Part C**, everything
-under `contact_nrd/`, holds the training data, test sets and models of the contact NRD, also follow-on work.
+This repository holds separate releases. **Part A** is the set of datasets behind the NeDM paper, unchanged since its
+release (Hub tag `paper-v1`). **Part B**, everything under `traversing/`, holds the drives, training files, models and
+evaluation records of the traversing study, follow-on work that is not part of the paper. **Part C**, everything under
+`contact_nrd/`, holds the training data, test sets and models of the contact NRD, also follow-on work. **Part D**,
+everything under `g1_footstep_rl/`, holds the policies, RL inputs and MuJoCo results of a G1 footstep policy trained in
+the contact NRD, also follow-on work.
 
 Contents:
 
@@ -72,6 +74,7 @@ Contents:
   `release_manifest.json`
 - [Part B: traversing study](#part-b-traversing-study): `traversing/`
 - [Part C: contact NRD](#part-c-contact-nrd): `contact_nrd/`
+- [Part D: G1 footstep policy](#part-d-g1-footstep-policy): `g1_footstep_rl/`
 
 ## Part A: datasets of the paper
 
@@ -652,13 +655,14 @@ BSD-3-Clause, the same as Part A and the code. The traversing study has no publi
 ### What it is
 
 Follow-on work to the paper, not part of it. A neural reduced dynamics model (NRD) for systems whose contacts start
-and stop: a bouncing ball, two pool balls, and an SO101 arm that pushes a T-shaped block. A core network, a collision
-network and a contact network predict each 20 ms step, with one design and one training config for all three cases.
-The design, the results and the commands are in
+and stop: a bouncing ball, two pool balls, an SO101 arm that pushes a T-shaped block, and a Unitree G1 humanoid that a
+frozen walking policy (HOMIE) drives. A core network, a collision network and a contact network predict each 20 ms
+step, with one design for all four cases; the first three cases share one training config, and G1 has its own. The
+design, the results and the commands are in
 [`contact_nrd/` of the code repository](https://github.com/uwsbel/NeDM/tree/main/contact_nrd). The training files,
-the SO101 test files and the models are byte-exact copies of the study's files. The ball and pool test files are new
-conversions of the study's raw test recordings, made with the same converter as the training files. All data come from
-[Project Chrono](https://projectchrono.org) simulations.
+the SO101 and G1 test files and the models are byte-exact copies of the study's files. The ball and pool test files are
+new conversions of the study's raw test recordings, made with the same converter as the training files. The ball, pool
+and SO101 data come from [Project Chrono](https://projectchrono.org) simulations, the G1 data from MuJoCo 3.15.0.
 
 ### Layout
 
@@ -667,10 +671,14 @@ conversions of the study's raw test recordings, made with the same converter as 
 | `contact_nrd/<case>/train/` | `system.json` and `unified_data.npz`: training (split 0) and validation (split 1) episodes, plus the source campaign's own test episodes (split 2, not used) |
 | `contact_nrd/<case>/test/` | The same two files for test episodes (split 2) from a separate collection with a new seed. No test episode was used for training or checkpoint selection |
 | `contact_nrd/<case>/models/seed61.pt`, `seed62.pt` | The trained models (PyTorch checkpoints) |
+| `contact_nrd/g1_locomotion/{train,test}/manifest.json` | G1 only: the collection record (settings, seeds, package versions, model-file hashes) |
+| `contact_nrd/g1_locomotion/models/seed61_training/`, `seed62_training/` | G1 only: the training record of each model (`run_config.json` with the SHA-256 of the code and the data, `complete.json`, `train_log.jsonl`, `validation.json`) |
+| `contact_nrd/g1_locomotion/results/` | G1 only: the test output of both models (`sealed_test_seed61_seed62.json`, `.out`) |
 | `contact_nrd/release_manifest.json` | Size and SHA-256 of every file; source folders, campaigns, seeds and episode counts |
 
 `<case>` is `bouncing_ball` (5,400 / 900 training / validation episodes, 1,800 test), `pool` (19,200 / 2,400,
-4,800 test) or `so101_push_t` (51,200 / 6,400, 1,000 test). Total 9.8 GB.
+4,800 test), `so101_push_t` (51,200 / 6,400, 1,000 test) or `g1_locomotion` (30,685 / 3,413, 3,608 test). The first
+three cases total 9.8 GB, G1 21.4 GB.
 
 ### What the files contain
 
@@ -683,26 +691,105 @@ conversions of the study's raw test recordings, made with the same converter as 
   arrays (`launches`; for the SO101 `contacts_link`, `t_table`, `scenario`) give more detail on each shot or push;
   the models do not use them. Units are SI. Ball and pool records are 1 ms apart, the SO101 records 10 ms. In the
   ball and pool `system.json`, `model_step_s` is 0.01 s; the released models use 0.02 s (from the training config).
+- G1 `unified_data.npz`: `robot` [N, T, 67] (pelvis position, quaternion wxyz, 27 joint angles, pelvis velocity,
+  pelvis angular velocity, 27 joint rates), `action` [N, T, 27] (joint position targets), `contacts` [N, T-1, 2]
+  (left foot and right foot on the ground), `family` [N] (index into the `families` of `system.json`), `episode_id`,
+  `lengths`, `splits`. Other arrays (per record: `command`, `policy_output`, `contact_force`, `contact_steps`,
+  `torque`, `limit_steps`, `limit_joints`; per episode: `seed`, `group_id`, `terminal_reason` and the settings of the
+  difficult and probe families) give more detail; the models do not use them. Records are 10 ms apart. The G1
+  `system.json` also gives the families and the `evaluation` block of checkpoint selection. The G1 data come from
+  running the HOMIE walking policy (OpenHomie, commit `33071f79`) in MuJoCo. HOMIE itself is not in this dataset: it is
+  fetched from its pinned upstream commit, under its own license.
 
 ### Download and use
 
 ```bash
 PYTHONPATH=src python -m nedm.contact_nrd.download --case pool      # in the code repository; checks every SHA-256
+PYTHONPATH=src python -m nedm.contact_nrd.download --case g1_locomotion --part models results   # G1 without the data
 ```
 
-The code repository's `contact_nrd/release_manifest.json` pins the Hub revision. The files cannot be loaded with
-`datasets.load_dataset`; read them with NumPy or with `nedm.contact_nrd.data.load_data`.
+The code repository's `contact_nrd/release_manifest.json` pins the Hub revision (the G1 case has its own revision in
+`case_revisions`). The files cannot be loaded with `datasets.load_dataset`; read them with NumPy or with
+`nedm.contact_nrd.data.load_data`.
 
 ### Known limitations
 
 - **Simulation only.** There is no real-robot or real-table data.
 - **One scene per case.** One ball, wall and floor; one pool table with fixed ball start positions; one arm, T and
-  table. The test episodes are new shots and pushes from the same ranges as the training data.
+  table; one G1 robot with one walking policy on a flat floor. The test episodes are new shots, pushes and walks from
+  the same ranges as the training data.
 - **Open-loop scores.** The published errors are model rollouts against recorded episodes, with the recorded arm
-  commands.
+  commands (G1: rollouts from recorded 4-state histories with the recorded joint targets).
 - **Test sets seen during design.** The study also scored earlier design versions on these test episodes.
 
 ### License and citation
 
 BSD-3-Clause, the same as Part A and the code. The contact NRD has no publication yet: please cite the NeDM paper
-(Part A) and name the dataset revision you used (`d68fa3c4d91539bc6a079f4b2f3ff5c27d825101`).
+(Part A) and name the dataset revision you used (`d68fa3c4d91539bc6a079f4b2f3ff5c27d825101`; the G1 case:
+`cba82611210e401dc0155cb78fcf456a385ecef4`).
+
+## Part D: G1 footstep policy
+
+### What it is
+
+Follow-on work to the paper, not part of it. A footstep policy for the Unitree G1 humanoid. Every 20 ms it sets the
+velocity command (forward speed, sideways speed, turn rate) of a frozen walking policy (HOMIE), so that the feet land
+on given footprints, on a flat floor and on planks with gaps. PPO trained it only inside the G1 contact NRD of Part C
+(`contact_nrd/g1_locomotion/models/seed61.pt`, `seed62.pt`); MuJoCo 3.15.0 checked it on new courses. The training,
+the results and the commands are in
+[`g1_footstep_rl/` of the code repository](https://github.com/uwsbel/NeDM/tree/main/g1_footstep_rl). The policies,
+their run files and the RL inputs are byte-exact copies of the study's files.
+
+### Layout
+
+| Path | Contents |
+|---|---|
+| `g1_footstep_rl/policy/fs_cmd_s1/`, `fs_cmd_s2/` | Two PPO policies (`policy.pt`) and their run files: configs, curriculum, input hashes, stage ends, validation history, learning curve |
+| `g1_footstep_rl/rl_inputs/start_bank/` | 200,000 start states from the G1 training data (`bank_v1.npz`), its summary and the joint ranges of the training data |
+| `g1_footstep_rl/rl_inputs/courses/` | 200,000 training and 1,280 validation footstep courses, and their report |
+| `g1_footstep_rl/results/dev/` | MuJoCo evaluations on the development courses (5 course types, 64 courses each): both policies, with the same episodes also inside the NRD, and the baseline H-FS (HOMIE with a hand-written footstep controller); the NRD-against-MuJoCo summary; package versions |
+| `g1_footstep_rl/results/hfs_tuning/` | The parameter search of the baseline |
+| `g1_footstep_rl/videos/` | Three side-by-side MuJoCo videos (policy above, baseline below) and their record (command, policy SHA-256, outcomes) |
+| `g1_footstep_rl/release_manifest.json` | Size and SHA-256 of every file; provenance |
+
+Total 975 MB.
+
+### What the files contain
+
+- `policy.pt`: an RSL-RL 2.2.4 checkpoint (`model_state_dict`: actor and critic MLPs 512-256-128 on 163 inputs, 3
+  outputs, and the action std). The run files next to it give the environment and PPO settings.
+- `course_bank_v4_{train,val}.npz` (float32, course frame): `targets` [M, 40, 5] (x, y, yaw, foot side, stop flag),
+  `centre` [M, 40, 3] (course line), `n` (footprints in use), `level`, `seed`, plank `intervals` [M, 16, 2] and
+  `half_width`, the stop and cliff flags.
+- `bank_v1.npz`: `hist` [N, 4, 67] (the NRD's state history), `teacher_history` [N, 6, 76] (HOMIE's input history),
+  `family`, `kind` (stand, walk, turn, ...) and the source episode and step of each start.
+- Each evaluation folder: `rows.json` (one row per course: outcome, completion, falls, drift), `steps.json` (one row
+  per footprint: error, along and across), `summary.json` and `SUMMARY.md` (cell rates with 95 % intervals, paired
+  McNemar tests against the baseline); the policy folders also `nrd_rows.json`, `nrd_steps.json` (the same courses
+  inside the NRD) and `snapshots.npz` (the MuJoCo states that start them).
+
+### Download and use
+
+```bash
+scripts/g1_footstep_rl/reproduce.sh full --steps download --with-results   # in the code repository; checks every SHA-256
+```
+
+The code repository's `g1_footstep_rl/release_manifest.json` pins the Hub revision. `reproduce.sh` also trains the
+policies again and runs the MuJoCo evaluation. HOMIE is not in this dataset: the code repository fetches it from its
+pinned upstream commit (OpenHomie, commit `33071f79`), which has its own license.
+
+### Known limitations
+
+- **Simulation only.** There is no real-robot data.
+- **One robot and one walking policy.** Flat floor and flat plank tops at the floor height, straight plank courses,
+  standing starts.
+- **Development results only.** The results are on development courses, which also guided choices during the study.
+  The study's final-test courses were not run.
+- **Machine-dependent episodes.** MuJoCo episodes repeat bitwise only with the same CPU type and package versions
+  (`results/dev/environment.json`).
+
+### License and citation
+
+BSD-3-Clause, the same as Part A and the code. HOMIE is not hosted here; it is fetched from its pinned upstream commit,
+under its own license. The G1 footstep policy has no publication yet: please cite the NeDM paper (Part A) and name the
+dataset revision you used (`cba82611210e401dc0155cb78fcf456a385ecef4`).

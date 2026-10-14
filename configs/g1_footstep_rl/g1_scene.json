@@ -1,0 +1,86 @@
+{
+ "name": "g1_locomotion",
+ "sources": {
+  "dir": "artifacts/g1_footstep_rl/vendor/OpenHomie",
+  "revision": "33071f79f1884bb122bd45631c8c60d61dac1eb8",
+  "mjcf": "HomieRL/legged_gym/resources/robots/g1_description/g1.xml",
+  "mjcf_sha256": "77582af0fdc371e1919aa98e7b4ff3cc90bf46f54e7da6f2853a787c42344800",
+  "policy": "HomieDeploy/deploy.onnx",
+  "policy_sha256": "afe6363c83c8b9ab8b1a2fed598fce7de35ff045eee1a95b336fd6720e3d3d49",
+  "assets_sha256": "3133e216829df6caf05767ecb7bb8ec01457d585a68bd4d700929fdcff27cac5"
+ },
+ "physics": {
+  "timestep_s": 0.001,
+  "integrator": "euler",
+  "solver": "newton",
+  "iterations": 100,
+  "ls_iterations": 50,
+  "tolerance": 1e-08,
+  "cone": "elliptic",
+  "impratio": 10.0,
+  "friction": [0.6, 0.005, 0.0001],
+  "solref": [0.005, 1.0],
+  "solimp": [0.9, 0.95, 0.001, 0.5, 2.0],
+  "foot": "mjcf_spheres",
+  "sole_box_min": [-0.066, -0.038, -0.0354],
+  "sole_box_max": [0.142, 0.038, -0.0304],
+  "joint_frictionloss": null,
+  "joint_damping": null
+ },
+ "steps": {"record_s": 0.01, "control_s": 0.02, "task_duration_s": 10.0},
+ "contact": {"threshold_n": 1.0},
+ "termination": {"min_base_height_m": 0.3},
+ "start": {"foot_clearance_m": 0.002},
+ "commands": {
+  "vx": [-0.5, 1.2],
+  "vy": [-0.5, 0.5],
+  "wz": [-0.8, 0.8],
+  "height": [0.66, 0.74],
+  "dead_zone": {"vx": 0.25, "vy": 0.2, "wz": 0.4},
+  "kinds": {"walk": 0.3, "straight": 0.2, "lateral": 0.1, "turn": 0.15, "stand": 0.15, "squat": 0.1},
+  "initial_stand_s": [0.5, 1.5],
+  "segment_s": [1.0, 4.0],
+  "abrupt_segment_s": [0.3, 1.2]
+ },
+ "difficult": {
+  "p_each": 0.5,
+  "leg_noise_rad": [0.02, 0.15],
+  "joint_scale": [0.8, 1.2],
+  "joint_offset_rad": [-0.1, 0.1],
+  "base_velocity": [0.8, 0.8, 0.3],
+  "base_angular_velocity": [0.5, 0.5, 0.5],
+  "upper_knot_s": [0.5, 2.0],
+  "upper_clearance_m": 0.05,
+  "upper_box": {
+   "waist_yaw_joint": [-0.4, 0.4],
+   "left_shoulder_pitch_joint": [-1.0, 0.3], "left_shoulder_roll_joint": [0.3, 0.8],
+   "left_shoulder_yaw_joint": [-0.5, 0.5], "left_elbow_joint": [0.2, 1.3],
+   "left_wrist_roll_joint": [-0.5, 0.5], "left_wrist_pitch_joint": [-0.5, 0.5], "left_wrist_yaw_joint": [-0.5, 0.5],
+   "right_shoulder_pitch_joint": [-1.0, 0.3], "right_shoulder_roll_joint": [-0.8, -0.3],
+   "right_shoulder_yaw_joint": [-0.5, 0.5], "right_elbow_joint": [0.2, 1.3],
+   "right_wrist_roll_joint": [-0.5, 0.5], "right_wrist_pitch_joint": [-0.5, 0.5], "right_wrist_yaw_joint": [-0.5, 0.5]
+  }
+ },
+ "probe_drop": {
+  "duration_s": 1.2,
+  "height_m": [0.05, 0.5],
+  "warmup_s": [3.0, 6.0],
+  "snapshot_after_s": 1.5,
+  "branches": 6
+ },
+ "probe_landing": {
+  "duration_s": 1.5,
+  "height_m": [0.01, 0.12],
+  "tilt_deg": [2.0, 10.0],
+  "warmup_s": [3.0, 6.0],
+  "snapshot_after_s": 1.5,
+  "branches": 6
+ },
+ "splits": {"fractions": [0.9, 0.1]},
+ "pilot_counts": {"nominal": 320, "difficult": 192, "probe_drop": 220, "probe_landing": 50},
+ "campaigns": {
+  "pilot": {"master_seed": 20261008, "split": "train_validation", "task_episodes": 512, "probe_scale": 1},
+  "production": {"master_seed": 731948205, "split": "train_validation", "task_episodes": 18000, "probe_scale": 10},
+  "test": {"master_seed": 586120437, "split": "test", "task_episodes": 2000, "probe_scale": 1}
+ }
+}

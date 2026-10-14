@@ -3,7 +3,10 @@
  "repo_id": "harryzhang1018/NeDM",
  "prefix": "contact_nrd/",
  "hf_revision": "d68fa3c4d91539bc6a079f4b2f3ff5c27d825101",
- "note": "Pinned copy of contact_nrd/release_manifest.json on the Hub (that file also holds the provenance).",
+ "case_revisions": {
+  "g1_locomotion": "cba82611210e401dc0155cb78fcf456a385ecef4"
+ },
+ "note": "Pinned copy of contact_nrd/release_manifest.json on the Hub (that file also holds the provenance). The g1_locomotion files come from the revision in case_revisions; the other cases from hf_revision.",
  "files": {
   "contact_nrd/bouncing_ball/models/seed61.pt": {
    "bytes": 9829315,
@@ -28,6 +31,78 @@
   "contact_nrd/bouncing_ball/train/unified_data.npz": {
    "bytes": 598033252,
    "sha256": "c78d95a412e9feeecf26ee36a1e6780cab59c5e0d498da47712f4be3e8c0195d"
+  },
+  "contact_nrd/g1_locomotion/models/seed61.pt": {
+   "bytes": 11051523,
+   "sha256": "04ed134c2f22f416399de2797046dc133538327a0f4b44f068708400efad9ba0"
+  },
+  "contact_nrd/g1_locomotion/models/seed61_training/complete.json": {
+   "bytes": 894,
+   "sha256": "cf8b16683858f3ab5d98588c9a4e30d2543dcff563194ddd862a5d3058c57148"
+  },
+  "contact_nrd/g1_locomotion/models/seed61_training/run_config.json": {
+   "bytes": 2869,
+   "sha256": "c625827db41b8d637503b05418e4ab4dc50973cac7647963574c89baf8a036eb"
+  },
+  "contact_nrd/g1_locomotion/models/seed61_training/train_log.jsonl": {
+   "bytes": 20798,
+   "sha256": "4724395e825501f295af86d48fcead0a9f0ed78d7807690702bdf696febfb052"
+  },
+  "contact_nrd/g1_locomotion/models/seed61_training/validation.json": {
+   "bytes": 5789154,
+   "sha256": "f8a646389497509320a1bf30a8821e91ae668fc74a9d91cb365fe26ed3b2920e"
+  },
+  "contact_nrd/g1_locomotion/models/seed62.pt": {
+   "bytes": 11051523,
+   "sha256": "9706d61b38ad857623c27171bad64c54881a7d5a7d2008a63cac8b868b2e3d11"
+  },
+  "contact_nrd/g1_locomotion/models/seed62_training/complete.json": {
+   "bytes": 894,
+   "sha256": "8cff2f16571998ab9e8cc7d3da36974b130334395f5369b6ea4282d09edcd0fc"
+  },
+  "contact_nrd/g1_locomotion/models/seed62_training/run_config.json": {
+   "bytes": 2869,
+   "sha256": "3b9641c6a131f2541d69f5a2e58c00ebf15c71282306224a3c22a4325259e865"
+  },
+  "contact_nrd/g1_locomotion/models/seed62_training/train_log.jsonl": {
+   "bytes": 20780,
+   "sha256": "1d3785a8a2752c7c8ad555bf3ef8b017d5710db1731a5832b1f2648467d6a239"
+  },
+  "contact_nrd/g1_locomotion/models/seed62_training/validation.json": {
+   "bytes": 5788402,
+   "sha256": "8d9236f55a48c361dbb555768e22412b56c09c74319d5e839f0b5ebda389a8e7"
+  },
+  "contact_nrd/g1_locomotion/results/sealed_test_seed61_seed62.json": {
+   "bytes": 13231706,
+   "sha256": "52a011741206df9900e9eda7ae48217fca538750547942ae6d87e7c71c47b475"
+  },
+  "contact_nrd/g1_locomotion/results/sealed_test_seed61_seed62.out": {
+   "bytes": 39718,
+   "sha256": "3d43690e2564a3fa5248a32d312c9c95d67395eccf5a6b6fc8866d9b6705f1fa"
+  },
+  "contact_nrd/g1_locomotion/test/manifest.json": {
+   "bytes": 17291,
+   "sha256": "f471f0035d29d0e4b75f90ea1cc4a0bf045c1ad7a0a6ede78f55d5b601579c65"
+  },
+  "contact_nrd/g1_locomotion/test/system.json": {
+   "bytes": 19380,
+   "sha256": "52fd1d63a79be9eaafc4d21bb29fe952b88a2bfba8bb706df76fd2ac6443e9f1"
+  },
+  "contact_nrd/g1_locomotion/test/unified_data.npz": {
+   "bytes": 2040268220,
+   "sha256": "7aa8c962622fab2720c8b29475fe134a2196f37f9fe7b80a639e994caec77ece"
+  },
+  "contact_nrd/g1_locomotion/train/manifest.json": {
+   "bytes": 17379,
+   "sha256": "9696c7d272dc7043308bc5070d7d860d4fefc95e19b37ccdf0980364675847f2"
+  },
+  "contact_nrd/g1_locomotion/train/system.json": {
+   "bytes": 19380,
+   "sha256": "52fd1d63a79be9eaafc4d21bb29fe952b88a2bfba8bb706df76fd2ac6443e9f1"
+  },
+  "contact_nrd/g1_locomotion/train/unified_data.npz": {
+   "bytes": 19281845270,
+   "sha256": "45340d23f05f4a8d9daedf57d08649480d1204cb37356f0e2932dc5ec70dc751"
   },
   "contact_nrd/pool/models/seed61.pt": {
    "bytes": 10035651,

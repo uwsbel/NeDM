@@ -38,11 +38,11 @@ The study's data and models are in the `traversing/` folder of the Hugging Face
 dataset; its training and evaluation code is in `src/nedm/traversing/`.
 
 **Follow-on work, not part of the paper:** [`contact_nrd/`](contact_nrd/README.md)
-extends neural reduced dynamics (NRD) to contacts that start and stop: a bouncing ball, two pool balls
-and an SO101 arm that pushes a T. A core network, a collision network and a
-contact network, with one design and one training config for all three cases,
-predict each 20 ms step. The data, test sets and trained models are in the
-`contact_nrd/` folder of the Hugging Face dataset; the code is in
+extends neural reduced dynamics (NRD) to contacts that start and stop: a bouncing ball, two pool balls,
+an SO101 arm that pushes a T, and a Unitree G1 humanoid that a frozen walking policy drives in MuJoCo.
+A core network, a collision network and a contact network, with one design for all four cases, predict
+each 20 ms step. The first three cases share one training config; G1 has its own. The data, test sets
+and trained models are in the `contact_nrd/` folder of the Hugging Face dataset; the code is in
 `src/nedm/contact_nrd/`.
 
 **Follow-on work, not part of the paper:** [`so101_push_rl/`](so101_push_rl/README.md)
@@ -52,6 +52,14 @@ goals (82–96 % of the sealed test goals of each trained goal type). The NRD, i
 training data, the RL inputs, the policies and the Chrono evaluations are in the
 `so101_push_rl/` folder of the Hugging Face dataset; the code is in
 `src/nedm/so101_push_rl/`, `scripts/so101_push_rl/` and `configs/so101_push_rl/`.
+
+**Follow-on work, not part of the paper:** [`g1_footstep_rl/`](g1_footstep_rl/README.md)
+trains a footstep policy with PPO inside the G1 contact NRD, then checks it in MuJoCo. The policy sets
+the velocity command of the frozen walking policy (HOMIE) so that the feet land on given footprints, on
+a flat floor and on planks with gaps: it completes 92–100 % of the development courses of each course
+type, a hand-written footstep controller 0–28 %. The policies, RL inputs, MuJoCo results and videos are
+in the `g1_footstep_rl/` folder of the Hugging Face dataset; the code is in `src/nedm/g1_footstep_rl/`,
+`scripts/g1_footstep_rl/` and `configs/g1_footstep_rl/`.
 
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
@@ -86,16 +94,19 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `src/nedm/traversing/` | Traversing study code: model training (`training/`) and the Chrono evaluation class (`evaluation/`) |
 | `src/nedm/contact_nrd/` | Contact NRD: the three networks, training, test scores and the data download |
 | `src/nedm/so101_push_rl/` | SO101 push-T PPO inside the contact NRD: the NRD environment, action decoder, arm kinematics, reward and rules |
+| `src/nedm/g1_footstep_rl/` | G1 footstep PPO inside the contact NRD: courses and scorer, the NRD environment, the HOMIE copy, leg kinematics, the MuJoCo scene and runner, the hand-written footstep baseline (H-FS) |
 | `configs/hmmwv/`, `configs/tracked_arm/` | Collection and training configs |
-| `configs/contact_nrd/` | The one training config of the contact NRD |
+| `configs/contact_nrd/` | Training configs of the contact NRD (one for the first three cases, one for G1) and the G1 evaluation block |
 | `configs/so101_push_rl/` | Environment config, the two PPO curricula and the arm and T settings |
+| `configs/g1_footstep_rl/` | Environment config, PPO curriculum, MuJoCo scene and HOMIE sources of the G1 footstep study |
 | `traversing/` | Traversing study documents, results and release manifest |
-| `contact_nrd/` | Contact NRD design, results, the three study cases and release manifest |
+| `contact_nrd/` | Contact NRD design, results, the four study cases, the G1 data format and release manifest |
 | `so101_push_rl/` | SO101 push-T PPO study: results, the NRD it used and release manifest |
+| `g1_footstep_rl/` | G1 footstep PPO study: results, training, the NRD and HOMIE, release manifest |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
 
-`scripts/` is organised by study (`core/`, `hmmwv/`, `tracked_arm/`, `traversing/`, `so101_push_rl/`), then by
-pipeline stage, in the order you would run them:
+`scripts/` is organised by study (`core/`, `hmmwv/`, `tracked_arm/`, `traversing/`, `so101_push_rl/`,
+`g1_footstep_rl/`), then by pipeline stage, in the order you would run them:
 
 | Path | Contents |
 |---|---|
@@ -112,6 +123,7 @@ pipeline stage, in the order you would run them:
 | `scripts/core/throughput/`, `scripts/hmmwv/throughput/` | Chrono and NN-ROM throughput probes (Appendix A) and the context-truncation sweep |
 | `scripts/hmmwv/cluster/`, `scripts/tracked_arm/cluster/` | SLURM array jobs for the collections that only run at cluster scale |
 | `scripts/so101_push_rl/` | The SO101 push-T PPO trainer and `reproduce.sh` (download, training, NRD validation) |
+| `scripts/g1_footstep_rl/` | The G1 footstep PPO trainer, the MuJoCo evaluation, the H-FS parameter search, the bank builders, the HOMIE fetch and `reproduce.sh` |
 | `scripts/hmmwv/validation/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
 | `scripts/core/release/` | The Hugging Face dataset release: raw CSV → Parquet export, validation, upload, and the download/rehydrate helper |
 | `scripts/traversing/` | The traversing study's result recount (`analysis/`) and release download/verification (`release/`) |
