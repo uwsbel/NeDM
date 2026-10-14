@@ -440,7 +440,7 @@ class TrayWorld:
 
     @torch.no_grad()
     def run(self, tasks, student=None, beta=1.0, noise=None, seed=0, record=True, n_exec=5, record_states=False,
-            log=None, ensemble=None, jaw_lead=0):
+            log=None, ensemble=None, jaw_lead=0, full_horizon=False):
         """One episode per world on ``tasks`` (B rows). student: a ``TrayActor`` (or None: beta must be 1); beta: the
         probability that the teacher drives a decision (per world and decision); noise [B] (or float): DART noise
         scale of the teacher's move columns per world (beta 1 only); n_exec: executed targets per student query (<= 5,
@@ -449,7 +449,8 @@ class TrayWorld:
         [B, S, ...] of all worlds (videos); ``ensemble`` (with n_exec 1): temporal ensembling of the overlapping chunk
         predictions for the current step, weight exp(ensemble x age in steps) (ACT's convention: > 0 favours the older
         predictions, < 0 the newer); ``jaw_lead``: the jaw target is taken that many steps ahead in the chunk(s) (the
-        cube-blocked jaw hides the first steps of an opening ramp)."""
+        cube-blocked jaw hides the first steps of an opening ramp); ``full_horizon``: keep stepping every world (and
+        querying the student) to the horizon after its task ended (videos; the outcome arrays still hold the task end)."""
         from nedm.so101_policy import task as T
         from nedm.so101_policy.decoder import DecoderV2, hash_uniform
         from nedm.so101_policy.vision.teacher import hash_normal
@@ -490,7 +491,7 @@ class TrayWorld:
         chunk, q_step, hist = None, 0, []
         for k in range(K + 1):
             live0 = task.tr.end == 0
-            if not bool(live0.any()):
+            if not bool(live0.any()) and not full_horizon:
                 break
             ws = self.ws
             F = T.features(ws, self.kin, None, tc)
@@ -530,7 +531,7 @@ class TrayWorld:
             for j in range(steps_per):
                 gs = k * steps_per + j                       # 20 ms steps since the reset
                 live_s = task.tr.end == 0
-                if student is not None and bool((stud & live_s).any()) and (chunk is None or gs % n_exec == 0):
+                if student is not None and bool((stud & (live_s | full_horizon)).any()) and (chunk is None or gs % n_exec == 0):
                     ts = time.time()
                     chunk = student(self.ws, self.goal_pose).to(dev, torch.float64)
                     chunk = torch.minimum(torch.maximum(chunk, tlo), thi)
@@ -1182,7 +1183,8 @@ class TrayActor:
 
 @torch.no_grad()
 def evaluate(actor, tasks, world, teacher, device="cuda", nrd_ckpt=None, workers=0, mj_python=None, horizon=400,
-             n_exec=5, record_states=False, log=None, tw=None, decoder=None, ensemble=None, jaw_lead=0):
+             n_exec=5, record_states=False, log=None, tw=None, decoder=None, ensemble=None, jaw_lead=0,
+             full_horizon=False):
     """The student (beta 0) or the teacher (actor None) on all tasks (one batch) -> ``run`` output + summary."""
     B = len(tasks["seeds"])
     own = tw is None
@@ -1190,7 +1192,7 @@ def evaluate(actor, tasks, world, teacher, device="cuda", nrd_ckpt=None, workers
         tw = TrayWorld(world, B, teacher, device, nrd_ckpt, workers, mj_python, horizon, decoder=decoder)
     w0 = tw.world_steps
     r = tw.run(tasks, actor, 0.0 if actor is not None else 1.0, None, 0, True, n_exec, record_states, log,
-               ensemble=ensemble, jaw_lead=jaw_lead)
+               ensemble=ensemble, jaw_lead=jaw_lead, full_horizon=full_horizon)
     r["ensemble"] = np.float64(np.nan if ensemble is None else ensemble)
     r["jaw_lead"] = np.int64(jaw_lead)
     r["world_steps"] = np.int64(tw.world_steps - w0)

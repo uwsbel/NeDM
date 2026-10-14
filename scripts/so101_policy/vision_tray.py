@@ -89,7 +89,7 @@ def cmd_eval(a):
     r = TR.evaluate(actor, t, a.world, te, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                     a.n_exec or st.cfg.n_exec, a.record_states, log, decoder=dec_over(a),
                     ensemble=a.ensemble if a.ensemble is not None else st.cfg.ensemble,
-                    jaw_lead=a.jaw_lead if a.jaw_lead is not None else st.cfg.jaw_lead)
+                    jaw_lead=a.jaw_lead if a.jaw_lead is not None else st.cfg.jaw_lead, full_horizon=a.full_horizon)
     r["student"] = np.array(str(a.student))
     np.savez_compressed(a.out, **r)
     log(f"student {a.world}: {r['summary']}")
@@ -291,6 +291,7 @@ def main():
     p.add_argument("--n-exec", type=int, default=0, help="query period in steps (0: the student's config)")
     p.add_argument("--ensemble", type=float, help="temporal ensembling coefficient (with --n-exec 1)")
     p.add_argument("--jaw-lead", type=int, help="jaw target this many steps ahead in the chunk")
+    p.add_argument("--full-horizon", action="store_true", help="do not stop at the task end (videos)")
     p = sub.add_parser("run")
     common(p)
     p.add_argument("--out", required=True), p.add_argument("--world", choices=("mujoco", "nrd", "kin"), required=True)
