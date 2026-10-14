@@ -1,0 +1,20 @@
+{
+  "note": "tray student v3q (build8_tray_student.md sec. 1h): the per-step CNN of v1 (inputs ONLY top + wrist RGB at 288 px with the tray, q, qdot; ResNet18 to layer3 per camera, 32 spatial-softmax keypoints + 64-d pool, MLP 512-512 -> 10 x 6 joint targets as (target - q), masked L1), one query per 0.1 s, the first 5 targets executed, no ensembling; in training Gaussian noise of 1 std on the normalised qdot inputs (against the copycat shortcut of behaviour cloning with rate inputs)",
+  "kind": "perstep",
+  "chunk": 10,
+  "n_exec": 5,
+  "qd_noise": 1.0,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "encoder": "resnet18",
+  "stages": 3,
+  "keypoints": 32,
+  "pool_dim": 64,
+  "hidden": [512, 512],
+  "batch": 128,
+  "render_batch": 256,
+  "lr": 3e-4,
+  "lr_backbone": 1e-4,
+  "warmup": 300,
+  "cosine": true
+}

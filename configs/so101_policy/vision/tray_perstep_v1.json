@@ -1,0 +1,19 @@
+{
+  "note": "tray student, per-step CNN with a chunk head (build8_tray_student.md): inputs ONLY top + wrist RGB (288 px, tray drawn at the goal) and q, qdot (12); ResNet18 (ImageNet, frozen BN) to layer3 per camera -> 32 spatial-softmax keypoints + 64-d pool; MLP 512-512 -> 10 x 6 joint targets (20 ms each) as (target - q at the query), mean / std normalised per (step, joint); masked L1; one query per 0.1 s, the first 5 targets executed (no ensembling)",
+  "kind": "perstep",
+  "chunk": 10,
+  "n_exec": 5,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "encoder": "resnet18",
+  "stages": 3,
+  "keypoints": 32,
+  "pool_dim": 64,
+  "hidden": [512, 512],
+  "batch": 128,
+  "render_batch": 256,
+  "lr": 3e-4,
+  "lr_backbone": 1e-4,
+  "warmup": 300,
+  "cosine": true
+}

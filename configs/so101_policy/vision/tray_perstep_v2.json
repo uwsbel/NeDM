@@ -1,0 +1,22 @@
+{
+  "note": "tray student v2 (build8_tray_student.md sec. 1g): the per-step CNN of v1 (inputs ONLY top + wrist RGB at 288 px with the tray, q, qdot; ResNet18 to layer3 per camera, 32 spatial-softmax keypoints + 64-d pool, MLP 512-512 -> 10 x 6 joint targets as (target - q), masked L1), trained on the state of EVERY 20 ms step; executed with a query every step, ACT-style temporal ensembling of the overlapping chunks (coefficient 0.01: about uniform), and the jaw target taken 8 steps ahead in each chunk (the cube-blocked jaw hides the first steps of an opening)",
+  "kind": "perstep",
+  "chunk": 10,
+  "n_exec": 1,
+  "step_rows": true,
+  "ensemble": 0.01,
+  "jaw_lead": 8,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "encoder": "resnet18",
+  "stages": 3,
+  "keypoints": 32,
+  "pool_dim": 64,
+  "hidden": [512, 512],
+  "batch": 128,
+  "render_batch": 256,
+  "lr": 3e-4,
+  "lr_backbone": 1e-4,
+  "warmup": 300,
+  "cosine": true
+}

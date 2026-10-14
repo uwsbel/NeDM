@@ -1,0 +1,14 @@
+{
+  "note": "tray student, LeRobot ACT (build8_tray_student.md): observation.state = q, qdot (12), top + wrist RGB (288 px, tray drawn at the goal), no environment state; ResNet18, dim 512, 4 encoder + 1 decoder layers, CVAE latent 32, KL 10; chunk 10 x 6 joint targets (20 ms each) as (target - q at the query), mean / std normalised per (step, joint); masked L1; one query per 0.1 s, the first 5 targets of the newest chunk executed (no temporal ensembling: build5)",
+  "kind": "act",
+  "chunk": 10,
+  "n_exec": 5,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "batch": 64,
+  "render_batch": 256,
+  "lr": 5e-5,
+  "lr_backbone": 1e-5,
+  "warmup": 500,
+  "cosine": false
+}

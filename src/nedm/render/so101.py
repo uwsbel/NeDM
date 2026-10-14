@@ -70,6 +70,17 @@ TOP_UP = (1.0, 0.0, 0.0)
 GOAL_HALF = 0.023          # goal plate half side (m): a 30 mm cube on the goal leaves 8 mm of plate on every side
 GOAL_THICKNESS = 0.001     # m; the plate lies on the table top, so a cube resting on it sinks 1 mm into it (hidden)
 GOAL_FRAME_WIDTH = 0.006   # m, the "frame" style: an outline of this width, outer half side GOAL_HALF
+# "tray" style (build8_tray_student.md): a VISUAL-ONLY tray at the goal pose (no collision anywhere: the MuJoCo scene and
+# the NRD do not know it). A flat base slightly larger than the cube's 30 mm footprint (inner side 40 mm) with a low
+# rim (5 mm high, 4 mm wide); base light cream, rim orange, against the blue cube and the grey-brown table. The base is
+# 1 mm thick on the table top, so a cube resting on the goal hides 1 mm of it (as the plate); the rim intersects the
+# cube only when the cube is more than 5 mm off the tray centre (visual overlap, no contact).
+TRAY_INNER_HALF = 0.020    # m, half side of the inner square
+TRAY_RIM_WIDTH = 0.004     # m
+TRAY_RIM_HEIGHT = 0.005    # m above the table top
+TRAY_BASE_THICKNESS = 0.001
+TRAY_COLOR = (0.93, 0.91, 0.84)
+TRAY_RIM_COLOR = (0.98, 0.62, 0.15)
 HIDDEN_Z = -100.0          # z of a hidden goal marker (far below the table)
 BOX_FACES = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1],
                       [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]], dtype=np.int32)
@@ -304,8 +315,9 @@ class SO101Scene:
     camera transforms (x y z w, float32) of every world.
 
     Bodies, in order: the moving arm meshes (one per body and colour), the cube (1 mesh, or 6 with ``cube_colors``
-    of 6 colours), the goal marker (none with ``goal=None``). Static: the arm base meshes and the table.
-    ``goal``: ``"plate"`` (a 1 mm square plate on the table, side 2 * GOAL_HALF) or ``"frame"`` (its outline).
+    of 6 colours), the goal marker (none with ``goal=None``; 2 meshes for the tray). Static: the arm base meshes and
+    the table. ``goal``: ``"plate"`` (a 1 mm square plate on the table, side 2 * GOAL_HALF), ``"frame"`` (its outline)
+    or ``"tray"`` (a visual-only tray: 40 mm inner base, 5 mm rim; ``TRAY_*`` constants).
     ``cameras``: names from VIEWS, in the order of the output's camera axis.
     """
 
@@ -350,8 +362,19 @@ class SO101Scene:
             parts += [box_mesh([w / 2, h - w, t / 2], (s * (h - w / 2), 0.0, t / 2)) for s in (-1, 1)]
             bodies.append(MeshBody("goal", vertices=np.concatenate([p[0] for p in parts]),
                                    faces=np.concatenate([p[1] + 8 * k for k, p in enumerate(parts)]), color=GOAL_COLOR))
+        elif goal == "tray":
+            hi, w, hr, tb = TRAY_INNER_HALF, TRAY_RIM_WIDTH, TRAY_RIM_HEIGHT, TRAY_BASE_THICKNESS
+            ho = hi + w
+            v, f = box_mesh([ho, ho, tb / 2], (0.0, 0.0, tb / 2))
+            bodies.append(MeshBody("goal", vertices=v, faces=f, color=TRAY_COLOR))
+            parts = [box_mesh([ho, w / 2, hr / 2], (0.0, s * (ho - w / 2), hr / 2)) for s in (-1, 1)]
+            parts += [box_mesh([w / 2, hi, hr / 2], (s * (ho - w / 2), 0.0, hr / 2)) for s in (-1, 1)]
+            bodies.append(MeshBody("goal_rim", vertices=np.concatenate([p[0] for p in parts]),
+                                   faces=np.concatenate([p[1] + 8 * k for k, p in enumerate(parts)]),
+                                   color=TRAY_RIM_COLOR))
         elif goal is not None:
-            raise ValueError(f"goal style {goal!r}: 'plate', 'frame' or None")
+            raise ValueError(f"goal style {goal!r}: 'plate', 'frame', 'tray' or None")
+        self.goal_meshes = 0 if goal is None else (2 if goal == "tray" else 1)
         self.scene = Scene.from_meshes(bodies)
         # static: the base (welded to the world) and the table, as the collector builds them
         zero = torch.zeros(1, 6, dtype=torch.float64, device=self.device)
@@ -402,7 +425,7 @@ class SO101Scene:
         cube = torch.cat([torch.as_tensor(cube_pos).to(**f64), xyzw(cq / cq.norm(dim=-1, keepdim=True))], -1)
         parts.append(cube[:, None].expand(n, self.cube_meshes, 7))
         if self.goal_style is not None:
-            parts.append(self.goal_transform(goal_pose, n)[:, None])
+            parts.append(self.goal_transform(goal_pose, n)[:, None].expand(n, self.goal_meshes, 7))
         body_q = torch.cat(parts, 1)
         views = []
         for name in self.cameras:
