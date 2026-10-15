@@ -1,0 +1,33 @@
+{
+ "note": "build9 viral student v4 (2026-10-14 18:50): viral_v3 with jaw_lead 4 (chosen on the dev tasks with o5 iteration 1,000: lead 0 / 4 / 8 = 97 / 99 / 92 % lenient; fresh tasks 93 / 97 / 91 %): build8's lead 8 closes the jaw too early during the descent (table contacts) and opens it too early at the place (drops).",
+ "chunk": 10,
+ "n_exec": 5,
+ "res": 224,
+ "cameras": [
+  "top",
+  "wrist"
+ ],
+ "qd_noise": 0.3,
+ "encoder": "resnet18",
+ "stages": 3,
+ "keypoints": 32,
+ "pool_dim": 64,
+ "hidden": [
+  512,
+  512
+ ],
+ "aux_weight": 1.0,
+ "aux_hidden": 256,
+ "jaw_lead": 4,
+ "batch": 128,
+ "render_batch": 256,
+ "lr": 0.0003,
+ "lr_backbone": 0.0001,
+ "weight_decay": 0.0001,
+ "warmup": 300,
+ "grad_clip": 10.0,
+ "amp": true,
+ "dr": {},
+ "dr_frac": 1.0,
+ "reuse": 2
+}

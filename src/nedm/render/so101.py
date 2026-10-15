@@ -81,6 +81,12 @@ TRAY_RIM_HEIGHT = 0.005    # m above the table top
 TRAY_BASE_THICKNESS = 0.001
 TRAY_COLOR = (0.93, 0.91, 0.84)
 TRAY_RIM_COLOR = (0.98, 0.62, 0.15)
+# "block" style (build9_viral_student.md): a VISUAL-ONLY flat colour block at the goal pose (no collision anywhere):
+# a square of 50 mm side, 1 mm thick on the table top (a cube resting on it hides 1 mm of it), saturated red against the
+# blue cube and the grey-brown table. The lenient success of build9 = cube centre inside this square (any yaw).
+BLOCK_HALF = 0.025         # m, half side
+BLOCK_THICKNESS = 0.001    # m
+BLOCK_COLOR = (0.85, 0.12, 0.12)
 HIDDEN_Z = -100.0          # z of a hidden goal marker (far below the table)
 BOX_FACES = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1],
                       [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]], dtype=np.int32)
@@ -317,15 +323,20 @@ class SO101Scene:
     Bodies, in order: the moving arm meshes (one per body and colour), the cube (1 mesh, or 6 with ``cube_colors``
     of 6 colours), the goal marker (none with ``goal=None``; 2 meshes for the tray). Static: the arm base meshes and
     the table. ``goal``: ``"plate"`` (a 1 mm square plate on the table, side 2 * GOAL_HALF), ``"frame"`` (its outline)
-    or ``"tray"`` (a visual-only tray: 40 mm inner base, 5 mm rim; ``TRAY_*`` constants).
+    or ``"tray"`` (a visual-only tray: 40 mm inner base, 5 mm rim; ``TRAY_*`` constants) or ``"block"`` (a visual-only
+    flat colour square of 50 mm side; ``BLOCK_*`` constants).
     ``cameras``: names from VIEWS, in the order of the output's camera axis.
+    ``table_body``: draw the table as the LAST body (fixed pose) instead of a static mesh, so that a backend with
+    per-world body colours (Newton: :meth:`SO101Renderer.set_appearance`) can colour it per world (build9's visual
+    randomisation); the pictures are the same as with the static table.
     """
 
     def __init__(self, assets: SO101Assets | None = None, cube_colors=None, goal: str | None = "plate",
                  front_eye=FRONT_EYE, front_target=FRONT_TARGET, device=None, cfg: dict | None = None,
-                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET):
+                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET, table_body: bool = False):
         from nedm.render import cameras as cams
         self.cameras = tuple(cameras)
+        self.table_body = bool(table_body)
         if not self.cameras or len(set(self.cameras)) != len(self.cameras) or not set(self.cameras) <= set(VIEWS):
             raise ValueError(f"cameras {cameras!r}: distinct names from {VIEWS}")
         self.assets = assets = assets if assets is not None else load_assets()
@@ -372,9 +383,19 @@ class SO101Scene:
             bodies.append(MeshBody("goal_rim", vertices=np.concatenate([p[0] for p in parts]),
                                    faces=np.concatenate([p[1] + 8 * k for k, p in enumerate(parts)]),
                                    color=TRAY_RIM_COLOR))
+        elif goal == "block":
+            v, f = box_mesh([BLOCK_HALF, BLOCK_HALF, BLOCK_THICKNESS / 2], (0.0, 0.0, BLOCK_THICKNESS / 2))
+            bodies.append(MeshBody("goal", vertices=v, faces=f, color=BLOCK_COLOR))
         elif goal is not None:
-            raise ValueError(f"goal style {goal!r}: 'plate', 'frame', 'tray' or None")
+            raise ValueError(f"goal style {goal!r}: 'plate', 'frame', 'tray', 'block' or None")
         self.goal_meshes = 0 if goal is None else (2 if goal == "tray" else 1)
+        t = cfg["table"]
+        tv, tf = box_mesh([0.5 * t["size_xy_m"][0], 0.5 * t["size_xy_m"][1], 0.5 * t["thickness_m"]])
+        table_mesh = MeshBody("table", vertices=tv, faces=tf, color=TABLE_COLOR)
+        self.table_pose = torch.tensor([*t["center_xy_m"], -0.5 * t["thickness_m"], 0.0, 0.0, 0.0, 1.0],
+                                       dtype=torch.float64, device=self.device)
+        if self.table_body:
+            bodies.append(table_mesh)
         self.scene = Scene.from_meshes(bodies)
         # static: the base (welded to the world) and the table, as the collector builds them
         zero = torch.zeros(1, 6, dtype=torch.float64, device=self.device)
@@ -383,10 +404,8 @@ class SO101Scene:
             if body not in moving:
                 i = self.kin.bodies.index(body)
                 self.scene.add_static_mesh(mesh, torch.cat([bpos[0, i], xyzw(bquat[0, i])]).tolist())
-        t = cfg["table"]
-        tv, tf = box_mesh([0.5 * t["size_xy_m"][0], 0.5 * t["size_xy_m"][1], 0.5 * t["thickness_m"]])
-        self.scene.add_static_mesh(MeshBody("table", vertices=tv, faces=tf, color=TABLE_COLOR),
-                                   (*t["center_xy_m"], -0.5 * t["thickness_m"], 0.0, 0.0, 0.0, 1.0))
+        if not self.table_body:
+            self.scene.add_static_mesh(table_mesh, self.table_pose.tolist())
         # cameras: front and top fixed (x y z, qx qy qz qw; look along -z, +y up); wrist = the MJCF camera on its body
         f64 = lambda v: torch.tensor([v], dtype=torch.float64)                                     # noqa: E731
         self.front = cams.look_at(f64(front_eye), f64(front_target))[0].to(self.device)
@@ -426,6 +445,8 @@ class SO101Scene:
         parts.append(cube[:, None].expand(n, self.cube_meshes, 7))
         if self.goal_style is not None:
             parts.append(self.goal_transform(goal_pose, n)[:, None].expand(n, self.goal_meshes, 7))
+        if self.table_body:
+            parts.append(self.table_pose.expand(n, 1, 7))
         body_q = torch.cat(parts, 1)
         views = []
         for name in self.cameras:
@@ -467,7 +488,7 @@ class SO101Renderer:
     def __init__(self, num_worlds: int, width: int = 128, height: int = 128, backend: str = "newton",
                  shadows: bool = True, assets: SO101Assets | None = None, cube_colors=None, goal: str | None = "plate",
                  front_eye=FRONT_EYE, front_target=FRONT_TARGET, sky=SKY, device=None,
-                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET):
+                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET, table_body: bool = False):
         from nedm.render.renderer import BatchRenderer
         if backend == "madrona":
             torch_device = "cuda:0"
@@ -475,7 +496,7 @@ class SO101Renderer:
             torch_device = "cuda:0" if ("cuda" in str(device) or (device is None and torch.cuda.is_available())) \
                 else "cpu"
         self.scene = SO101Scene(assets, cube_colors, goal, front_eye, front_target, device=torch_device,
-                                cameras=cameras, top_eye=top_eye, top_target=top_target)
+                                cameras=cameras, top_eye=top_eye, top_target=top_target, table_body=table_body)
         self.cameras = self.scene.cameras
         self.renderer = BatchRenderer(self.scene.scene, num_worlds, width, height, cameras=len(self.cameras),
                                       fov_deg=self.scene.fovy_deg, device=device, shadows=shadows, sky=sky,

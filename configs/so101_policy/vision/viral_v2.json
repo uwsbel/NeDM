@@ -1,0 +1,33 @@
+{
+ "note": "build9 viral student v2 (2026-10-14 16:45): viral_v1 + reuse 2 (each rendered training image is used for 2 training steps with fresh colour augmentation; halves the renderer cost per step).",
+ "chunk": 10,
+ "n_exec": 5,
+ "res": 224,
+ "cameras": [
+  "top",
+  "wrist"
+ ],
+ "qd_noise": 1.0,
+ "encoder": "resnet18",
+ "stages": 3,
+ "keypoints": 32,
+ "pool_dim": 64,
+ "hidden": [
+  512,
+  512
+ ],
+ "aux_weight": 1.0,
+ "aux_hidden": 256,
+ "jaw_lead": 0,
+ "batch": 128,
+ "render_batch": 256,
+ "lr": 0.0003,
+ "lr_backbone": 0.0001,
+ "weight_decay": 0.0001,
+ "warmup": 300,
+ "grad_clip": 10.0,
+ "amp": true,
+ "dr": {},
+ "dr_frac": 1.0,
+ "reuse": 2
+}

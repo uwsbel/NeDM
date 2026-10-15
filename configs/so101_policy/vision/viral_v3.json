@@ -1,0 +1,33 @@
+{
+ "note": "build9 viral student v3 (2026-10-14 17:10): viral_v2 + qd_noise 0.3 (d2 round 0: 26 % vs 13 % with 1.0, one seed each) + jaw_lead 8 at execution, also in the DAgger collection (build8's rule; d1 round 0: 13 -> 37 % lenient with the lead, dev set).",
+ "chunk": 10,
+ "n_exec": 5,
+ "res": 224,
+ "cameras": [
+  "top",
+  "wrist"
+ ],
+ "qd_noise": 0.3,
+ "encoder": "resnet18",
+ "stages": 3,
+ "keypoints": 32,
+ "pool_dim": 64,
+ "hidden": [
+  512,
+  512
+ ],
+ "aux_weight": 1.0,
+ "aux_hidden": 256,
+ "jaw_lead": 8,
+ "batch": 128,
+ "render_batch": 256,
+ "lr": 0.0003,
+ "lr_backbone": 0.0001,
+ "weight_decay": 0.0001,
+ "warmup": 300,
+ "grad_clip": 10.0,
+ "amp": true,
+ "dr": {},
+ "dr_frac": 1.0,
+ "reuse": 2
+}

@@ -1,0 +1,17 @@
+{
+ "note": "build9 VIRAL online loop v1 (2026-10-14 17:25): 1,024 NRD worlds, slots 0-511 JT-driven for the whole run (half of them with 1 x std action noise), 512-1023 student-driven; every world rendered once per decision (20 % of the slots with nominal visuals, the scene light in 25 % of the decisions); replay buffer of 100,000 samples on the GPU; 8 training steps of 128 per decision (each sample used about once); constant lr 1e-4 (backbone 5e-5).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 0.00005,
+ "iterations": 9000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25
+}

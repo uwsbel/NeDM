@@ -1,0 +1,12 @@
+{
+ "note": "build9 Markov joint teacher PPO fine-tune (2026-10-14): actor initialised by behaviour cloning on the current teacher + decoder v3 (joint_teacher.train_bc); normalised quadratic-basis action (18), std per group (arm 15, jaw 3) in normalised units; adaptive lr from 1e-4 at desired KL 0.01; no entropy bonus; 32 decisions per env per iteration; critic warm-up in the script (--critic-warmup).",
+ "algorithm": {"clip_param": 0.2, "desired_kl": 0.01, "entropy_coef": 0.0, "gamma": 0.99, "lam": 0.95,
+               "learning_rate": 0.0001, "max_grad_norm": 1.0, "num_learning_epochs": 5, "num_mini_batches": 8,
+               "schedule": "adaptive", "use_clipped_value_loss": true, "value_loss_coef": 1.0},
+ "num_steps_per_env": 32,
+ "critic_lr": 0.0003,
+ "init_std": [0.25, 0.25],
+ "std_floor": [0.05, 0.05],
+ "std_cap": [0.5, 0.5],
+ "std_reset": [0.25, 0.25]
+}

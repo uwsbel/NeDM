@@ -1,0 +1,35 @@
+{
+ "note": "build9 joint teacher PPO v3 (2026-10-14 16:20): joint_ppo_v2 with std 0.05 normalised (arm offset about 1.5 mrad), floor 0.02, cap 0.2.",
+ "algorithm": {
+  "clip_param": 0.2,
+  "desired_kl": 0.005,
+  "entropy_coef": 0.0,
+  "gamma": 0.99,
+  "lam": 0.95,
+  "learning_rate": 3e-05,
+  "max_grad_norm": 1.0,
+  "num_learning_epochs": 5,
+  "num_mini_batches": 8,
+  "schedule": "adaptive",
+  "use_clipped_value_loss": true,
+  "value_loss_coef": 1.0
+ },
+ "num_steps_per_env": 32,
+ "critic_lr": 0.0003,
+ "init_std": [
+  0.05,
+  0.05
+ ],
+ "std_floor": [
+  0.02,
+  0.02
+ ],
+ "std_cap": [
+  0.2,
+  0.2
+ ],
+ "std_reset": [
+  0.05,
+  0.05
+ ]
+}
