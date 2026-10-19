@@ -1,0 +1,90 @@
+{
+ "seed": 61,
+ "model_step_s": 0.02,
+ "history": 4,
+ "network": {
+  "width": 128,
+  "heads": 4,
+  "ffn": 512,
+  "layers": 4
+ },
+ "integrate_kinds": [
+  "sphere",
+  "rigid",
+  "articulated"
+ ],
+ "check_episodes": 1500,
+ "evaluate_every": 2500,
+ "free_phase_step": 5,
+ "core_bins": 8,
+ "ridge": 1e-06,
+ "near_negative_s": 0.05,
+ "collision": {
+  "lr": 0.001,
+  "updates": 3000,
+  "batch": 2048,
+  "warmup": 100
+ },
+ "skip_ridge": 0.001,
+ "push_prob": 0.5,
+ "push_start": 0.0,
+ "push_max_steps": 3,
+ "push_max_dev": 0.5,
+ "rollout_scale_factor": 4.0,
+ "cotrain": {
+  "updates": 20000,
+  "lr": 0.0001,
+  "warmup": 500,
+  "core_batch": 4096,
+  "contact_batch": 4096,
+  "traj_every": 8,
+  "traj_batch": 128,
+  "horizon_start_s": 1.0,
+  "horizon_max_s": 1.0,
+  "horizon_ramp": 0.5,
+  "traj_ramp": 0.025
+ },
+ "push_guard": {
+  "unit": "all_hit",
+  "bodies": "affected"
+ },
+ "history_noise": {
+  "floor_step_rms": 0.05,
+  "rate_kick": {
+   "size": 1.0,
+   "mix": [
+    0.1,
+    4.0
+   ]
+  }
+ },
+ "loss_scale": {
+  "rule": "step_type"
+ },
+ "contact_huber": 1.0,
+ "contact_sampling": "sqrt_groups",
+ "collision_cotrain": {
+  "weight": 1.0
+ },
+ "aux_geometry": {
+  "fk": "configs/contact_nrd/derived/so101_grasp_fk.json",
+  "body": "cube",
+  "frame": "arm",
+  "pairs": [
+   "fixed_jaw_cube",
+   "moving_jaw_cube"
+  ],
+  "weight": 1.0,
+  "generated": true
+ },
+ "collision_sampling": "sqrt_families",
+ "note": "abl_noppo ablation c1np (2026-10-18): identical copy of ft_c1_s61.json (same init full_ns_rk_cc_geo_cs_s61_plus/best.pt, same options and fine-tune schedule: 20,000 co-training updates at lr 1e-4, warmup 500, traj_ramp 0.025, horizon 1.0 s, a check every 2,500 updates); trained on merged_plus_noisy_v1_expert_v2 = production_plus + noisy_v1 + expert_v2 (the c1 merge WITHOUT the policy_v3 PPO-policy rows, repeat 1.0). best.pt on that merge's validation (no policy rows); last.pt = fixed budget. Only this note differs from ft_c1_s61.json.",
+ "init_from": {
+  "run": "/work1/dannegrut/harry/experiments/so101_nrd_fix_20261009/runs/full_ns_rk_cc_geo_cs_s61_plus",
+  "checkpoint": "best.pt",
+  "collision_updates": 0,
+  "collision_lr": 0.0001,
+  "collision_warmup": 0,
+  "check_first": true
+ }
+}
