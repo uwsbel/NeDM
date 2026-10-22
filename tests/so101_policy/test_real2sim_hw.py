@@ -15,6 +15,7 @@ import math
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -498,6 +499,43 @@ class TestRobotLoopFake(unittest.TestCase):
         self.assertEqual(z["qry_chunk"].shape[1:], (10, 6))
         np.testing.assert_allclose(z["q_real"][0], st[0], atol=1e-5)
         np.testing.assert_allclose(z["q_real"][5], st[3], atol=1e-4)                  # t 0.1 s = recorded frame 3
+
+
+class TestDeviceUsers(unittest.TestCase):
+    """The dry / live refusal while another program can use the robot bus or a camera."""
+
+    def test_holders_and_tools(self):
+        R = _load_runner()
+        with tempfile.TemporaryDirectory() as tmp:
+            dev = Path(tmp) / "ttyACM9"
+            dev.write_text("")
+            fake = Path(tmp) / "run_student_real.py"                                          # sleeps, like a run
+            fake.write_text("import time\ntime.sleep(30)\n")
+            procs = [subprocess.Popen(["sleep", "30"], stdin=dev.open()),                       # has the "port" open
+                     subprocess.Popen(["bash", "-c", "exec -a lerobot-teleoperate sleep 30"]),  # a LeRobot robot tool
+                     subprocess.Popen([sys.executable, str(fake), "live", "--i-am-supervising"]),  # a live run
+                     subprocess.Popen([sys.executable, str(fake), "replay"])]                     # replay: no devices
+            try:
+                for _ in range(50):
+                    busy = R.device_users([str(dev), str(Path(tmp) / "missing")])
+                    if len(busy) >= 3:
+                        break
+                    time.sleep(0.05)
+            finally:
+                for pr in procs:
+                    pr.kill()
+                    pr.wait()
+            got = {int(b.split()[0]): b for b in busy}
+            self.assertIn(f"has {dev.resolve()} open", got.get(procs[0].pid, ""))
+            self.assertIn("LeRobot robot tool", got.get(procs[1].pid, ""))
+            self.assertIn("dry / live run of this script", got.get(procs[2].pid, ""))
+            self.assertNotIn(procs[3].pid, got)
+            self.assertEqual(R.device_users([str(dev)], skip=[pr.pid for pr in procs]), [])
+
+    def test_no_abbreviated_flags(self):
+        R = _load_runner()
+        with self.assertRaises(SystemExit):              # "--time" must not mean --time-limit (robot_test.sh checks)
+            R.main(["replay", "--student", "x.pt", "--time", "60"])
 
 
 if __name__ == "__main__":

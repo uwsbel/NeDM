@@ -9,7 +9,8 @@
 #
 # [args] go to run_student_real.py as they are. Outputs: ~/so101_hw_runs/<mode>_<time>/ (RUNS overrides).
 set -eo pipefail
-cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+cd "$(dirname "$SELF")"
 MODE="${1:-}"
 [ $# -gt 0 ] && shift
 RUN=scripts/so101_policy/real2sim/hw/run_student_real.py
@@ -19,7 +20,7 @@ DATA_ROOT="${DATA_ROOT:-$HOME/lerobot/data}"
 TILT=(--q-offset-deg 0,-2.086,0,0,0)
 export HF_HUB_OFFLINE=1
 
-usage() { sed -n '2,10p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,10p' "$SELF" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 activate() {
   if [ "${CONDA_DEFAULT_ENV:-}" != lerobot ]; then
@@ -29,42 +30,22 @@ activate() {
   fi
 }
 
-# robot port + camera paths = the defaults of run_student_real.py (no device is opened) -> DEVS
-load_devices() {
-  mapfile -t DEVS < <(devices)
-  [ "${#DEVS[@]}" -eq 3 ] || { echo "cannot read the robot port and camera paths from $RUN"; exit 1; }
-}
-devices() {
-  python - <<'EOF'
-import json, sys
-sys.path.insert(0, "scripts/so101_policy/real2sim/hw")
-import run_student_real as R
-print(R.FOLLOWER_PORT)
-for k in ("external", "wrist"):
-    print(R.CAM_PATHS[k])
-EOF
-}
-
-# 0 = no other process has the robot port or a camera open (fuser reads /proc only)
-devices_free() {
-  local ok=0 p dev pids
-  for p in "${DEVS[@]}"; do
-    dev="$(readlink -f "$p")"
-    pids="$(fuser "$dev" 2>/dev/null | xargs || true)"
-    if [ -n "$pids" ]; then
-      echo "IN USE: $p -> $dev by PID $pids:"
-      ps -o pid=,cmd= -p "${pids// /,}" | cut -c1-150
-      ok=1
-    fi
-  done
-  return $ok
-}
-
 # the bundle files are the ones that were built (MANIFEST.txt lines 4-)
 files_ok() { sed -n '4,$p' MANIFEST.txt | sha256sum -c --quiet; }
 
 need_tty() {
   [ -t 0 ] && [ -t 1 ] || { echo "run this in an interactive terminal (desktop or ssh -t): the stop keys need a TTY"; exit 1; }
+}
+
+# the launcher sets these itself (the banner must tell what the run does): refuse them in [args]
+no_overrides() {
+  local a
+  for a in "$@"; do
+    case "$a" in
+      --time-limit|--time-limit=*|--q-offset-deg|--q-offset-deg=*|--out|--out=*|--backend|--backend=*|--auto-confirm)
+        echo "do not give $a here: use [s] for the time, the mode live-tilt for the correction"; exit 1 ;;
+    esac
+  done
 }
 
 secs() { [[ "${1:-}" =~ ^[0-9]+([.][0-9]+)?$ ]]; }
@@ -74,10 +55,9 @@ out_dir() { echo "$RUNS/${1}_$(date +%Y%m%d_%H%M%S)"; }
 case "$MODE" in
   check)
     activate
-    load_devices
     st=0
     echo "== bundle files"
-    if files_ok; then echo "ok ($(head -1 MANIFEST.txt))"; else st=1; fi
+    if files_ok; then echo "ok ($(head -1 MANIFEST.txt))"; else echo "CHANGED OR MISSING (above)"; st=1; fi
     echo "== Python env ($CONDA_DEFAULT_ENV)"
     python - <<'EOF' || st=1
 import importlib.metadata as m
@@ -87,11 +67,22 @@ print(f"lerobot {m.version('lerobot')}, torch {torch.__version__}, cuda {torch.c
       f"cv2 {cv2.__version__}, numpy {numpy.__version__}, pyarrow {pyarrow.__version__}")
 assert torch.cuda.is_available(), "no CUDA: the student would run on the CPU"
 EOF
-    echo "== robot port, external camera, wrist camera"
-    for p in "${DEVS[@]}"; do
-      if [ -e "$p" ]; then echo "ok  $p -> $(readlink -f "$p")"; else echo "MISSING  $p (unplugged? see README)"; st=1; fi
-    done
-    devices_free || st=1
+    echo "== robot port, external camera, wrist camera (the defaults of run_student_real.py)"
+    python - <<'EOF' || st=1
+import os, sys
+sys.path.insert(0, "scripts/so101_policy/real2sim/hw")
+import run_student_real as R  # opens no device
+paths = [R.FOLLOWER_PORT, R.CAM_PATHS["external"], R.CAM_PATHS["wrist"]]
+bad = 0
+for p in paths:
+    if os.path.exists(p):
+        print(f"ok  {p} -> {os.path.realpath(p)}")
+    else:
+        print(f"MISSING  {p} (unplugged? another USB port? README)"); bad = 1
+for b in R.device_users(paths):
+    print("IN USE (dry / live will refuse):", b); bad = 1
+sys.exit(bad)
+EOF
     echo "== LeRobot calibration of the follower"
     c="$HOME/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json"
     if [ -f "$c" ]; then echo "ok  $c"; else echo "MISSING  $c"; st=1; fi
@@ -110,20 +101,20 @@ EOF
   dry|live|live-tilt)
     need_tty
     activate
-    load_devices
     files_ok || { echo "bundle files changed or missing (MANIFEST.txt): refusing"; exit 1; }
     T=30; [ "$MODE" != dry ] && T=15
     if secs "${1:-}"; then T="$1"; shift; fi
-    devices_free || { echo "stop the other process first (teleop / record / another run), then start again"; exit 1; }
+    no_overrides "$@"
     EXTRA=(); [ "$MODE" = live-tilt ] && EXTRA=("${TILT[@]}")
     O="$(out_dir "$MODE")"
+    # run_student_real.py refuses dry / live while another program can use the port or a camera (device_users)
     if [ "$MODE" = dry ]; then
       echo "DRY run, $T s: the robot and the cameras are read only; no motor writes. -> $O"
       exec python "$RUN" dry "${S[@]}" --out "$O" --time-limit "$T" "$@"
     fi
+    echo "LIVE run, $T s: THIS MOVES THE ROBOT. -> $O"
+    if [ "$MODE" = live-tilt ]; then echo "Table-tilt correction ON: ${TILT[*]}"; fi
     cat <<EOF
-LIVE run, $T s: THIS MOVES THE ROBOT. -> $O
-$( [ "$MODE" = live-tilt ] && echo "Table-tilt correction ON: ${TILT[*]}" )
   1. Arm in the folded rest pose, workspace clear, one hand near the arm.
   2. Type MOVE: the arm goes to HOME (11-13 s, <= 15 deg/s, the wrist roll turns about 120 deg).
   3. Put the cube and the plate 0.15-0.27 m from the shoulder pan axis, then type RUN.

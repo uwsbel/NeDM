@@ -14,7 +14,8 @@ the 15 recorded rest poses.
 | `run_student_real.py` | modes `replay` (recording, no robot), `dry` (robot read only), `live` (moves the robot) |
 | `hw_lib.py` | joint map, limits, image crop, action layer, hardware guard, joint paths, student wrapper, fake robot |
 | `make_orin_bundle.sh` | builds the folder + `.tar.gz` for the Orin (sources, collision points, student, calib_v1.json) |
-| `tests/so101_policy/test_real2sim_hw.py` | 21 unit tests (CPU, about 10 s) |
+| `robot_test.sh` | one command for each test on the Orin: check / replay / dry / live / live-tilt (bundle root) |
+| `tests/so101_policy/test_real2sim_hw.py` | 23 unit tests (CPU, about 10 s) |
 
 ## Closed gripper at the start (fixed 2026-10-22)
 
@@ -40,7 +41,11 @@ keys q / space / Esc need a TTY, else only Ctrl+C stops. Do not pipe into `tee` 
 ## 2. Commands on the Orin
 
 Short form (`robot_test.sh`, in the bundle root; it activates `lerobot`, writes to `~/so101_hw_runs/<mode>_<time>`,
-refuses dry / live without a TTY, with changed bundle files, or while another process has the port or a camera open):
+refuses dry / live without a TTY or with changed bundle files; `[s]` = the time limit; it refuses `--time-limit`,
+`--q-offset-deg`, `--out` in the extra arguments). `run_student_real.py` dry / live refuses, just before it opens the
+port and the cameras, while one of your processes has one of them open, or while a LeRobot robot tool
+(`lerobot-teleoperate`, `-record`, `-calibrate`, ...) or another dry / live run of any user runs. The open files of
+other users' processes (root, docker) are not visible: stop those yourself.
 
 ```bash
 cd ~/so101_hw_robot

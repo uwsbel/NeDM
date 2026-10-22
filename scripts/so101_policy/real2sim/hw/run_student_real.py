@@ -90,6 +90,59 @@ def block_writes(bus, robot=None):
     return done
 
 
+# LeRobot 0.6.2 tools that open the robot bus or the cameras
+DEVICE_TOOLS = ("lerobot-teleoperate", "lerobot-record", "lerobot-replay", "lerobot-rollout", "lerobot-calibrate",
+                "lerobot-setup-motors", "lerobot-find-port", "lerobot-find-cameras", "lerobot-find-joint-limits")
+
+
+def device_users(paths, skip=()):
+    """Processes that can use the robot bus or a camera at the same time as this run: own processes that have one of
+    ``paths`` open (/proc/<pid>/fd), and a LeRobot robot tool or a dry / live run of this script of ANY user (all
+    users can read the command lines; only root can read the open files of other users' processes).
+    -> ["pid user: why: command", ...]"""
+    import pwd
+    skip = {os.getpid(), *skip}
+    want = {os.path.realpath(os.path.expanduser(str(p))) for p in paths}
+    out = []
+    for d in Path("/proc").iterdir():
+        if not d.name.isdigit() or int(d.name) in skip:
+            continue
+        try:
+            argv = [a.decode(errors="replace") for a in (d / "cmdline").read_bytes().split(b"\0") if a]
+            uid = d.stat().st_uid
+        except OSError:
+            continue
+        if not argv:
+            continue
+        why = []
+        try:
+            fds = list((d / "fd").iterdir())
+        except OSError:                                   # another user's process: its open files are not readable
+            fds = []
+        held = set()
+        for f in fds:
+            try:
+                t = os.readlink(f)
+            except OSError:
+                continue
+            if t in want:
+                held.add(t)
+        if held:
+            why.append("has " + ", ".join(sorted(held)) + " open")
+        names = [a.rsplit("/", 1)[-1].replace("_", "-") for a in argv[:3]]
+        if any(n == t or n.endswith("." + t) for n in names for t in DEVICE_TOOLS):
+            why.append("LeRobot robot tool")
+        if any(a.endswith("run_student_real.py") for a in argv[:3]) and {"dry", "live"} & set(argv):
+            why.append("dry / live run of this script")
+        if why:
+            try:
+                user = pwd.getpwuid(uid).pw_name
+            except KeyError:
+                user = str(uid)
+            out.append(f"{d.name} {user}: {'; '.join(why)}: {' '.join(argv)[:150]}")
+    return out
+
+
 class LeRobotIO:
     """LeRobot 0.6.2 SO follower + its two OpenCV cameras, used below the ``Robot`` API so that nothing is written
     unless asked: ``connect`` = bus handshake (reads model numbers and firmware) + calibration check (reads) + cameras;
@@ -662,8 +715,12 @@ def run_robot(args, live):
         io = H.FakeRobotIO(q_rest, writes=live)
         limits = H.RealLimits.from_lerobot_calibration(lerobot_calib_path(args), gcfg.range_margin_deg)
     else:
-        io = LeRobotIO(args.port, args.robot_id, CAM_PATHS if not args.cam_paths else json.loads(args.cam_paths),
-                       writes=live, calibration_dir=args.calibration_dir)
+        cam_paths = CAM_PATHS if not args.cam_paths else json.loads(args.cam_paths)
+        busy = device_users([args.port, *cam_paths.values()])
+        if busy:                                          # two writers on the motor bus = two programs move the arm
+            raise SystemExit(f"{mode} refused: another process can use the robot bus or a camera. Stop it first:\n  "
+                             + "\n  ".join(busy))
+        io = LeRobotIO(args.port, args.robot_id, cam_paths, writes=live, calibration_dir=args.calibration_dir)
         limits = H.RealLimits.from_lerobot_calibration(io.calibration_dict(), gcfg.range_margin_deg,
                                                        source=str(io.robot.calibration_fpath))
     guard = H.Guard(gcfg, layer, jm, limits)
@@ -832,7 +889,8 @@ def end_menu(io, jm, limits, layer, guard, q_start_real, args, last_cmd):
 
 # ---- CLI --------------------------------------------------------------------------------------------------------------
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0], formatter_class=argparse.RawTextHelpFormatter)
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0], formatter_class=argparse.RawTextHelpFormatter,
+                                 allow_abbrev=False)          # robot_test.sh checks the full flag names
     ap.add_argument("mode", choices=("replay", "dry", "live"))
     ap.add_argument("--student", required=True, help="ViralNet checkpoint (vision.viral.save_student)")
     ap.add_argument("--calib", default=str(DEFAULT_CALIB_V1), help="calib_v1.json (joint_map, student_view, episodes)")
