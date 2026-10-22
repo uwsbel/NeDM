@@ -311,6 +311,7 @@ class GuardConfig:
     i_time_s: float = 0.0              # integral correction of the real servos' static error (0 = off; arm joints):
     i_max_deg: float = 3.0             #   each step adds (command - measured q) * DT / i_time_s, the sum <= i_max_deg,
     i_v_min: float = 0.02              #   only while the joint does not move to its command faster than this (rad/s)
+    i_e_max_deg: float = 1.0           #   and only while |command - measured q| < this (not for a blocked joint)
 
     @staticmethod
     def from_dict(d):
@@ -384,6 +385,7 @@ class Guard:
             e = u[:ARM] - np.asarray(q_sim)[:ARM]
             if qd_sim is not None:         # a joint that follows its command needs no correction (no wind-up in motion)
                 e = np.where(np.asarray(qd_sim)[:ARM] * np.sign(e) > c.i_v_min, 0.0, e)
+            e = np.where(np.abs(e) < math.radians(c.i_e_max_deg), e, 0.0)   # blocked joint / new target: no more push
             self.integ = np.clip(self.integ + e * (DT / c.i_time_s), -imax, imax)
             u = u.copy()
             u[:ARM] += self.integ

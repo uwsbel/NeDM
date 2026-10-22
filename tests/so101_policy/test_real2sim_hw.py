@@ -243,6 +243,18 @@ class TestActionLayerAndGuard(unittest.TestCase):
             u, _, _, _ = g.apply(tgt, q, self.jm.sim_to_real(q), qd)
         self.assertEqual(g.integ[1], 0.0)
         np.testing.assert_allclose(np.degrees(g.integ[2]), -0.45, atol=1e-9)        # elbow stuck: 10 x 0.045 deg
+        g.reset(q)
+        blk = q.copy()
+        blk[2] += np.radians(2.0)                         # a blocked elbow at 2 deg from its command: no correction
+        for k in range(30):
+            u, _, _, stop = g.apply(blk, q, self.jm.sim_to_real(q))
+        self.assertEqual(g.integ[2], 0.0)
+        low = q.copy()
+        low[1:4] = np.radians([80.0, 40.0, 60.0])         # gripper deep below the table: the corrected command still stops
+        g = self.guard(i_time_s=0.2, i_max_deg=3.0)
+        g.reset(low)
+        _, _, _, stop = g.apply(low, low, self.jm.sim_to_real(low))
+        self.assertTrue(any(s.startswith("command floor") or s.startswith("command workspace") for s in stop), stop)
 
     def test_measured_checks_and_stall(self):
         g = self.guard()
