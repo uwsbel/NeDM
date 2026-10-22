@@ -733,3 +733,20 @@ class TestOnlineOptions(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestEligible(unittest.TestCase):
+    def test_only_eligible_worlds_perturbed(self):
+        from nedm.so101_policy import joint_env as JE
+        cfg = JE.dyn_config(dict(p=1.0, d_lo=2, d_hi=2, s_lo=0.5, s_hi=0.5))
+        dyn = JE.RobotDyn(cfg, 8, "cpu", 0)
+        q = torch.zeros(8, 6, dtype=torch.float64)
+        dyn.reset(torch.arange(8), q)
+        self.assertTrue(bool(dyn.on.all()))
+        m = torch.tensor([False] * 4 + [True] * 4)
+        dyn.set_eligible(m)
+        self.assertFalse(bool(dyn.on[:4].any()))
+        self.assertTrue(bool(dyn.on[4:].all()))
+        dyn.reset(torch.arange(8), q)                     # new episodes: still only the eligible worlds
+        self.assertFalse(bool(dyn.on[:4].any()))
+        self.assertTrue(bool(dyn.on[4:].all()))

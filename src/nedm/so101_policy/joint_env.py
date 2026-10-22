@@ -288,17 +288,25 @@ class RobotDyn:
         self.f = torch.zeros(B, 6, **f)           # the lag filter's state
         self.integ = torch.zeros(B, 5, **f)       # the integral correction (rad, arm joints; i_time_s > 0)
         self.active = False                       # any world perturbed (else ``JointVecEnv.step`` skips the stage)
+        self.eligible = None                      # [B] bool: worlds that may be perturbed (None = all; ``set_eligible``)
         self.sag_idx = torch.tensor(SAG_JOINTS, dtype=torch.long, device=self.dev)
 
     def reseed(self, seed):
         self.gen.manual_seed(int(seed) & 0x7FFFFFFFFFFFFFFF)
+
+    def set_eligible(self, mask):
+        """Only these worlds may be perturbed (e.g. the online loop's student slots); the draws stay the same."""
+        self.eligible = None if mask is None else torch.as_tensor(mask, dtype=torch.bool, device=self.dev).clone()
+        if self.eligible is not None:
+            self.on &= self.eligible
+            self.active = bool(self.on.any()) and not self.cfg.neutral
 
     def reset(self, idx, q):
         """Episode start of worlds ``idx`` (q [n, 6]: their measured start q): new draws; hold and lag state = q,
         integral correction = 0 (``Guard.reset``)."""
         c, n = self.cfg, len(idx)
         u = torch.rand(n, 6, generator=self.gen, dtype=torch.float64, device=self.dev)
-        self.on[idx] = u[:, 0] < c.p
+        self.on[idx] = (u[:, 0] < c.p) if self.eligible is None else (u[:, 0] < c.p) & self.eligible[idx]
         self.d0[idx] = (c.d_lo + (u[:, 1] * (c.d_hi - c.d_lo + 1)).long()).clamp(max=c.d_hi)
         self.s[idx] = _log_uniform(c.s_lo, c.s_hi, u[:, 2])
         tau = _log_uniform(c.tau_lo, c.tau_hi, u[:, 3]) if c.tau_hi > 0 else torch.zeros_like(u[:, 3])

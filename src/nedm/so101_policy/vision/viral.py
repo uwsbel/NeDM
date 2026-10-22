@@ -1491,6 +1491,7 @@ class OnlineConfig:
     # (``JE.RobotDynConfig`` dict: delay, gain, lag, sag, noise, the guard's integral correction; {} = off), drawn per
     # world per episode; the JT labels the reached states
     dyn: dict = field(default_factory=dict)
+    dyn_student_only: bool = False      # the stage only in the student-driven slots (the JT-driven slots stay nominal)
     # robot-like qdot of the student's INPUT (acting and the buffer's robot state) with probability qd_robot_p per world
     # per episode: the least-squares slope over the last qd_window 20 ms states of q quantised to the STS3215 step
     # 2 pi / 4096 (``robot_qd``; the robot's ``QdotEstimator``): exactly 0 when the arm is still
@@ -1580,6 +1581,8 @@ class OnlineDAgger:
         slot = torch.arange(N, device=self.dev)
         self.teacher = slot < nt_
         self.noisy = slot < int(round(ocfg.noise_share * nt_))
+        if ocfg.dyn_student_only and self.env.dyn is not None:
+            self.env.dyn.set_eligible(~self.teacher)
         self.nominal = torch.rand(N, device=self.dev, generator=self.gen) < ocfg.nominal_share
         self.H = int(st.cfg.hist)
         self.buf = ReplayBuffer(ocfg.buffer, len(st.cfg.cameras), st.cfg.res, self.dev, 12 * (1 + self.H))
