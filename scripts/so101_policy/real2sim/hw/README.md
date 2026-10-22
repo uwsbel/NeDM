@@ -53,7 +53,17 @@ cd ~/so101_hw_robot
 ./robot_test.sh replay       # a) below
 ./robot_test.sh dry          # b) below, 30 s
 ./robot_test.sh live         # c) below, 15 s  (live-tilt = c) + --q-offset-deg 0,-2.086,0,0,0)
+./robot_test.sh eval [n] [s] # d) below: n episodes in a row (default 10 x 40 s)
 ```
+
+d) Eval session (first robot day, 2026-10-22: grasp, lift and carry worked with these settings). `eval` = live with
+`--amp 0`, `--guard '{"cmd_floor_m":-0.015,"hard_floor_m":-0.020,"i_time_s":0.2,"i_max_deg":3.0}'` and
+`--episodes-n n`. Why: the real table is 4-17 mm below the sim table (the default floor stops at -2 / -5 mm ended good
+grasps); without the integral correction the real servos (P 16, gearbox friction) did not follow the student's 0.45 deg
+lift steps after the grasp and the arm stayed on the table. Flow: MOVE (HOME) -> each episode: reset the scene, RUN,
+the student (space ends the episode), type the result (g grasp, l lift, p placed, for example `glp`; a note after a
+space), `h` = back to HOME for the next episode (the gripper opens), `s` = end -> menu (r return to the start pose,
+t torque off). Logs: `<out>/ep_NN/episode_live.{npz,json}` (outcome in the json), `<out>/session.json`.
 
 Long form:
 
