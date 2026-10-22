@@ -19,7 +19,8 @@ mkdir -p "$OUT"
 PLANE=-0.00468,-0.03641,0.01836
 echo "host $(hostname) job ${SLURM_JOB_ID:-none} start $(date -Is) repo $REPO student $STUDENT out $OUT"
 status=0
-for t in $R2S_DATA/tasks/dev100.npz $R2S_DATA/tasks/home45_dev100.npz; do
+SETS=${SETS:-"$R2S_DATA/tasks/dev100.npz $R2S_DATA/tasks/home45_dev100.npz"}
+for t in $SETS; do
   for c in "plane|--table-plane=$PLANE" "plane_slm2|--table-plane=$PLANE --q-offset-deg 0,-2.086,0,0,0,0" "dz10|--table-dz -0.010"; do
     name=${c%%|*}; opt=${c#*|}
     python3.12 -P scripts/so101_policy/vision_viral.py eval --student "$STUDENT" --jt "$R2S_JT" --nrd-ckpt "$R2S_NRD" \

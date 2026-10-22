@@ -1,9 +1,13 @@
 # SO101 camera student on the real robot
 
-Status 2026-10-22: **never run on the robot.** Student `final_v2_s26_it03000.pt` (cameras `external` + `wrist`,
-224 px, crops pinned in the checkpoint: external [52, 103, 288, 288], wrist [0, 0, 640, 480]). Checks done on luffy
-only (logs in `~/so101_r2s_claude/hw_final/`): replay of 3 recordings from the extracted bundle equals the worktree run
-exactly; dry and live loops on the fake robot; the HOME check from the 15 recorded rest poses.
+Status 2026-10-22: **never run on the robot.** Student for the robot: `robot_v2_s28_it03000.pt` (AMD
+`runs/v2_online2_s28/ckpt/it_03000.pt`; cameras `external` + `wrist`, 224 px, crops pinned in the checkpoint: external
+[52, 103, 288, 288], wrist [0, 0, 640, 480]). It was chosen for the robot because it keeps 89-91 % success in CPU
+MuJoCo on the measured (lower, tilted) real table, held-out tasks; the sim-best student (`final_v2_s26_it03000.pt`)
+falls to 36-48 % there (`~/so101_r2s_claude/eval/SELECTION_RULE.md`). Checks done on luffy only (logs in
+`~/so101_r2s_claude/hw_final/`, made with the sim-best student; the code path is the same): replay of 3 recordings
+from the extracted bundle equals the worktree run exactly; dry and live loops on the fake robot; the HOME check from
+the 15 recorded rest poses.
 
 | File | What |
 |---|---|
@@ -12,25 +16,24 @@ exactly; dry and live loops on the fake robot; the HOME check from the 15 record
 | `make_orin_bundle.sh` | builds the folder + `.tar.gz` for the Orin (sources, collision points, student, calib_v1.json) |
 | `tests/so101_policy/test_real2sim_hw.py` | 21 unit tests (CPU, about 10 s) |
 
-## Known problem: closed gripper at the start
+## Closed gripper at the start (fixed 2026-10-22)
 
-If the gripper reads < 3 (LeRobot 0-100) at the start, the HOME check refuses the move ("path leaves the sim joint
-range"): a closed real gripper is below the sim jaw limit. 9 of the 15 recordings start like that (gripper 0.6-1.4).
-**Open the gripper by hand to 5 or more before the live run** (torque off; read the value in the dry run). The end-menu
-return (`r`) to such a start pose is refused the same way.
+A closed real gripper (LeRobot < 3) is below the sim jaw limit; 9 of the 15 recordings start like that. The HOME and
+return path checks now accept a measured end pose outside the sim range (the path stays between its ends). The
+calibrated LeRobot range is still checked.
 
 ## 1. Build (luffy) and copy (you)
 
 ```bash
 cd /home/harry/.t3/worktrees/NeDM-push-ppo/t3-dded53d1
-scripts/so101_policy/real2sim/hw/make_orin_bundle.sh ~/so101_r2s_claude/ckpt/final_v2_s26_it03000.pt \
-    ~/so101_r2s_claude/hw_bundle/so101_hw_final
-scp ~/so101_r2s_claude/hw_bundle/so101_hw_final.tar.gz sbel@proxy:~/          # you do this
+scripts/so101_policy/real2sim/hw/make_orin_bundle.sh ~/so101_r2s_claude/ckpt/robot_v2_s28_it03000.pt \
+    ~/so101_r2s_claude/hw_bundle/so101_hw_robot
+scp ~/so101_r2s_claude/hw_bundle/so101_hw_robot.tar.gz sbel@proxy:~/          # you do this
 ```
 
-On the Orin: `cd ~ && tar xzf so101_hw_final.tar.gz && cd so101_hw_final && sed -n '4,$p' MANIFEST.txt | sha256sum -c --quiet`
+On the Orin: `cd ~ && tar xzf so101_hw_robot.tar.gz && cd so101_hw_robot && sed -n '4,$p' MANIFEST.txt | sha256sum -c --quiet`
 (no output = all files intact). Needs only the `lerobot` conda env (torch, numpy, cv2, pyarrow, LeRobot 0.6.2); no
-mujoco. Run every command below from `~/so101_hw_final`, in an interactive terminal (desktop or `ssh -t`): the stop
+mujoco. Run every command below from `~/so101_hw_robot`, in an interactive terminal (desktop or `ssh -t`): the stop
 keys q / space / Esc need a TTY, else only Ctrl+C stops. Do not pipe into `tee` (Ctrl+C also stops `tee`); the
 `--out` folder keeps the log.
 
@@ -38,7 +41,7 @@ keys q / space / Esc need a TTY, else only Ctrl+C stops. Do not pipe into `tee` 
 
 ```bash
 conda activate lerobot
-cd ~/so101_hw_final
+cd ~/so101_hw_robot
 S="--student assets/student.pt --calib assets/calib_v1.json"
 # a) replay (no robot; Orin inference time; compare with luffy)
 python scripts/so101_policy/real2sim/hw/run_student_real.py replay $S --data-root /home/sbel/lerobot/data \
@@ -52,8 +55,9 @@ python scripts/so101_policy/real2sim/hw/run_student_real.py live --i-am-supervis
 
 Defaults used by these commands: HOME = sim (0, -5, -15, 92, 45, 30) deg = LeRobot (0.0, -3.2, -6.5, 93.1, 120.8,
 gripper 31.1); HOME speed 15 deg/s peak; `--table-z 0`; `--configure auto`; guard = `GuardConfig` defaults (table
-below). Luffy replay of a): cube error before the grasp 23.9 / 22.7 / 23.0 mm, plate 9.6 / 9.2 / 4.6 mm (bf16 on
-another GPU: small differences are normal).
+below). The run checks that `--calib` is the calibration the student was trained with (live refuses a mismatch).
+Luffy replay of a) with the robot student: cube error before the grasp 25.3 / 21.1 / 28.9 mm, plate 15.2 / 12.8 /
+12.1 mm (bf16 on another GPU: small differences are normal). About 16 mm of the cube error is height (next section).
 
 ## 3. Pre-run checklist (live)
 
@@ -65,8 +69,10 @@ another GPU: small differences are normal).
    of straight ahead, 6-30 cm apart, plate yaw within 30 deg of the cube yaw (mod 90). Place them after HOME, before
    you type `RUN`. (8 of the 15 recorded cubes were 0.28-0.34 m out: outside the training region.)
 4. Table height: the real table is 4-17 mm below the sim table over that region (tilted about 2 deg; 10-18 mm at the
-   15 recorded cubes). Keep `--table-z 0` for the first run: the gripper floor then stays 5 mm or more above the real
-   table. Expect the grasp about 15 mm too high (grasp point near the cube top face, a pinch or a miss).
+   15 recorded cubes). Keep `--table-z 0`: the gripper floor then stays 5 mm or more above the real table.
+   CPU MuJoCo with this table (held-out tasks, 100 each): the robot student 89 % (normal starts) / 91 % (HOME).
+   Optional correction `--q-offset-deg 0,-2.086,0,0,0` (shoulder_lift joint-map offset = the table tilt): 90 / 94 %.
+   A flat table 10 mm lower: 96 / 98 %. Level table: 98 / 98 %. If you can, make the table level with the arm base.
    `--table-z` is one flat height: a value below -0.005 lets the gripper reach the table at the high side.
 5. Workspace clear, you at the robot, one hand near the arm, the other on the keyboard (q / space / Esc / Ctrl+C).
    The student may command up to 0.06 rad per 20 ms step (3 rad/s); the sim teacher's per-step change p99 is
