@@ -356,17 +356,24 @@ def _merge(base: dict, over: dict) -> dict:
     return out
 
 
-def load_real_setup(cfg: "ViralConfig") -> RealSetup:
+def load_real_setup(cfg: "ViralConfig", geometry_over: dict | None = None) -> RealSetup:
     """The real scene of ``cfg`` (``cfg.scene`` set): the render agent's scene file (``real_scene_v1.json`` layout,
     read by ``nedm.render.so101.RealScene.from_scene_dict``: calib, geometry, colors, light, student_view, tone,
     render.supersample, dr, image_fx) or a bare calibration contract (``RealScene`` defaults). ``cfg.calib`` (if set)
     replaces the file's calibration path (a relative path in the file is relative to the file). The crop of every
     calibrated camera follows the student-view rules (``nedm.render.student_view``, shared with the robot code);
     ``cfg.crops`` is only the pinned record (``pin_real``). ``cfg.real_dr`` is merged over the scene's ``dr``,
-    ``cfg.cam_fx`` adds student-side image effects (``CamFX``)."""
+    ``cfg.cam_fx`` adds student-side image effects (``CamFX``). ``geometry_over``: evaluation-only overrides of the
+    scene file's ``geometry`` section (e.g. ``table_plane``), applied after the file is read (the sha256 stays the
+    file's own)."""
     from nedm.render.so101 import RealDR, RealScene, load_calibration
     sp = Path(cfg.scene).expanduser()
     raw = json.loads(sp.read_text())
+    if geometry_over:
+        bad = sorted(set(geometry_over) - set(RealScene.GEOMETRY_KEYS))
+        if bad or not str(raw.get("version", "")).startswith("real_scene"):
+            raise ValueError(f"geometry_over {sorted(geometry_over)}: needs a scene file and RealScene geometry keys")
+        raw["geometry"] = {**(raw.get("geometry") or {}), **geometry_over}
     is_scene = str(raw.get("version", "")).startswith("real_scene")
     if is_scene:
         odd = sorted(k for k in raw if k not in SCENE_KEYS | SCENE_META_KEYS and not k.startswith("_"))
@@ -426,13 +433,16 @@ def pin_real(cfg: "ViralConfig", allow_change=False) -> "ViralConfig":
     return cfg
 
 
-def make_views(cfg: "ViralConfig", num_worlds, seed=0, device="cuda", allow_change=False, **kw):
+def make_views(cfg: "ViralConfig", num_worlds, seed=0, device="cuda", allow_change=False, geometry_over=None, **kw):
     """The student's views for config ``cfg``: build9's sim scene (``cfg.scene`` empty; exactly the old ``DRViews``
     call) or the real scene (``load_real_setup``; the scene / calibration sha256 and the crops pinned in ``cfg`` must
-    match the files, unless ``allow_change``)."""
+    match the files, unless ``allow_change``). ``geometry_over``: evaluation-only scene geometry overrides (real scene
+    only, ``load_real_setup``), e.g. ``{"table_plane": (c0, c1, c2)}`` for a lowered table."""
     if not cfg.scene:
+        if geometry_over:
+            raise ValueError("geometry_over needs the real scene (cfg.scene)")
         return DRViews(num_worlds, cfg.res, cfg.cameras, dr=DRConfig.from_dict(cfg.dr), seed=seed, device=device, **kw)
-    rs = load_real_setup(cfg)
+    rs = load_real_setup(cfg, geometry_over)
     msgs = []
     for k, v in (("scene_sha256", rs.scene_sha256), ("calib_sha256", rs.calib_sha256)):
         old = getattr(cfg, k)
@@ -1314,6 +1324,7 @@ class Actor:
         self.needs_tap = self.kmax > 0
         self.hist = None
         self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 4243)
+        self.q_offset = None    # [6] rad: robot input q + q_offset and targets in that frame (JointVecEnv.set_table)
 
     def reset(self, B):
         self.dr = self.views.draw(B) if self.randomise else None
@@ -1353,6 +1364,8 @@ class Actor:
         if self.dev.type == "cuda":
             torch.cuda.synchronize()
         t1 = time.time()
+        if self.q_offset is not None:   # the policy's joint frame (images stay the true state)
+            q = q + torch.as_tensor(self.q_offset, dtype=q.dtype, device=self.dev)
         robot = torch.cat((q, ws.qd.to(self.dev, torch.float32).nan_to_num()), -1)
         H = int(self.st.cfg.hist)
         if H:
@@ -1403,6 +1416,12 @@ class OnlineConfig:
     warm_teacher_only: int = 0          # first iterations: every slot JT-driven (buffer fill)
     lr_decay_start: int = -1            # >= 0: from this iteration the learning rates fall linearly (cosine-free) ...
     lr_final_frac: float = 0.1          # ... to this fraction at the last iteration
+    # joint-reading offset (real2sim: a joint-map / table-height error of the real robot): with probability q_bias_p
+    # per world per episode, the student's q INPUT is the true q + U(-h, h) per joint (q_bias_deg = 6 half-widths,
+    # deg; jaw normally 0). The labels, the buffer's q (relative targets) and the student's executed targets stay in
+    # the true frame (target = true q + predicted delta = what a robot whose joint map is off by the same offset does).
+    q_bias_deg: tuple = ()
+    q_bias_p: float = 0.0
 
     @staticmethod
     def from_dict(d):
@@ -1479,6 +1498,13 @@ class OnlineDAgger:
         self.lag_lo, self.lag_hi = (lo, hi) if hi > 0 else (int(st.cfg.lag), int(st.cfg.lag))
         self.lagk = torch.zeros(N, dtype=torch.long, device=self.dev)
         self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 77)
+        self.qb = torch.zeros(N, 6, device=self.dev)       # per-world offset of the student's q input (rad)
+        self.qb_h = None
+        if ocfg.q_bias_p > 0 and ocfg.q_bias_deg:
+            if len(ocfg.q_bias_deg) != 6:
+                raise ValueError("q_bias_deg: 6 half-widths (deg)")
+            self.qb_h = torch.deg2rad(torch.tensor([float(v) for v in ocfg.q_bias_deg], device=self.dev))
+            self.qb_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 91)
         self.drc = DRConfig.from_dict(st.cfg.dr)
         views.dr = self.drc
         self.dr = None
@@ -1501,6 +1527,15 @@ class OnlineDAgger:
         self.lag_hist.fill(idx, q, cp, cq)
         self.lagk[idx] = torch.randint(self.lag_lo, self.lag_hi + 1, (len(idx),), device=self.dev,
                                        generator=self.lag_gen)
+
+    def _bias_reset(self, idx):
+        """Episode start of worlds ``idx``: draw the offset of the student's q input (``OnlineConfig.q_bias_*``)."""
+        if self.qb_h is None:
+            return
+        n = len(idx)
+        on = torch.rand(n, device=self.dev, generator=self.qb_gen) < self.o.q_bias_p
+        u = torch.rand(n, 6, device=self.dev, generator=self.qb_gen) * 2 - 1
+        self.qb[idx] = u * self.qb_h[None] * on[:, None]
 
     def _lag_hook(self, e, j):
         self.lag_hist.push(*_sane(e.ws.q, e.ws.cube_pos, e.ws.cube_quat, self.dev))
@@ -1535,6 +1570,7 @@ class OnlineDAgger:
             env.reset()
             self._draw(torch.arange(env.B, device=self.dev))
             self._lag_reset(torch.arange(env.B, device=self.dev))
+            self._bias_reset(torch.arange(env.B, device=self.dev))
         ws, obs = env.ws, env.obs
         q = ws.q.to(torch.float64)
         a = self.jt.act(obs).to(torch.float64)
@@ -1563,7 +1599,7 @@ class OnlineDAgger:
         t2 = time.time()
         stud = ~self.teacher if self.it >= o.warm_teacher_only else torch.zeros_like(self.teacher)
         qd = ws.qd.float().nan_to_num()
-        now = torch.cat((qf, qd), -1)                                             # [N, 12]
+        now = torch.cat((qf + self.qb if self.qb_h is not None else qf, qd), -1)   # [N, 12] (q input offset)
         if self.H:
             fr = self.fresh
             self.rhist[fr] = now[fr][:, None, :].expand(-1, self.H, -1)
@@ -1618,6 +1654,7 @@ class OnlineDAgger:
             self.stats["len_student"] += int((le & ~ts).sum())
             self._draw(di)
             self._lag_reset(di)
+            self._bias_reset(di)
         return T
 
     def train_steps(self):

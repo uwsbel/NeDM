@@ -1,0 +1,26 @@
+{
+ "note": "real2sim online loop with joint-reading offsets (2026-10-22): viral_r2s_online_v1 + per world per episode, with probability 0.7, an offset U(-h, h) on the student's q input, h = 1, 3, 2, 2, 3, 0 deg (pan, lift, elbow, wrist_flex, wrist_roll, jaw). Why: the calibrated real table is 12-17 mm lower than the sim table in the arm frame (slope 36 mm/m), the same effect as a shoulder_lift offset of about 2 deg; the final student fell from 96 / 100 % to 35 / 29 % on that plane in CPU MuJoCo (~/so101_r2s_claude/table_test_final). Continue from a trained online checkpoint.",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "q_bias_deg": [
+  1.0,
+  3.0,
+  2.0,
+  2.0,
+  3.0,
+  0.0
+ ],
+ "q_bias_p": 0.7
+}

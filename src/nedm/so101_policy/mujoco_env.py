@@ -210,6 +210,25 @@ class _Block:
         if labels not in ("exact", "record"):
             raise ValueError("labels is 'exact' (forces after every physics step) or 'record' (once per 10 ms)")
         self.exact = labels == "exact"
+        self.plane = None                                             # table plane (``set_table``); None: z = 0
+
+    def set_table(self, plane=None):
+        """Put the table top on the plane z = c0 + c1 x + c2 y (``table.py``; None: back to the collector's z = 0) for
+        every world of the block (the compiled model is shared). The cube-off-table height test follows the plane.
+        Starts are world poses: a caller moves task starts onto the plane itself (``table.map_cube``)."""
+        from nedm.so101_policy import table as TB
+        m = self.m
+        gid = m.geom("table").id
+        if not hasattr(self, "_table0"):
+            self._table0 = (m.geom_pos[gid].copy(), m.geom_quat[gid].copy(), int(m.geom_sameframe[gid]))
+        plane = None if plane is None or not any(plane) else tuple(float(c) for c in plane)
+        pos, quat = TB.table_geom(plane, *self._table0[:2])
+        m.geom_pos[gid], m.geom_quat[gid] = pos, quat
+        # the compiler marked the axis-aligned table "same rotation as its body" (mj_kinematics then ignores
+        # geom_quat): a tilted table needs the full local frame
+        m.geom_sameframe[gid] = self._table0[2] if TB.is_flat(plane) else 0
+        self.plane = plane
+        return dict(plane=plane, table_pos=pos.tolist(), table_quat=quat.tolist())
 
     def info(self):
         return dict(pid=os.getpid(), cache=str(self.cache), n=self.n, python=sys.executable,
@@ -267,7 +286,8 @@ class _Block:
         self.nbad[i] = d.warning[self.badqacc].number
         hit = bad > self.thr
         p = d.qpos[s.cq: s.cq + 3]
-        off = bool((p[:2] < s.table_lo).any() or (p[:2] > s.table_hi).any() or p[2] < -0.01)
+        pz = p[2] if self.plane is None else p[2] - (self.plane[0] + self.plane[1] * p[0] + self.plane[2] * p[1])
+        off = bool((p[:2] < s.table_lo).any() or (p[:2] > s.table_hi).any() or pz < -0.01)
         ov = self._overlap_now(d, fresh) > s.overlap_thr
         code = NUMERICAL if num else 1 + int(np.argmax(hit)) if hit.any() else (
             g.TERMINAL.index("cube_off_table") if off else g.TERMINAL.index("cube_visual_overlap") if ov else 0)
@@ -714,6 +734,15 @@ class MujocoWorlds:
         self.end_reason = torch.where(new, code, self.end_reason)
         self.end_step = torch.where(new, self.steps, self.end_step)
         return self.state()
+
+    def set_table(self, plane=None):
+        """Table top on the plane z = c0 + c1 x + c2 y in every worker (``_Block.set_table``; None: z = 0). Call
+        before the resets; starts stay world poses (``table.map_cube`` moves a task start onto the plane)."""
+        for p in self.procs:
+            p.send("set_table", plane=None if plane is None else [float(c) for c in plane])
+        self.table = [p.recv() for p in self.procs][0]
+        self.ready[:] = False
+        return self.table
 
     def state(self) -> WorldState:
         """Current WorldState of all worlds (copies, on ``device``)."""

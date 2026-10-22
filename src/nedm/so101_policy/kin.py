@@ -278,21 +278,31 @@ class SO101Kin:
                 self._guard[key] = rows
         return self._guard[exact]
 
-    def lowest_point(self, q, chunk=4096, per_body=False, exact=True):
+    def lowest_point(self, q, chunk=4096, per_body=False, exact=True, plane=None):
         """Lowest world z (m) of the gripper and moving-jaw collision geoms at joint angles q [B, 6] -> [B]
         (per_body: [B, 2] in GUARD_BODIES order). Arm-table guard of the NRD: lowest_point < 0.5 mm (critic 3.7).
-        exact False: the reduced point set (error <= 0.033 mm, module docstring)."""
+        exact False: the reduced point set (error <= 0.033 mm, module docstring). ``plane`` (c0, c1, c2): the lowest
+        signed height above the plane z = c0 + c1 x + c2 y instead (``table.py``; None: the old code)."""
         q = q.to(self.dtype)
+        if plane is not None:
+            from nedm.so101_policy import table as TB
+            n_np, off = TB.normal(plane)
+            nv = torch.as_tensor(n_np, dtype=self.dtype, device=q.device)
         out = []
         for s in range(0, max(1, q.shape[0]), chunk):
             pos, rot = self.body_poses(q[s: s + chunk])
             cols = []
             for b, p0, p1, rad in self._guard_points(exact):
-                u = rot[:, b, 2, :]                                                   # world z row of the body rotation
+                if plane is None:
+                    u = rot[:, b, 2, :]                                               # world z row of the body rotation
+                    base = pos[:, b, 2]
+                else:
+                    u = torch.einsum("k,bkj->bj", nv, rot[:, b])                     # normal row of the rotation
+                    base = pos[:, b] @ nv - off
                 low = (u @ p0.T).amin(-1)
                 if len(rad):
                     low = torch.minimum(low, ((u @ p1.T) - rad).amin(-1))
-                cols.append(pos[:, b, 2] + low)
+                cols.append(base + low)
             out.append(torch.stack(cols, -1))
         low = torch.cat(out)
         return low if per_body else low.amin(-1)

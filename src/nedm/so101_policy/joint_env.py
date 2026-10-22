@@ -100,24 +100,27 @@ class Codec:
 FLOOR = 0.0015                                       # m, the decoder's low_min (lowest gripper / moving-jaw point)
 
 
-def _low(kin, u, q):
+def _low(kin, u, q, plane=None):
     """Lowest gripper / moving-jaw collision point (m) of the arm pose u[:, :5] with the commanded and the measured jaw
-    angle (the smaller)."""
-    a = kin.lowest_point(u, exact=False)
-    b = kin.lowest_point(torch.cat((u[:, :5], q[:, 5:6]), -1), exact=False)
+    angle (the smaller). ``plane``: height above that plane instead of world z (``table.py``)."""
+    kw = {} if plane is None else dict(plane=plane)
+    a = kin.lowest_point(u, exact=False, **kw)
+    b = kin.lowest_point(torch.cat((u[:, :5], q[:, 5:6]), -1), exact=False, **kw)
     return torch.minimum(a, b)
 
 
-def floor_guard(u, q, kin, floor=FLOOR, iters=8):
+def floor_guard(u, q, kin, floor=FLOOR, iters=8, plane=None):
     """Table floor of the action layer (the decoder's floor rule in joint space): a target whose lowest gripper /
     moving-jaw point is below ``floor`` AND below that of the measured pose is pulled back toward the measured q along
     the straight joint line, u' = q + lam (u - q) with the largest lam (bisection) that keeps it at or above
-    min(floor, the measured pose's lowest point). Stateless (robot kinematics + measured q). u, q [B, 6] -> [B, 6]."""
-    lu = _low(kin, u, q)
+    min(floor, the measured pose's lowest point). Stateless (robot kinematics + measured q). u, q [B, 6] -> [B, 6].
+    ``plane`` (c0, c1, c2): heights above the plane z = c0 + c1 x + c2 y instead of world z (a floor that follows a
+    tilted table; a flat floor at height h is ``floor`` = FLOOR + h, as the robot's ``--table-z``)."""
+    lu = _low(kin, u, q, plane)
     bad = lu < floor - 1e-9
     if not bool(bad.any()):
         return u
-    lq = _low(kin, q, q)
+    lq = _low(kin, q, q, plane)
     ref = torch.minimum(lq, torch.full_like(lq, floor))
     bad = bad & (lu < ref - 1e-9)
     if not bool(bad.any()):
@@ -130,23 +133,23 @@ def floor_guard(u, q, kin, floor=FLOOR, iters=8):
     base = torch.cat((qb[:, :5], ub[:, 5:]), -1)
     for _ in range(iters):
         mid = (lo + hi) / 2
-        ok = _low(kin, base + mid[:, None] * d, qb) >= rb - 1e-9
+        ok = _low(kin, base + mid[:, None] * d, qb, plane) >= rb - 1e-9
         lo, hi = torch.where(ok, mid, lo), torch.where(ok, hi, mid)
     out = u.clone()
     out[idx] = base + lo[:, None] * d
     return out
 
 
-def safety(u, q, tlo, thi, lead=None, kin=None, floor=None):
+def safety(u, q, tlo, thi, lead=None, kin=None, floor=None, floor_plane=None):
     """The action layer of teacher AND student: arm targets within ``lead`` of the measured q, the table floor
-    (``floor_guard`` with ``kin``, if ``floor`` is given), all targets within the collector's range. u, q [B, 6] ->
-    [B, 6]."""
+    (``floor_guard`` with ``kin``, if ``floor`` is given; ``floor_plane``: heights above that plane), all targets
+    within the collector's range. u, q [B, 6] -> [B, 6]."""
     if lead is not None:
         arm = torch.minimum(torch.maximum(u[:, :5], q[:, :5] - lead), q[:, :5] + lead)
         u = torch.cat((arm, u[:, 5:]), -1)
     u = torch.minimum(torch.maximum(u, tlo), thi)
     if kin is not None and floor is not None:
-        u = floor_guard(u, q, kin, floor)
+        u = floor_guard(u, q, kin, floor) if floor_plane is None else floor_guard(u, q, kin, floor, plane=floor_plane)
     return u
 
 
@@ -296,12 +299,53 @@ class JointVecEnv:
         self.world_steps = 0
         self.decisions = 0
         self.u_exe = None                 # [B, 5, 6] targets executed in the last decision (after the action layer)
+        self.table_plane = None           # ``set_table`` (evaluation only): the table top plane, None = z = 0
+        self.floor_plane = None           # the action layer's floor plane (tilted); None = flat floor at floor_z
+        self.floor_z = 0.0                # flat floor height (m): FLOOR + floor_z (the robot script's --table-z)
+        self.q_offset = None              # [6] joint offset of the policy frame (sim emulation of a joint-map offset)
 
     def resolved(self) -> dict:
         return dict(env=self.cfg.to_dict(), task=asdict(self.tcfg), codec={k: v.tolist() for k, v in
                                                                             self.codec.state().items()},
                     num_obs=self.num_obs, num_actions=self.num_actions,
                     action_groups=list(zip(self.action_group_names, self.action_groups)), kind="joint_env")
+
+    # ---- a table that is not at z = 0 (evaluation only; ``table.py``) --------------------------------------------
+    def set_table(self, plane=None, floor="zero", q_offset=None):
+        """The table top on the plane z = c0 + c1 x + c2 y (None: z = 0, the old env): the CPU MuJoCo table geom, the
+        task starts (``reset_tasks``: the cube moved onto the plane before the warm-up, ``table.map_cube``), and the
+        task rules (heights above the plane: on the table, lift, release, lowest arm point; ``task.features``).
+        ``floor``: the action layer's table floor (lowest gripper / moving-jaw point >= FLOOR above it): "zero" (z = 0,
+        the default and the robot script's default --table-z 0), "table" (follows the table: a flat table -> FLOOR +
+        dz, as --table-z dz; a tilted plane -> heights above the plane, sim only), or a float = a flat floor at that
+        z (--table-z). ``q_offset`` [6] (rad): the policy and the action layer work in a joint frame q + q_offset
+        (the targets are mapped back by - q_offset; the world and the task stay true): a sim emulation of an extra
+        joint-map offset on the robot. World mujoco only."""
+        from nedm.so101_policy import table as TB
+        if self.cfg.world != "mujoco":
+            raise ValueError("set_table: CPU MuJoCo worlds only")
+        plane = None if plane is None or not any(plane) else tuple(float(c) for c in plane)
+        self.table_plane = plane
+        self.task.table_plane = plane
+        self.world.set_table(plane)
+        self.floor_plane, self.floor_z = None, 0.0
+        if isinstance(floor, (int, float)) and not isinstance(floor, bool):
+            self.floor_z = float(floor)
+        elif floor == "table":
+            if TB.is_flat(plane):
+                self.floor_z = 0.0 if plane is None else plane[0]
+            else:
+                self.floor_plane = plane
+        elif floor != "zero":
+            raise ValueError(f"floor {floor!r}: 'zero', 'table' or a height (m)")
+        self.q_offset = None if q_offset is None or not any(q_offset) else \
+            torch.as_tensor(q_offset, dtype=torch.float64, device=self.dev)
+        return dict(plane=plane, floor_plane=self.floor_plane, floor_z=self.floor_z,
+                    q_offset=None if self.q_offset is None else self.q_offset.tolist(), table=self.world.table)
+
+    def table_info(self) -> dict:
+        return dict(plane=self.table_plane, floor_plane=self.floor_plane, floor_z=self.floor_z,
+                    q_offset=None if self.q_offset is None else self.q_offset.tolist())
 
     # ---- tasks -------------------------------------------------------------------------------------------------
     def refresh_pool(self, n=None):
@@ -348,6 +392,17 @@ class JointVecEnv:
     def reset_tasks(self, idx, starts: WorldState, goal_xy, goal_yaw, seeds, mj_start=None, check_tol=1e-6):
         idx = torch.as_tensor(idx, dtype=torch.long, device=self.dev)
         st = starts.to(self.dev)
+        if self.table_plane is not None and self.cfg.world == "mujoco":
+            # the task's cube (start and stored settled pose) moved onto the plane; the warm-up settles it there
+            from nedm.so101_policy import table as TB
+            mj_start = dict(mj_start)
+            mj_start["cube_pos"], mj_start["cube_quat"] = TB.map_cube(self.table_plane, mj_start["cube_pos"],
+                                                                       mj_start["cube_quat"])
+            cp, cq = TB.map_cube(self.table_plane, st.cube_pos.cpu().numpy(), st.cube_quat.cpu().numpy())
+            st = WorldState(**{**{f: getattr(st, f) for f in st.__dataclass_fields__},
+                               "cube_pos": torch.as_tensor(cp, dtype=st.cube_pos.dtype, device=self.dev),
+                               "cube_quat": torch.as_tensor(cq, dtype=st.cube_quat.dtype, device=self.dev)})
+            check_tol = None if check_tol is None else max(check_tol, 1e-4)   # a new settle on the plane
         self._reset_rows(idx, st, torch.as_tensor(goal_xy, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(goal_yaw, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(seeds, dtype=torch.long, device=self.dev), mj_start)
@@ -394,9 +449,15 @@ class JointVecEnv:
         rew = torch.zeros(B, dtype=torch.float64, device=self.dev)
         info = None
         ex = []
+        fl = (FLOOR if self.floor_z == 0.0 else FLOOR + self.floor_z) if self.cfg.floor_guard else None
         for j in range(STEPS):
-            u = safety(u5[:, j], self.ws.q.to(torch.float64), self.tlo, self.thi, self.lead, self.kin,
-                       FLOOR if self.cfg.floor_guard else None)
+            if self.q_offset is None:
+                u = safety(u5[:, j], self.ws.q.to(torch.float64), self.tlo, self.thi, self.lead, self.kin, fl,
+                           self.floor_plane)
+            else:   # the action layer in the policy's joint frame (targets u5 are in it), mapped back to the world
+                qo = self.q_offset
+                u = safety(u5[:, j], self.ws.q.to(torch.float64) + qo, self.tlo, self.thi, self.lead, self.kin, fl,
+                           self.floor_plane) - qo
             ex.append(u)
             ws = self.world.step(u)
             self.ws = ws if self.cfg.world != "mujoco" else ws.to(self.dev)

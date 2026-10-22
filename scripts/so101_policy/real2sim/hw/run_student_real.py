@@ -164,9 +164,13 @@ class LeRobotIO:
         diffs = []
         for m in self.bus.motors:
             w = dict(want)
+            has = getattr(self.bus, "_has_register", None)     # private; not in every LeRobot release
             for r in ("Maximum_Acceleration", "Acceleration"):
-                if self.bus._has_register(m, r):
-                    w[r] = 254
+                try:
+                    if has is not None and has(m, r):
+                        w[r] = 254
+                except Exception:                          # noqa: BLE001 (skip this register check)
+                    pass
             try:
                 w["Operating_Mode"] = self.bus._definition(m).operating_modes["position"]
             except Exception:                              # noqa: BLE001 (private API; skip the check)
@@ -267,6 +271,12 @@ def lerobot_calib_path(args):
 def build_common(args):
     calib = H.load_calib(args.calib)
     jm = H.JointMap.from_calib(calib, str(args.calib))
+    if args.q_offset_deg:                              # extra joint-map offset (sim deg; e.g. the table-tilt correction)
+        qo = np.radians(np.asarray([float(v) for v in args.q_offset_deg.split(",")], np.float64))
+        if qo.shape != (5,):
+            raise SystemExit("--q-offset-deg needs 5 values (pan, lift, elbow, wrist_flex, wrist_roll; sim deg)")
+        jm.offset_rad = jm.offset_rad + qo
+        jm.source = f"{jm.source} + --q-offset-deg {args.q_offset_deg}"
     kp = Path(args.kin_points).expanduser() if args.kin_points else H.default_kin_points()
     layer = H.ActionLayer(kp, table_z=args.table_z)
     gcfg = H.GuardConfig.from_dict(json.loads(args.guard) if args.guard else {})
@@ -277,6 +287,15 @@ def build_common(args):
     views = H.view_specs(calib, H.REAL_CAMERAS, policy.res, interp=args.interp)
     # a real2sim student pins the crops it was trained with (cfg.crops, keyed by the student's camera names): use them;
     # a --crop that differs from them is refused unless --allow-crop-change (the images would differ from training)
+    want = getattr(policy.cfg, "calib_sha256", "") or ""
+    if want and args.calib:                            # the joint map must be the one the student was trained with
+        import hashlib
+        got = hashlib.sha256(Path(args.calib).expanduser().read_bytes()).hexdigest()
+        if got != want:
+            msg = f"--calib {args.calib} sha256 {got[:12]} != the student's calibration {want[:12]}"
+            if getattr(args, "mode", "") == "live" and not args.allow_calib_change:
+                raise SystemExit(msg + " (live refused; --allow-calib-change to override)")
+            log("WARNING: " + msg)
     pinned = {policy.cam_map[c]: tuple(int(v) for v in b) for c, b in (getattr(policy.cfg, "crops", None) or {}).items()
               if c in policy.cam_map}
     for cam, box in pinned.items():
@@ -798,7 +817,7 @@ def end_menu(io, jm, limits, layer, guard, q_start_real, args, last_cmd):
             q_now = jm.real_to_sim(io.read_q())
             goal = jm.real_to_sim(q_start_real)
             path, dur = H.plan_joint_path(q_now, goal, math.radians(args.home_speed_deg_s))
-            probs = H.check_path(path, layer, jm, limits, clearance=args.home_clearance, start=q_now)
+            probs = H.check_path(path, layer, jm, limits, clearance=args.home_clearance, start=q_now, goal_measured=True)
             if probs:
                 log("return path refused: " + "; ".join(probs[:3]))
                 continue
@@ -821,6 +840,10 @@ def main(argv=None):
     ap.add_argument("--device", default="", help="cuda / cpu (default cuda if available)")
     ap.add_argument("--cam-map", default="", help="student camera=real camera, e.g. top=external,wrist=wrist")
     ap.add_argument("--crop", default="", help="override crops: external=x,y,w,h;wrist=x,y,w,h")
+    ap.add_argument("--q-offset-deg", default="", help="extra joint-map offset, 5 sim deg (pan, lift, elbow, wrist_flex, "
+                    "roll), added to calib offset_rad; e.g. 0,-2.086,0,0,0 = the table-tilt correction (README)")
+    ap.add_argument("--allow-calib-change", action="store_true",
+                    help="live: accept a --calib whose sha256 differs from the student's pinned calibration")
     ap.add_argument("--allow-crop-change", action="store_true",
                     help="accept a --crop that differs from the crops pinned in the student checkpoint")
     ap.add_argument("--interp", default="area", choices=("area", "linear", "nearest", "cubic"))

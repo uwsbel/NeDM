@@ -383,6 +383,34 @@ class TestRealViewsOnGpu(unittest.TestCase):
             x = VI.to_input(a, fx=v.fx)
             self.assertEqual(tuple(x.shape), (3, 2, 3, 64, 64))
 
+class TestQBias(unittest.TestCase):
+    """OnlineConfig.q_bias_*: per-world offset of the student's q input, drawn at the episode start."""
+
+    def test_bias_reset(self):
+        import types
+        import torch
+        from nedm.so101_policy.vision import viral as VI
+        o = VI.OnlineConfig.from_dict(dict(q_bias_deg=[1, 3, 2, 2, 3, 0], q_bias_p=0.7))
+        st = types.SimpleNamespace(o=o, dev=torch.device("cpu"), qb=torch.zeros(4000, 6),
+                                   qb_h=torch.deg2rad(torch.tensor([1.0, 3, 2, 2, 3, 0])),
+                                   qb_gen=torch.Generator().manual_seed(0))
+        VI.OnlineDAgger._bias_reset(st, torch.arange(4000))
+        d = torch.rad2deg(st.qb)
+        self.assertTrue(bool((d.abs() <= torch.tensor([1.0, 3, 2, 2, 3, 0]) + 1e-5).all()))
+        self.assertEqual(float(d[:, 5].abs().max()), 0.0)
+        on = (d.abs().sum(1) > 0).float().mean()
+        self.assertAlmostEqual(float(on), 0.7, delta=0.03)
+        self.assertGreater(float(d[:, 1].abs().max()), 2.9)
+        keep = st.qb.clone()
+        VI.OnlineDAgger._bias_reset(st, torch.tensor([0, 1]))            # only the reset worlds change
+        self.assertTrue(torch.equal(st.qb[2:], keep[2:]))
+
+    def test_off_by_default(self):
+        from nedm.so101_policy.vision import viral as VI
+        o = VI.OnlineConfig.from_dict({})
+        self.assertEqual(o.q_bias_p, 0.0)
+        self.assertEqual(tuple(o.q_bias_deg), ())
+
 
 if __name__ == "__main__":
     unittest.main()

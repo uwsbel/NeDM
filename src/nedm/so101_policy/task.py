@@ -515,8 +515,18 @@ class TaskGeometry:
         np.savez(path, **self.arrays)
 
     # -- per-state measures (bpos [B, 8, 3], brot [B, 8, 3, 3] = kin.body_poses; c [B, 3], rc [B, 3, 3] = the cube) --
-    def lowest(self, bpos, brot):
-        """Lowest world z [B] of the arm collision geoms (Scene.lowest), per body one matrix product."""
+    def lowest(self, bpos, brot, plane=None):
+        """Lowest world z [B] of the arm collision geoms (Scene.lowest), per body one matrix product. ``plane``
+        (c0, c1, c2): the lowest signed height above the plane z = c0 + c1 x + c2 y instead (``table.py``)."""
+        if plane is not None:
+            from nedm.so101_policy import table as TB
+            n_np, off = TB.normal(plane)
+            nv = torch.as_tensor(n_np, dtype=bpos.dtype, device=bpos.device)
+            z = []
+            for b, p, r in self.low_groups:
+                u = torch.einsum("k,bkj->bj", nv, brot[:, b])
+                z.append((bpos[:, b] @ nv - off)[:, None] + u @ p.T.to(u) - r)
+            return torch.stack([v.amin(-1) for v in z], -1).amin(-1)
         z = [(bpos[:, b, 2:3] + brot[:, b, 2, 0:1] * p[:, 0] + brot[:, b, 2, 1:2] * p[:, 1] + brot[:, b, 2, 2:3] * p[:, 2]
               - r).amin(-1) for b, p, r in self.low_groups]
         return torch.stack(z, -1).amin(-1)
@@ -651,8 +661,12 @@ def _self_arrays_cached() -> dict:
 
 
 # ---- per-step features (pure functions of the state) ---------------------------------------------------------------
-def features(state: WorldState, kin: SO101Kin, geom: TaskGeometry | None, cfg: TaskConfig, overlap=True) -> dict:
-    """Geometric quantities of one batch of states used by every rule, the reward and the observation (float64)."""
+def features(state: WorldState, kin: SO101Kin, geom: TaskGeometry | None, cfg: TaskConfig, overlap=True,
+             plane=None) -> dict:
+    """Geometric quantities of one batch of states used by every rule, the reward and the observation (float64).
+    ``plane`` (c0, c1, c2): the table top is the plane z = c0 + c1 x + c2 y (``table.py``, evaluation of a lowered
+    table): ``bottom`` (on the table, lift, release, air) and ``lowest`` (arm lowest point) are heights above the plane
+    (along its normal); the base zone keeps the world bottom; the observation is unchanged (world = arm frame)."""
     f64 = dict(dtype=kin.dtype)
     q = state.q.to(**f64)
     c = state.cube_pos.to(**f64)
@@ -669,6 +683,12 @@ def features(state: WorldState, kin: SO101Kin, geom: TaskGeometry | None, cfg: T
     gyaw = yaw_of(rg)
     cyaw, tilt = cube_yaw_tilt(quat)
     bottom = cube_bottom(c, rc)
+    bottom_w = bottom
+    if plane is not None:     # lowest cube corner above the plane, along its normal
+        from nedm.so101_policy import table as TB
+        n_np, off = TB.normal(plane)
+        nv = torch.as_tensor(n_np, **f64, device=c.device)
+        bottom = c @ nv - off - CUBE_HALF * torch.einsum("k,bkj->bj", nv, rc).abs().sum(-1)
     v = state.cube_v.to(**f64)
     jaw = q[:, 5]
     near_jaws = ((xg[:, 0].abs() <= cfg.held_x) & (xg[:, 1].abs() <= cfg.held_y) & (xg[:, 2] >= cfg.held_z[0])
@@ -686,8 +706,8 @@ def features(state: WorldState, kin: SO101Kin, geom: TaskGeometry | None, cfg: T
                yaw_mis=wrap90(gyaw - cyaw).abs(), on_table=bottom < cfg.table_z,
                finite=torch.isfinite(q).all(-1) & torch.isfinite(c).all(-1) & torch.isfinite(quat).all(-1))
     if geom is not None:
-        out["lowest"] = geom.lowest(bpos, brot)
-        out["base_zone"] = geom.in_base_zone(c, bottom)
+        out["lowest"] = geom.lowest(bpos, brot) if plane is None else geom.lowest(bpos, brot, plane)
+        out["base_zone"] = geom.in_base_zone(c, bottom_w)
         if cfg.self_rule:
             out["self_depth"] = geom.self_depth(bpos, brot)
         if cfg.ghost_rule and not overlap:
@@ -804,6 +824,7 @@ class PickPlaceTask:
         self.grasp_yaw = torch.zeros(self.B, **f)       # cube yaw at the first firm lift (continuous reference)
         self.turned = torch.zeros(self.B, **f)          # cube yaw turned since the first firm lift (rad)
         self.F = None
+        self.table_plane = None   # (c0, c1, c2): the table top is that plane (``features``; evaluation only)
 
     # -- episode control --
     def reset(self, idx, state: WorldState, goal_xy, goal_yaw):
@@ -843,7 +864,7 @@ class PickPlaceTask:
         xy_err / yaw_err (now), success10 / end_xy_err / end_yaw_err (latched at the end; nan while running), lifted,
         held, grasp_box_log, turned (cube yaw turned since the first firm lift), t (steps)."""
         cfg, tr = self.cfg, self.tr
-        F = features(state, self.kin, self.geom, cfg, overlap=self.overlap_rules)
+        F = features(state, self.kin, self.geom, cfg, overlap=self.overlap_rules, plane=self.table_plane)
         self.F = F
         B, dev = self.B, self.dev
         live = tr.end == 0

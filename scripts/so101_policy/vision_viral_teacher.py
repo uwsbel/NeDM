@@ -113,8 +113,19 @@ def cmd_eval(a):
     B = len(t["seeds"])
     env = JT.make_env(a.world, B, jt.codec, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                       lead_clamp=not a.no_lead, floor_guard=not a.no_floor)
+    from nedm.so101_policy import table as TB
+    plane, floor, _, moved = TB.from_cli(a)
+    if moved:      # evaluation only: a lowered / tilted table (table.py)
+        log(f"table: {TB.describe(plane)}, floor {floor}: {json.dumps(env.set_table(plane, floor))}")
+    extra = TB.log_only_extra(env, a)
+    if extra:
+        log(f"log-only task rules: {env.tcfg.log_only}")
     r = JT.run_tasks(env, t, jt, noise=a.noise, record_states=a.record_states, log=log)
     env.close()
+    if moved:
+        r["table"] = np.array(json.dumps(env.table_info()))
+    if extra:
+        r["log_only"] = np.array(json.dumps(list(env.tcfg.log_only)))
     s = JT.summarize(r)
     r["summary"] = np.array(json.dumps(s))
     r["jt"] = np.array(json.dumps(jt.info()))
@@ -262,6 +273,8 @@ def main(argv=None):
     q.add_argument("--no-floor", action="store_true")
     q.add_argument("--record-states", action="store_true")
     q.add_argument("--out", default="")
+    from nedm.so101_policy import table as TB
+    TB.add_cli(q)
     q.set_defaults(fn=cmd_eval)
 
     q = sub.add_parser("eval-expert")

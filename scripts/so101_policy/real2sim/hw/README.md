@@ -1,124 +1,114 @@
-# SO101 camera student on the real robot (draft)
+# SO101 camera student on the real robot
 
-Status 2026-10-21: **draft, never run on the robot.** Only the `replay` mode (2 real recordings) and the robot loop
-on a fake servo (`--backend fake`, unit tests) were run, on luffy. Do the dry run first, then live.
+Status 2026-10-22: **never run on the robot.** Student `final_v2_s26_it03000.pt` (cameras `external` + `wrist`,
+224 px, crops pinned in the checkpoint: external [52, 103, 288, 288], wrist [0, 0, 640, 480]). Checks done on luffy
+only (logs in `~/so101_r2s_claude/hw_final/`): replay of 3 recordings from the extracted bundle equals the worktree run
+exactly; dry and live loops on the fake robot; the HOME check from the 15 recorded rest poses.
 
 | File | What |
 |---|---|
-| `run_student_real.py` | modes `replay`, `dry`, `live` |
-| `hw_lib.py` | joint map, LeRobot-unit limits, image crop / resize, qdot estimate, action layer, hardware guard, joint paths, student wrapper, one control step (`Controller`), fake robot |
-| `make_orin_bundle.sh` | builds the folder for the Orin (sources + collision points + student + calib) |
+| `run_student_real.py` | modes `replay` (recording, no robot), `dry` (robot read only), `live` (moves the robot) |
+| `hw_lib.py` | joint map, limits, image crop, action layer, hardware guard, joint paths, student wrapper, fake robot |
+| `make_orin_bundle.sh` | builds the folder + `.tar.gz` for the Orin (sources, collision points, student, calib_v1.json) |
 | `tests/so101_policy/test_real2sim_hw.py` | 21 unit tests (CPU, about 10 s) |
 
-## What the script does in one control step (all modes)
+## Known problem: closed gripper at the start
 
-| Item | Value |
-|---|---|
-| Control step | 20 ms (50 Hz). A student query every 5 steps (0.1 s). |
-| Query inputs | the 2 camera images (newest frame), measured q and a qdot estimate (sim units) |
-| Images | LeRobot camera frame 640 x 480 RGB (replay: the mp4 decoded BGR, then BGR -> RGB), the crop box of `calib_v1.json` `"student_view"` (else a centred 480 x 480 square), resize to the student's size (224) with `cv2.INTER_AREA`. No undistortion. |
-| Joints | real (LeRobot deg, gripper 0-100) -> sim rad by `calib_v1.json` `joint_map`; targets back the same way |
-| qdot | least-squares slope over the last 3 measured q (40 ms, lag about 20 ms) |
-| Output | a chunk of 10 absolute targets; the first 5 are executed, one per step (jaw lead = checkpoint's, 0) |
-| Each executed target | 1. change vs the previous command <= 0.06 rad (arm, roll 0.08) / 0.5 rad (jaw) per step; 2. the sim action layer (`joint_env.safety`: lead band to the measured q, joint range, table floor 1.5 mm from the kinematics); 3. LeRobot calibrated range minus 3 deg; 4. max 10 deg (gripper 60) from the measured q; 5. stop if the command is not finite, leaves the workspace box or the floor |
-| Stop reasons (live) | measured q outside the calibrated range (+5 deg), measured gripper point 5 mm below the table, grasp point outside the box x -0.10..0.45, y +-0.42, z -0.01..0.40 m or > 0.45 m from the pan axis, a camera frame older than 150 ms, an arm joint held at >= 90 % of its lead band for 0.5 s (blocked), joint read / write error, time limit (15 s), keys q / space / Esc, Ctrl+C |
-| After a stop | HOLD: arm goal = measured q, gripper goal = its last command (keeps the grip); torque stays on |
+If the gripper reads < 3 (LeRobot 0-100) at the start, the HOME check refuses the move ("path leaves the sim joint
+range"): a closed real gripper is below the sim jaw limit. 9 of the 15 recordings start like that (gripper 0.6-1.4).
+**Open the gripper by hand to 5 or more before the live run** (torque off; read the value in the dry run). The end-menu
+return (`r`) to such a start pose is refused the same way.
 
-## Put it on the Orin (you do this; the script never copies anything to the robot machine)
-
-On luffy:
+## 1. Build (luffy) and copy (you)
 
 ```bash
 cd /home/harry/.t3/worktrees/NeDM-push-ppo/t3-dded53d1
-scripts/so101_policy/real2sim/hw/make_orin_bundle.sh <student.pt>        # -> ~/so101_r2s_claude/hw_bundle/so101_hw.tar.gz
-scp ~/so101_r2s_claude/hw_bundle/so101_hw.tar.gz sbel@proxy:~/
+scripts/so101_policy/real2sim/hw/make_orin_bundle.sh ~/so101_r2s_claude/ckpt/final_v2_s26_it03000.pt \
+    ~/so101_r2s_claude/hw_bundle/so101_hw_final
+scp ~/so101_r2s_claude/hw_bundle/so101_hw_final.tar.gz sbel@proxy:~/          # you do this
 ```
 
-On the Orin: `cd ~ && tar xzf so101_hw.tar.gz && cd so101_hw`. The bundle needs only the `lerobot` conda env
-(torch, torchvision, numpy, cv2, pyarrow, LeRobot 0.6.2). No mujoco: the table floor uses `assets/kin_points_v1.npz`.
+On the Orin: `cd ~ && tar xzf so101_hw_final.tar.gz && cd so101_hw_final && sed -n '4,$p' MANIFEST.txt | sha256sum -c --quiet`
+(no output = all files intact). Needs only the `lerobot` conda env (torch, numpy, cv2, pyarrow, LeRobot 0.6.2); no
+mujoco. Run every command below from `~/so101_hw_final`, in an interactive terminal (desktop or `ssh -t`): the stop
+keys q / space / Esc need a TTY, else only Ctrl+C stops. Do not pipe into `tee` (Ctrl+C also stops `tee`); the
+`--out` folder keeps the log.
 
-## Dry run (robot connected, no motor writes, torque untouched)
-
-Stop any other LeRobot process first (it owns the serial port and the cameras). Run in an interactive terminal
-(desktop terminal or `ssh -t`): the stop keys q / space / Esc need a TTY; without one only Ctrl+C stops.
+## 2. Commands on the Orin
 
 ```bash
 conda activate lerobot
-cd ~/so101_hw
-python scripts/so101_policy/real2sim/hw/run_student_real.py dry \
-    --student assets/student.pt --calib assets/calib_v1.json --out ~/so101_hw_runs/dry_1 --time-limit 30
+cd ~/so101_hw_final
+S="--student assets/student.pt --calib assets/calib_v1.json"
+# a) replay (no robot; Orin inference time; compare with luffy)
+python scripts/so101_policy/real2sim/hw/run_student_real.py replay $S --data-root /home/sbel/lerobot/data \
+    --episodes green_cube_red_plate:0,green_cube_red_plate:2,green_cube_red_plate_1:5 --out ~/so101_hw_runs/replay_orin
+# b) dry (robot and cameras connected, NO motor writes, torque untouched; stop other LeRobot processes first)
+python scripts/so101_policy/real2sim/hw/run_student_real.py dry $S --out ~/so101_hw_runs/dry_1 --time-limit 30
+# c) live (moves the robot)
+python scripts/so101_policy/real2sim/hw/run_student_real.py live --i-am-supervising $S \
+    --out ~/so101_hw_runs/live_1 --time-limit 15
 ```
 
-- Follower port `/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E115318-if00` (`--port`), cameras `wrist` =
-  `/dev/v4l/by-path/platform-3610000.usb-usb-0:4.1.1:1.0-video-index0`, `external` =
-  `/dev/v4l/by-id/usb-Xitech_USB_Camera_20250606105-video-index0` (`--cam-paths '{"wrist": ..., "external": ...}'`),
-  640 x 480, 30 fps, MJPG, V4L2 backend (as the recordings).
-- Dry mode opens the bus with LeRobot's handshake (it reads model numbers and firmware), checks that the motors'
-  calibration registers equal `~/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json`, and
-  never calls `robot.connect()` / `configure()` (they turn the torque off and on and write registers). Every writing
-  method of the bus and robot is replaced by one that raises.
-- With the torque off you can move the arm by hand and watch the printed status; the log has the student's chunk,
-  executed targets, plate / cube predictions and image thumbnails (`episode_dry.npz`, `episode_dry.json`).
-- **Use the dry run to measure the timing on the Orin**: the end of the run prints p50 / p95 / max of the joint read,
-  the model and the whole step. A query step does the inference inside its 20 ms slot; on luffy (shared, busy GPU) the
-  model took 13-21 ms (p50) and a query step 28 ms, so those steps overran.
+Defaults used by these commands: HOME = sim (0, -5, -15, 92, 45, 30) deg = LeRobot (0.0, -3.2, -6.5, 93.1, 120.8,
+gripper 31.1); HOME speed 15 deg/s peak; `--table-z 0`; `--configure auto`; guard = `GuardConfig` defaults (table
+below). Luffy replay of a): cube error before the grasp 23.9 / 22.7 / 23.0 mm, plate 9.6 / 9.2 / 4.6 mm (bf16 on
+another GPU: small differences are normal).
 
-## Live run (moves the robot)
+## 3. Pre-run checklist (live)
 
-Preconditions: a real `calib_v1.json` joint map (the script refuses the placeholder identity map), the dry run
-looked right, the workspace is clear, you stand at the robot with a hand near the arm.
+1. Dry run first. Check: the printed q matches the arm; `first_frames.npz` / the logged thumbnails show the fixed
+   camera as `external` and the gripper camera as `wrist` (a swap is not detected); the end of the run prints the
+   model and step time (p50 / p95). Gripper >= 5 (above).
+2. Arm in the folded rest pose. The HOME move takes 11-13 s at <= 15 deg/s; the wrist roll turns about 120 deg.
+3. Cube and plate: both 0.15-0.27 m from the shoulder pan axis (3.9 cm in front of the base origin), within +-75 deg
+   of straight ahead, 6-30 cm apart, plate yaw within 30 deg of the cube yaw (mod 90). Place them after HOME, before
+   you type `RUN`. (8 of the 15 recorded cubes were 0.28-0.34 m out: outside the training region.)
+4. Table height: the real table is 4-17 mm below the sim table over that region (tilted about 2 deg; 10-18 mm at the
+   15 recorded cubes). Keep `--table-z 0` for the first run: the gripper floor then stays 5 mm or more above the real
+   table. Expect the grasp about 15 mm too high (grasp point near the cube top face, a pinch or a miss).
+   `--table-z` is one flat height: a value below -0.005 lets the gripper reach the table at the high side.
+5. Workspace clear, you at the robot, one hand near the arm, the other on the keyboard (q / space / Esc / Ctrl+C).
+   The student may command up to 0.06 rad per 20 ms step (3 rad/s); the sim teacher's per-step change p99 is
+   0.03-0.04 rad.
+6. At the end the torque stays ON (holding). Menu: `r` slow return to the start pose, then `t` + `TORQUE OFF`
+   with a hand under the arm. `h` (or Enter) exits holding.
 
-```bash
-python scripts/so101_policy/real2sim/hw/run_student_real.py live --i-am-supervising \
-    --student assets/student.pt --calib assets/calib_v1.json --out ~/so101_hw_runs/live_1 --time-limit 15
-```
-
-Sequence and checks:
+## 4. What the live run does
 
 1. Before any write: LeRobot calibration file present and equal to the motors' registers; 3 joint reads finite and
-   inside the calibrated range; both cameras deliver 640 x 480 frames younger than 200 ms.
-2. `--configure auto` (default): reads the registers that LeRobot's `configure` writes (P / I / D gains,
-   acceleration, return delay, position mode, gripper torque / current limits). Only if one differs it asks you to type
-   `CONFIGURE` (the arm must rest on its stops: configure turns the torque off for a moment), writes goal = present
-   position, then runs LeRobot's `configure`. `--configure never` skips it; `always` forces it.
-3. HOME: default sim pose (0, -5, -15, 92, 0, 30) deg (median start of the sim tasks; `--home`). The joint path from
-   the present pose is checked: inside the sim joint range and the calibrated range, lowest gripper point not below
-   min(2 cm, either end) - 1 mm, grasp point inside the box. You type `MOVE`; goal = present position, torque on, then
-   the move with a cosine speed profile, peak 15 deg/s per joint (`--home-speed-deg-s`); the path waits while the arm
-   lags > 0.25 rad and stops after 2 s of lag.
-4. You place the cube and the plate and type `RUN`: the student loop, up to `--time-limit` s.
-5. End (time, key, guard reason): HOLD, then a menu: `h` hold and exit (torque stays ON, the servos hold the goal),
-   `r` slow return to the start pose (checked path, `MOVE`), `t` torque OFF (type `TORQUE OFF`; support the arm).
+   inside the calibrated range; both cameras 640 x 480, frames younger than 200 ms.
+2. `--configure auto`: only if a register differs from LeRobot's `configure` values, it asks for `CONFIGURE` (torque
+   off for a moment; the arm must rest on its stops).
+3. HOME: the joint path is checked (sim joint range, calibrated range, lowest gripper point, grasp-point box); you
+   type `MOVE`; goal = present position, torque on, cosine move; the path waits while the arm lags > 0.25 rad and
+   stops after 2 s of lag.
+4. You place the cube and the plate and type `RUN`: the student loop, up to `--time-limit` s (sim episodes are 8 s).
+5. End (time, key, guard): HOLD (arm goal = measured q, gripper = its last command), then the menu.
 
-The robot class is used below LeRobot's `Robot` API: `SOFollowerRobotConfig(disable_torque_on_disconnect=False,
-max_relative_target=None)`; the script applies its own max-relative-target clamp against the joint read of the same
-step (LeRobot's option would cost a second bus read per step).
+| Per control step (20 ms; a student query every 5 steps) | Value |
+|---|---|
+| Images | newest frame of each camera, crop of the checkpoint (`cfg.crops`), resize to 224 (INTER_AREA), RGB |
+| Joints | LeRobot units <-> sim rad by `calib_v1.json` `joint_map`; qdot from the last 3 reads |
+| Executed target | 1 of the 5 first chunk targets: change vs the previous command <= 0.06 rad (roll 0.08, jaw 0.5); action layer (lead band to the measured q, sim joint range, floor: lowest gripper point >= 1.5 mm + `--table-z`); calibrated range - 3 deg; <= 10 deg (gripper 60) from the measured q |
+| Stops (live) | command not finite, below the floor (-2 mm + table_z, and below the measured pose) or outside the box; measured q > 5 deg outside the allowed range (calibrated - 3 deg); measured lowest gripper point < -5 mm + table_z; grasp point outside x -0.10..0.45, y +-0.42, z -0.01..0.40 m or > 0.45 m from the pan axis; camera frame > 150 ms old (camera loss); an arm joint >= 90 % of its lead band for 0.5 s (blocked); read / write error; time limit; q / space / Esc / Ctrl+C |
 
-## Replay (offline, here)
+## 5. What to record
 
-```bash
-~/miniconda3/envs/so101_vision/bin/python scripts/so101_policy/real2sim/hw/run_student_real.py replay \
-    --student ~/so101_policy/runs/viral/final_student_o17_it03000.pt \
-    --episodes green_cube_red_plate_1:0,green_cube_red_plate:2 --out ~/so101_r2s_claude/hw/replay_test
-```
-
-Per episode `<dataset>_ep<k>.npz` / `.json` (per step q, qdot, target, command, which rule acted, timings; per query
-chunk, aux predictions, thumbnails; recorded leader action) and `replay_summary.json`. If `calib_v1.json` has
-`episodes` entries, the summary compares the predicted cube position (before the grasp frame) and plate pose with them.
+- The `--out` folders (dry, live, replay): `episode_*.npz` / `.json`, `first_frames.npz`, `replay_*`.
+- A phone video from the side, started before `RUN`.
+- A photo of the scene and the cube / plate positions (x, y from the base, yaw) before `RUN`.
+- Per run: end reason, reached the cube (yes / no), grasp height vs the cube, lift, place, manual stops.
+- The timing lines at the end of the dry run (`latency ms_model`, `ms_step`, overruns).
 
 ## Not tested / open
 
-- Nothing here was run against the real bus or cameras: `LeRobotIO` (connect, register reads, `configure`, torque,
-  goal writes, `read_latest` ages) was checked only by reading LeRobot 0.6.2's source on the Orin.
-- Bus timing at 50 Hz (one sync read + one sync write per step) and the Orin's inference time are unknown.
-- The placeholder identity joint map is wrong: in replay, the recorded grasps map to a grasp point up to 27 mm below
-  the table, and the recorded wrist_flex (up to 101.7 deg) exceeds the sim range (92.1 deg).
-- The recordings start from the folded rest pose (LeRobot about [0, -88, 84, 58-76, 0]); the sim tasks start near
-  HOME. The student never saw a folded start; the HOME move bridges it.
-- The sim action layer lets the jaw move at the measured arm pose even if the moving jaw then goes lower; the guard
-  stops if a command puts the lowest gripper point 2 mm below the table and below the measured pose (for example a
-  release with the jaw tip on the table). If that stops good releases, loosen it: `--guard '{"cmd_floor_m": -0.005}'`.
-- Servo dynamics: the real STS3215 runs LeRobot's P 16 / D 32 position loop, the sim the MJCF actuators; not compared.
-- Image path differences replay vs live: the recordings are H.264 (CRF 23) re-encodes of RGB frames; live frames are
-  MJPG decodes. The fisheye distortion is not removed (the sim cameras must model it, or the student must be trained
-  on undistorted views and `preprocess` extended).
+- Nothing ran against the real bus or cameras (`LeRobotIO` was checked only against LeRobot's source).
+- Timing: on luffy's busy shared GPU the model took 25 ms p50 / 43 ms p95, so every query step overran its 20 ms slot
+  (46.7 Hz instead of 50). The Orin's time is unknown (dry run / replay a).
+- Blank or wrong camera images are not detected (only the frame age). On the fake robot (constant grey images) the
+  student moved the arm 87 deg (shoulder lift) and 127 deg (wrist roll) in 15 s with no stop.
+- The jaw may open at the measured arm pose even if the moving jaw then goes lower; the command-floor stop (-2 mm)
+  can end a good release. If so: `--guard '{"cmd_floor_m": -0.005}'`.
+- Servo dynamics (STS3215, LeRobot P 16 / D 32) were not compared with the sim actuators. Replay images are H.264
+  re-encodes, live images MJPG decodes. No undistortion (the student was trained on renders with the calibrated fisheye models).

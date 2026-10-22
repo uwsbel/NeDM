@@ -417,14 +417,20 @@ def plan_joint_path(q_from, q_to, max_speed, dt=DT, min_time=1.0):
     return a + s[:, None] * (b - a), n * dt
 
 
-def check_path(path, layer: ActionLayer, jmap: JointMap, limits: RealLimits, clearance=0.02, start=None):
+def check_path(path, layer: ActionLayer, jmap: JointMap, limits: RealLimits, clearance=0.02, start=None,
+               goal_measured=False):
     """Problems of a joint path (sim rad [N, 6]): a waypoint outside the collector's range or the LeRobot calibrated
     range, or with its lowest gripper point below min(table_z + clearance, the lowest point of either end) - 1 mm, or
-    its grasp point outside the guard box (checked by the caller's Guard). -> list of strings (empty = ok)."""
+    its grasp point outside the guard box (checked by the caller's Guard). A measured end pose (``start``; the last
+    waypoint if ``goal_measured``) may lie outside the collector's range (the real gripper closed: LeRobot gripper
+    < 2.9 = sim jaw < kin.TLO); a straight path stays between its ends, so waypoints between that end and the range
+    are accepted. -> list of strings (empty = ok)."""
     p = np.asarray(path, np.float64)
     ends = p[[0, -1]] if start is None else np.stack((np.asarray(start, np.float64), p[-1]))
     bad = []
     tlo, thi = layer.tlo.numpy(), layer.thi.numpy()
+    for m in ([] if start is None else [np.asarray(start, np.float64)]) + ([p[-1]] if goal_measured else []):
+        tlo, thi = np.minimum(tlo, m), np.maximum(thi, m)
     if np.any(p < tlo - 1e-9) or np.any(p > thi + 1e-9):
         bad.append("path leaves the sim joint range (kin.TLO .. THI)")
     if limits.outside(jmap.sim_to_real(p)).any():

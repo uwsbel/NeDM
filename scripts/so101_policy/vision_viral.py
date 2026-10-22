@@ -67,13 +67,21 @@ def subset(t, idx):
 
 
 class EnvCache:
-    def __init__(self, jt, device, nrd, workers, mj_python, horizon):
+    def __init__(self, jt, device, nrd, workers, mj_python, horizon, table=None, cli=None):
         self.c, self.jt, self.dev, self.nrd, self.w, self.mp, self.h = {}, jt, device, nrd, workers, mj_python, horizon
+        self.table = table        # (plane, floor, q_offset) for JointVecEnv.set_table (evaluation only), None: off
+        self.cli = cli            # eval args (``--log-only-extra``), None: off
 
     def get(self, world, B):
         k = (world, B)
         if k not in self.c:
             self.c[k] = JT.make_env(world, B, self.jt.codec, self.dev, self.nrd, self.w, self.mp, self.h)
+            if self.table is not None:
+                log(f"table: {json.dumps(self.c[k].set_table(*self.table))}")
+            if self.cli is not None:
+                from nedm.so101_policy import table as TB
+                if TB.log_only_extra(self.c[k], self.cli):
+                    log(f"log-only task rules: {self.c[k].tcfg.log_only}")
         return self.c[k]
 
 
@@ -133,10 +141,17 @@ def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None,
     instead."""
     actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device, lag=lag, lag_range=lag_range)
     env = cache.get(world, len(tasks["seeds"]))
+    if getattr(env, "q_offset", None) is not None:      # evaluation only (table.py): the student's joint frame
+        actor.q_offset = env.q_offset.tolist()
     with taps(env, actor.push if actor.needs_tap else None):
         r = JT.run_tasks(env, tasks, jt, actor, np.ones(len(tasks["seeds"]), np.int64), None, 0,
                          record=True, record_states=record_states, full_horizon=full_horizon)
     r["render_s"], r["model_s"] = np.float64(actor.t_render), np.float64(actor.t_model)
+    if getattr(env, "table_plane", None) is not None or getattr(env, "q_offset", None) is not None \
+            or getattr(env, "floor_z", 0.0) != 0.0 or getattr(env, "floor_plane", None) is not None:
+        r["table"] = np.array(json.dumps(env.table_info()))
+    if cache.cli is not None:
+        r["log_only"] = np.array(json.dumps(list(env.tcfg.log_only)))
     r["summary"] = np.array(json.dumps(JT.summarize(r)))
     r["world"] = np.array(world)
     r["randomise"] = np.bool_(randomise)
@@ -369,11 +384,22 @@ def cmd_online(a):
 
 
 def cmd_eval(a):
+    from nedm.so101_policy import table as TB
     jt = JE.JointTeacher(x(a.jt), a.device)
     st, _ = VI.load_student(a.student, a.device)
+    if a.scene_path:     # the same scene / calibration files at another path (the pinned sha256 is still checked)
+        st.cfg.scene = x(a.scene_path)
+    if a.calib_path:
+        st.cfg.calib = x(a.calib_path)
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon)
-    views = VI.make_views(st.cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
+    plane, floor, qo, moved = TB.from_cli(a)
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
+                     table=(plane, floor, qo) if moved else None, cli=a if a.log_only_extra else None)
+    geo = {"table_plane": list(plane)} if plane is not None and not a.no_render_table else None
+    if geo:
+        log(f"render: {TB.describe(plane)} (scene geometry override, evaluation only)")
+    views = VI.make_views(st.cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device,
+                          geometry_over=geo)
     r = evaluate(st, jt, t, a.world, cache, views, a.randomise, a.jaw_lead, a.record_states, a.full_horizon, a.device,
                  lag=a.lag, lag_range=a.lag_range)
     r["student"] = np.array(str(a.student))
@@ -475,6 +501,10 @@ def main(argv=None):
     q.add_argument("--lag", type=int, default=None, help="image lag (control steps); default the student's cfg.lag")
     q.add_argument("--lag-range", type=int, nargs=2, default=None, help="image lag drawn per world (lo hi)")
     q.add_argument("--out", default="")
+    q.add_argument("--scene-path", default="", help="the student's scene file at this path (same sha256)")
+    q.add_argument("--calib-path", default="", help="the student's calibration file at this path (same sha256)")
+    from nedm.so101_policy import table as TB
+    TB.add_cli(q, student=True)
     q.set_defaults(fn=cmd_eval)
 
     q = sub.add_parser("collect")
