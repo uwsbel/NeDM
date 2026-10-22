@@ -28,10 +28,17 @@ Lenient success (build9 sec. 1.3): released (not held, jaw >= open_jaw, TCP >= t
 (speed < rest_speed, tilt <= flat_tilt, on the table), after a firm lift, the cube centre inside the goal block's square
 (|x|, |y| <= ``BLOCK_HALF`` in the block frame, any yaw), no failure rule in that step; latched per episode. The task
 still ends at strict success (15 mm / 15 deg), a failure or the time-out.
+
+Robot dynamics (real2sim, OFF by default: ``JointEnvConfig.dyn`` None): ``RobotDyn`` sits between the action layer and
+the world step of every 20 ms step and emulates the real SO101's timing and servo per world (command delay with jitter,
+weaker arm servo, first-order command lag, gravity sag of shoulder_lift / elbow with the robot guard's integral
+correction, command noise; ``RobotDynConfig``), drawn at every episode reset. ``joint_teacher.make_env`` reads a fixed
+evaluation setting from ``$NEDM_SO101_DYN``.
 """
 from __future__ import annotations
 
 import copy
+import json
 import math
 import os
 from dataclasses import asdict, dataclass, field, fields
@@ -41,7 +48,7 @@ import numpy as np
 import torch
 
 from nedm.so101_policy import task as T
-from nedm.so101_policy.world import WorldState
+from nedm.so101_policy.world import CONTROL_DT, WorldState
 
 OBS_DIM = 47
 STEPS = 5
@@ -100,7 +107,8 @@ class Codec:
 
 FLOOR = 0.0015                                       # m, the decoder's low_min (lowest gripper / moving-jaw point)
 # evaluation only (real2sim debugging): a weaker arm servo, as the real STS3215 (P 16): the executed arm target is moved
-# to q + s * (target - q), i.e. the position gain times s; 1 = off. Not used in training or data collection.
+# to q + s * (target - q), i.e. the position gain times s; 1 = off. Not used in training or data collection. Applied
+# after the robot dynamics stage (``RobotDyn``; the two compound); per world and recorded: ``RobotDynConfig.s_*``.
 EVAL_KP_SCALE = float(os.environ.get("NEDM_SO101_EVAL_KP_SCALE", "1"))
 
 
@@ -157,6 +165,210 @@ def safety(u, q, tlo, thi, lead=None, kin=None, floor=None, floor_plane=None):
     return u
 
 
+# ---- robot dynamics emulation (real2sim) -------------------------------------------------------------------------
+DYN_ENV = "NEDM_SO101_DYN"              # JSON ``RobotDynConfig`` of the evaluation envs (``joint_teacher.make_env``)
+SAG_JOINTS = (1, 2)                     # shoulder_lift, elbow: the joints that settle below their command on the robot
+_DYN_SHORT = dict(d=("d_lo", "d_hi"), s=("s_lo", "s_hi"), tau=("tau_lo", "tau_hi"),
+                  sag_deg=("sag_lo_deg", "sag_max_deg"), noise=("noise_lo", "noise_max"))
+
+
+@dataclass
+class RobotDynConfig:
+    """The real SO101's timing and servo, emulated per world between the action layer and the world step (``RobotDyn``;
+    robot values: ~/so101_r2s_claude/sim_debug/scout/timing.md: q-read-to-first-target 46 ms = 2.3 steps, the robot
+    holds the previous decision's last target until the new ones are written, servo delay 80-132 ms, achieved /
+    commanded motion per decision 0.3-0.5, measured - commanded SENT +1.5 deg shoulder_lift / +1.9 deg elbow under
+    load, with the guard's 1-2.8 deg integral correction already in the sent command). Every value is drawn per world
+    at its episode reset; a world is perturbed with probability ``p`` (the others take the old path bit for bit).
+    Ranges are inclusive, lo == hi is a fixed value (evaluation). Short forms in ``from_dict`` set both ends of a
+    range: d, s, tau, sag_deg, noise. Stage order per 20 ms step: delay -> integral correction -> lag -> sag -> gain
+    -> noise -> actuator range (the lag filters the COMMAND; the gain acts on the error to the measured q of this
+    step). The sag is added before the gain, so the stage's own offset is the sag for any gain; a world with gravity
+    adds its own error at a low gain on top (MuJoCo, measured - command: s 0.1 alone +0.14 / +0.21 deg, s 0.1 with a
+    1.7 deg sag +1.84 / +1.91 deg). The integral correction (``i_time_s`` > 0) is the robot guard's
+    (``hw_lib.GuardConfig.i_*``, robot runs: i_time_s 0.2, i_max_deg 3): without it a constant sag moves a policy
+    that commands relative to the measured q by the sag at every decision (jt_h110: 0.8 % lenient at 0.5 deg)."""
+    p: float = 1.0                      # share of perturbed worlds (per episode)
+    d_lo: int = 0                       # command delay (20 ms steps), per episode U{d_lo .. d_hi}: the first d steps
+    d_hi: int = 0                       # of a decision run the previous decision's last command, then u5[0 .. 4 - d]
+    jitter: float = 0.0                 # per decision d + (-1, 0, +1) with probability j / 2, 1 - j, j / 2 (j = jitter)
+    s_lo: float = 1.0                   # arm servo gain scale, log-uniform: u_arm = q + s (u_arm - q) (jaw: unchanged)
+    s_hi: float = 1.0
+    tau_lo: float = 0.0                 # first-order lag of the arm + jaw command (s), log-uniform, 0 = off:
+    tau_hi: float = 0.0                 # f <- f + min(1, DT / tau) (u - f), f = the measured q at the reset
+    sag_lo_deg: float = 0.0             # static error (deg), uniform: + sag on the shoulder_lift and elbow commands
+    sag_max_deg: float = 0.0            # (measured q = command + sag, the robot's sign)
+    noise_lo: float = 0.0               # Gaussian noise on the arm commands, every step; sigma (rad) uniform per
+    noise_max: float = 0.0              # episode
+    i_time_s: float = 0.0               # integral correction of the robot guard (0 = off; arm joints, every step):
+    i_max_deg: float = 3.0              #   integ += (command - q) DT / i_time_s, |integ| <= i_max_deg, only while
+    i_e_max_deg: float = 1.0            #   |command - q| < i_e_max_deg and the joint does not move to its command
+    i_v_min: float = 0.02               #   faster than i_v_min (rad/s); the sent command = command + integ
+
+    def __post_init__(self):
+        if not 0.0 <= self.p <= 1.0 or not 0.0 <= self.jitter <= 1.0:
+            raise ValueError(f"robot dyn: p {self.p}, jitter {self.jitter} must be in [0, 1]")
+        if not 0 <= int(self.d_lo) <= int(self.d_hi) <= STEPS - 1:
+            raise ValueError(f"robot dyn: delay {self.d_lo} .. {self.d_hi} must be within 0 .. {STEPS - 1} steps")
+        if not 0.0 < self.s_lo <= self.s_hi:
+            raise ValueError(f"robot dyn: gain {self.s_lo} .. {self.s_hi} must be > 0, lo <= hi")
+        if not 0.0 <= self.tau_lo <= self.tau_hi or (self.tau_lo == 0.0 < self.tau_hi):
+            raise ValueError(f"robot dyn: tau {self.tau_lo} .. {self.tau_hi}: log-uniform, both > 0 (or both 0 = off)")
+        if not self.sag_lo_deg <= self.sag_max_deg or not 0.0 <= self.noise_lo <= self.noise_max:
+            raise ValueError("robot dyn: sag / noise ranges need lo <= hi (noise >= 0)")
+        if self.i_time_s < 0.0 or self.i_max_deg < 0.0 or self.i_e_max_deg < 0.0:
+            raise ValueError("robot dyn: integral correction i_time_s / i_max_deg / i_e_max_deg must be >= 0")
+        self.d_lo, self.d_hi = int(self.d_lo), int(self.d_hi)
+
+    @staticmethod
+    def from_dict(d):
+        d = dict(d or {})
+        known = {f.name for f in fields(RobotDynConfig)}
+        bad = sorted(set(d) - known - set(_DYN_SHORT) - {"note"})
+        if bad:
+            raise ValueError(f"unknown robot dyn keys {bad}")
+        for k, (lo, hi) in _DYN_SHORT.items():
+            if k in d:
+                if lo in d or hi in d:
+                    raise ValueError(f"robot dyn: {k!r} sets {lo} and {hi}; give one form")
+                d[lo] = d[hi] = d.pop(k)
+        return RobotDynConfig(**{k: v for k, v in d.items() if k in known})
+
+    @property
+    def neutral(self):
+        """True: every perturbed world equals the old path (no delay, gain 1, no lag, sag, noise or integral
+        correction); ``RobotDyn`` then skips the stage (bit for bit the old step)."""
+        return (self.d_hi == 0 and self.s_lo == self.s_hi == 1.0 and self.tau_hi == 0.0 and self.sag_lo_deg ==
+                self.sag_max_deg == 0.0 and self.noise_max == 0.0 and self.i_time_s == 0.0)
+
+
+def dyn_config(v) -> RobotDynConfig | None:
+    """None / False / {} / "" / "{}" / "null" -> None (off); a dict or a JSON string -> ``RobotDynConfig``."""
+    if isinstance(v, RobotDynConfig):
+        return v
+    if isinstance(v, str):
+        v = json.loads(v) if v.strip() else None
+    if v is None or v is False or (isinstance(v, dict) and not v):
+        return None
+    if not isinstance(v, dict):
+        raise ValueError(f"robot dyn: a dict / JSON object, got {v!r}")
+    return RobotDynConfig.from_dict(v)
+
+
+def dyn_from_env() -> RobotDynConfig | None:
+    """The evaluation setting of ``$NEDM_SO101_DYN`` (JSON ``RobotDynConfig``, e.g. '{"d": 2, "s": 0.1, "tau": 0.1,
+    "sag_deg": 1.7}'); unset / empty = off."""
+    return dyn_config(os.environ.get(DYN_ENV, "").strip())
+
+
+def _log_uniform(lo, hi, u):
+    if lo == hi:
+        return torch.full_like(u, float(lo))
+    return torch.exp(math.log(lo) + u * (math.log(hi) - math.log(lo)))
+
+
+class RobotDyn:
+    """Per-world state of ``RobotDynConfig`` for B worlds on one device (``JointVecEnv.step``). Own generator (seeded
+    from the env seed; ``reseed`` at ``reset_tasks``), so the env's other draws never change. Six uniforms per world
+    and reset (perturbed, delay, gain, tau, sag, sigma), B uniforms per decision (jitter) and B x 5 normals per step
+    (noise), all drawn whatever the ranges are, so paired settings share their draws. A neutral config
+    (``RobotDynConfig.neutral``) never activates the stage."""
+    COLS = ("on", "d0", "s", "tau", "sag_deg", "sigma")
+    SUMMARY = ("dyn_on", "dyn_d0", "dyn_d", "dyn_s_p50", "dyn_tau_p50", "dyn_sag_deg", "dyn_sigma", "dyn_i_deg")
+
+    def __init__(self, cfg: RobotDynConfig, B, device, seed):
+        self.cfg, self.B, self.dev = cfg, int(B), torch.device(device)
+        self.gen = torch.Generator(self.dev).manual_seed(int(seed))
+        f, li = dict(dtype=torch.float64, device=self.dev), dict(dtype=torch.long, device=self.dev)
+        self.on = torch.zeros(B, dtype=torch.bool, device=self.dev)
+        self.d0, self.d = torch.zeros(B, **li), torch.zeros(B, **li)
+        self.s, self.tau, self.a = torch.ones(B, **f), torch.zeros(B, **f), torch.ones(B, **f)
+        self.sag, self.sigma = torch.zeros(B, **f), torch.zeros(B, **f)
+        self.hold = torch.zeros(B, 6, **f)        # the previous decision's last command (held during the delay)
+        self.f = torch.zeros(B, 6, **f)           # the lag filter's state
+        self.integ = torch.zeros(B, 5, **f)       # the integral correction (rad, arm joints; i_time_s > 0)
+        self.active = False                       # any world perturbed (else ``JointVecEnv.step`` skips the stage)
+        self.sag_idx = torch.tensor(SAG_JOINTS, dtype=torch.long, device=self.dev)
+
+    def reseed(self, seed):
+        self.gen.manual_seed(int(seed) & 0x7FFFFFFFFFFFFFFF)
+
+    def reset(self, idx, q):
+        """Episode start of worlds ``idx`` (q [n, 6]: their measured start q): new draws; hold and lag state = q,
+        integral correction = 0 (``Guard.reset``)."""
+        c, n = self.cfg, len(idx)
+        u = torch.rand(n, 6, generator=self.gen, dtype=torch.float64, device=self.dev)
+        self.on[idx] = u[:, 0] < c.p
+        self.d0[idx] = (c.d_lo + (u[:, 1] * (c.d_hi - c.d_lo + 1)).long()).clamp(max=c.d_hi)
+        self.s[idx] = _log_uniform(c.s_lo, c.s_hi, u[:, 2])
+        tau = _log_uniform(c.tau_lo, c.tau_hi, u[:, 3]) if c.tau_hi > 0 else torch.zeros_like(u[:, 3])
+        self.tau[idx] = tau
+        self.a[idx] = torch.where(tau > 0, (CONTROL_DT / tau.clamp_min(1e-12)).clamp(max=1.0), torch.ones_like(tau))
+        self.sag[idx] = torch.deg2rad(c.sag_lo_deg + u[:, 4] * (c.sag_max_deg - c.sag_lo_deg))
+        self.sigma[idx] = c.noise_lo + u[:, 5] * (c.noise_max - c.noise_lo)
+        q = q.to(torch.float64)
+        self.hold[idx], self.f[idx] = q, q
+        self.integ[idx] = 0.0
+        self.active = bool(self.on.any()) and not c.neutral
+
+    def begin(self):
+        """Decision start: this decision's delay d = clip(d0 + jitter, 0, STEPS - 1)."""
+        r = torch.rand(self.B, generator=self.gen, dtype=torch.float64, device=self.dev)
+        j = self.cfg.jitter
+        self.d = (self.d0 + (r >= 1.0 - j / 2).long() - (r < j / 2).long()).clamp(0, STEPS - 1)
+
+    def apply(self, j, ex, u, q, tlo, thi, qd=None):
+        """Step j of the decision: ``ex`` = the action layer's targets of steps 0 .. j (list of [B, 6]), ``u`` = ex[j],
+        q [B, 6] the measured q now, ``qd`` [B, 6] its speed (integral correction; None = not moving) -> the target
+        sent to the world [B, 6] (unperturbed rows: ``u`` itself)."""
+        B, d, c = self.B, self.d, self.cfg
+        ar = torch.arange(B, device=self.dev)
+        new = torch.stack(ex, 1)[ar, (j - d).clamp(min=0)]                     # u5[j - d] after the action layer
+        cmd = torch.where((d > j)[:, None], self.hold, new)                     # the first d steps: the held command
+        if j == STEPS - 1:
+            self.hold = cmd                                                     # held until the next decision's d
+        q = q.to(torch.float64)
+        if c.i_time_s > 0:                # the robot guard's integral correction (hw_lib.Guard.apply, every step)
+            e = cmd[:, :5] - q[:, :5]
+            if qd is not None:            # a joint that follows its command needs no correction
+                v_ = torch.nan_to_num(qd.to(torch.float64)[:, :5], 0.0, 0.0, 0.0)
+                e = torch.where(v_ * torch.sign(e) > c.i_v_min, torch.zeros_like(e), e)
+            e = torch.where(e.abs() < math.radians(c.i_e_max_deg), e, torch.zeros_like(e))    # blocked / new target
+            im = math.radians(c.i_max_deg)
+            self.integ = torch.where(self.on[:, None], (self.integ + e * (CONTROL_DT / c.i_time_s)).clamp(-im, im),
+                                     self.integ)
+            cmd = torch.cat((cmd[:, :5] + self.integ, cmd[:, 5:]), -1)
+        a = self.a[:, None]
+        self.f = torch.where(a >= 1.0, cmd, self.f + a * (cmd - self.f))       # first-order lag of the command
+        v = self.f.clone()
+        v[:, self.sag_idx] += self.sag[:, None]                                 # static error (before the gain)
+        s = self.s[:, None]
+        arm = torch.where(s == 1.0, v[:, :5], q[:, :5] + s * (v[:, :5] - q[:, :5]))
+        arm = arm + self.sigma[:, None] * torch.randn(B, 5, generator=self.gen, dtype=torch.float64, device=self.dev)
+        out = torch.minimum(torch.maximum(torch.cat((arm, v[:, 5:]), -1), tlo), thi)    # actuator range
+        return torch.where(self.on[:, None], out, u)
+
+    def params(self):
+        """[B, 6] float64 per-world draws (``COLS``; sag in deg)."""
+        return torch.stack((self.on.double(), self.d0.double(), self.s, self.tau, torch.rad2deg(self.sag), self.sigma),
+                           -1)
+
+    def summary(self):
+        """Compact draw statistics (perturbed share; means / medians over the perturbed worlds; the mean |integral
+        correction| in deg) for logs. Always the keys ``SUMMARY`` (NaN while no world is perturbed), so the log's
+        csv header (taken from its first row) has every column."""
+        on = self.on
+        out = dict.fromkeys(self.SUMMARY, float("nan"))
+        out["dyn_on"] = round(float(on.double().mean()), 3)
+        if bool(on.any()):
+            r = lambda x, k=3: round(float(x), k)                                     # noqa: E731
+            out.update(dyn_d0=r(self.d0[on].double().mean()), dyn_d=r(self.d[on].double().mean()),
+                       dyn_s_p50=r(self.s[on].median(), 4), dyn_tau_p50=r(self.tau[on].median(), 4),
+                       dyn_sag_deg=r(torch.rad2deg(self.sag[on]).mean()), dyn_sigma=r(self.sigma[on].mean(), 5),
+                       dyn_i_deg=r(torch.rad2deg(self.integ[on].abs()).mean()))
+        return out
+
+
 # ---- lenient success ---------------------------------------------------------------------------------------------
 def lenient_now(F, cfg: T.TaskConfig, goal_xy, goal_yaw, lifted, half=BLOCK_HALF):
     """[B] bool: the strict success conditions with the position test replaced by 'cube centre inside the goal block's
@@ -200,12 +412,29 @@ def attach_lenient(task: T.PickPlaceTask, half=BLOCK_HALF):
 
 
 # ---- observation ----------------------------------------------------------------------------------------------------
-def markov_obs(F, task: T.PickPlaceTask, idx=None):
-    """[B, 47] float32 (module docstring) from task features F of the current state."""
+def markov_obs(F, task: T.PickPlaceTask, idx=None, cfg: T.TaskConfig | None = None):
+    """[B, 47] float32 (module docstring) from task features F of the current state. ``cfg``: the task config of the
+    observation (default the task's; ``JointEnvConfig.hold_obs_s``)."""
     sel = (lambda x: x) if idx is None else (lambda x: x[idx])
-    o = T.observation(F, sel(task.goal_xy), sel(task.goal_yaw), sel(task.tr.lifted), sel(task.tr.air_run), task.cfg,
-                      None, None)
+    o = T.observation(F, sel(task.goal_xy), sel(task.goal_yaw), sel(task.tr.lifted), sel(task.tr.air_run),
+                      task.cfg if cfg is None else cfg, None, None)
     return o[:, :OBS_DIM]
+
+
+def hold_cap_kw(hold_cap_s=None, hold_obs_s=0.0) -> dict:
+    """``JointEnvConfig`` keywords of another hold_cap rule (``TaskConfig.hold_cap_s``: held in the air for longer
+    than this ends the episode; slow robot worlds need more time) and of the JT observation's held-time scale
+    (``hold_obs_s``; 0 with a new cap = keep the old envs' scale, the task default 3.5 s, which every evaluation and
+    online run so far gave the JT; jt_h110 itself was trained with hold_cap_s 2.5 (its env record). With the scale
+    moved to a 20 s cap jt_h110 drops from 98 to 36 % lenient in nominal NRD worlds, mostly mid-air releases).
+    None / the default and 0 -> {} (the old env)."""
+    out = {}
+    if hold_cap_s is not None and float(hold_cap_s) != T.TaskConfig.hold_cap_s:
+        out["task"] = dict(hold_cap_s=float(hold_cap_s))
+        out["hold_obs_s"] = float(hold_obs_s or T.TaskConfig.hold_cap_s)
+    elif hold_obs_s:
+        out["hold_obs_s"] = float(hold_obs_s)
+    return out
 
 
 # ---- env ------------------------------------------------------------------------------------------------------------
@@ -236,6 +465,12 @@ class JointEnvConfig:
     mj_workers: int = 0
     mj_python: object = None
     mjwarp: dict = field(default_factory=dict)
+    dyn: object = None                                # RobotDynConfig (or its dict): robot dynamics stage; None = off
+    hold_obs_s: float = 0.0                           # held-time scale (s) of the JT observation; 0 = task hold_cap_s
+                                                      # (``hold_cap_kw`` keeps the old envs' 3.5 s with a new cap)
+
+    def __post_init__(self):
+        self.dyn = dyn_config(self.dyn)
 
     @staticmethod
     def from_dict(d):
@@ -307,6 +542,13 @@ class JointVecEnv:
         self.floor_plane = None           # the action layer's floor plane (tilted); None = flat floor at floor_z
         self.floor_z = 0.0                # flat floor height (m): FLOOR + floor_z (the robot script's --table-z)
         self.q_offset = None              # [6] joint offset of the policy frame (sim emulation of a joint-map offset)
+        # robot dynamics stage (real2sim; None = off) with its own generator, and the JT observation's held-time scale
+        self.dyn = None if cfg.dyn is None else RobotDyn(cfg.dyn, B, dev, (int(cfg.seed) * 0x9E3779B1 + 0xD1A) &
+                                                         0x7FFFFFFFFFFF)
+        self.obs_tcfg = None
+        if cfg.hold_obs_s and float(cfg.hold_obs_s) != self.tcfg.hold_cap_s:
+            from dataclasses import replace
+            self.obs_tcfg = replace(self.tcfg, hold_cap_s=float(cfg.hold_obs_s))
 
     def resolved(self) -> dict:
         return dict(env=self.cfg.to_dict(), task=asdict(self.tcfg), codec={k: v.tolist() for k, v in
@@ -351,6 +593,14 @@ class JointVecEnv:
         return dict(plane=self.table_plane, floor_plane=self.floor_plane, floor_z=self.floor_z,
                     q_offset=None if self.q_offset is None else self.q_offset.tolist())
 
+    def dyn_info(self) -> dict | None:
+        """The robot dynamics setting (``RobotDynConfig`` as a dict) + the per-world draws of the current episodes
+        (``RobotDyn.COLS``) + the hold cap / observation scale; None = off (evaluation files: the "dyn" key)."""
+        if self.dyn is None:
+            return None
+        return dict(cfg=asdict(self.dyn.cfg), cols=list(RobotDyn.COLS), params=self.dyn.params().cpu().tolist(),
+                    hold_cap_s=self.tcfg.hold_cap_s, hold_obs_s=float(self.cfg.hold_obs_s), kp_scale=EVAL_KP_SCALE)
+
     # ---- tasks -------------------------------------------------------------------------------------------------
     def refresh_pool(self, n=None):
         if self.bank is None:
@@ -373,6 +623,8 @@ class JointVecEnv:
         self.task.reset(idx, self.ws.index(idx), goal_xy, goal_yaw)
         self.task_seed[idx] = seeds
         self.ep_ret[idx], self.ep_len[idx] = 0.0, 0
+        if self.dyn is not None:          # robot dynamics: new draws, hold / lag state = the measured start q
+            self.dyn.reset(idx, self.ws.q[idx])
 
     def _pool_reset(self, idx):
         from nedm.so101_policy.vec_env import start_rows
@@ -407,6 +659,9 @@ class JointVecEnv:
                                "cube_pos": torch.as_tensor(cp, dtype=st.cube_pos.dtype, device=self.dev),
                                "cube_quat": torch.as_tensor(cq, dtype=st.cube_quat.dtype, device=self.dev)})
             check_tol = None if check_tol is None else max(check_tol, 1e-4)   # a new settle on the plane
+        if self.dyn is not None:          # fixed tasks: robot dynamics draws from the env seed and the task seeds
+            sd = torch.as_tensor(seeds).reshape(-1)
+            self.dyn.reseed(int(self.cfg.seed) * 1_000_003 + 7919 * (int(sd[0]) if len(sd) else 0) + len(sd) + 0xD1A)
         self._reset_rows(idx, st, torch.as_tensor(goal_xy, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(goal_yaw, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(seeds, dtype=torch.long, device=self.dev), mj_start)
@@ -424,7 +679,7 @@ class JointVecEnv:
         ws = self.ws if idx is None else self.ws.index(idx)
         if F is None:
             F = T.features(ws, self.kin, None, self.tcfg)
-        return markov_obs(F, self.task, idx)
+        return markov_obs(F, self.task, idx, self.obs_tcfg)
 
     def get_observations(self):
         return self.obs
@@ -454,6 +709,9 @@ class JointVecEnv:
         info = None
         ex = []
         fl = (FLOOR if self.floor_z == 0.0 else FLOOR + self.floor_z) if self.cfg.floor_guard else None
+        dyn = self.dyn if self.dyn is not None and self.dyn.active else None      # None: the old path, bit for bit
+        if dyn is not None:
+            dyn.begin()
         for j in range(STEPS):
             if self.q_offset is None:
                 u = safety(u5[:, j], self.ws.q.to(torch.float64), self.tlo, self.thi, self.lead, self.kin, fl,
@@ -462,7 +720,9 @@ class JointVecEnv:
                 qo = self.q_offset
                 u = safety(u5[:, j], self.ws.q.to(torch.float64) + qo, self.tlo, self.thi, self.lead, self.kin, fl,
                            self.floor_plane) - qo
-            ex.append(u)
+            ex.append(u)                  # u_exe: the action layer's targets (before the robot dynamics / servo scale)
+            if dyn is not None:           # the robot's timing and servo (RobotDyn), perturbed worlds only
+                u = dyn.apply(j, ex, u, self.ws.q, self.tlo, self.thi, self.ws.qd)
             if EVAL_KP_SCALE != 1.0:
                 qn = self.ws.q.to(device=u.device, dtype=u.dtype)
                 u = u.clone()

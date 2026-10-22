@@ -362,11 +362,16 @@ EP_OUT = ("end", "success", "success10", "lifted", "end_xy", "end_yaw", "ret", "
 
 
 def make_env(world, B, codec, device="cuda", nrd_ckpt=None, workers=0, mj_python=None, horizon=400, members="split",
-             lead_clamp=True, floor_guard=True):
+             lead_clamp=True, floor_guard=True, hold_cap_s=None, hold_obs_s=0.0, dyn=None):
+    """Fixed-task env (evaluation, round collection). ``hold_cap_s`` / ``hold_obs_s``: ``JE.hold_cap_kw`` (None / 0 =
+    the task defaults). ``dyn``: robot dynamics (``JE.RobotDynConfig`` or its dict); None = the process-wide
+    evaluation setting of ``$NEDM_SO101_DYN`` (unset = off), False = off."""
     ck = [str(Path(c).expanduser()) for c in ([nrd_ckpt] if isinstance(nrd_ckpt, (str, Path)) else (nrd_ckpt or []))]
+    dyn = JE.dyn_from_env() if dyn is None else JE.dyn_config(dyn)
     cfg = JE.JointEnvConfig(world=world, num_envs=B, device=device, ckpts=ck, members=members, auto_reset=False,
                             stagger=False, starts="", horizon=int(horizon), mj_workers=workers, mj_python=mj_python,
-                            lead_clamp=lead_clamp, floor_guard=floor_guard)
+                            lead_clamp=lead_clamp, floor_guard=floor_guard, dyn=dyn,
+                            **JE.hold_cap_kw(hold_cap_s, hold_obs_s))
     return JE.JointVecEnv(cfg, codec)
 
 

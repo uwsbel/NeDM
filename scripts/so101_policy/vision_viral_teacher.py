@@ -112,7 +112,10 @@ def cmd_eval(a):
     t = load_tasks(a.tasks, a.n, a.first)
     B = len(t["seeds"])
     env = JT.make_env(a.world, B, jt.codec, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
-                      lead_clamp=not a.no_lead, floor_guard=not a.no_floor)
+                      lead_clamp=not a.no_lead, floor_guard=not a.no_floor, hold_cap_s=a.hold_cap_s,
+                      hold_obs_s=a.hold_obs_s)
+    if env.dyn is not None:       # $NEDM_SO101_DYN (joint_teacher.make_env)
+        log(f"robot dynamics ({a.world}, {B} worlds): {json.dumps(env.dyn_info()['cfg'])}")
     from nedm.so101_policy import table as TB
     plane, floor, _, moved = TB.from_cli(a)
     if moved:      # evaluation only: a lowered / tilted table (table.py)
@@ -127,9 +130,19 @@ def cmd_eval(a):
     if extra:
         r["log_only"] = np.array(json.dumps(list(env.tcfg.log_only)))
     s = JT.summarize(r)
+    if env.dyn is not None:       # robot dynamics of the evaluation ($NEDM_SO101_DYN, joint_teacher.make_env)
+        r["dyn"] = np.array(json.dumps(env.dyn_info()))
+        on = env.dyn.params()[:, 0].cpu().numpy() > 0.5
+        le = np.asarray(r["lenient"]).astype(bool)
+        s["lenient_perturbed"] = float(le[on].mean()) if on.any() else None
+        s["lenient_unperturbed"] = float(le[~on].mean()) if (~on).any() else None
+    elif env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s or env.cfg.hold_obs_s:
+        r["hold_cap"] = np.array(json.dumps(dict(hold_cap_s=env.tcfg.hold_cap_s, hold_obs_s=env.cfg.hold_obs_s)))
     r["summary"] = np.array(json.dumps(s))
     r["jt"] = np.array(json.dumps(jt.info()))
     r["world"] = np.array(a.world)
+    if JE.EVAL_KP_SCALE != 1.0:   # $NEDM_SO101_EVAL_KP_SCALE (also when the robot dynamics are off)
+        r["kp_scale"] = np.float64(JE.EVAL_KP_SCALE)
     if a.out:
         np.savez_compressed(a.out, **r)
     log(f"JT {a.world} ({B} tasks): {json.dumps(s)}")
@@ -272,6 +285,9 @@ def main(argv=None):
     q.add_argument("--no-lead", action="store_true")
     q.add_argument("--no-floor", action="store_true")
     q.add_argument("--record-states", action="store_true")
+    q.add_argument("--hold-cap-s", type=float, default=None, help="the hold_cap rule (s held in the air; default 3.5)")
+    q.add_argument("--hold-obs-s", type=float, default=0.0,
+                   help="held-time scale of the JT observation (s; 0: the task's, 3.5 with another --hold-cap-s)")
     q.add_argument("--out", default="")
     from nedm.so101_policy import table as TB
     TB.add_cli(q)

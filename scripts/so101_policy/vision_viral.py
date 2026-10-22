@@ -22,6 +22,14 @@ the scene / calibration sha256 are pinned in the student config at the start of 
 (``row_lag``) and renders the lagged state everywhere (training, the online loop, the evaluations; ``eval --lag K``
 overrides the nominal lag). ``--eval-tasks`` takes several files (the first one keeps the old output names; the others
 add their file stem).
+
+Robot timing and servo (``joint_env.RobotDynConfig``, all off by default): training = the online config's ``dyn`` (per
+world per episode; with ``qd_robot_p``, ``horizon``, ``hold_cap_s``, ``qd_noise_zero_p``, ``lag_range``,
+``viral_r2s_online_dyn_v1.json``); evaluation / collection = one fixed setting for the process in
+``NEDM_SO101_DYN='{"d": 2, "jitter": 0.4, "s": 0.5, "tau": 0.1, "sag_deg": 1.5, "i_time_s": 0.2}'`` (recorded as
+"dyn" in eval files, "robot" + ``dyn_params`` in round files), with ``--horizon 1500 --hold-cap-s 20`` for slow worlds
+and ``eval --qd-robot 3`` for the robot's qdot estimate (``row_qd_input``: the student's qdot input). jt_h110 scores
+0 % in that robot-like setting (NRD and MuJoCo); settings with a teacher reference: the config note.
 """
 from __future__ import annotations
 
@@ -67,15 +75,19 @@ def subset(t, idx):
 
 
 class EnvCache:
-    def __init__(self, jt, device, nrd, workers, mj_python, horizon, table=None, cli=None):
+    def __init__(self, jt, device, nrd, workers, mj_python, horizon, table=None, cli=None, hold_cap_s=None):
         self.c, self.jt, self.dev, self.nrd, self.w, self.mp, self.h = {}, jt, device, nrd, workers, mj_python, horizon
         self.table = table        # (plane, floor, q_offset) for JointVecEnv.set_table (evaluation only), None: off
         self.cli = cli            # eval args (``--log-only-extra``), None: off
+        self.hold_cap_s = hold_cap_s   # the hold_cap rule (s; ``--hold-cap-s``), None: the task default
 
     def get(self, world, B):
         k = (world, B)
         if k not in self.c:
-            self.c[k] = JT.make_env(world, B, self.jt.codec, self.dev, self.nrd, self.w, self.mp, self.h)
+            self.c[k] = JT.make_env(world, B, self.jt.codec, self.dev, self.nrd, self.w, self.mp, self.h,
+                                    hold_cap_s=self.hold_cap_s)
+            if self.c[k].dyn is not None:      # $NEDM_SO101_DYN (joint_teacher.make_env)
+                log(f"robot dynamics ({world}, {B} worlds): {json.dumps(VI.asdict(self.c[k].dyn.cfg))}")
             if self.table is not None:
                 log(f"table: {json.dumps(self.c[k].set_table(*self.table))}")
             if self.cli is not None:
@@ -91,12 +103,27 @@ def taps(env, *fns):
     return VI.step_tap(env, *fns) if fns else contextlib.nullcontext()
 
 
+def robot_rec(env):
+    """The env's robot setting for output files (JSON string): the robot dynamics config (``RobotDynConfig``; the
+    per-world draws are separate), the hold cap / held-time scale and ``$NEDM_SO101_EVAL_KP_SCALE``; None = all
+    defaults (the old env)."""
+    if env.dyn is None and env.tcfg.hold_cap_s == JE.T.TaskConfig.hold_cap_s and not env.cfg.hold_obs_s \
+            and JE.EVAL_KP_SCALE == 1.0:
+        return None
+    return json.dumps(dict(cfg=VI.asdict(env.dyn.cfg) if env.dyn is not None else None, cols=list(JE.RobotDyn.COLS),
+                           hold_cap_s=env.tcfg.hold_cap_s, hold_obs_s=float(env.cfg.hold_obs_s),
+                           kp_scale=JE.EVAL_KP_SCALE))
+
+
 @torch.no_grad()
-def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=None, log=log, lag_rec=False):
+def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=None, log=log, lag_rec=False,
+            lag_kmax=0):
     """Episodes on all tasks in batches -> concatenated record dict (``run_tasks`` layout); ``lag_rec``: also the
-    states of the last ``viral.LAG_REC`` control steps before every row (``row_lag``, image lag)."""
+    states of the last max(``viral.LAG_REC``, ``lag_kmax``) control steps before every row (``row_lag``, image
+    lag). Robot dynamics (``$NEDM_SO101_DYN``): per-episode draws ``dyn_params`` (``RobotDyn.COLS``) and the setting
+    "robot" (``robot_rec``)."""
     n = len(tasks["seeds"])
-    parts, t0 = [], time.time()
+    parts, t0, rec = [], time.time(), None
     for s0 in range(0, n, batch):
         idx = np.arange(s0, min(n, s0 + batch))
         env = cache.get(world, len(idx))
@@ -104,8 +131,11 @@ def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=
         push = student.push if student is not None and student.needs_tap else None
         with taps(env, sl, push):
             r = JT.run_tasks(env, subset(tasks, idx), jt, student, src[idx], noise[idx], seed, record=True)
+        if env.dyn is not None:
+            r["dyn_params"] = env.dyn.params().cpu().numpy().astype(np.float32)
+        rec = robot_rec(env)
         if sl is not None:
-            r["row_lag"] = VI.lag_rows(r, sl.array(), VI.LAG_REC)
+            r["row_lag"] = VI.lag_rows(r, sl.array(), max(VI.LAG_REC, int(lag_kmax)))
         parts.append(r)
         s = np.asarray(r["src"]) == 1
         msg = f"  collect {world}: tasks {s0}-{idx[-1]}, lenient {r['lenient'].mean() * 100:.1f} %"
@@ -113,7 +143,10 @@ def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=
             msg += f" (student-driven {r['lenient'][s].mean() * 100:.1f} % of {int(s.sum())}"
             msg += f", JT-driven {r['lenient'][~s].mean() * 100:.1f} %)" if (~s).any() else ")"
         log(msg + f", {time.time() - t0:.0f} s")
-    return concat(parts)
+    out = concat(parts)
+    if rec is not None:           # after concat (it drops 0-d entries)
+        out["robot"] = np.array(rec)
+    return out
 
 
 def concat(parts):
@@ -136,10 +169,11 @@ def concat(parts):
 
 
 def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None, record_states=False,
-             full_horizon=False, device="cuda", lag=None, lag_range=None):
+             full_horizon=False, device="cuda", lag=None, lag_range=None, qd_window=0):
     """``lag``: image lag in control steps (default the student's nominal ``cfg.lag``); ``lag_range``: drawn per world
-    instead."""
-    actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device, lag=lag, lag_range=lag_range)
+    instead; ``qd_window`` > 0: the robot-like qdot input (``viral.robot_qd``)."""
+    actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device, lag=lag, lag_range=lag_range,
+                     qd_window=qd_window)
     env = cache.get(world, len(tasks["seeds"]))
     if getattr(env, "q_offset", None) is not None:      # evaluation only (table.py): the student's joint frame
         actor.q_offset = env.q_offset.tolist()
@@ -158,6 +192,17 @@ def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None,
     r["jaw_lead"] = np.int64(actor.jaw_lead)
     if actor.kmax > 0:
         r["image_lag"] = np.array(json.dumps(dict(lag=actor.lag, lag_range=actor.lag_range)))
+    if actor.qd_window > 0:       # the robot-like qdot: window and the student's qdot INPUT per row (row_qd: the sim's)
+        r["qd_robot"] = np.int64(actor.qd_window)
+        if actor.qd_log and "row_ep" in r:
+            r["row_qd_input"] = torch.stack(actor.qd_log, 1).numpy()[r["row_ep"].astype(np.int64),
+                                                                       r["row_t"].astype(np.int64)]
+    if env.dyn is not None:       # robot dynamics of the evaluation ($NEDM_SO101_DYN): the setting + per-episode draws
+        r["dyn"] = np.array(json.dumps(env.dyn_info()))
+    elif env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s:
+        r["hold_cap_s"] = np.float64(env.tcfg.hold_cap_s)
+    if JE.EVAL_KP_SCALE != 1.0:   # $NEDM_SO101_EVAL_KP_SCALE (also when the robot dynamics are off)
+        r["kp_scale"] = np.float64(JE.EVAL_KP_SCALE)
     if st.cfg.scene:
         r["scene"] = np.array(json.dumps(dict(scene=st.cfg.scene, scene_sha256=st.cfg.scene_sha256,
                                               calib_sha256=st.cfg.calib_sha256, crops=st.cfg.crops)))
@@ -216,7 +261,7 @@ def cmd_run(a):
     check_seeds(tasks["seeds"])
     evs = eval_sets(a.eval_tasks, a.eval_n)
     guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon)
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
     views = VI.make_views(cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     lag_rec = cfg.lag_max > 0
     rows = [np.arange(0, a.r0_tasks)]
@@ -245,7 +290,8 @@ def cmd_run(a):
                 st, _ = VI.load_student(prev, a.device)
                 student = VI.Actor(st, views, randomise=a.collect_randomise, device=a.device,
                                    lag_range=cfg.lag_range, seed=a.seed + i)
-            d = collect(t, a.world, jt, cache, src, noise, a.seed + 1000 * i, a.batch, student, lag_rec=lag_rec)
+            d = collect(t, a.world, jt, cache, src, noise, a.seed + 1000 * i, a.batch, student, lag_rec=lag_rec,
+                        lag_kmax=cfg.lag_max)
             d["meta"] = np.array(json.dumps(dict(round=i, world=a.world, jt=jt.info(), teacher_share=share,
                                                  noise=a.noise, student=str(prev) if student else "",
                                                  collect_randomise=a.collect_randomise, wall_s=time.time() - t0)))
@@ -318,6 +364,12 @@ def cmd_online(a):
         k, v = s_.split("=", 1)
         oc[k] = json.loads(v)
     ocfg = VI.OnlineConfig.from_dict(oc)
+    if ocfg.lag_range and tuple(ocfg.lag_range) != tuple(st.cfg.lag_range):      # the online config's image lag range
+        sets = dict(s_.split("=", 1) for s_ in a.set or [])                       # (wins over --config, not --set)
+        if a.config and "lag_range" in sets and tuple(json.loads(sets["lag_range"])) != tuple(ocfg.lag_range):
+            raise SystemExit(f"lag_range: --set {sets['lag_range']} vs the online config {list(ocfg.lag_range)}")
+        log(f"image lag range {list(ocfg.lag_range)} (online config; student {list(st.cfg.lag_range)})")
+        st.cfg = VI.ViralConfig.from_dict({**VI.asdict(st.cfg), "lag_range": list(ocfg.lag_range)})
     tasks = load_tasks(a.tasks)
     from nedm.so101_policy.vision.teacher import check_seeds
     check_seeds(tasks["seeds"])
@@ -325,11 +377,17 @@ def cmd_online(a):
     guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
     views = VI.make_views(st.cfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device)
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon)
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
     od = VI.OnlineDAgger(st, jt, tasks, x(a.nrd_ckpt), views, ocfg, a.device, a.seed, log)
-    (out / "meta.json").write_text(json.dumps(dict(student_cfg=VI.asdict(st.cfg), online=VI.asdict(ocfg),
-                                                   init=str(a.init), jt=jt.info(), argv=sys.argv), indent=1,
-                                              default=str))
+    meta = dict(student_cfg=VI.asdict(st.cfg), online=VI.asdict(ocfg), init=str(a.init), jt=jt.info(), argv=sys.argv)
+    robot_opts = od.env.dyn is not None or od.qd_hist is not None or od.env.tcfg.horizon != 400 \
+        or od.env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s
+    if robot_opts:              # the resolved online env (robot dynamics, episode length, hold cap)
+        meta["online_env"] = dict(horizon=od.env.tcfg.horizon, hold_cap_s=od.env.tcfg.hold_cap_s,
+                                  hold_obs_s=od.env.cfg.hold_obs_s,
+                                  dyn=VI.asdict(od.env.dyn.cfg) if od.env.dyn is not None else None)
+        log(f"online env: {json.dumps(meta['online_env'])}")
+    (out / "meta.json").write_text(json.dumps(meta, indent=1, default=str))
     f = open(out / "curve.csv", "a", newline="")
     wr = None
     t0 = time.time()
@@ -343,6 +401,8 @@ def cmd_online(a):
             for g_, b_ in zip(od.opt.param_groups, base_lr):
                 g_["lr"] = b_ * (1 - (1 - ocfg.lr_final_frac) * u)
         T = od.act()
+        if it == 1 and robot_opts:
+            log(f"robot draws at the start: {json.dumps(od.log_extra())}")
         tt = time.time()
         info = od.train_steps() if od.buf.n >= min_fill else {}
         T["train"] = time.time() - tt
@@ -357,7 +417,8 @@ def cmd_online(a):
                        **{k: round(v / n_acc, 4) for k, v in acc.items()},
                        **{f"t_{k}": round(v / n_acc, 3) for k, v in tacc.items()},
                        ep_student=s_["ep_student"], len_student=round(s_["len_student"] / max(s_["ep_student"], 1), 3),
-                       ep_teacher=s_["ep_teacher"], len_teacher=round(s_["len_teacher"] / max(s_["ep_teacher"], 1), 3))
+                       ep_teacher=s_["ep_teacher"], len_teacher=round(s_["len_teacher"] / max(s_["ep_teacher"], 1), 3),
+                       **od.log_extra())
             od.stats = {k: 0 for k in s_}
             acc, tacc, n_acc = {}, {}, 0
             if wr is None:
@@ -366,10 +427,10 @@ def cmd_online(a):
             wr.writerow(row)
             f.flush()
             log(json.dumps(row))
-        if it % ocfg.save_every == 0 or it == ocfg.iterations:
+        if (ocfg.save_every > 0 and it % ocfg.save_every == 0) or it == ocfg.iterations:
             VI.save_student(st, out / "ckpt" / f"it_{it:05d}.pt", it=it, samples=od.samples)
             VI.save_student(st, out / "last.pt", it=it, samples=od.samples)
-        if it % ocfg.eval_every == 0 or it == ocfg.iterations:
+        if ocfg.eval_every > 0 and (it % ocfg.eval_every == 0 or it == ocfg.iterations):   # eval_every 0: none
             st.eval()
             for (pre, ev), rnd in [(e_, r_) for e_ in evs for r_ in ([False, True] if a.eval_randomise else [False])]:
                 tag = f"{pre}mujoco{'_dr' if rnd else ''}"
@@ -394,14 +455,15 @@ def cmd_eval(a):
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     plane, floor, qo, moved = TB.from_cli(a)
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
-                     table=(plane, floor, qo) if moved else None, cli=a if a.log_only_extra else None)
+                     table=(plane, floor, qo) if moved else None, cli=a if a.log_only_extra else None,
+                     hold_cap_s=a.hold_cap_s)
     geo = {"table_plane": list(plane)} if plane is not None and not a.no_render_table else None
     if geo:
         log(f"render: {TB.describe(plane)} (scene geometry override, evaluation only)")
     views = VI.make_views(st.cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device,
                           geometry_over=geo)
     r = evaluate(st, jt, t, a.world, cache, views, a.randomise, a.jaw_lead, a.record_states, a.full_horizon, a.device,
-                 lag=a.lag, lag_range=a.lag_range)
+                 lag=a.lag, lag_range=a.lag_range, qd_window=a.qd_robot)
     r["student"] = np.array(str(a.student))
     if a.out:
         np.savez_compressed(a.out, **r)
@@ -412,7 +474,7 @@ def cmd_collect(a):
     jt = JE.JointTeacher(x(a.jt), a.device)
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     n = len(t["seeds"])
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon)
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
     rng = np.random.default_rng(a.seed)
     student = None
     src = np.zeros(n, np.int64)
@@ -422,7 +484,9 @@ def cmd_collect(a):
         student = VI.Actor(st, views, randomise=a.randomise, device=a.device, lag_range=st.cfg.lag_range, seed=a.seed)
         src = np.where(rng.random(n) < a.teacher_share, 0, 1)
     noise = np.where((src == 0) & (rng.random(n) < a.noise_frac), a.noise, 0.0)
-    d = collect(t, a.world, jt, cache, src, noise, a.seed, a.batch, student, lag_rec=a.lag_rec)
+    kmax = max(int(a.lag_kmax), st.cfg.lag_max if a.student else 0)   # a lag above viral.LAG_REC needs more states
+    d = collect(t, a.world, jt, cache, src, noise, a.seed, a.batch, student, lag_rec=a.lag_rec or a.lag_kmax > 0,
+                lag_kmax=kmax)
     np.savez_compressed(a.out, **d)
     log(f"-> {a.out}")
 
@@ -437,6 +501,8 @@ def main(argv=None):
         q.add_argument("--jt", required=True)
         q.add_argument("--mj-python", default=MJ_PY)
         q.add_argument("--horizon", type=int, default=400)
+        q.add_argument("--hold-cap-s", type=float, default=None,
+                       help="evaluation / collection envs: the hold_cap rule (s held in the air; default 3.5)")
         q.add_argument("--seed", type=int, default=0)
         q.add_argument("--render-worlds", type=int, default=256)
         q.add_argument("--allow-scene-change", action="store_true",
@@ -500,6 +566,8 @@ def main(argv=None):
     q.add_argument("--full-horizon", action="store_true")
     q.add_argument("--lag", type=int, default=None, help="image lag (control steps); default the student's cfg.lag")
     q.add_argument("--lag-range", type=int, nargs=2, default=None, help="image lag drawn per world (lo hi)")
+    q.add_argument("--qd-robot", type=int, default=0,
+                   help="qdot input = the robot's slope over this many 20 ms states of the quantised q (0 = sim qdot)")
     q.add_argument("--out", default="")
     q.add_argument("--scene-path", default="", help="the student's scene file at this path (same sha256)")
     q.add_argument("--calib-path", default="", help="the student's calibration file at this path (same sha256)")
@@ -521,6 +589,8 @@ def main(argv=None):
     q.add_argument("--randomise", action="store_true")
     q.add_argument("--batch", type=int, default=1024)
     q.add_argument("--lag-rec", action="store_true", help="record the 20 ms states for image lag (row_lag)")
+    q.add_argument("--lag-kmax", type=int, default=0,
+                   help="row_lag states per row (default viral.LAG_REC 4 or the student lag_max; implies --lag-rec)")
     q.add_argument("--out", required=True)
     q.set_defaults(fn=cmd_collect)
 

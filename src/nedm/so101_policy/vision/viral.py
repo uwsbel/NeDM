@@ -44,7 +44,13 @@ Real2sim (``~/so101_r2s_claude/docs/integrate.md``; all OFF by default, old conf
 - Image lag (``ViralConfig.lag`` / ``lag_range``): the images show the world ``k`` control steps (20 ms) BEFORE the
   decision (q and qdot stay current); k fixed (evaluation, default ``lag``) or drawn per world per episode
   (training: ``lag_range``). ``LagHistory`` keeps the states, ``step_tap`` feeds it from any ``JointVecEnv.step``
-  caller (``joint_teacher.run_tasks``); round files record the states (``row_lag``, ``lag_rows``).
+  caller (``joint_teacher.run_tasks``); round files record the states (``row_lag``, ``lag_rows``; a lag above
+  ``LAG_REC`` reaches into the decisions before).
+- Robot timing and servo in the online loop (``OnlineConfig.dyn`` -> ``joint_env.RobotDynConfig``: command delay with
+  jitter, weaker arm servo, command lag, gravity sag, command noise; per world per episode), robot-like qdot inputs
+  (``qd_robot_p``: ``robot_qd``, the slope of the quantised q, exactly 0 when still), longer episodes (``horizon``,
+  ``hold_cap_s``) and a per-sample scale of the loss-side qdot noise (``qd_noise_zero_p``). Evaluation:
+  ``$NEDM_SO101_DYN`` (``joint_teacher.make_env``).
 """
 from __future__ import annotations
 
@@ -831,21 +837,25 @@ class ViralNet(nn.Module):
     def features(self, images):
         return torch.cat([e(images[:, i]) for i, e in enumerate(self.enc)], -1)
 
-    def robot(self, robot):
+    def robot(self, robot, qd_scale=None):
         """[B, 12 (1 + hist)] = [q, qd] now, then the previous decisions (newest first) -> normalised (+ qdot noise in
-        training on every qdot block)."""
+        training on every qdot block; ``qd_scale`` [B]: per-sample factor on that noise, None = 1)."""
         H = 1 + int(self.cfg.hist)
         r = ((robot.view(-1, H, 12) - self.robot_mean) / self.robot_std).clamp(-10, 10)
         if self.training and self.cfg.qd_noise > 0:
-            r = torch.cat((r[..., :6], r[..., 6:] + self.cfg.qd_noise * torch.randn_like(r[..., 6:])), -1)
+            n = self.cfg.qd_noise * torch.randn_like(r[..., 6:])
+            if qd_scale is not None:
+                n = n * qd_scale.to(n).view(-1, 1, 1)
+            r = torch.cat((r[..., :6], r[..., 6:] + n), -1)
         return r.reshape(-1, 12 * H)
 
-    def forward(self, images, robot):
+    def forward(self, images, robot, qd_scale=None):
         f = self.features(images)
-        return self.head(torch.cat((f, self.robot(robot).to(f.dtype)), -1).float()).view(-1, self.cfg.chunk, 6), f
+        return self.head(torch.cat((f, self.robot(robot, qd_scale).to(f.dtype)), -1).float()).view(
+            -1, self.cfg.chunk, 6), f
 
-    def loss(self, images, robot, tgt_n, valid, aux_n=None):
-        p, f = self(images, robot)
+    def loss(self, images, robot, tgt_n, valid, aux_n=None, qd_scale=None):
+        p, f = self(images, robot, qd_scale)
         e = (p.float() - tgt_n).abs() * valid[..., None]
         l_act = e.sum() / (valid.sum() * 6).clamp_min(1)
         info = {"l_act": float(l_act.detach())}
@@ -943,21 +953,27 @@ def lag_interp(z, lag):
 
 def lag_rows(r, sub, kmax=LAG_REC):
     """``run_tasks`` record ``r`` + the states after every 20 ms step ``sub`` [B, D, STEPS, 13] (``SubstepLog``) ->
-    ``row_lag`` [N, kmax, 13] float32: the state k = 1..kmax control steps before each row (the first decision of an
-    episode: its own start state, the arm at rest)."""
-    if not 1 <= kmax < JE.STEPS:
-        raise ValueError(f"kmax {kmax}: 1 .. {JE.STEPS - 1} control steps (within the previous decision)")
+    ``row_lag`` [N, kmax, 13] float32: the state k = 1..kmax control steps before each row (k >= STEPS reaches into
+    the decisions before; before the episode start: its own start state, the arm at rest)."""
+    if kmax < 1:
+        raise ValueError(f"kmax {kmax}: >= 1 control steps")
+    S = JE.STEPS
     rb, rt = np.asarray(r["row_ep"], np.int64), np.asarray(r["row_t"], np.int64)
     cur = np.concatenate((r["row_q"], r["row_cube_pos"], r["row_cube_quat"]), -1).astype(np.float32)
     out = np.repeat(cur[:, None], kmax, 1)
     p = rt >= 1
     if p.any():
         prev = sub[rb[p], rt[p] - 1]                                     # [n, STEPS, 13]: the previous decision's steps
-        err = float(np.abs(prev[:, JE.STEPS - 1] - cur[p]).max())
+        err = float(np.abs(prev[:, S - 1] - cur[p]).max())
         if err > 1e-4:
             raise RuntimeError(f"substep log does not match the recorded rows (max {err:.2e})")
+        first = np.zeros(int(rb.max()) + 1, np.int64)                    # the start row of every episode
+        first[rb[rt == 0]] = np.nonzero(rt == 0)[0]
         for k in range(1, kmax + 1):
-            out[p, k - 1] = prev[:, JE.STEPS - 1 - k]
+            i = rt[p] * S - k                                            # global step index of the state (0 = start)
+            st = i <= 0
+            v = sub[rb[p], np.maximum(i - 1, 0) // S, np.maximum(i - 1, 0) % S]
+            out[p, k - 1] = np.where(st[:, None], cur[first[rb[p]]], v)
     return out
 
 
@@ -1035,6 +1051,32 @@ class LagHistory:
     def get(self, k):
         x = self.x[torch.arange(len(self.x), device=self.x.device), k.to(self.x.device).long()]
         return x[:, :6], x[:, 6:9], x[:, 9:13]
+
+
+# ---- real2sim: robot-like qdot ---------------------------------------------------------------------------------------
+QD_TICK = 2 * math.pi / 4096          # STS3215 position step (rad): the robot's q is quantised to it
+
+
+def qd_weights(window, dt=JE.CONTROL_DT):
+    """[window] float64 least-squares slope weights over states i = 0 (now) .. window - 1 steps back (``dt`` apart):
+    slope = sum_i w_i (x_i - x_0) (sum w_i = 0, so the reference x_0 changes nothing but keeps a still arm at exactly
+    0)."""
+    if int(window) < 2:
+        raise ValueError(f"qd window {window}: >= 2 states")
+    t = -torch.arange(int(window), dtype=torch.float64) * dt
+    tc = t - t.mean()
+    return tc / (tc ** 2).sum()
+
+
+def qd_ticks(q):
+    """q (rad) -> the robot's position in encoder steps (float64 integers; non-finite -> 0)."""
+    return torch.round(torch.nan_to_num(q.to(torch.float64), 0.0, 0.0, 0.0) / QD_TICK)
+
+
+def robot_qd(ticks, w):
+    """The robot's qdot (``hw_lib.QdotEstimator``): ticks [B, W, 6] (index 0 = now, ``qd_ticks``), weights [W]
+    (``qd_weights``) -> [B, 6] float64 rad/s, steps of QD_TICK x the weights, exactly 0 when the ticks do not change."""
+    return ((ticks - ticks[:, :1]) * w.to(ticks)[None, :, None]).sum(1) * QD_TICK
 
 
 class StudentSet:
@@ -1308,10 +1350,15 @@ class Actor:
 
     Image lag (real2sim): the images show the state ``lag`` control steps before the decision (default the student's
     ``cfg.lag``; ``lag_range`` (lo, hi): drawn per world per episode instead); q and qdot stay current. Lag > 0 needs
-    the env's 20 ms states: run the episodes inside ``with step_tap(env, actor.push)`` (``needs_tap``)."""
+    the env's 20 ms states: run the episodes inside ``with step_tap(env, actor.push)`` (``needs_tap``).
+
+    ``qd_window`` > 0 (evaluation of the robot-like qdot, ``OnlineConfig.qd_robot_p``): the qdot input is the robot's
+    slope over the last ``qd_window`` 20 ms states of the quantised q (``robot_qd``; needs the tap as well, else the
+    second decision raises); 0 = off. ``qd_log``: that input per decision ([B, 6] float32 on the CPU; evaluation rows
+    ``row_qd_input``)."""
 
     def __init__(self, student: ViralNet, views: DRViews, randomise=False, jaw_lead=None, device="cuda", lag=None,
-                 lag_range=None, seed=0):
+                 lag_range=None, seed=0, qd_window=0):
         self.st, self.views, self.dev = student, views, torch.device(device)
         self.randomise = bool(randomise)
         self.jaw_lead = student.cfg.jaw_lead if jaw_lead is None else int(jaw_lead)
@@ -1321,7 +1368,11 @@ class Actor:
         self.lag = int(student.cfg.lag if lag is None else lag)
         self.lag_range = tuple(int(v) for v in lag_range) if lag_range is not None and lag_range[1] > 0 else None
         self.kmax = max(self.lag, self.lag_range[1] if self.lag_range else 0)
-        self.needs_tap = self.kmax > 0
+        self.qd_window = int(qd_window)
+        self.qd_w = qd_weights(self.qd_window).to(self.dev) if self.qd_window > 0 else None
+        self.qd_hist = None                 # [B, W, 6] q in encoder ticks (index 0 = now)
+        self.qd_log = []                    # per decision the robot-like qdot input [B, 6] (qd_window > 0)
+        self.needs_tap = self.kmax > 0 or self.qd_window > 0
         self.hist = None
         self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 4243)
         self.q_offset = None    # [6] rad: robot input q + q_offset and targets in that frame (JointVecEnv.set_table)
@@ -1329,6 +1380,8 @@ class Actor:
     def reset(self, B):
         self.dr = self.views.draw(B) if self.randomise else None
         self.rhist = None
+        self.qd_hist = None
+        self.qd_log = []
         if self.kmax > 0:
             self.hist = LagHistory(B, self.kmax, self.dev)
             if self.lag_range:
@@ -1341,6 +1394,8 @@ class Actor:
         """After every 20 ms world step (``step_tap``)."""
         if self.hist is not None and self.hist.ready:
             self.hist.push(*_sane(ws.q, ws.cube_pos, ws.cube_quat, self.dev))
+        if self.qd_hist is not None:
+            self.qd_hist = torch.cat((qd_ticks(ws.q.to(self.dev))[:, None], self.qd_hist[:, :-1]), 1)
 
     @torch.no_grad()
     def __call__(self, ws, goal_pose, k=None):
@@ -1364,9 +1419,19 @@ class Actor:
         if self.dev.type == "cuda":
             torch.cuda.synchronize()
         t1 = time.time()
+        qd = ws.qd.to(self.dev, torch.float32).nan_to_num()
+        if self.qd_w is not None:       # the robot's qdot estimate (the first decision: the arm at rest, 0)
+            tk = qd_ticks(ws.q.to(self.dev))
+            if self.qd_hist is None:
+                self.qd_hist = tk[:, None].expand(-1, self.qd_window, -1).clone()
+            elif not torch.equal(self.qd_hist[:, 0], tk):
+                raise RuntimeError("robot qdot: the 20 ms states are missing (run the episodes inside step_tap(env, "
+                                   "actor.push))")
+            qd = robot_qd(self.qd_hist, self.qd_w).float()
+            self.qd_log.append(qd.cpu())
         if self.q_offset is not None:   # the policy's joint frame (images stay the true state)
             q = q + torch.as_tensor(self.q_offset, dtype=q.dtype, device=self.dev)
-        robot = torch.cat((q, ws.qd.to(self.dev, torch.float32).nan_to_num()), -1)
+        robot = torch.cat((q, qd), -1)
         H = int(self.st.cfg.hist)
         if H:
             if self.rhist is None:
@@ -1422,6 +1487,27 @@ class OnlineConfig:
     # the true frame (target = true q + predicted delta = what a robot whose joint map is off by the same offset does).
     q_bias_deg: tuple = ()
     q_bias_p: float = 0.0
+    # robot timing and servo (real2sim; all off by default): the online env's robot dynamics stage
+    # (``JE.RobotDynConfig`` dict: delay, gain, lag, sag, noise, the guard's integral correction; {} = off), drawn per
+    # world per episode; the JT labels the reached states
+    dyn: dict = field(default_factory=dict)
+    # robot-like qdot of the student's INPUT (acting and the buffer's robot state) with probability qd_robot_p per world
+    # per episode: the least-squares slope over the last qd_window 20 ms states of q quantised to the STS3215 step
+    # 2 pi / 4096 (``robot_qd``; the robot's ``QdotEstimator``): exactly 0 when the arm is still
+    qd_robot_p: float = 0.0
+    qd_window: int = 3
+    # training episodes: horizon (20 ms steps) and the hold_cap rule (s held in the air; ``JE.hold_cap_kw``), longer for
+    # slow worlds; hold_obs_s: the held-time scale of the JT's observation (0 with a new cap = the old envs' 3.5 s, the
+    # scale of every run so far; jt_h110 was trained with 2.5 s; a 20 s scale breaks it)
+    horizon: int = 400
+    hold_cap_s: float = 3.5
+    hold_obs_s: float = 0.0
+    # the student's image lag range for this run (``ViralConfig.lag_range``, saved with the checkpoints; () = keep the
+    # student's own, e.g. from --config / --set)
+    lag_range: tuple = ()
+    # the loss-side qdot noise (``ViralConfig.qd_noise``): None = as before; a share p -> per sample the noise times
+    # U(0, 1), exactly 0 for the share p of the samples (the robot's exact-zero qdot)
+    qd_noise_zero_p: float | None = None
 
     @staticmethod
     def from_dict(d):
@@ -1430,6 +1516,10 @@ class OnlineConfig:
         bad = sorted(set(d) - known - {"note"})
         if bad:
             raise ValueError(f"unknown online config keys {bad}")
+        if d.get("lag_range"):
+            d["lag_range"] = tuple(int(v) for v in d["lag_range"])
+            if len(d["lag_range"]) != 2 or not 0 <= d["lag_range"][0] <= d["lag_range"][1]:
+                raise ValueError(f"online lag_range {d['lag_range']}: (lo, hi) control steps, 0 <= lo <= hi")
         return OnlineConfig(**{k: v for k, v in d.items() if k in known})
 
 
@@ -1467,14 +1557,17 @@ class ReplayBuffer:
 class OnlineDAgger:
     """The online loop (``OnlineConfig``). Tasks: the start states and goals of a task table (``state_*``, goal_xy,
     goal_yaw), drawn uniformly at every reset. Image lag (``st.cfg.lag_range``, else ``st.cfg.lag``): drawn per world
-    per episode; every world's 20 ms states feed a ``LagHistory`` (``JointVecEnv.step`` hook)."""
+    per episode; every world's 20 ms states feed a ``LagHistory`` (``JointVecEnv.step`` hook). Robot timing / servo
+    (``OnlineConfig.dyn``: the env's ``RobotDyn``) and robot-like qdot inputs (``qd_robot_p``: per-world tick history of
+    the 20 ms states, same hook) are drawn per world per episode as well."""
 
     def __init__(self, st: ViralNet, jt, tasks, nrd_ckpt, views: DRViews, ocfg: OnlineConfig, device="cuda", seed=0,
                  log=log_default):
         self.st, self.jt, self.views, self.o, self.dev, self.log = st, jt, views, ocfg, torch.device(device), log
         N = int(ocfg.envs)
         cfg = JE.JointEnvConfig(world="nrd", num_envs=N, device=device, ckpts=[str(nrd_ckpt)], auto_reset=True,
-                                stagger=True, starts="", seed=seed)
+                                stagger=True, starts="", seed=seed, horizon=int(ocfg.horizon), dyn=ocfg.dyn or None,
+                                **JE.hold_cap_kw(ocfg.hold_cap_s, ocfg.hold_obs_s))
         self.env = JE.JointVecEnv(cfg, jt.codec)
         f64 = dict(dtype=torch.float64, device=self.dev)
         self.env.bank = {k: torch.as_tensor(tasks[f"state_{k}"], **f64) for k in
@@ -1505,6 +1598,14 @@ class OnlineDAgger:
                 raise ValueError("q_bias_deg: 6 half-widths (deg)")
             self.qb_h = torch.deg2rad(torch.tensor([float(v) for v in ocfg.q_bias_deg], device=self.dev))
             self.qb_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 91)
+        self.qd_rob = torch.zeros(N, dtype=torch.bool, device=self.dev)     # worlds with the robot-like qdot input
+        self.qd_hist = None                                                 # [N, W, 6] q in encoder ticks, 0 = now
+        if ocfg.qd_robot_p > 0:
+            self.qd_w = qd_weights(ocfg.qd_window).to(self.dev)
+            self.qd_hist = torch.zeros(N, int(ocfg.qd_window), 6, dtype=torch.float64, device=self.dev)
+            self.qd_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 131)
+        if ocfg.qd_noise_zero_p is not None and not 0.0 <= float(ocfg.qd_noise_zero_p) <= 1.0:
+            raise ValueError(f"qd_noise_zero_p {ocfg.qd_noise_zero_p}: a share in [0, 1] (None = off)")
         self.drc = DRConfig.from_dict(st.cfg.dr)
         views.dr = self.drc
         self.dr = None
@@ -1537,8 +1638,38 @@ class OnlineDAgger:
         u = torch.rand(n, 6, device=self.dev, generator=self.qb_gen) * 2 - 1
         self.qb[idx] = u * self.qb_h[None] * on[:, None]
 
+    def _qd_reset(self, idx):
+        """Episode start of worlds ``idx``: robot-like qdot draw (``OnlineConfig.qd_robot_p``), tick history = start."""
+        if self.qd_hist is None:
+            return
+        self.qd_rob[idx] = torch.rand(len(idx), device=self.dev, generator=self.qd_gen) < self.o.qd_robot_p
+        self.qd_hist[idx] = qd_ticks(self.env.ws.q[idx]).to(self.qd_hist)[:, None].expand(-1, self.qd_hist.shape[1],
+                                                                                          -1)
+
+    def qd_input(self, qd):
+        """[N, 6] float32 qdot of the student's input: the robot-like slope in the ``qd_rob`` worlds, else ``qd``."""
+        if self.qd_hist is None:
+            return qd
+        return torch.where(self.qd_rob[:, None], robot_qd(self.qd_hist, self.qd_w).to(qd), qd)
+
     def _lag_hook(self, e, j):
         self.lag_hist.push(*_sane(e.ws.q, e.ws.cube_pos, e.ws.cube_quat, self.dev))
+
+    def _step_hook(self, e, j):
+        """After every 20 ms step: the image-lag history and / or the tick history of the robot-like qdot."""
+        if self.lag_hist is not None:
+            self._lag_hook(e, j)
+        if self.qd_hist is not None:
+            self.qd_hist = torch.cat((qd_ticks(e.ws.q).to(self.qd_hist)[:, None], self.qd_hist[:, :-1]), 1)
+
+    def log_extra(self):
+        """Columns of the online log for the robot options that are on (none: {} = the old columns)."""
+        out = {}
+        if self.env.dyn is not None:
+            out.update(self.env.dyn.summary())
+        if self.qd_hist is not None:
+            out["qd_robot"] = round(float(self.qd_rob.float().mean()), 3)
+        return out
 
     def _draw(self, idx):
         d = self.views.draw(len(idx))
@@ -1571,6 +1702,7 @@ class OnlineDAgger:
             self._draw(torch.arange(env.B, device=self.dev))
             self._lag_reset(torch.arange(env.B, device=self.dev))
             self._bias_reset(torch.arange(env.B, device=self.dev))
+            self._qd_reset(torch.arange(env.B, device=self.dev))
         ws, obs = env.ws, env.obs
         q = ws.q.to(torch.float64)
         a = self.jt.act(obs).to(torch.float64)
@@ -1598,7 +1730,7 @@ class OnlineDAgger:
         T["render"] = time.time() - t1
         t2 = time.time()
         stud = ~self.teacher if self.it >= o.warm_teacher_only else torch.zeros_like(self.teacher)
-        qd = ws.qd.float().nan_to_num()
+        qd = self.qd_input(ws.qd.float().nan_to_num())                         # robot-like qdot in the qd_rob worlds
         now = torch.cat((qf + self.qb if self.qb_h is not None else qf, qd), -1)   # [N, 12] (q input offset)
         if self.H:
             fr = self.fresh
@@ -1639,7 +1771,8 @@ class OnlineDAgger:
         self.prev_slot[idx] = slots
         self.samples += len(idx)
         t3 = time.time()
-        _, _, done, ex = env.step(targets=tg, step_hook=self._lag_hook if self.lag_hist is not None else None)
+        hook = self._step_hook if self.qd_hist is not None else self._lag_hook if self.lag_hist is not None else None
+        _, _, done, ex = env.step(targets=tg, step_hook=hook)
         T["env"] = time.time() - t3
         if bool(done.any()):
             di = done.nonzero().flatten()
@@ -1655,7 +1788,17 @@ class OnlineDAgger:
             self._draw(di)
             self._lag_reset(di)
             self._bias_reset(di)
+            self._qd_reset(di)
         return T
+
+    def qd_noise_scale(self, n):
+        """[n] per-sample factor on the loss-side qdot noise (``OnlineConfig.qd_noise_zero_p``): U(0, 1), exactly 0
+        for that share; None = off (the old loss)."""
+        p = self.o.qd_noise_zero_p
+        if p is None:
+            return None
+        s = torch.rand(n, device=self.dev, generator=self.gen)
+        return torch.where(torch.rand(n, device=self.dev, generator=self.gen) < float(p), torch.zeros_like(s), s)
 
     def train_steps(self):
         st, o, b = self.st, self.o, self.st.cfg.batch
@@ -1673,8 +1816,9 @@ class OnlineDAgger:
                                self.buf.valid2[i][:, None].expand(-1, JE.STEPS)), 1)[:, :st.cfg.chunk]
             robot = self.buf.robot[i]
             aux_n = (self.buf.aux[i] - st.aux_mean) / st.aux_std
+            qs = self.qd_noise_scale(len(i))
             with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=st.cfg.amp):
-                loss, info = st.loss(img, robot, normalise(st, tgt), valid, aux_n)
+                loss, info = st.loss(img, robot, normalise(st, tgt), valid, aux_n, qd_scale=qs)
             self.opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(st.parameters(), st.cfg.grad_clip)

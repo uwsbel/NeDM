@@ -1,0 +1,43 @@
+{
+ "note": "real2sim online loop with the robot's timing and servo (2026-10-22): viral_r2s_online_v1 + per world per episode the robot dynamics stage of joint_env.RobotDynConfig (perturbed with p 0.8: command delay d0 U{0..3} steps with per-decision jitter -1/0/+1 (0.2/0.6/0.2), the first d steps of a decision hold the previous decision's last command; arm servo gain 0.3-1 log-uniform; first-order lag of the arm + jaw command, tau 20-200 ms log-uniform; gravity sag U(0, 1.5) deg added to the shoulder_lift and elbow commands, with the robot guard's integral correction (i_time_s 0.2, cap 3 deg, only while |command - q| < 1 deg and the joint is not moving to its command, hw_lib.GuardConfig, robot_test.sh); no command noise), robot-like qdot input (least-squares slope over the last 3 states of q quantised to 2 pi / 4096; exactly 0 when still) in half of the worlds, image lag 1-6 steps (lag_range: sets the student's ViralConfig.lag_range), episodes of 1,500 steps (30 s) and a 20 s hold cap (the JT's held-time observation keeps the old envs' 3.5 s scale: hold_obs_s), the loss-side qdot noise scaled per sample by U(0, 1) with 30 % of the samples noise-free, 6,000 decisions. Why: on the robot the arm is about 5 x slower (approach 0.17 vs 1.05 rad/s), the first target comes 46 ms after the q read, the servo lags 80-132 ms, the arm settles 1.5-1.9 deg below the command sent (with 1-2.8 deg integral correction), and qdot is exactly 0 in 68-85 % of the hover queries; the student then holds the cube still above the plate and never releases (~/so101_r2s_claude/sim_debug/scout/timing.md). Ranges vs the first request: gain 0.05 -> 0.3 (below about 0.2 the sim arm cannot lift the cube; the robot does), sag 2.5 -> 1.5 deg with the integral correction (without it a constant sag moves the arm at every decision; jt_h110 0 % at 1.7 deg, 59 % with it), noise 0.008 -> 0 (no robot measurement; 0.004 rad: jt_h110 12.5 %). CAUTION: jt_h110 itself fails at the robot's delay and lag (NRD, 1,500 steps / 20 s cap, 256 tasks: delay 2 steps 0.4 %, tau 0.1 s 3.1 %, these ranges at p 1 3.9 % vs nominal 97.7 %), so the labels of most perturbed worlds come from a failing teacher. Evaluate with NEDM_SO101_DYN='{\"d\": 2, \"jitter\": 0.4, \"s\": 0.5, \"tau\": 0.1, \"sag_deg\": 1.5, \"i_time_s\": 0.2}' vision_viral.py eval --horizon 1500 --hold-cap-s 20 --qd-robot 3 (jt_h110 0 % in NRD and MuJoCo: compare students only) or per factor with a teacher reference (NRD): {\"d\": 1} 83.6 %, {\"tau\": 0.05} 74.6 %, {\"sag_deg\": 1.0, \"i_time_s\": 0.2} 73.0 % (MuJoCo 81.3 %), {\"s\": 0.3, \"i_time_s\": 0.2} 47.7 %.",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 0.00005,
+ "iterations": 6000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 3,
+  "jitter": 0.4,
+  "s_lo": 0.3,
+  "s_hi": 1.0,
+  "tau_lo": 0.02,
+  "tau_hi": 0.2,
+  "sag_max_deg": 1.5,
+  "noise_max": 0.0,
+  "i_time_s": 0.2,
+  "i_max_deg": 3.0,
+  "i_e_max_deg": 1.0,
+  "i_v_min": 0.02
+ },
+ "qd_robot_p": 0.5,
+ "qd_window": 3,
+ "horizon": 1500,
+ "hold_cap_s": 20.0,
+ "hold_obs_s": 3.5,
+ "qd_noise_zero_p": 0.3,
+ "lag_range": [
+  1,
+  6
+ ]
+}
