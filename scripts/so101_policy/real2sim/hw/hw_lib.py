@@ -308,6 +308,9 @@ class GuardConfig:
     tcp_r_max: float = 0.45            # grasp point distance from the pan axis (m)
     stall_frac: float = 0.9            # live only: an arm joint that stays >= stall_frac x its lead band (joint_env.LEAD)
     stall_steps: int = 25              #   from the previous command for stall_steps steps (0.5 s) is blocked: stop
+    i_time_s: float = 0.0              # integral correction of the real servos' static error (0 = off; arm joints):
+    i_max_deg: float = 3.0             #   each step adds (command - measured q) * DT / i_time_s, the sum <= i_max_deg,
+    i_v_min: float = 0.02              #   only while the joint does not move to its command faster than this (rad/s)
 
     @staticmethod
     def from_dict(d):
@@ -330,10 +333,12 @@ class Guard:
         self.max_rel = np.asarray(cfg.max_rel_real, np.float64)
         self.prev = None
         self.err_run = 0
+        self.integ = np.zeros(ARM)
 
     def reset(self, q_sim):
         self.prev = np.asarray(q_sim, np.float64).copy()
         self.err_run = 0
+        self.integ = np.zeros(ARM)
 
     def _box(self, p):
         c = self.cfg
@@ -359,8 +364,9 @@ class Guard:
         stop += ["measured " + s for s in self._box(self.layer.tcp(q_sim))]
         return stop
 
-    def apply(self, u_sim, q_sim, q_real):
-        """-> (command sim [6], command real [6], events dict, stop reasons)."""
+    def apply(self, u_sim, q_sim, q_real, qd_sim=None):
+        """-> (command sim [6], command real [6], events dict, stop reasons). ``qd_sim``: the measured joint speed for
+        the integral correction (None: the joints count as not moving)."""
         c = self.cfg
         ev = dict(step=False, lead=False, range=False, floor=False, real_range=False, max_rel=False)
         u = np.asarray(u_sim, np.float64)
@@ -373,6 +379,14 @@ class Guard:
         u = self.prev + d
         u, info = self.layer(u, q_sim)
         ev.update(info)
+        if c.i_time_s > 0:                 # the real servos stop short of a small command under load (sim: they follow)
+            imax = math.radians(c.i_max_deg)
+            e = u[:ARM] - np.asarray(q_sim)[:ARM]
+            if qd_sim is not None:         # a joint that follows its command needs no correction (no wind-up in motion)
+                e = np.where(np.asarray(qd_sim)[:ARM] * np.sign(e) > c.i_v_min, 0.0, e)
+            self.integ = np.clip(self.integ + e * (DT / c.i_time_s), -imax, imax)
+            u = u.copy()
+            u[:ARM] += self.integ
         ur = self.jmap.sim_to_real(u)
         ur, m1 = self.limits.clip(ur)
         lo, hi = np.asarray(q_real) - self.max_rel, np.asarray(q_real) + self.max_rel
@@ -387,7 +401,8 @@ class Guard:
         if low < self.layer.table_z + c.cmd_floor_m and low < float(self.layer.lowest(q_sim)) - 1e-4:
             stop.append(f"command floor: lowest gripper point {low * 1e3:.1f} mm, below the floor")
         stop += ["command " + s for s in self._box(self.layer.tcp(u))]
-        self.prev = u.copy()
+        self.prev = u.copy()               # the step limit and the stall check: the command without the correction
+        self.prev[:ARM] -= self.integ
         return u, ur, ev, stop
 
     def stall(self, q_sim, cmd_prev_sim):
@@ -557,8 +572,8 @@ class Controller:
         self.bgr, self.max_age, self.thumb_res = bool(bgr), float(max_frame_age_ms), int(thumb_res)
         self.k = 0
         self.ex = None
-        self.S = {k: [] for k in ("t", "q_real", "q_sim", "qd_sim", "u_target", "u_sim", "u_real", "query", "ev_step",
-                                  "ev_lead", "ev_range", "ev_floor", "ev_real_range", "ev_max_rel", "n_stop",
+        self.S = {k: [] for k in ("t", "q_real", "q_sim", "qd_sim", "u_target", "u_sim", "u_real", "i_corr", "query",
+                                  "ev_step", "ev_lead", "ev_range", "ev_floor", "ev_real_range", "ev_max_rel", "n_stop",
                                   "ms_qdot", "ms_frames", "ms_pre", "ms_model", "ms_guard", "ms_ctrl")}
         self.Q = {k: [] for k in ("t", "step", "chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz",
                                   "frame_age_ms", "thumbs")}
@@ -608,7 +623,7 @@ class Controller:
             Q["thumbs"].append(np.stack([thumb(imgs[self.p.cam_map[c]], self.thumb_res) for c in self.p.cams]))
         t3 = time.perf_counter()
         target = self.ex[self.k % self.p.n_exec]
-        u_sim, u_real, ev, stop2 = self.g.apply(target, q_sim, q_real)
+        u_sim, u_real, ev, stop2 = self.g.apply(target, q_sim, q_real, qd)
         stop += stop2
         T["ms_guard"] = (time.perf_counter() - t3) * 1e3
         T["ms_ctrl"] = (time.perf_counter() - t0) * 1e3
@@ -616,7 +631,7 @@ class Controller:
         nan6 = np.full(6, np.nan)
         for kk, v in (("t", t), ("q_real", q_real), ("q_sim", q_sim), ("qd_sim", qd), ("u_target", target),
                       ("u_sim", nan6 if u_sim is None else u_sim), ("u_real", nan6 if u_real is None else u_real),
-                      ("query", query), ("n_stop", len(stop))):
+                      ("i_corr", self.g.integ.copy()), ("query", query), ("n_stop", len(stop))):
             S[kk].append(v)
         for kk in ("step", "lead", "range", "floor", "real_range", "max_rel"):
             S["ev_" + kk].append(bool(ev.get(kk, False)))

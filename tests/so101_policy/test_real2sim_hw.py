@@ -216,6 +216,34 @@ class TestActionLayerAndGuard(unittest.TestCase):
         self.assertIsNone(us)
         self.assertTrue(stop and stop[0].startswith("student target"))
 
+    def test_integral_correction(self):
+        q = self.mid.copy()
+        tgt = q.copy()
+        tgt[1:3] -= np.radians(0.45)                     # the stuck lift: 0.45 deg ahead of the measured q, no motion
+        g0 = self.guard()
+        g0.reset(q)
+        u0, _, _, _ = g0.apply(tgt, q, self.jm.sim_to_real(q))
+        np.testing.assert_allclose(u0, tgt, atol=1e-9)    # off by default: the command is the student's
+        g = self.guard(i_time_s=0.2, i_max_deg=3.0)
+        g.reset(q)
+        for k in range(200):
+            u, ur, ev, stop = g.apply(tgt, q, self.jm.sim_to_real(q))
+            self.assertEqual(stop, [])
+            if k == 0:                                    # one step: 0.45 deg * 0.02 / 0.2 more
+                np.testing.assert_allclose(np.degrees(u - tgt)[1:3], -0.045, atol=1e-9)
+        np.testing.assert_allclose(np.degrees(g.integ)[1:3], -3.0, atol=1e-9)        # limited to i_max_deg
+        np.testing.assert_allclose(np.degrees(u - tgt)[1:3], -3.0, atol=1e-9)
+        np.testing.assert_allclose(g.prev, tgt, atol=1e-9)                     # step limit / stall: without it
+        np.testing.assert_allclose(u[[0, 3, 4, 5]], tgt[[0, 3, 4, 5]], atol=1e-9)    # no error, no correction
+        g.reset(q)
+        self.assertFalse(g.integ.any())
+        qd = np.zeros(6)
+        qd[1] = -0.05                                     # shoulder follows its command: no correction there
+        for k in range(10):
+            u, _, _, _ = g.apply(tgt, q, self.jm.sim_to_real(q), qd)
+        self.assertEqual(g.integ[1], 0.0)
+        np.testing.assert_allclose(np.degrees(g.integ[2]), -0.45, atol=1e-9)        # elbow stuck: 10 x 0.045 deg
+
     def test_measured_checks_and_stall(self):
         g = self.guard()
         q = self.home.copy()

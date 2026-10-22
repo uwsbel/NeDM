@@ -54,7 +54,8 @@ import hw_lib as H  # noqa: E402
 FOLLOWER_PORT = "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B8E115318-if00"
 ROBOT_ID = "so101_follower"
 CAM_PATHS = {"wrist": "/dev/v4l/by-path/platform-3610000.usb-usb-0:4.1.1:1.0-video-index0",
-             "external": "/dev/v4l/by-id/usb-Xitech_USB_Camera_20250606105-video-index0"}
+             "external": "/dev/v4l/by-path/platform-3610000.usb-usb-0:4.1.4:1.0-video-index0"}
+# by-path (USB port), not by-id: both cameras report the serial 20250606105, so the by-id link follows the last plug-in
 CAM_BACKEND = 200                      # cv2.CAP_V4L2, as the recordings (lerobot-record ... backend: 200)
 HF_CALIB = Path("~/.cache/huggingface/lerobot/calibration/robots/so_follower").expanduser()
 LOCAL_CALIB_COPY = Path("~/so101_r2s_claude/proxy_docs/so101_follower.json").expanduser()
@@ -644,7 +645,7 @@ def control_loop(io, ctrl, guard, jm, limits, stopper, live, time_limit, status_
                 break
             W["ms_write"].append((time.perf_counter() - t1) * 1e3)
             last_cmd = out.u_real
-        prev_sim = out.u_sim
+        prev_sim = None if out.u_sim is None else guard.prev.copy()   # stall check: without the integral correction
         W["ms_step"].append((time.perf_counter() - t0) * 1e3)
         if time.perf_counter() - t_status >= status_every:
             t_status = time.perf_counter()
