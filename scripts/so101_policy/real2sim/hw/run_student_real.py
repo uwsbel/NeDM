@@ -730,7 +730,8 @@ def run_robot(args, live):
     meta = dict(mode=mode, setup=info, limits=dict(lo=limits.lo.tolist(), hi=limits.hi.tolist(), source=limits.source),
                 home_sim_deg=np.degrees(home_sim).tolist(), start=time.strftime("%Y-%m-%d %H:%M:%S"))
     disable_torque, last_cmd, torque_on = False, None, False
-    st_ = dict(ctrl=None, W=None, saved=False)
+    st_ = dict(ctrl=None, W=None, saved=False, dir=out_dir)
+    n_ep = max(1, int(args.episodes_n)) if live else 1
 
     def save(reason):
         """Episode log (npz + json); also called from ``finally`` after an error (partial log)."""
@@ -748,9 +749,23 @@ def run_robot(args, live):
             meta.update(guard_reasons=ctrl_.events, rule_active_steps={
                 k: int(A["ev_" + k].sum()) for k in ("step", "lead", "range", "floor", "real_range", "max_rel")
                 if "ev_" + k in A})
-        H.save_log(out_dir / f"episode_{mode}.npz", A, meta)
+        H.save_log(st_["dir"] / f"episode_{mode}.npz", A, meta)
         st_["saved"] = True
         return meta.get("latency_ms", {})
+
+    def finish(reason):
+        """Save the episode log, print the timing lines."""
+        lat = save(reason)
+        for k in ("ms_read", "ms_model", "ms_ctrl", "ms_write", "ms_step"):
+            if k in lat:
+                v = lat[k]
+                log(f"latency {k}: p50 {v['p50']:.1f} p95 {v['p95']:.1f} max {v['max']:.1f} ms (n {v['n']})")
+        if st_["W"] is not None:
+            log(f"overruns (> one period behind): {st_['W']['overruns']}; log {st_['dir'] / f'episode_{mode}.npz'}")
+
+    def new_ctrl():
+        return H.Controller(policy, jm, guard, views, H.QdotEstimator(args.qdot_window), bgr=io.bgr,
+                            max_frame_age_ms=args.max_frame_age_ms, thumb_res=args.thumb_res)
 
     reason = "not started"
     try:
@@ -763,8 +778,7 @@ def run_robot(args, live):
         np.savez_compressed(out_dir / "first_frames.npz", **{c: img for c, (img, _) in fr.items()})
         if bad:
             raise SystemExit("preflight failed: " + "; ".join(bad))
-        ctrl = H.Controller(policy, jm, guard, views, H.QdotEstimator(args.qdot_window), bgr=io.bgr,
-                            max_frame_age_ms=args.max_frame_age_ms, thumb_res=args.thumb_res)
+        ctrl = new_ctrl()
         st_["ctrl"] = ctrl
         if not live:
             log("dry: NO motor writes; torque untouched. q / space / Esc / Ctrl+C stops.")
@@ -787,53 +801,86 @@ def run_robot(args, live):
                     io.configure()
                     torque_on = True
                     log("configured (torque on, goal = present position)")
-            # 2. the HOME move, checked first
-            q_now = jm.real_to_sim(io.read_q())
-            path, dur = H.plan_joint_path(q_now, home_sim, math.radians(args.home_speed_deg_s))
-            probs = H.check_path(path, layer, jm, limits, clearance=args.home_clearance, start=q_now)
-            for k in range(0, len(path), 5):
-                probs += [f"waypoint {k}: {s}" for s in guard._box(layer.tcp(path[k]))][:1]
-            home_real = jm.sim_to_real(home_sim)
-            log(f"HOME sim deg {np.round(np.degrees(home_sim), 1).tolist()} = real {np.round(home_real, 1).tolist()}; "
-                f"grasp point {np.round(layer.tcp(home_sim), 3).tolist()} lowest {float(layer.lowest(home_sim)) * 1e3:.0f}"
-                f" mm; {len(path)} steps = {dur:.1f} s at <= {args.home_speed_deg_s} deg/s")
-            meta.update(home_path_steps=len(path), home_path_s=dur, home_problems=probs)
-            if probs:
-                raise SystemExit("HOME path refused: " + "; ".join(probs[:5]))
-            if not confirm("MOVE", f"Torque ON at the present position, then a {dur:.1f} s joint move to HOME. Keep a "
-                           f"hand near the arm; q / space / Esc / Ctrl+C holds.", args.auto_confirm):
-                raise SystemExit("aborted before HOME")
-            if not torque_on:
-                io.torque_on_at_present()
-                torque_on = True
-            with Stopper() as st:
-                why, last_cmd = move_path(io, path, jm, limits, guard, st, np.asarray(gcfg.max_rel_real), label="home")
-            if why:
-                q = io.read_q()
-                last_cmd = hold(io, jm, limits, q, None if last_cmd is None else last_cmd[H.ARM])
-                raise SystemExit(f"HOME move stopped: {why} (holding)")
-            log(f"at HOME: q real {np.round(io.read_q(), 1).tolist()}")
-            # 3. the student
-            if not confirm("RUN", f"Student loop for up to {args.time_limit:.0f} s at 50 Hz (query every 0.1 s). Place the"
-                           f" cube and the plate now. q / space / Esc / Ctrl+C stops and holds.", args.auto_confirm):
-                raise SystemExit("aborted before the student loop (holding at HOME)")
-            with Stopper() as st:
-                reason, lc, W = control_loop(io, ctrl, guard, jm, limits, st, True, args.time_limit)
-            st_["W"] = W
-            last_cmd = lc if lc is not None else last_cmd
-            try:
-                q = io.read_q()
-                last_cmd = hold(io, jm, limits, q, None if last_cmd is None else last_cmd[H.ARM])
-                log(f"student loop ended: {reason}; HOLDING at q real {np.round(q, 1).tolist()}")
-            except Exception as e:                         # noqa: BLE001
-                log(f"student loop ended: {reason}; HOLD FAILED: {e}")
-                reason += f"; hold failed: {e}"
-        lat = save(reason)
-        for k in ("ms_read", "ms_model", "ms_ctrl", "ms_write", "ms_step"):
-            if k in lat:
-                v = lat[k]
-                log(f"latency {k}: p50 {v['p50']:.1f} p95 {v['p95']:.1f} max {v['max']:.1f} ms (n {v['n']})")
-        log(f"overruns (> one period behind): {W['overruns']}; log {out_dir / f'episode_{mode}.npz'}")
+            # 2. HOME (checked first), 3. the student; eval (--episodes-n > 1): back to HOME between the episodes
+            results, session = [], out_dir / "session.json"
+            for ep in range(n_ep):
+                if ep > 0:
+                    st_.update(ctrl=new_ctrl(), W=None, saved=False)
+                    ctrl = st_["ctrl"]
+                    for k in ("outcome", "latency_ms", "overruns", "guard_reasons", "rule_active_steps"):
+                        meta.pop(k, None)
+                if n_ep > 1:
+                    st_["dir"] = out_dir / f"ep_{ep + 1:02d}"
+                    st_["dir"].mkdir(parents=True, exist_ok=True)
+                    meta["episode"] = ep + 1
+                    log(f"==== episode {ep + 1} / {n_ep}")
+                q_now = jm.real_to_sim(io.read_q())
+                path, dur = H.plan_joint_path(q_now, home_sim, math.radians(args.home_speed_deg_s))
+                probs = H.check_path(path, layer, jm, limits, clearance=args.home_clearance, start=q_now)
+                for k in range(0, len(path), 5):
+                    probs += [f"waypoint {k}: {s}" for s in guard._box(layer.tcp(path[k]))][:1]
+                home_real = jm.sim_to_real(home_sim)
+                log(f"HOME sim deg {np.round(np.degrees(home_sim), 1).tolist()} = real {np.round(home_real, 1).tolist()}; "
+                    f"grasp point {np.round(layer.tcp(home_sim), 3).tolist()} lowest {float(layer.lowest(home_sim)) * 1e3:.0f}"
+                    f" mm; {len(path)} steps = {dur:.1f} s at <= {args.home_speed_deg_s} deg/s")
+                meta.update(home_path_steps=len(path), home_path_s=dur, home_problems=probs)
+                if probs:
+                    if not torque_on:
+                        raise SystemExit("HOME path refused: " + "; ".join(probs[:5]))
+                    reason = "HOME path refused: " + "; ".join(probs[:5])
+                    log(reason + " (holding; menu below)")
+                    break
+                if ep == 0 and not confirm("MOVE", f"Torque ON at the present position, then a {dur:.1f} s joint move to "
+                                           f"HOME. Keep a hand near the arm; q / space / Esc / Ctrl+C holds.",
+                                           args.auto_confirm):
+                    if not torque_on:
+                        raise SystemExit("aborted before HOME")
+                    reason = "aborted before HOME"
+                    break
+                if not torque_on:
+                    io.torque_on_at_present()
+                    torque_on = True
+                with Stopper() as st:
+                    why, last_cmd = move_path(io, path, jm, limits, guard, st, np.asarray(gcfg.max_rel_real),
+                                              label="home")
+                if why:
+                    q = io.read_q()
+                    last_cmd = hold(io, jm, limits, q, None if last_cmd is None else last_cmd[H.ARM])
+                    reason = f"HOME move stopped: {why}"
+                    log(reason + " (holding; menu below)")
+                    break
+                log(f"at HOME: q real {np.round(io.read_q(), 1).tolist()}")
+                if not confirm("RUN", f"Student loop for up to {args.time_limit:.0f} s at 50 Hz (query every 0.1 s). "
+                               f"{'Reset the scene: p' if ep else 'P'}lace the cube and the plate now. q / space / Esc / "
+                               f"Ctrl+C stops and holds.", args.auto_confirm):
+                    reason = "aborted before the student loop (holding at HOME)"
+                    log(reason + "; menu below")
+                    break
+                with Stopper() as st:
+                    reason, lc, W = control_loop(io, ctrl, guard, jm, limits, st, True, args.time_limit)
+                st_["W"] = W
+                last_cmd = lc if lc is not None else last_cmd
+                try:
+                    q = io.read_q()
+                    last_cmd = hold(io, jm, limits, q, None if last_cmd is None else last_cmd[H.ARM])
+                    log(f"student loop ended: {reason}; HOLDING at q real {np.round(q, 1).tolist()}")
+                except Exception as e:                         # noqa: BLE001
+                    log(f"student loop ended: {reason}; HOLD FAILED: {e}")
+                    reason += f"; hold failed: {e}"
+                    break
+                if n_ep == 1:
+                    break
+                meta["outcome"] = ask_outcome(ep + 1, n_ep, args.auto_confirm)
+                finish(reason)
+                results.append(dict(episode=ep + 1, end_reason=reason, dir=str(st_["dir"]), **meta["outcome"]))
+                session.write_text(json.dumps(dict(start=meta["start"], args=vars(args), episodes=results), indent=1,
+                                              default=str))
+                if ep + 1 < n_ep and not ask_next(ep + 2, n_ep, args.auto_confirm):
+                    break
+            if results:
+                print_session(results, session)
+        if not st_["saved"]:
+            finish(reason)
         if live:
             disable_torque = end_menu(io, jm, limits, layer, guard, q_start, args, last_cmd)
     except BaseException as e:
@@ -855,6 +902,45 @@ def run_robot(args, live):
         io.close(disable_torque=disable_torque)
         log(f"closed ({'torque OFF' if disable_torque else 'torque unchanged / ON, holding' if live else 'no writes'})")
     return meta
+
+
+def ask_outcome(ep, n, auto=False):
+    """Eval: the result of an episode, typed by the person at the robot."""
+    if auto:
+        return dict(grasp=False, lift=False, place=False, note="auto")
+    while True:
+        try:
+            a = input(f"Episode {ep} / {n} result: letters for each stage reached, g = grasp, l = lift, p = placed on "
+                      f"the plate (for example glp, or - for none); a note after a space: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            a = "?"
+        code, _, note = a.partition(" ")
+        if code and set(code.lower()) <= set("glp-?"):
+            c = code.lower()
+            return dict(grasp="g" in c, lift="l" in c, place="p" in c, note=note.strip(), typed=a)
+
+
+def ask_next(ep, n, auto=False):
+    """Eval: True = return to HOME for episode ep, False = stop (menu)."""
+    if auto:
+        return True
+    while True:
+        try:
+            a = input(f"[h] return to HOME for episode {ep} / {n} (the gripper opens to its HOME value)  "
+                      f"[s] stop the session (menu)  > ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            return False
+        if a in ("h", "s"):
+            return a == "h"
+
+
+def print_session(results, path):
+    n = len(results)
+    log(f"session: {n} episodes; grasp {sum(r['grasp'] for r in results)}, lift {sum(r['lift'] for r in results)}, "
+        f"placed {sum(r['place'] for r in results)}; {path}")
+    for r in results:
+        log(f"  episode {r['episode']:2d}: {'g' if r['grasp'] else '-'}{'l' if r['lift'] else '-'}"
+            f"{'p' if r['place'] else '-'}  {r['end_reason']}  {r.get('note', '')}")
 
 
 def end_menu(io, jm, limits, layer, guard, q_start_real, args, last_cmd):
@@ -926,6 +1012,8 @@ def main(argv=None):
     ap.add_argument("--cam-paths", default="", help='JSON {"wrist": path, "external": path} (default: the notes)')
     ap.add_argument("--max-frame-age-ms", type=float, default=150.0)
     ap.add_argument("--time-limit", type=float, default=15.0, help="student loop seconds")
+    ap.add_argument("--episodes-n", type=int, default=1, help="live: episodes in a row (eval session: result prompt, "
+                    "return to HOME and scene reset between them; logs in <out>/ep_NN, summary <out>/session.json)")
     ap.add_argument("--home", default=",".join(str(v) for v in H.HOME_SIM_DEG), help="HOME pose, 6 SIM degrees")
     ap.add_argument("--home-speed-deg-s", type=float, default=15.0, help="peak joint speed of HOME / return moves")
     ap.add_argument("--home-clearance", type=float, default=0.02, help="m above the table for HOME / return paths")

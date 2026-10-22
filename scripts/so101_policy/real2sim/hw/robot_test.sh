@@ -6,6 +6,7 @@
 #   ./robot_test.sh dry [s] [args]        robot + cameras, reads only, no motor writes (default 30 s)
 #   ./robot_test.sh live [s] [args]       MOVES THE ROBOT (default 15 s)
 #   ./robot_test.sh live-tilt [s] [args]  live + the table-tilt correction --q-offset-deg 0,-2.086,0,0,0 (README)
+#   ./robot_test.sh eval [n] [s] [args]   MOVES THE ROBOT: n episodes in a row (default 10 x 40 s), servo correction
 #
 # [args] go to run_student_real.py as they are. Outputs: ~/so101_hw_runs/<mode>_<time>/ (RUNS overrides).
 set -eo pipefail
@@ -18,9 +19,11 @@ S=(--student assets/student.pt --calib assets/calib_v1.json)
 RUNS="${RUNS:-$HOME/so101_hw_runs}"
 DATA_ROOT="${DATA_ROOT:-$HOME/lerobot/data}"
 TILT=(--q-offset-deg 0,-2.086,0,0,0)
+# eval: floor stops below the real table (it is 4-17 mm below the sim table), integral correction of the servo error
+EVAL=(--amp 0 --guard '{"cmd_floor_m":-0.015,"hard_floor_m":-0.020,"i_time_s":0.2,"i_max_deg":3.0}')
 export HF_HUB_OFFLINE=1
 
-usage() { sed -n '2,10p' "$SELF" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,11p' "$SELF" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 activate() {
   if [ "${CONDA_DEFAULT_ENV:-}" != lerobot ]; then
@@ -42,8 +45,10 @@ no_overrides() {
   local a
   for a in "$@"; do
     case "$a" in
-      --time-limit|--time-limit=*|--q-offset-deg|--q-offset-deg=*|--out|--out=*|--backend|--backend=*|--auto-confirm)
-        echo "do not give $a here: use [s] for the time, the mode live-tilt for the correction"; exit 1 ;;
+      --time-limit|--time-limit=*|--q-offset-deg|--q-offset-deg=*|--out|--out=*|--backend|--backend=*|--auto-confirm|\
+      --episodes-n|--episodes-n=*)
+        echo "do not give $a here: use [n] [s] for the episodes and the time, the mode live-tilt for the correction"
+        exit 1 ;;
     esac
   done
 }
@@ -98,28 +103,47 @@ EOF
     exec python "$RUN" replay "${S[@]}" --data-root "$DATA_ROOT" \
       --episodes green_cube_red_plate:0,green_cube_red_plate:2,green_cube_red_plate_1:5 --out "$O" "$@"
     ;;
-  dry|live|live-tilt)
+  dry|live|live-tilt|eval)
     need_tty
     activate
     files_ok || { echo "bundle files changed or missing (MANIFEST.txt): refusing"; exit 1; }
     T=30; [ "$MODE" != dry ] && T=15
+    N=1
+    if [ "$MODE" = eval ]; then
+      N=10; T=40
+      if [[ "${1:-}" =~ ^[0-9]+$ ]]; then N="$1"; shift; fi
+    fi
     if secs "${1:-}"; then T="$1"; shift; fi
     no_overrides "$@"
     EXTRA=(); [ "$MODE" = live-tilt ] && EXTRA=("${TILT[@]}")
+    [ "$MODE" = eval ] && EXTRA=("${EVAL[@]}" --episodes-n "$N")
     O="$(out_dir "$MODE")"
     # run_student_real.py refuses dry / live while another program can use the port or a camera (device_users)
     if [ "$MODE" = dry ]; then
       echo "DRY run, $T s: the robot and the cameras are read only; no motor writes. -> $O"
       exec python "$RUN" dry "${S[@]}" --out "$O" --time-limit "$T" "$@"
     fi
-    echo "LIVE run, $T s: THIS MOVES THE ROBOT. -> $O"
-    if [ "$MODE" = live-tilt ]; then echo "Table-tilt correction ON: ${TILT[*]}"; fi
-    cat <<EOF
+    if [ "$MODE" = eval ]; then
+      echo "EVAL session, $N episodes of up to $T s: THIS MOVES THE ROBOT. -> $O"
+      echo "Settings: ${EVAL[*]}"
+      cat <<EOF
+  1. Arm in the folded rest pose, workspace clear, one hand near the arm.
+  2. Type MOVE: the arm goes to HOME (wrist roll about 120 deg; watch the wrist camera cable).
+  3. Each episode: put the cube and the plate 0.15-0.27 m from the base, type RUN. Push space when the episode is
+     done (or it ends at $T s). Type the result (g grasp, l lift, p placed; for example glp, or -).
+  4. Type h: the arm goes back to HOME (the gripper opens), then reset the scene for the next episode.
+  5. Stop at any time: q / space / Esc / Ctrl+C. Type s to end the session: menu r return, t torque off.
+EOF
+    else
+      echo "LIVE run, $T s: THIS MOVES THE ROBOT. -> $O"
+      if [ "$MODE" = live-tilt ]; then echo "Table-tilt correction ON: ${TILT[*]}"; fi
+      cat <<EOF
   1. Arm in the folded rest pose, workspace clear, one hand near the arm.
   2. Type MOVE: the arm goes to HOME (11-13 s, <= 15 deg/s, the wrist roll turns about 120 deg).
   3. Put the cube and the plate 0.15-0.27 m from the shoulder pan axis, then type RUN.
   4. Stop at any time: q / space / Esc / Ctrl+C. At the end the torque stays ON (menu: r return, t torque off).
 EOF
+    fi
     exec python "$RUN" live --i-am-supervising "${S[@]}" --out "$O" --time-limit "$T" "${EXTRA[@]}" "$@"
     ;;
   ""|-h|--help|help) usage 0 ;;
