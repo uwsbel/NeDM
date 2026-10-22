@@ -62,7 +62,7 @@ d) Eval session (first robot day, 2026-10-22: grasp, lift and carry worked with 
 grasps); without the integral correction the real servos (P 16, gearbox friction) did not follow the student's 0.45 deg
 lift steps after the grasp and the arm stayed on the table. Flow: MOVE (HOME) -> each episode: reset the scene, RUN,
 the student (space ends the episode), type the result (g grasp, l lift, p placed, for example `glp`; a note after a
-space), `h` = back to HOME for the next episode (the gripper opens), `s` = end -> menu (r return to the start pose,
+space), `r` = back to HOME for the next episode (the gripper opens), `s` = end -> menu (r return to the start pose,
 t torque off). Logs: `<out>/ep_NN/episode_live.{npz,json}` (outcome in the json), `<out>/session.json`.
 
 Long form:

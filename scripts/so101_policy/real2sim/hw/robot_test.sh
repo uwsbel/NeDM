@@ -112,9 +112,16 @@ EOF
     if [ "$MODE" = eval ]; then
       N=10; T=40
       if [[ "${1:-}" =~ ^[0-9]+$ ]]; then N="$1"; shift; fi
+      [ "$N" -ge 1 ] || { echo "eval needs 1 or more episodes"; exit 1; }
     fi
     if secs "${1:-}"; then T="$1"; shift; fi
     no_overrides "$@"
+    if [ "$MODE" = eval ]; then            # the banner shows the eval settings: they must be the ones used
+      for a in "$@"; do
+        case "$a" in --guard|--guard=*|--amp|--amp=*) echo "do not give $a with eval (it sets ${EVAL[*]}); use live"
+          exit 1 ;; esac
+      done
+    fi
     EXTRA=(); [ "$MODE" = live-tilt ] && EXTRA=("${TILT[@]}")
     [ "$MODE" = eval ] && EXTRA=("${EVAL[@]}" --episodes-n "$N")
     O="$(out_dir "$MODE")"
@@ -131,7 +138,7 @@ EOF
   2. Type MOVE: the arm goes to HOME (wrist roll about 120 deg; watch the wrist camera cable).
   3. Each episode: put the cube and the plate 0.15-0.27 m from the base, type RUN. Push space when the episode is
      done (or it ends at $T s). Type the result (g grasp, l lift, p placed; for example glp, or -).
-  4. Type h: the arm goes back to HOME (the gripper opens), then reset the scene for the next episode.
+  4. Type r: the arm goes back to HOME (the gripper opens), then reset the scene for the next episode.
   5. Stop at any time: q / space / Esc / Ctrl+C. Type s to end the session: menu r return, t torque off.
 EOF
     else

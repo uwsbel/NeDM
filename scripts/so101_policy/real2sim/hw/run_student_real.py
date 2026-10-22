@@ -731,7 +731,8 @@ def run_robot(args, live):
                 home_sim_deg=np.degrees(home_sim).tolist(), start=time.strftime("%Y-%m-%d %H:%M:%S"))
     disable_torque, last_cmd, torque_on = False, None, False
     st_ = dict(ctrl=None, W=None, saved=False, dir=out_dir)
-    n_ep = max(1, int(args.episodes_n)) if live else 1
+    sess = live and args.episodes_n > 0                    # eval session (even with 1 episode); 0 = plain live run
+    n_ep = args.episodes_n if sess else 1
 
     def save(reason):
         """Episode log (npz + json); also called from ``finally`` after an error (partial log)."""
@@ -801,18 +802,27 @@ def run_robot(args, live):
                     io.configure()
                     torque_on = True
                     log("configured (torque on, goal = present position)")
-            # 2. HOME (checked first), 3. the student; eval (--episodes-n > 1): back to HOME between the episodes
+            # 2. HOME (checked first), 3. the student; eval (--episodes-n >= 1): back to HOME between the episodes
             results, session = [], out_dir / "session.json"
+
+            def record(ep, reason, outcome):
+                meta["outcome"] = outcome
+                finish(reason)
+                results.append(dict(episode=ep + 1, end_reason=reason, dir=str(st_["dir"]),
+                                    start=meta.get("episode_start"), **outcome))
+                session.write_text(json.dumps(dict(start=meta["start"], args=vars(args), episodes=results), indent=1,
+                                              default=str))
             for ep in range(n_ep):
                 if ep > 0:
                     st_.update(ctrl=new_ctrl(), W=None, saved=False)
                     ctrl = st_["ctrl"]
-                    for k in ("outcome", "latency_ms", "overruns", "guard_reasons", "rule_active_steps"):
+                    for k in ("outcome", "latency_ms", "overruns", "guard_reasons", "rule_active_steps",
+                              "home_path_steps", "home_path_s", "home_problems"):
                         meta.pop(k, None)
-                if n_ep > 1:
+                if sess:
                     st_["dir"] = out_dir / f"ep_{ep + 1:02d}"
                     st_["dir"].mkdir(parents=True, exist_ok=True)
-                    meta["episode"] = ep + 1
+                    meta.update(episode=ep + 1, episode_start=time.strftime("%Y-%m-%d %H:%M:%S"))
                     log(f"==== episode {ep + 1} / {n_ep}")
                 q_now = jm.real_to_sim(io.read_q())
                 path, dur = H.plan_joint_path(q_now, home_sim, math.radians(args.home_speed_deg_s))
@@ -867,14 +877,12 @@ def run_robot(args, live):
                 except Exception as e:                         # noqa: BLE001
                     log(f"student loop ended: {reason}; HOLD FAILED: {e}")
                     reason += f"; hold failed: {e}"
+                    if sess:
+                        record(ep, reason, UNKNOWN)
                     break
-                if n_ep == 1:
+                if not sess:
                     break
-                meta["outcome"] = ask_outcome(ep + 1, n_ep, args.auto_confirm)
-                finish(reason)
-                results.append(dict(episode=ep + 1, end_reason=reason, dir=str(st_["dir"]), **meta["outcome"]))
-                session.write_text(json.dumps(dict(start=meta["start"], args=vars(args), episodes=results), indent=1,
-                                              default=str))
+                record(ep, reason, ask_outcome(ep + 1, n_ep, args.auto_confirm))
                 if ep + 1 < n_ep and not ask_next(ep + 2, n_ep, args.auto_confirm):
                     break
             if results:
@@ -882,7 +890,7 @@ def run_robot(args, live):
         if not st_["saved"]:
             finish(reason)
         if live:
-            disable_torque = end_menu(io, jm, limits, layer, guard, q_start, args, last_cmd)
+            disable_torque, last_cmd = end_menu(io, jm, limits, layer, guard, q_start, args, last_cmd)
     except BaseException as e:
         reason = f"{type(e).__name__}: {e}"
         raise
@@ -890,7 +898,7 @@ def run_robot(args, live):
         if not st_["saved"]:
             try:
                 save(reason)
-                log(f"partial log {out_dir / f'episode_{mode}.npz'} ({reason})")
+                log(f"partial log {st_['dir'] / f'episode_{mode}.npz'} ({reason})")
             except Exception as e:                         # noqa: BLE001
                 log(f"saving the log failed: {e}")
         if live and torque_on and not disable_torque:
@@ -904,8 +912,11 @@ def run_robot(args, live):
     return meta
 
 
+UNKNOWN = dict(grasp=None, lift=None, place=None, note="no result typed")
+
+
 def ask_outcome(ep, n, auto=False):
-    """Eval: the result of an episode, typed by the person at the robot."""
+    """Eval: the result of an episode, typed by the person at the robot (None = not known)."""
     if auto:
         return dict(grasp=False, lift=False, place=False, note="auto")
     while True:
@@ -913,9 +924,9 @@ def ask_outcome(ep, n, auto=False):
             a = input(f"Episode {ep} / {n} result: letters for each stage reached, g = grasp, l = lift, p = placed on "
                       f"the plate (for example glp, or - for none); a note after a space: ").strip()
         except (EOFError, KeyboardInterrupt):
-            a = "?"
+            return dict(UNKNOWN)
         code, _, note = a.partition(" ")
-        if code and set(code.lower()) <= set("glp-?"):
+        if code and set(code.lower()) <= set("glp-"):
             c = code.lower()
             return dict(grasp="g" in c, lift="l" in c, place="p" in c, note=note.strip(), typed=a)
 
@@ -926,37 +937,48 @@ def ask_next(ep, n, auto=False):
         return True
     while True:
         try:
-            a = input(f"[h] return to HOME for episode {ep} / {n} (the gripper opens to its HOME value)  "
+            a = input(f"[r] return to HOME for episode {ep} / {n} (the gripper opens to its HOME value)  "
                       f"[s] stop the session (menu)  > ").strip().lower()
         except (EOFError, KeyboardInterrupt):
             return False
-        if a in ("h", "s"):
-            return a == "h"
+        if a in ("r", "s"):
+            return a == "r"
 
 
 def print_session(results, path):
     n = len(results)
-    log(f"session: {n} episodes; grasp {sum(r['grasp'] for r in results)}, lift {sum(r['lift'] for r in results)}, "
-        f"placed {sum(r['place'] for r in results)}; {path}")
+    def c(k):
+        return sum(r[k] is True for r in results)
+
+    def f(r, k, ch):
+        return "?" if r[k] is None else ch if r[k] else "-"
+    log(f"session: {n} episodes; grasp {c('grasp')}, lift {c('lift')}, placed {c('place')} "
+        f"(not known: {sum(r['grasp'] is None for r in results)}); {path}")
     for r in results:
-        log(f"  episode {r['episode']:2d}: {'g' if r['grasp'] else '-'}{'l' if r['lift'] else '-'}"
-            f"{'p' if r['place'] else '-'}  {r['end_reason']}  {r.get('note', '')}")
+        log(f"  episode {r['episode']:2d}: {f(r, 'grasp', 'g')}{f(r, 'lift', 'l')}{f(r, 'place', 'p')}  "
+            f"{r['end_reason']}  {r.get('note', '')}")
 
 
 def end_menu(io, jm, limits, layer, guard, q_start_real, args, last_cmd):
-    """-> disable torque at close? Default: keep holding (torque on)."""
+    """-> (disable torque at close?, the last command: the final hold keeps its gripper). Default: keep holding."""
     if args.auto_confirm:
-        return False
+        return False, last_cmd
     while True:
         try:
             c = input("[h] hold and exit (torque stays ON)  [r] slow return to the start pose  [t] torque OFF "
                       "(support the arm first)  > ").strip().lower() or "h"
         except (EOFError, KeyboardInterrupt):
-            return False
+            return False, last_cmd
         if c == "h":
-            return False
+            return False, last_cmd
         if c == "t":
-            return input("Type TORQUE OFF: ").strip() == "TORQUE OFF"
+            try:
+                ok = input("Type TORQUE OFF: ").strip() == "TORQUE OFF"
+            except (EOFError, KeyboardInterrupt):
+                ok = False
+            if ok:
+                return True, last_cmd
+            continue
         if c == "r":
             q_now = jm.real_to_sim(io.read_q())
             goal = jm.real_to_sim(q_start_real)
@@ -970,7 +992,7 @@ def end_menu(io, jm, limits, layer, guard, q_start_real, args, last_cmd):
             with Stopper() as st:
                 why, lc = move_path(io, path, jm, limits, guard, st, np.asarray(guard.cfg.max_rel_real), label="return")
             q = io.read_q()
-            hold(io, jm, limits, q, None if lc is None else lc[H.ARM])
+            last_cmd = hold(io, jm, limits, q, None if lc is None else lc[H.ARM])
             log(f"return: {why or 'done'}; q real {np.round(q, 1).tolist()}")
 
 
@@ -1012,8 +1034,8 @@ def main(argv=None):
     ap.add_argument("--cam-paths", default="", help='JSON {"wrist": path, "external": path} (default: the notes)')
     ap.add_argument("--max-frame-age-ms", type=float, default=150.0)
     ap.add_argument("--time-limit", type=float, default=15.0, help="student loop seconds")
-    ap.add_argument("--episodes-n", type=int, default=1, help="live: episodes in a row (eval session: result prompt, "
-                    "return to HOME and scene reset between them; logs in <out>/ep_NN, summary <out>/session.json)")
+    ap.add_argument("--episodes-n", type=int, default=0, help="live: eval session of n episodes (result prompt, return "
+                    "to HOME and scene reset between them; logs <out>/ep_NN, summary <out>/session.json); 0 = one run")
     ap.add_argument("--home", default=",".join(str(v) for v in H.HOME_SIM_DEG), help="HOME pose, 6 SIM degrees")
     ap.add_argument("--home-speed-deg-s", type=float, default=15.0, help="peak joint speed of HOME / return moves")
     ap.add_argument("--home-clearance", type=float, default=0.02, help="m above the table for HOME / return paths")
