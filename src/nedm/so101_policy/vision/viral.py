@@ -28,10 +28,29 @@ Pieces:
 Measured choices (build9 report): qdot noise 0.3 (1.0 and 0.0 were worse), jaw lead 4 at execution (8, build8's
 value, closes the jaw during the descent and opens it before the cube is down), no robot history (3 decisions of
 history: worse), one training step per new sample in the online loop (two: worse).
+
+Real2sim (``~/so101_r2s_claude/docs/integrate.md``; all OFF by default, old configs and checkpoints unchanged):
+
+- ``ViralConfig.scene`` = the render agent's real-scene file (``real_scene_v1.json``, read by
+  ``render.so101.RealScene.from_scene_dict``; ``load_real_setup``): the calibrated ``external`` + ``wrist`` fisheye
+  cameras (crop box of the real 640 x 480 frame per camera by the student-view rules shared with the robot code),
+  the light-box scene and its body groups, its per-world randomisation (``RealDR``: colours, camera poses, mat /
+  walls, tone map), per call its lights and intrinsics (never ``create_default_light``), its tone map and
+  supersampling (inside ``SO101Renderer``), its camera effects (``image_fx``: ``render.camera_fx.ImageFX``) and the
+  config's extra ones (``CamFX``: vignetting, motion blur, blur, white balance, gamma, noise, JPEG; ``fixed_*`` /
+  nominal effects on every image, the random ones on training images only; ``ViewFX``). The scene / calibration
+  sha256 and the crops are pinned in the student config (``pin_real``). ``make_views(cfg, n)`` builds the views of
+  any config.
+- Image lag (``ViralConfig.lag`` / ``lag_range``): the images show the world ``k`` control steps (20 ms) BEFORE the
+  decision (q and qdot stay current); k fixed (evaluation, default ``lag``) or drawn per world per episode
+  (training: ``lag_range``). ``LagHistory`` keeps the states, ``step_tap`` feeds it from any ``JointVecEnv.step``
+  caller (``joint_teacher.run_tasks``); round files record the states (``row_lag``, ``lag_rows``).
 """
 from __future__ import annotations
 
+import contextlib
 import csv
+import hashlib
 import json
 import math
 import time
@@ -104,13 +123,384 @@ def _quat_axis_angle(v):
     return torch.cat((torch.cos(a / 2), v * s), -1)
 
 
+# ---- real2sim: image-space camera effects -----------------------------------------------------------------------------
+@dataclass
+class CamFX:
+    """Image-space effects of a real camera on float images in 0-1 (``to_input``), one draw per image (each camera
+    separately). ``fixed_*``: what the real camera always has (every sim image: training and both evaluations; 0 =
+    off); the others are random, training images only, each with probability ``p_*``. Order: vignetting, motion blur,
+    blur (optics), then the colour augmentation of ``DRConfig``, then white balance, gamma, sensor noise, JPEG."""
+    fixed_blur: float = 0.0             # Gaussian sigma (output px), e.g. for the real 480 -> 224 area downscale
+    fixed_vignette: float = 0.0         # x * (1 - v r^2), r = 1 at the image corner
+    fixed_jpeg: int = 0                 # JPEG quality 1-100 (0: off)
+    p_vignette: float = 0.0
+    vignette: tuple = (0.0, 0.3)
+    p_motion: float = 0.0
+    motion_px: tuple = (0.0, 4.0)       # motion blur: line length (output px), any direction
+    p_blur: float = 0.0
+    blur: tuple = (0.2, 1.0)            # Gaussian sigma (output px)
+    p_wb: float = 0.0
+    wb: float = 0.08                    # white balance: per-channel gain 1 +- wb
+    p_gamma: float = 0.0
+    gamma: tuple = (0.85, 1.2)          # x ** g
+    p_noise: float = 0.0
+    shot: tuple = (0.0, 0.004)          # sensor noise: variance = shot * x + read ** 2
+    read: tuple = (0.0, 0.02)
+    p_jpeg: float = 0.0
+    jpeg: tuple = (50.0, 95.0)          # JPEG quality (standard IJG tables, 4:2:0 chroma)
+
+    @staticmethod
+    def for_cameras(d, cameras):
+        """{CamFX keys, "per_camera": {camera: {keys}}} -> one CamFX per camera (unknown keys refused)."""
+        d = dict(d or {})
+        per = d.pop("per_camera", {}) or {}
+        for k in ("note", "notes"):
+            d.pop(k, None)
+        known = set(CamFX.__dataclass_fields__)
+        bad = sorted((set(d) | {k for v in per.values() for k in v}) - known - {"note"})
+        if bad:
+            raise ValueError(f"unknown camera effect keys {bad}")
+        if set(per) - set(cameras):
+            raise ValueError(f"camera effects for {sorted(set(per) - set(cameras))}: not cameras of {cameras}")
+        out = []
+        for c in cameras:
+            kw = {**d, **{k: v for k, v in (per.get(c) or {}).items() if k != "note"}}
+            out.append(CamFX(**{k: (tuple(v) if isinstance(v, list) else v) for k, v in kw.items()}))
+        return out
+
+
+_JPEG_Y = torch.tensor([[16, 11, 10, 16, 24, 40, 51, 61], [12, 12, 14, 19, 26, 58, 60, 55],
+                        [14, 13, 16, 24, 40, 57, 69, 56], [14, 17, 22, 29, 51, 87, 80, 62],
+                        [18, 22, 37, 56, 68, 109, 103, 77], [24, 35, 55, 64, 81, 104, 113, 92],
+                        [49, 64, 78, 87, 103, 121, 120, 101], [72, 92, 95, 98, 112, 100, 103, 99]], dtype=torch.float32)
+_JPEG_C = torch.tensor([[17, 18, 24, 47, 99, 99, 99, 99], [18, 21, 26, 66, 99, 99, 99, 99],
+                        [24, 26, 56, 99, 99, 99, 99, 99], [47, 66, 99, 99, 99, 99, 99, 99]] + [[99] * 8] * 4,
+                       dtype=torch.float32)
+
+
+def _dct8(device):
+    k, n = torch.arange(8, dtype=torch.float32), torch.arange(8, dtype=torch.float32)
+    D = torch.cos(math.pi * (2 * n[None] + 1) * k[:, None] / 16) * math.sqrt(2 / 8)
+    D[0] /= math.sqrt(2)
+    return D.to(device)
+
+
+def _jpeg_tables(quality, base):
+    """IJG quality scaling: quality [N] (1-100) -> tables [N, 8, 8]."""
+    q = quality.clamp(1, 100)
+    s = torch.where(q < 50, 5000 / q, 200 - 2 * q)
+    return ((base.to(q.device)[None] * s[:, None, None] + 50) // 100).clamp(1, 255)
+
+
+def _block_q(ch, table, D):
+    """[N, c, h, w] (0-255) -> each 8 x 8 block DCT-quantised with table [N, 8, 8] and back."""
+    N, c, h, w = ch.shape
+    ph, pw = (-h) % 8, (-w) % 8
+    x = F.pad(ch, (0, pw, 0, ph), mode="replicate") if ph or pw else ch
+    H, W = x.shape[2:]
+    b = x.reshape(N, c, H // 8, 8, W // 8, 8).permute(0, 1, 2, 4, 3, 5) - 128.0          # [N, c, hb, wb, 8, 8]
+    co = D @ b @ D.T
+    t = table[:, None, None, None]
+    co = torch.round(co / t) * t
+    b = D.T @ co @ D + 128.0
+    return b.permute(0, 1, 2, 4, 3, 5).reshape(N, c, H, W)[:, :, :h, :w]
+
+
+def jpeg_sim(x, quality):
+    """JPEG round trip of float images x [N, 3, H, W] in 0-1 at ``quality`` [N]: YCbCr (JFIF), 4:2:0 chroma
+    (2 x 2 mean, bilinear back), 8 x 8 DCT with the standard tables scaled by quality, 8-bit output."""
+    D = _dct8(x.device)
+    v = x * 255.0
+    r, g, b = v[:, 0:1], v[:, 1:2], v[:, 2:3]
+    y = 0.299 * r + 0.587 * g + 0.114 * b
+    cb = -0.168736 * r - 0.331264 * g + 0.5 * b + 128.0
+    cr = 0.5 * r - 0.418688 * g - 0.081312 * b + 128.0
+    H, W = x.shape[2:]
+    c = F.avg_pool2d(torch.cat((cb, cr), 1), 2, ceil_mode=True)
+    y = _block_q(y, _jpeg_tables(quality, _JPEG_Y), D)
+    c = _block_q(c, _jpeg_tables(quality, _JPEG_C), D)
+    c = F.interpolate(c, size=(H, W), mode="bilinear", align_corners=False)
+    cb, cr = c[:, :1] - 128.0, c[:, 1:] - 128.0
+    out = torch.cat((y + 1.402 * cr, y - 0.344136 * cb - 0.714136 * cr, y + 1.772 * cb), 1)
+    return torch.round(out.clamp(0, 255)) / 255.0
+
+
+def _gauss(x, sig):
+    """Separable Gaussian blur of x [N, 3, H, W] with sigma [N] (px; <= 0.05: unchanged)."""
+    N = x.shape[0]
+    rad = int(min(6, max(1, math.ceil(3 * float(sig.max())))))
+    k = torch.arange(-rad, rad + 1, device=x.device, dtype=x.dtype)
+    s = sig.clamp_min(0.05).to(x.dtype)
+    w = torch.exp(-(k[None] ** 2) / (2 * s[:, None] ** 2))
+    w = w / w.sum(-1, keepdim=True)
+    xb = x.reshape(1, N * 3, *x.shape[2:])
+    wk = w.repeat_interleave(3, 0)
+    xb = F.conv2d(F.pad(xb, (rad, rad, 0, 0), mode="replicate"), wk[:, None, None, :], groups=N * 3)
+    xb = F.conv2d(F.pad(xb, (0, 0, rad, rad), mode="replicate"), wk[:, None, :, None], groups=N * 3)
+    return torch.where((sig > 0.05)[:, None, None, None], xb.reshape_as(x), x)
+
+
+def _motion(x, length, angle, taps=7):
+    """Motion blur: the mean of ``taps`` copies of x [N, 3, H, W] shifted along ``angle`` [N] over ``length`` [N] px."""
+    N, _, H, W = x.shape
+    theta = torch.zeros(N, 2, 3, device=x.device, dtype=x.dtype)
+    theta[:, 0, 0] = theta[:, 1, 1] = 1.0
+    grid = F.affine_grid(theta, (N, 3, H, W), align_corners=False)
+    acc = torch.zeros_like(x)
+    for t in torch.linspace(-0.5, 0.5, taps).tolist():
+        g = grid.clone()
+        g[..., 0] += (2.0 / W) * (t * length * torch.cos(angle))[:, None, None]
+        g[..., 1] += (2.0 / H) * (t * length * torch.sin(angle))[:, None, None]
+        acc += F.grid_sample(x, g, mode="bilinear", padding_mode="border", align_corners=False)
+    return acc / taps
+
+
+def _vignette(x, v):
+    N, _, H, W = x.shape
+    yy = (torch.arange(H, device=x.device, dtype=x.dtype) + 0.5) / H - 0.5
+    xx = (torch.arange(W, device=x.device, dtype=x.dtype) + 0.5) / W - 0.5
+    r2 = (xx[None, :] ** 2 + yy[:, None] ** 2) / 0.5                          # 1 at the corners
+    return x * (1 - v.to(x.dtype)[:, None, None, None] * r2[None, None])
+
+
+def _rand(N, gen, dev):
+    return lambda lo, hi: lo + (hi - lo) * torch.rand(N, device=dev, generator=gen)
+
+
+def fx_optics(x, fx: CamFX, gen=None, random=False):
+    """Vignetting, motion blur, blur (``CamFX``) of x [N, 3, H, W] in 0-1."""
+    N, dev = x.shape[0], x.device
+    if fx.fixed_vignette > 0:
+        x = _vignette(x, torch.full((N,), float(fx.fixed_vignette), device=dev))
+    if random and fx.p_vignette > 0:
+        u = _rand(N, gen, dev)
+        x = _vignette(x, (u(0, 1) < fx.p_vignette).float() * u(*fx.vignette))
+    if random and fx.p_motion > 0:
+        u = _rand(N, gen, dev)
+        on = u(0, 1) < fx.p_motion
+        L, a = on.float() * u(*fx.motion_px), u(0, 2 * math.pi)
+        if bool(on.any()):
+            x = torch.where(on[:, None, None, None], _motion(x, L, a), x)
+    sig = torch.full((N,), float(fx.fixed_blur), device=dev)
+    if random and fx.p_blur > 0:
+        u = _rand(N, gen, dev)
+        on = u(0, 1) < fx.p_blur
+        sig = torch.where(on, torch.sqrt(sig ** 2 + u(*fx.blur) ** 2), sig)
+    if bool((sig > 0.05).any()):
+        x = _gauss(x, sig)
+    return x.clamp(0, 1)
+
+
+def fx_sensor(x, fx: CamFX, gen=None, random=False):
+    """White balance, gamma, sensor noise, JPEG (``CamFX``) of x [N, 3, H, W] in 0-1."""
+    N, dev = x.shape[0], x.device
+    if random and fx.p_wb > 0:
+        u = _rand(N, gen, dev)
+        on = (u(0, 1) < fx.p_wb).float()[:, None]
+        gain = 1 + on * (2 * torch.rand(N, 3, device=dev, generator=gen) - 1) * fx.wb
+        x = (x * gain[:, :, None, None]).clamp(0, 1)
+    if random and fx.p_gamma > 0:
+        u = _rand(N, gen, dev)
+        on = u(0, 1) < fx.p_gamma
+        g = torch.where(on, u(*fx.gamma), torch.ones(N, device=dev))
+        x = x.clamp_min(0) ** g[:, None, None, None]
+    if random and fx.p_noise > 0:
+        u = _rand(N, gen, dev)
+        on = (u(0, 1) < fx.p_noise).float()[:, None, None, None]
+        sh, rd = u(*fx.shot)[:, None, None, None], u(*fx.read)[:, None, None, None]
+        x = (x + on * torch.sqrt(sh * x.clamp_min(0) + rd ** 2) * torch.randn(x.shape, device=dev, generator=gen))
+        x = x.clamp(0, 1)
+    q = torch.full((N,), float(fx.fixed_jpeg), device=dev)
+    if random and fx.p_jpeg > 0:
+        u = _rand(N, gen, dev)
+        on = u(0, 1) < fx.p_jpeg
+        r = u(*fx.jpeg)
+        q = torch.where(on & ((q <= 0) | (r < q)), r, q)        # the stronger of the fixed and the random JPEG
+    if bool((q > 0).any()):
+        i = (q > 0).nonzero().flatten()
+        x = x.clone()
+        x[i] = jpeg_sim(x[i], q[i])
+    return x
+
+
+# ---- real2sim: the real scene of a student config ---------------------------------------------------------------------
+REAL_CAMS = ("external", "wrist")
+# top-level keys of a scene file that ``RealScene.from_scene_dict`` reads (others: a warning) and meta keys
+SCENE_KEYS = {"version", "calib", "geometry", "colors", "light", "student_view", "tone", "render", "dr", "image_fx"}
+SCENE_META_KEYS = {"note", "notes", "source", "sources", "evidence", "created", "author", "description", "measured",
+                   "status", "todo"}
+
+
+def _sha(path):
+    return hashlib.sha256(Path(path).expanduser().read_bytes()).hexdigest()
+
+
+@dataclass
+class RealSetup:
+    """A config's resolved real2sim scene (``load_real_setup``)."""
+    scene_path: str
+    scene_sha256: str
+    calib_path: str
+    calib_sha256: str
+    real: object                # nedm.render.so101.RealScene (crop None: the student-view rules)
+    crops: dict                 # camera -> [x, y, w, h] of the real image (the resolved student view)
+    dr: object                  # nedm.render.so101.RealDR (the scene's "dr" + cfg.real_dr)
+    image_fx: dict | None       # camera -> render.camera_fx.ImageFX dict; None: none
+    cam_fx: dict                # CamFX keys (+ per_camera): the config's extra student-side effects
+
+
+def _merge(base: dict, over: dict) -> dict:
+    out = {k: (dict(v) if isinstance(v, dict) else v) for k, v in (base or {}).items()}
+    for k, v in (over or {}).items():
+        out[k] = {**out.get(k, {}), **v} if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
+def load_real_setup(cfg: "ViralConfig") -> RealSetup:
+    """The real scene of ``cfg`` (``cfg.scene`` set): the render agent's scene file (``real_scene_v1.json`` layout,
+    read by ``nedm.render.so101.RealScene.from_scene_dict``: calib, geometry, colors, light, student_view, tone,
+    render.supersample, dr, image_fx) or a bare calibration contract (``RealScene`` defaults). ``cfg.calib`` (if set)
+    replaces the file's calibration path (a relative path in the file is relative to the file). The crop of every
+    calibrated camera follows the student-view rules (``nedm.render.student_view``, shared with the robot code);
+    ``cfg.crops`` is only the pinned record (``pin_real``). ``cfg.real_dr`` is merged over the scene's ``dr``,
+    ``cfg.cam_fx`` adds student-side image effects (``CamFX``)."""
+    from nedm.render.so101 import RealDR, RealScene, load_calibration
+    sp = Path(cfg.scene).expanduser()
+    raw = json.loads(sp.read_text())
+    is_scene = str(raw.get("version", "")).startswith("real_scene")
+    if is_scene:
+        odd = sorted(k for k in raw if k not in SCENE_KEYS | SCENE_META_KEYS and not k.startswith("_"))
+        if odd:
+            print(f"WARNING: scene file {sp}: keys {odd} are not read by RealScene.from_scene_dict", flush=True)
+        calib_p = cfg.calib or raw.get("calib") or ""
+        if not calib_p:
+            raise ValueError(f"no calibration: set ViralConfig.calib or the scene file's 'calib' ({sp})")
+        cp = Path(calib_p).expanduser()
+        if not cp.is_absolute():
+            cp = (sp.parent / cp).resolve()
+        calib = load_calibration(cp)
+        real = RealScene.from_scene_dict(raw, calib=calib, source=str(sp))
+    else:
+        if cfg.calib:
+            raise ValueError(f"{sp} is a calibration contract, not a scene file: leave ViralConfig.calib empty")
+        cp, real = sp, RealScene(calib=raw, source=str(sp))
+    crops = {}
+    for c in cfg.cameras:
+        if c not in REAL_CAMS:
+            continue
+        v = real.view(c, cfg.res)
+        if v is not None and (tuple(v.out_wh) != (cfg.res, cfg.res) or v.interp != "area"):
+            raise ValueError(f"student view of {c!r}: output {tuple(v.out_wh)} {v.interp!r}, the student needs "
+                             f"{cfg.res} x {cfg.res} 'area' (what the renderer matches)")
+        crops[c] = [int(x) for x in real.crop_box(c, cfg.res)]
+    dr = RealDR.from_dict(_merge(getattr(real, "dr", None) or {}, cfg.real_dr or {}))
+    ifx = getattr(real, "image_fx", None)
+    if ifx:
+        ifx = {k: v for k, v in ifx.items() if k not in ("note", "notes")}
+        per = set(ifx) <= set(REAL_CAMS) | {"top", "front"}
+        if per and [c for c in cfg.cameras if c not in ifx]:
+            raise ValueError(f"image_fx: no entry for cameras {[c for c in cfg.cameras if c not in ifx]}")
+        ifx = {c: dict(ifx[c]) if per else dict(ifx) for c in cfg.cameras}
+    else:
+        ifx = None
+    cam_fx = dict(cfg.cam_fx or {})
+    CamFX.for_cameras(cam_fx, cfg.cameras)                              # validate now
+    return RealSetup(str(sp), _sha(sp), str(cp), _sha(cp), real, crops, dr, ifx, cam_fx)
+
+
+def pin_real(cfg: "ViralConfig", allow_change=False) -> "ViralConfig":
+    """Fix the real scene in a (training) config: the resolved crops and the sha256 of the scene and calibration
+    files (checked by ``make_views``: a changed file is refused unless ``allow_change``). Old configs: unchanged."""
+    if not cfg.scene:
+        return cfg
+    rs = load_real_setup(cfg)
+    for k, v in (("scene_sha256", rs.scene_sha256), ("calib_sha256", rs.calib_sha256)):
+        old = getattr(cfg, k)
+        if old and old != v and not allow_change:
+            raise ValueError(f"{k}: the file changed since this student was configured ({old[:12]} -> {v[:12]}); "
+                             "pass allow_change (--allow-scene-change) to use the new file knowingly")
+        setattr(cfg, k, v)
+    if cfg.crops and {c: list(b) for c, b in cfg.crops.items()} != rs.crops and not allow_change:
+        raise ValueError(f"crops {cfg.crops} != the scene's student view {rs.crops}")
+    cfg.crops = {c: list(b) for c, b in rs.crops.items()}
+    return cfg
+
+
+def make_views(cfg: "ViralConfig", num_worlds, seed=0, device="cuda", allow_change=False, **kw):
+    """The student's views for config ``cfg``: build9's sim scene (``cfg.scene`` empty; exactly the old ``DRViews``
+    call) or the real scene (``load_real_setup``; the scene / calibration sha256 and the crops pinned in ``cfg`` must
+    match the files, unless ``allow_change``)."""
+    if not cfg.scene:
+        return DRViews(num_worlds, cfg.res, cfg.cameras, dr=DRConfig.from_dict(cfg.dr), seed=seed, device=device, **kw)
+    rs = load_real_setup(cfg)
+    msgs = []
+    for k, v in (("scene_sha256", rs.scene_sha256), ("calib_sha256", rs.calib_sha256)):
+        old = getattr(cfg, k)
+        if old and old != v:
+            msgs.append(f"{k} of the student {old[:12]} != the file's {v[:12]} "
+                        f"({rs.scene_path if 'scene' in k else rs.calib_path})")
+    if cfg.crops and {c: list(b) for c, b in cfg.crops.items()} != rs.crops:
+        msgs.append(f"crops of the student {cfg.crops} != the scene's student view {rs.crops}")
+    if msgs:
+        if not allow_change:
+            raise ValueError("; ".join(msgs) + ": pass --allow-scene-change to render with the new files")
+        print("WARNING: " + "; ".join(msgs), flush=True)
+    return DRViews(num_worlds, cfg.res, cfg.cameras, dr=DRConfig.from_dict(cfg.dr), seed=seed, device=device, real=rs,
+                   **kw)
+
+
+class ViewFX:
+    """Image-space model of the real cameras for ``to_input``: the config's ``CamFX`` (per camera) and the scene
+    file's ``image_fx`` (``nedm.render.camera_fx.ImageFX`` per camera; nominal effects always, one random draw per
+    image on training images). Order: CamFX optics, the DRConfig colour augmentation, CamFX sensor, ImageFX."""
+
+    def __init__(self, cam_fx: list, image_fx: list | None):
+        self.cam, self.image = list(cam_fx), (list(image_fx) if image_fx is not None else None)
+
+    @staticmethod
+    def from_setup(rs: RealSetup, cameras):
+        img = None
+        if rs.image_fx is not None:
+            from nedm.render.camera_fx import ImageFX
+            img = [ImageFX.from_dict(rs.image_fx[c]) for c in cameras]
+            for c, f in zip(cameras, img):
+                if f.extra:
+                    raise ValueError(f"image_fx[{c!r}]: unknown keys {sorted(f.extra)}")
+        return ViewFX(CamFX.for_cameras(rs.cam_fx, cameras), img)
+
+    def apply(self, x, gen=None, random=False, augment_fn=None):
+        """x [n, C, 3, H, W] float 0-1 -> same."""
+        n, C = x.shape[:2]
+        x = torch.stack([fx_optics(x[:, c], self.cam[c], gen, random) for c in range(C)], 1)
+        if augment_fn is not None:
+            x = augment_fn(x.reshape(n * C, *x.shape[2:])).reshape(x.shape)
+        x = torch.stack([fx_sensor(x[:, c], self.cam[c], gen, random) for c in range(C)], 1)
+        if self.image is not None:
+            out = []
+            for c in range(C):
+                img = x[:, c].permute(0, 2, 3, 1).contiguous()
+                draw = self.image[c].draw(n, gen, x.device) if random else None
+                out.append(self.image[c].apply(img, draw, gen).permute(0, 3, 1, 2))
+            x = torch.stack(out, 1)
+        return x
+
+
 class DRViews:
     """The student's cameras with visual randomisation (module docstring). ``render(q, cube_pos, cube_quat, goal_pose,
     dr=None)``: dr = None (nominal visuals) or a dict of per-row draws (``draw``): colors [n, nb, 3], cam_dpos [n, C, 3],
-    cam_drot [n, C, 3]; the light direction is drawn per call when ``light`` is True. -> uint8 [n, C, H, W, 3]."""
+    cam_drot [n, C, 3]; the light direction is drawn per call when ``light`` is True. -> uint8 [n, C, H, W, 3].
+
+    ``real`` (a ``RealSetup``; ``make_views``): the real scene instead (module docstring): draws = colors [n, nb, 3],
+    cam_offset [n, C, 6], env_pose [n, n_env, 7] (``RealDR``) and exposure [n, C] (tone map only); the scene's lights
+    (randomised per call by ``RealDR.lights`` when ``light``); ``fx`` = the cameras' ``CamFX`` (None: sim scene)."""
 
     def __init__(self, num_worlds, res=224, cameras=CAMERAS, backend="newton", tiled=True, shadows=True,
-                 top_eye=V.TOP_EYE, top_target=V.TOP_TARGET, dr: DRConfig | None = None, seed=0, device="cuda"):
+                 top_eye=V.TOP_EYE, top_target=V.TOP_TARGET, dr: DRConfig | None = None, seed=0, device="cuda",
+                 real: RealSetup | None = None):
+        self.real, self.fx = real, None
+        if real is not None:
+            self._init_real(num_worlds, res, cameras, backend, tiled, shadows, dr, seed, device, real)
+            return
         from nedm.render.so101 import SO101Renderer
         self.r = SO101Renderer(int(num_worlds), width=int(res), height=int(res), backend=backend, cameras=tuple(cameras),
                                top_eye=tuple(top_eye), top_target=tuple(top_target), shadows=shadows, goal="block",
@@ -135,12 +525,92 @@ class DRViews:
         self._colors_nominal = True
         self.light_default = (-0.57735026, 0.57735026, -0.57735026)
 
+    # -- the real scene (real2sim) --
+    def _init_real(self, num_worlds, res, cameras, backend, tiled, shadows, dr, seed, device, rs: RealSetup):
+        from nedm.render.so101 import SO101Renderer
+        if backend != "newton":
+            raise NotImplementedError("the real scene needs the newton backend")
+        self.num_worlds, self.res, self.cameras = int(num_worlds), int(res), tuple(cameras)
+        self.dr = dr or DRConfig()
+        self.dev = torch.device(device)
+        self.calls, self.views, self.seconds = 0, 0, 0.0
+        # the renderer checks at construction that no body sits in front of a calibrated camera (check_near)
+        self.r = SO101Renderer(self.num_worlds, width=self.res, height=self.res, backend="newton", cameras=self.cameras,
+                               shadows=shadows, goal="block", real=rs.real)
+        if tiled:
+            from newton._src.sensors.warp_raytrace.types import RenderOrder
+            rc = self.r.renderer.backend._camera.render_config
+            rc.render_order, rc.tile_width, rc.tile_height = RenderOrder.TILED, 8, 8
+        sc = self.r.scene
+        self.nb = len(sc.body_names)
+        self.base = torch.tensor([m.color for m in sc.scene.bodies], dtype=torch.float32, device=self.dev)
+        self.groups = {g: list(v) for g, v in sc.groups.items()}
+        self.env0 = sc.env_pose.to(self.dev)
+        self.tone0 = sc.tone_params.to(self.dev) if getattr(sc, "tone_params", None) is not None else None
+        self.rdr = rs.dr
+        self.gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 911)
+        self.light_gen = torch.Generator().manual_seed(int(seed) + 913)     # per-call draws (lights, intrinsics): CPU
+        self.lights0 = [dict(lt) for lt in rs.real.lights]
+        self.models0 = list(sc.camera_models)
+        self.intrinsics_dr = float(getattr(self.rdr, "focal", 0.0)) > 0 or float(getattr(self.rdr, "pp_px", 0.0)) > 0
+        self._call_state = "nominal"
+        self.fx = ViewFX.from_setup(rs, self.cameras)
+
+    def nominal_draw(self, n):
+        """Per-row draws with the nominal visuals (real scene)."""
+        C = len(self.cameras)
+        d = dict(colors=self.base.expand(n, self.nb, 3).clone(),
+                 cam_offset=torch.zeros(n, C, 6, device=self.dev),
+                 env_pose=self.env0.expand(n, *self.env0.shape).clone())
+        if self.tone0 is not None:
+            d["tone"] = self.tone0.expand(n, *self.tone0.shape).clone()
+        return d
+
+    def merge_nominal(self, d, nominal):
+        """Rows ``nominal`` [n] bool of the draws ``d`` replaced by the nominal visuals (real scene)."""
+        nd = self.nominal_draw(len(nominal))
+        return {k: torch.where(nominal.view(-1, *([1] * (v.dim() - 1))), nd[k].to(v), v) for k, v in d.items()}
+
+    def _draw_real(self, n):
+        d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev)
+        return {k: v.to(self.dev) for k, v in d.items()}
+
+    def _per_call_real(self, nominal):
+        """Lights (and the intrinsics, if the scene randomises them) of the call: shared by all worlds."""
+        if nominal:
+            if self._call_state != "nominal":
+                self.r.set_lights(self.lights0)
+                if self.intrinsics_dr:
+                    self.r.set_camera_models(self.models0)
+                self._call_state = "nominal"
+            return
+        self.r.set_lights(self.rdr.lights(self.lights0, self.light_gen))
+        if self.intrinsics_dr:
+            self.r.set_camera_models(self.rdr.camera_models(self.r.scene, self.light_gen, out_res=self.res))
+        self._call_state = "random"
+
+    def _render_real(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None):
+        t0 = time.time()
+        self._per_call_real((dr is None) if light is None else not light)
+        out = []
+        for s in range(0, q.shape[0], self.num_worlds):
+            e = min(q.shape[0], s + self.num_worlds)
+            d = None if dr is None else {k: v[s:e] for k, v in dr.items()}
+            out.append(self.r.render_dr(q[s:e], cube_pos[s:e], cube_quat[s:e], goal_pose[s:e], draw=d).to(self.dev))
+        rgb = torch.cat(out) if len(out) > 1 else out[0]
+        self.calls += 1
+        self.views += q.shape[0] * len(self.cameras)
+        self.seconds += time.time() - t0
+        return rgb
+
     # -- draws --
     def _u(self, n, lo, hi, *shape):
         return lo + (hi - lo) * torch.rand(n, *shape, device=self.dev, generator=self.gen)
 
     def draw(self, n):
         """Per-row randomisation draws for n rows."""
+        if self.real is not None:
+            return self._draw_real(n)
         d = self.dr
         cols = self.base.expand(n, self.nb, 3).clone()
         for g, (br, ti) in dict(arm=(d.arm_bright, d.arm_tint), cube=(d.cube_bright, d.cube_tint),
@@ -168,6 +638,8 @@ class DRViews:
 
     @torch.no_grad()
     def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None):
+        if self.real is not None:
+            return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light)
         from nedm.render.so101 import qmul, wxyz, xyzw
         t0 = time.time()
         nominal = dr is None
@@ -250,11 +722,17 @@ def augment(x, d: DRConfig, gen=None):
     return x.clamp(0, 1)
 
 
-def to_input(rgb, d: DRConfig | None = None, gen=None):
-    """uint8 [n, C, H, W, 3] -> float [n, C, 3, H, W], ImageNet-normalised; ``d``: per-image augmentation (training)."""
+def to_input(rgb, d: DRConfig | None = None, gen=None, fx: ViewFX | None = None, fx_random=None):
+    """uint8 [n, C, H, W, 3] -> float [n, C, 3, H, W], ImageNet-normalised; ``d``: per-image augmentation (training).
+    ``fx`` (real scene, ``DRViews.fx``): the cameras' image-space model; its random effects when ``fx_random``
+    (default: when ``d`` augments), its fixed / nominal effects always. Real camera frames: no ``fx``."""
     x = rgb.permute(0, 1, 4, 2, 3).float().div_(255.0)
     n, C = x.shape[:2]
-    if d is not None and d.on:
+    aug = d is not None and d.on
+    if fx is not None:
+        rnd = aug if fx_random is None else bool(fx_random)
+        x = fx.apply(x, gen, rnd, (lambda y: augment(y, d, gen)) if aug else None)
+    elif aug:
         x = augment(x.reshape(n * C, *x.shape[2:]), d, gen).reshape(x.shape)
     m = torch.tensor(V.IMAGENET_MEAN, device=x.device).view(1, 1, 3, 1, 1)
     s = torch.tensor(V.IMAGENET_STD, device=x.device).view(1, 1, 3, 1, 1)
@@ -290,6 +768,16 @@ class ViralConfig:
     seed: int = 0
     dr: dict = field(default_factory=dict)        # DRConfig overrides (training images)
     dr_frac: float = 1.0                          # share of training samples with randomised visuals
+    # ---- real2sim (module docstring; defaults = build9's sim scene, no lag) ----
+    scene: str = ""                               # real-scene file (JSON, ``load_real_setup``); "" = the sim scene
+    calib: str = ""                               # calibration contract; "" = the scene file's "calib"
+    crops: dict = field(default_factory=dict)     # {camera: [x, y, w, h]} real-image crop (resolved by ``pin_real``)
+    real_dr: dict = field(default_factory=dict)   # RealDR overrides (+ exposure_log2) over the scene file's "dr"
+    cam_fx: dict = field(default_factory=dict)    # CamFX: extra image-space effects (student side)
+    lag: int = 0                                  # image lag (20 ms control steps): evaluation / deployment nominal
+    lag_range: tuple = (0, 0)                     # training: lag drawn per world per episode, inclusive
+    scene_sha256: str = ""                        # pinned at the start of training (``pin_real``)
+    calib_sha256: str = ""
 
     @staticmethod
     def from_dict(d):
@@ -298,10 +786,14 @@ class ViralConfig:
         bad = sorted(set(d) - known - {"note", "notes"})
         if bad:
             raise ValueError(f"unknown viral config keys {bad}")
-        for k in ("cameras", "hidden"):
+        for k in ("cameras", "hidden", "lag_range"):
             if k in d:
                 d[k] = tuple(d[k])
         return ViralConfig(**{k: v for k, v in d.items() if k in known})
+
+    @property
+    def lag_max(self):
+        return max(int(self.lag), int(self.lag_range[1]))
 
 
 STAT_KEYS = ("robot_mean", "robot_std", "tgt_mean", "tgt_std", "aux_mean", "aux_std")
@@ -411,12 +903,139 @@ def aux_targets(goal_pose, cube_pos):
     return torch.cat((goal_pose[:, :2], torch.sin(4 * gy)[:, None], torch.cos(4 * gy)[:, None], cube_pos), -1)
 
 
+# ---- real2sim: image lag ------------------------------------------------------------------------------------------------
+LAG_REC = 4            # control steps of state history recorded per round-file row (``row_lag``)
+
+
+def _state13(q, cp, cq):
+    return torch.cat((q, cp, cq), -1)
+
+
+def lag_interp(z, lag):
+    """Round-file rows without ``row_lag``: the states 1..lag control steps before each row, interpolated linearly
+    between the row and the previous row (100 ms = ``JE.STEPS`` steps earlier) of the same episode (q, cube position;
+    quaternion nlerp); the first row of an episode: the row itself. -> [N, lag, 13] float32."""
+    q, cp, cq = (np.asarray(z[k], np.float64) for k in ("row_q", "row_cube_pos", "row_cube_quat"))
+    cur = np.concatenate((q, cp, cq), -1)
+    prev = np.roll(cur, 1, 0)
+    first = np.asarray(z["row_t"]) == 0 if "row_t" in z.files else np.isin(np.arange(len(cur)), z["ep_row_start"])
+    prev[first] = cur[first]
+    dot = (prev[:, 9:13] * cur[:, 9:13]).sum(-1, keepdims=True)
+    prev[:, 9:13] = np.where(dot < 0, -prev[:, 9:13], prev[:, 9:13])
+    out = []
+    for k in range(1, lag + 1):
+        a = min(1.0, k / JE.STEPS)
+        x = (1 - a) * cur + a * prev
+        x[:, 9:13] /= np.linalg.norm(x[:, 9:13], axis=-1, keepdims=True)
+        out.append(x)
+    return np.stack(out, 1).astype(np.float32)
+
+
+def lag_rows(r, sub, kmax=LAG_REC):
+    """``run_tasks`` record ``r`` + the states after every 20 ms step ``sub`` [B, D, STEPS, 13] (``SubstepLog``) ->
+    ``row_lag`` [N, kmax, 13] float32: the state k = 1..kmax control steps before each row (the first decision of an
+    episode: its own start state, the arm at rest)."""
+    if not 1 <= kmax < JE.STEPS:
+        raise ValueError(f"kmax {kmax}: 1 .. {JE.STEPS - 1} control steps (within the previous decision)")
+    rb, rt = np.asarray(r["row_ep"], np.int64), np.asarray(r["row_t"], np.int64)
+    cur = np.concatenate((r["row_q"], r["row_cube_pos"], r["row_cube_quat"]), -1).astype(np.float32)
+    out = np.repeat(cur[:, None], kmax, 1)
+    p = rt >= 1
+    if p.any():
+        prev = sub[rb[p], rt[p] - 1]                                     # [n, STEPS, 13]: the previous decision's steps
+        err = float(np.abs(prev[:, JE.STEPS - 1] - cur[p]).max())
+        if err > 1e-4:
+            raise RuntimeError(f"substep log does not match the recorded rows (max {err:.2e})")
+        for k in range(1, kmax + 1):
+            out[p, k - 1] = prev[:, JE.STEPS - 1 - k]
+    return out
+
+
+class SubstepLog:
+    """The world state after every 20 ms step of every ``JointVecEnv.step`` (feed it with ``step_tap``):
+    ``array()`` -> [B, decisions, STEPS, 13] float32 (q, cube pos, cube quat w x y z)."""
+
+    def __init__(self):
+        self.rows = []
+
+    def __call__(self, ws):
+        self.rows.append(_state13(ws.q, ws.cube_pos, ws.cube_quat).float().cpu())
+
+    def array(self):
+        S = JE.STEPS
+        if len(self.rows) % S:
+            raise RuntimeError(f"{len(self.rows)} logged steps: not whole decisions")
+        a = torch.stack(self.rows, 1).numpy()                                        # [B, D * S, 13]
+        return a.reshape(a.shape[0], -1, S, 13)
+
+
+@contextlib.contextmanager
+def step_tap(env, *fns):
+    """Call each ``fn(ws)`` after every 20 ms world step of ``env.step`` (any caller, e.g. ``run_tasks``); restores
+    ``env.step`` on exit."""
+    had = "step" in vars(env)
+    orig = env.step
+
+    def step(actions=None, targets=None, use_targets=None, step_hook=None):
+        def hook(e, j):
+            for f in fns:
+                f(e.ws)
+            if step_hook is not None:
+                step_hook(e, j)
+        return orig(actions, targets=targets, use_targets=use_targets, step_hook=hook)
+
+    env.step = step
+    try:
+        yield env
+    finally:
+        if had:
+            env.step = orig
+        else:
+            del env.step
+
+
+def _sane(q, cp, cq, dev):
+    """Non-finite rows -> a harmless pose (as ``Actor``)."""
+    q, cp, cq = q.to(dev, torch.float32), cp.to(dev, torch.float32), cq.to(dev, torch.float32)
+    ok = torch.isfinite(q).all(-1) & torch.isfinite(cp).all(-1) & torch.isfinite(cq).all(-1)
+    q = torch.where(ok[:, None], q, torch.zeros_like(q))
+    cp = torch.where(ok[:, None], cp, torch.tensor([0.2, 0.0, 0.015], device=dev))
+    cq = torch.where(ok[:, None], cq, torch.tensor([1.0, 0.0, 0.0, 0.0], device=dev))
+    return q, cp, cq
+
+
+class LagHistory:
+    """Per world the states of the last ``kmax`` control steps (index 0 = now): ``fill`` at an episode start (the arm
+    at rest: every entry = the start state), ``push`` after every 20 ms step, ``get(k)`` [B] -> (q, cube pos, quat)."""
+
+    def __init__(self, B, kmax, device):
+        self.x = torch.zeros(B, int(kmax) + 1, 13, device=device)
+        self.ready = False
+
+    def fill(self, idx, q, cp, cq):
+        self.x[idx] = _state13(q, cp, cq).to(self.x)[:, None].expand(-1, self.x.shape[1], -1)
+        self.ready = True
+
+    def push(self, q, cp, cq):
+        self.x = torch.cat((_state13(q, cp, cq).to(self.x)[:, None], self.x[:, :-1]), 1)
+
+    def newest(self):
+        return self.x[:, 0]
+
+    def get(self, k):
+        x = self.x[torch.arange(len(self.x), device=self.x.device), k.to(self.x.device).long()]
+        return x[:, :6], x[:, 6:9], x[:, 9:13]
+
+
 class StudentSet:
     """``joint_teacher.run_tasks`` record files (``row_*``, ``ep_row_start``, ``length``, goals) on one device. A sample
     = one decision boundary: render inputs, robot [q, qd], chunk target [K, 6] = (lab[r] ++ lab[r + 1] ...) - q[r] with
     validity (inside the episode), aux targets. Validation: ``val_frac`` of the FIRST file's episodes (seeded)."""
 
-    def __init__(self, paths, device="cuda", chunk=10, val_frac=0.03, seed=0, max_files=None):
+    def __init__(self, paths, device="cuda", chunk=10, val_frac=0.03, seed=0, max_files=None, lag=0):
+        """``lag`` > 0: also the states 1..lag control steps before each row (image lag): the file's ``row_lag``
+        (recorded, ``lag_rows``), else linear interpolation between the row and the previous row of its episode
+        (q, cube position; quaternion nlerp; the first row of an episode: the row itself) (``lag_exact`` per file)."""
         if isinstance(paths, (str, Path)):
             paths = [paths]
         paths = list(paths)[-max_files:] if max_files else list(paths)
@@ -424,9 +1043,18 @@ class StudentSet:
                 "goal_xy", "goal_yaw", "src", "lenient", "success")
         parts, e0, r0 = {k: [] for k in keys}, 0, 0
         is_val = []
+        lag = int(lag)
+        lag_parts, self.lag_exact = [], []
         for fi, p in enumerate(paths):
             z = np.load(Path(p).expanduser())
             E = len(z["length"])
+            if lag > 0:
+                if "row_lag" in z.files and z["row_lag"].shape[1] >= lag:
+                    lag_parts.append(z["row_lag"][:, :lag].astype(np.float32))
+                    self.lag_exact.append(True)
+                else:
+                    lag_parts.append(lag_interp(z, lag))
+                    self.lag_exact.append(False)
             for k in keys:
                 v = z[k]
                 if k == "row_ep":
@@ -459,6 +1087,7 @@ class StudentSet:
         self.n_eps = len(self.ep_len)
         self.n_rows = len(self.q)
         self.paths = [str(p) for p in paths]
+        self.lag_x = t(np.concatenate(lag_parts)) if lag > 0 else None      # [N, lag, 13] q, cube pos, quat
 
     def targets(self, rows):
         K, S = self.chunk, JE.STEPS
@@ -475,11 +1104,22 @@ class StudentSet:
         tgt = torch.cat(tg, 1)[:, :K] - self.q[rows][:, None, :]
         return tgt, torch.cat(ok, 1)[:, :K]
 
-    def batch(self, rows):
+    def batch(self, rows, lag=None):
+        """``lag`` [n] long (0 = now): the render inputs ``img_q``, ``img_cube_pos``, ``img_cube_quat`` and the aux
+        targets come from the state that many control steps before the row; q / qd / targets stay current."""
         tgt, valid = self.targets(rows)
         gp = self.goal_pose[self.ep[rows]]
+        q, cp, cq = self.q[rows], self.cube_pos[rows], self.cube_quat[rows]
+        if lag is not None:
+            if self.lag_x is None or int(lag.max()) > self.lag_x.shape[1]:
+                raise ValueError("StudentSet built without (enough) lag states")
+            k = lag.to(self.dev).long()
+            x = self.lag_x[rows, (k - 1).clamp_min(0)]
+            has = (k > 0)[:, None]
+            q, cp, cq = torch.where(has, x[:, :6], q), torch.where(has, x[:, 6:9], cp), torch.where(has, x[:, 9:13], cq)
         return dict(q=self.q[rows], cube_pos=self.cube_pos[rows], cube_quat=self.cube_quat[rows], goal_pose=gp,
-                    robot=self.robot[rows], target=tgt, valid=valid, aux=aux_targets(gp, self.cube_pos[rows]))
+                    robot=self.robot[rows], target=tgt, valid=valid, aux=aux_targets(gp, cp), img_q=q,
+                    img_cube_pos=cp, img_cube_quat=cq)
 
     def stats(self, floor=1e-3, robot_floor=1e-2, n=200_000, seed=0):
         g = torch.Generator(device=self.dev).manual_seed(seed)
@@ -512,9 +1152,11 @@ def denormalise(st, p):
 def val_metrics(st, data: StudentSet, views: DRViews, rows, bs=256):
     e1, c1, ea, ca = 0.0, 0.0, 0.0, 0.0
     eb, cb = torch.zeros(2, device=data.dev), 0
+    lag = int(st.cfg.lag) if data.lag_x is not None else 0
     for s in range(0, len(rows), bs):
-        b = data.batch(rows[s:s + bs])
-        img = to_input(views.render(b["q"], b["cube_pos"], b["cube_quat"], b["goal_pose"]))
+        r_ = rows[s:s + bs]
+        b = data.batch(r_, lag=torch.full((len(r_),), lag, device=data.dev) if lag > 0 else None)
+        img = to_input(views.render(b["img_q"], b["img_cube_pos"], b["img_cube_quat"], b["goal_pose"]), fx=views.fx)
         with torch.autocast(data.dev.type, dtype=torch.bfloat16, enabled=st.cfg.amp):
             p = denormalise(st, st.predict(img, b["robot"]))
             pa = st.predict_aux(img)
@@ -566,20 +1208,25 @@ def train(data: StudentSet, views: DRViews, cfg: ViralConfig, out_dir, max_steps
     buf, pos = None, 0
     agg = {}
     per_buf = max(1, int(cfg.reuse) * cfg.render_batch // cfg.batch)
+    lo, hi = (int(v) for v in cfg.lag_range)
+    if hi > 0 and data.lag_x is None:
+        raise ValueError("cfg.lag_range needs a StudentSet with lag states (StudentSet(..., lag=cfg.lag_max))")
     for step in range(1, max_steps + 1):
         if buf is None or pos >= per_buf:
             tr = time.time()
-            b = data.batch(data.sample(cfg.render_batch, gen))
+            rows_ = data.sample(cfg.render_batch, gen)
+            lag = torch.randint(lo, hi + 1, (len(rows_),), device=data.dev, generator=gen) if hi > 0 else None
+            b = data.batch(rows_, lag=lag)
             n = len(b["q"])
             ndr = int(round(cfg.dr_frac * n)) if drc.on else 0
+            iq, icp, icq = b["img_q"], b["img_cube_pos"], b["img_cube_quat"]
             if ndr >= n:
-                b["rgb"] = views.render(b["q"], b["cube_pos"], b["cube_quat"], b["goal_pose"], dr=views.draw(n))
+                b["rgb"] = views.render(iq, icp, icq, b["goal_pose"], dr=views.draw(n))
             elif ndr == 0:
-                b["rgb"] = views.render(b["q"], b["cube_pos"], b["cube_quat"], b["goal_pose"])
+                b["rgb"] = views.render(iq, icp, icq, b["goal_pose"])
             else:
-                r1 = views.render(b["q"][:ndr], b["cube_pos"][:ndr], b["cube_quat"][:ndr], b["goal_pose"][:ndr],
-                                  dr=views.draw(ndr))
-                r2 = views.render(b["q"][ndr:], b["cube_pos"][ndr:], b["cube_quat"][ndr:], b["goal_pose"][ndr:])
+                r1 = views.render(iq[:ndr], icp[:ndr], icq[:ndr], b["goal_pose"][:ndr], dr=views.draw(ndr))
+                r2 = views.render(iq[ndr:], icp[ndr:], icq[ndr:], b["goal_pose"][ndr:])
                 b["rgb"] = torch.cat((r1, r2))
             b["aug"] = torch.arange(n, device=data.dev) < ndr
             b["tgt_n"] = normalise(st, b["target"])
@@ -595,9 +1242,9 @@ def train(data: StudentSet, views: DRViews, cfg: ViralConfig, out_dir, max_steps
         pos += 1
         rgb = buf["rgb"][sl]
         aug = buf["aug"][sl]
-        img = to_input(rgb, drc if bool(aug.any()) else None, gen)
+        img = to_input(rgb, drc if bool(aug.any()) else None, gen, fx=views.fx)
         if bool(aug.any()) and not bool(aug.all()):
-            img = torch.where(aug[:, None, None, None, None], img, to_input(rgb))
+            img = torch.where(aug[:, None, None, None, None], img, to_input(rgb, fx=views.fx, fx_random=False))
         frac = min(1.0, step / max(1, cfg.warmup))
         if step > cfg.warmup:
             u = (step - cfg.warmup) / max(1, max_steps - cfg.warmup)
@@ -647,19 +1294,42 @@ def train(data: StudentSet, views: DRViews, cfg: ViralConfig, out_dir, max_steps
 class Actor:
     """``run_tasks`` student callback: renders the worlds (``dr``: per-world draws fixed for the episode, or None =
     nominal visuals), feeds [q, qdot] -> absolute targets [B, 5, 6] of the executed part of the chunk (jaw target
-    ``jaw_lead`` steps ahead)."""
+    ``jaw_lead`` steps ahead).
 
-    def __init__(self, student: ViralNet, views: DRViews, randomise=False, jaw_lead=None, device="cuda"):
+    Image lag (real2sim): the images show the state ``lag`` control steps before the decision (default the student's
+    ``cfg.lag``; ``lag_range`` (lo, hi): drawn per world per episode instead); q and qdot stay current. Lag > 0 needs
+    the env's 20 ms states: run the episodes inside ``with step_tap(env, actor.push)`` (``needs_tap``)."""
+
+    def __init__(self, student: ViralNet, views: DRViews, randomise=False, jaw_lead=None, device="cuda", lag=None,
+                 lag_range=None, seed=0):
         self.st, self.views, self.dev = student, views, torch.device(device)
         self.randomise = bool(randomise)
         self.jaw_lead = student.cfg.jaw_lead if jaw_lead is None else int(jaw_lead)
         self.dr = None
         self.t_render = self.t_model = 0.0
         self.calls = 0
+        self.lag = int(student.cfg.lag if lag is None else lag)
+        self.lag_range = tuple(int(v) for v in lag_range) if lag_range is not None and lag_range[1] > 0 else None
+        self.kmax = max(self.lag, self.lag_range[1] if self.lag_range else 0)
+        self.needs_tap = self.kmax > 0
+        self.hist = None
+        self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 4243)
 
     def reset(self, B):
         self.dr = self.views.draw(B) if self.randomise else None
         self.rhist = None
+        if self.kmax > 0:
+            self.hist = LagHistory(B, self.kmax, self.dev)
+            if self.lag_range:
+                self.k = torch.randint(self.lag_range[0], self.lag_range[1] + 1, (B,), device=self.dev,
+                                       generator=self.lag_gen)
+            else:
+                self.k = torch.full((B,), self.lag, dtype=torch.long, device=self.dev)
+
+    def push(self, ws):
+        """After every 20 ms world step (``step_tap``)."""
+        if self.hist is not None and self.hist.ready:
+            self.hist.push(*_sane(ws.q, ws.cube_pos, ws.cube_quat, self.dev))
 
     @torch.no_grad()
     def __call__(self, ws, goal_pose, k=None):
@@ -670,8 +1340,16 @@ class Actor:
         q = torch.where(ok[:, None], q, torch.zeros_like(q))
         cp = torch.where(ok[:, None], cp, torch.tensor([0.2, 0.0, 0.015], device=self.dev))
         cq = torch.where(ok[:, None], cq, torch.tensor([1.0, 0.0, 0.0, 0.0], device=self.dev))
-        rgb = self.views.render(q, cp, cq, goal_pose.to(self.dev, torch.float32), dr=self.dr)
-        img = to_input(rgb)
+        iq, icp, icq = q, cp, cq
+        if self.hist is not None:
+            if not self.hist.ready:                       # the first decision: the arm at rest since the start
+                self.hist.fill(torch.arange(len(q), device=self.dev), q, cp, cq)
+            elif float((self.hist.newest() - _state13(q, cp, cq)).abs().max()) > 1e-4:
+                raise RuntimeError("image lag: the 20 ms states are missing (run the episodes inside step_tap(env, "
+                                   "actor.push))")
+            iq, icp, icq = self.hist.get(self.k)
+        rgb = self.views.render(iq, icp, icq, goal_pose.to(self.dev, torch.float32), dr=self.dr)
+        img = to_input(rgb, fx=self.views.fx)
         if self.dev.type == "cuda":
             torch.cuda.synchronize()
         t1 = time.time()
@@ -769,7 +1447,8 @@ class ReplayBuffer:
 
 class OnlineDAgger:
     """The online loop (``OnlineConfig``). Tasks: the start states and goals of a task table (``state_*``, goal_xy,
-    goal_yaw), drawn uniformly at every reset."""
+    goal_yaw), drawn uniformly at every reset. Image lag (``st.cfg.lag_range``, else ``st.cfg.lag``): drawn per world
+    per episode; every world's 20 ms states feed a ``LagHistory`` (``JointVecEnv.step`` hook)."""
 
     def __init__(self, st: ViralNet, jt, tasks, nrd_ckpt, views: DRViews, ocfg: OnlineConfig, device="cuda", seed=0,
                  log=log_default):
@@ -794,6 +1473,12 @@ class OnlineDAgger:
         self.buf = ReplayBuffer(ocfg.buffer, len(st.cfg.cameras), st.cfg.res, self.dev, 12 * (1 + self.H))
         self.rhist = torch.zeros(N, max(self.H, 1), 12, device=self.dev)
         self.fresh = torch.ones(N, dtype=torch.bool, device=self.dev)
+        self.kmax = int(st.cfg.lag_max)
+        self.lag_hist = LagHistory(N, self.kmax, self.dev) if self.kmax > 0 else None
+        lo, hi = (int(v) for v in st.cfg.lag_range)
+        self.lag_lo, self.lag_hi = (lo, hi) if hi > 0 else (int(st.cfg.lag), int(st.cfg.lag))
+        self.lagk = torch.zeros(N, dtype=torch.long, device=self.dev)
+        self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 77)
         self.drc = DRConfig.from_dict(st.cfg.dr)
         views.dr = self.drc
         self.dr = None
@@ -807,9 +1492,30 @@ class OnlineDAgger:
         self.samples = 0
         self.stats = dict(ep_student=0, len_student=0, ep_teacher=0, len_teacher=0)
 
+    def _lag_reset(self, idx):
+        """Episode start of worlds ``idx`` (the env already holds their start states): lag draw, history = start."""
+        if self.lag_hist is None:
+            return
+        ws = self.env.ws
+        q, cp, cq = _sane(ws.q[idx], ws.cube_pos[idx], ws.cube_quat[idx], self.dev)
+        self.lag_hist.fill(idx, q, cp, cq)
+        self.lagk[idx] = torch.randint(self.lag_lo, self.lag_hi + 1, (len(idx),), device=self.dev,
+                                       generator=self.lag_gen)
+
+    def _lag_hook(self, e, j):
+        self.lag_hist.push(*_sane(e.ws.q, e.ws.cube_pos, e.ws.cube_quat, self.dev))
+
     def _draw(self, idx):
         d = self.views.draw(len(idx))
         nom = self.nominal[idx]
+        if self.views.real is not None:
+            d = self.views.merge_nominal(d, nom)
+            if self.dr is None:
+                self.dr = d
+            else:
+                for k in self.dr:
+                    self.dr[k][idx] = d[k]
+            return
         d["colors"] = torch.where(nom[:, None, None], self.views.base.expand_as(d["colors"]), d["colors"])
         d["cam_dpos"] = torch.where(nom[:, None, None], torch.zeros_like(d["cam_dpos"]), d["cam_dpos"])
         d["cam_drot"] = torch.where(nom[:, None, None], torch.zeros_like(d["cam_drot"]), d["cam_drot"])
@@ -828,6 +1534,7 @@ class OnlineDAgger:
         if env.obs is None:
             env.reset()
             self._draw(torch.arange(env.B, device=self.dev))
+            self._lag_reset(torch.arange(env.B, device=self.dev))
         ws, obs = env.ws, env.obs
         q = ws.q.to(torch.float64)
         a = self.jt.act(obs).to(torch.float64)
@@ -845,7 +1552,12 @@ class OnlineDAgger:
         T["jt"] = time.time() - t0
         t1 = time.time()
         light = bool(torch.rand(1, device=self.dev, generator=self.gen) >= o.default_light_p)
-        rgb = self.views.render(qf, cp, cq, gp, dr=self.dr, light=light)
+        icp = cp
+        if self.lag_hist is not None:                     # the images lag; q, qd, the labels stay current
+            iq, icp, icq = self.lag_hist.get(self.lagk)
+            rgb = self.views.render(iq, icp, icq, gp, dr=self.dr, light=light)
+        else:
+            rgb = self.views.render(qf, cp, cq, gp, dr=self.dr, light=light)
         torch.cuda.synchronize() if self.dev.type == "cuda" else None
         T["render"] = time.time() - t1
         t2 = time.time()
@@ -861,7 +1573,7 @@ class OnlineDAgger:
         if bool(stud.any()):
             si = stud.nonzero().flatten()
             st.eval()
-            img = to_input(rgb[si])
+            img = to_input(rgb[si], fx=self.views.fx)
             robot = robot_all[si]
             out = []
             for s in range(0, len(si), 256):
@@ -882,7 +1594,7 @@ class OnlineDAgger:
             self.buf.lab2[pv[has]] = lab[has].float()
             self.buf.valid2[pv[has]] = True
         idx = live.nonzero().flatten()
-        aux = aux_targets(gp[idx], cp[idx])
+        aux = aux_targets(gp[idx], icp[idx])
         slots = self.buf.add(rgb[idx], qf[idx], robot_all[idx], lab[idx], aux, ~self.nominal[idx])
         if self.H:
             self.rhist = torch.cat((now[:, None, :], self.rhist[:, :-1]), 1)
@@ -891,7 +1603,7 @@ class OnlineDAgger:
         self.prev_slot[idx] = slots
         self.samples += len(idx)
         t3 = time.time()
-        _, _, done, ex = env.step(targets=tg)
+        _, _, done, ex = env.step(targets=tg, step_hook=self._lag_hook if self.lag_hist is not None else None)
         T["env"] = time.time() - t3
         if bool(done.any()):
             di = done.nonzero().flatten()
@@ -905,6 +1617,7 @@ class OnlineDAgger:
             self.stats["ep_student"] += int((~ts).sum())
             self.stats["len_student"] += int((le & ~ts).sum())
             self._draw(di)
+            self._lag_reset(di)
         return T
 
     def train_steps(self):
@@ -914,8 +1627,9 @@ class OnlineDAgger:
             i = self.buf.sample(b, self.gen)
             rgb = self.buf.rgb[i]
             aug = self.buf.aug[i]
-            img = to_input(rgb, self.drc, self.gen)
-            img = torch.where(aug[:, None, None, None, None], img, to_input(rgb))
+            fx = self.views.fx
+            img = to_input(rgb, self.drc, self.gen, fx=fx)
+            img = torch.where(aug[:, None, None, None, None], img, to_input(rgb, fx=fx, fx_random=False))
             q = self.buf.q[i]
             tgt = torch.cat((self.buf.lab1[i], self.buf.lab2[i]), 1)[:, :st.cfg.chunk] - q[:, None, :]
             valid = torch.cat((torch.ones(len(i), JE.STEPS, dtype=torch.bool, device=self.dev),

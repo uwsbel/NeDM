@@ -40,8 +40,8 @@ def _mask_kernel():
 class Frames:
     """The images of one render call. Views into the renderer's buffers: copy to keep them."""
 
-    def __init__(self, color, depth, hdr=None):
-        self._color, self._depth, self._hdr = color, depth, hdr
+    def __init__(self, color, depth, hdr=None, shape_index=None):
+        self._color, self._depth, self._hdr, self._shape_index = color, depth, hdr, shape_index
 
     def hdr_torch(self):
         """(N, C, H, W, 3) float32 linear colour before the 8-bit clamp, on the render device (``hdr=True`` only)."""
@@ -74,16 +74,28 @@ class Frames:
         import warp as wp
         return wp.to_torch(self._depth)
 
+    def shape_index_torch(self):
+        """(N, C, H, W) int64 Newton shape index per pixel (-1: nothing hit), on the render device (``segment=True``
+        only)."""
+        import torch
+        import warp as wp
+        if self._shape_index is None:
+            raise RuntimeError("build the renderer with segment=True")
+        s = wp.to_torch(self._shape_index).view(torch.int32).long()
+        return torch.where(s < 0, torch.full_like(s, -1), s)          # 0xFFFFFFFF (no hit) -> -1
+
 
 class NewtonBackend:
     """``camera_models``: None (every camera a pinhole of ``fov_deg``: Newton's own rays, the original behaviour) or one
     model per camera (:class:`~nedm.render.cameras.PinholeCamera` / :class:`~nedm.render.cameras.CalibratedCamera`);
     pixels without a ray in their model are drawn black with depth 0 (:attr:`valid`). ``hdr``: also keep the linear
-    colour before the 8-bit clamp (:meth:`Frames.hdr_torch`)."""
+    colour before the 8-bit clamp (:meth:`Frames.hdr_torch`). ``segment``: also keep Newton's shape index per pixel
+    (:meth:`Frames.shape_index_torch`; :attr:`shape_body` maps it to the body index of the scene, statics after the
+    bodies)."""
 
     def __init__(self, scene, num_worlds: int, width: int, height: int, cameras: int, fov_deg: float,
                  device: Any, shadows: bool, sky: tuple[int, int, int], camera_models: Sequence | None = None,
-                 hdr: bool = False) -> None:
+                 hdr: bool = False, segment: bool = False) -> None:
         import newton
         import warp as wp
         from newton.sensors import SensorTiledCamera
@@ -119,8 +131,9 @@ class NewtonBackend:
         self._camera.utils.create_default_light(enable_shadows=shadows)
         self.width, self.height, self.fov_deg = int(width), int(height), float(fov_deg)
         self.camera_models = None
-        self.valid = None            # (C, H, W) bool numpy, None: every pixel has a ray
+        self.valid = None            # (C, H, W) bool numpy; None: pinholes of fov_deg (every pixel has a ray)
         self._valid = None           # its int32 Warp copy, only when some pixel is invalid
+        self._ray_cache: dict = {}   # camera-model key -> (rays, valid, valid int32, ray_z): intrinsics DR per call
         if camera_models is None:
             self._rays = self._camera.utils.compute_pinhole_camera_rays(width, height,
                                                                         [math.radians(fov_deg)] * self.cameras)
@@ -129,6 +142,20 @@ class NewtonBackend:
         self._color = self._camera.utils.create_color_image_output(width, height, self.cameras)
         self._depth = self._camera.utils.create_depth_image_output(width, height, self.cameras)
         self._hdr = self._camera.utils.create_hdr_color_image_output(width, height, self.cameras) if hdr else None
+        self._shape_index = None
+        if segment:
+            self._shape_index = self._camera.utils.create_shape_index_image_output(width, height, self.cameras)
+            sb = self.model.shape_body.numpy()
+            nb = self.num_bodies
+            lut = np.empty(len(sb), np.int64)
+            statics = 0
+            for k, b in enumerate(sb):                  # bodies are world-major: global body = world * nb + local
+                if b >= 0:
+                    lut[k] = int(b) % nb
+                else:
+                    lut[k] = nb + statics
+                    statics += 1
+            self.shape_body = lut                       # Newton shape index -> scene body index (statics: nb + k)
         r, g, bl = sky
         self._clear = SensorTiledCamera.ClearData(clear_color=0xFF000000 | (bl << 16) | (g << 8) | r)
         self._camera_xf = wp.zeros((self.cameras, self.num_worlds), dtype=wp.transformf, device=self.device)
@@ -144,27 +171,43 @@ class NewtonBackend:
         else:
             geometry.build_bvh_shape(self.model, self.state)
             self._bvh_built = True
-        if self._hdr is None:       # the original call, unchanged
+        if self._hdr is None and self._shape_index is None:       # the original call, unchanged
             self._camera.update(self.state, self._camera_xf, self._rays, color_image=self._color,
                                 depth_image=self._depth, clear_data=self._clear)
         else:
             self._camera.update(self.state, self._camera_xf, self._rays, color_image=self._color,
-                                depth_image=self._depth, clear_data=self._clear, hdr_color_image=self._hdr)
+                                depth_image=self._depth, clear_data=self._clear, hdr_color_image=self._hdr,
+                                shape_index_image=self._shape_index)
         if self._valid is not None:
             self._wp.launch(_mask_kernel(), dim=(self.num_worlds, self.cameras, self.height, self.width),
                             inputs=[self._valid, self._color, self._depth], device=self.device)
         self._wp.synchronize()
-        return Frames(self._color, self._depth, self._hdr)
+        return Frames(self._color, self._depth, self._hdr, self._shape_index)
 
     # ---- camera models -------------------------------------------------------------------------------------------
+    RAY_CACHE = 16                  # ray sets kept on the device (2 cameras x 448 x 448: 9.6 MB each)
+
     def set_camera_models(self, models: Sequence) -> None:
         """One camera model per camera (rays shared by all worlds; call again to change intrinsics between calls).
-        Pinholes get Newton's own pinhole rays (their own fov each); calibrated cameras get their undistorted rays."""
-        from nedm.render.cameras import camera_rays
-        wp = self._wp
+        Pinholes get Newton's own pinhole rays (their own fov each); calibrated cameras get their undistorted rays.
+        The last :attr:`RAY_CACHE` ray sets are kept, so cycling through a few intrinsics draws costs no ray
+        computation after the first use of each."""
         models = list(models)
         if len(models) != self.cameras:
             raise ValueError(f"{len(models)} camera models for {self.cameras} cameras")
+        key = tuple(repr(m) for m in models)
+        hit = self._ray_cache.get(key)
+        if hit is None:
+            hit = self._compute_rays(models)
+            if len(self._ray_cache) >= self.RAY_CACHE:
+                self._ray_cache.pop(next(iter(self._ray_cache)))
+            self._ray_cache[key] = hit
+        self._rays, self.valid, self._valid, self.ray_z = hit
+        self.camera_models = models
+
+    def _compute_rays(self, models):
+        from nedm.render.cameras import camera_rays
+        wp = self._wp
         fovs = [math.radians(m.fovy_deg) if m.kind == "pinhole" else 1.0 for m in models]
         rays = self._camera.utils.compute_pinhole_camera_rays(self.width, self.height, fovs)
         dirs, valid = camera_rays(models, self.width, self.height)
@@ -176,12 +219,10 @@ class NewtonBackend:
                 r[c, :, :, 0] = np.where(ok[..., None], 0.0, np.array([0.0, 0.0, INVALID_RAY_ORIGIN]))
                 r[c, :, :, 1] = np.where(ok[..., None], dirs[c], np.array([0.0, 0.0, 1.0]))
             rays = wp.array(r.astype(np.float32), dtype=wp.vec3f, device=self.device)
-        self._rays = rays
-        self.camera_models = models
-        self.valid = valid
-        self._valid = None if valid.all() else wp.array(valid.astype(np.int32), dtype=wp.int32, device=self.device)
+        valid_wp = None if valid.all() else wp.array(valid.astype(np.int32), dtype=wp.int32, device=self.device)
         # z-depth per unit ray length (camera -z component of the unit ray), 0 at invalid pixels
-        self.ray_z = np.where(valid, -dirs[..., 2], 0.0).astype(np.float32)
+        ray_z = np.where(valid, -dirs[..., 2], 0.0).astype(np.float32)
+        return rays, valid, valid_wp, ray_z
 
     # ---- lights (shared by all worlds: Newton has no per-world lights) -------------------------------------------
     def set_lights(self, lights: Sequence[dict], shadows: bool | None = None, ambient: bool | None = None) -> None:

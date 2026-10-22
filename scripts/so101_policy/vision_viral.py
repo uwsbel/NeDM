@@ -15,10 +15,18 @@ share ``--teacher-share`` JT-driven (the same noise mix), the rest driven by the
 randomised visuals (``--collect-randomise``); every visited decision labelled by the JT. After each round: train
 (round 0 from ImageNet, later rounds fine-tune on the aggregate), evaluate on the development tasks in CPU MuJoCo (and
 ``--eval-worlds``), nominal visuals (+ randomised with ``--eval-randomise``). Files resume.
+
+Real2sim (``~/so101_r2s_claude/docs/integrate.md``): a config with ``scene`` renders the real scene (``viral.make_views``;
+the scene / calibration sha256 are pinned in the student config at the start of ``run`` and checked later:
+``--allow-scene-change``); a config with image lag (``lag``, ``lag_range``) records the 20 ms states in the round files
+(``row_lag``) and renders the lagged state everywhere (training, the online loop, the evaluations; ``eval --lag K``
+overrides the nominal lag). ``--eval-tasks`` takes several files (the first one keeps the old output names; the others
+add their file stem).
 """
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import sys
 import time
@@ -69,15 +77,27 @@ class EnvCache:
         return self.c[k]
 
 
+def taps(env, *fns):
+    """``viral.step_tap`` with the given 20 ms state callbacks (none: a no-op context)."""
+    fns = [f for f in fns if f is not None]
+    return VI.step_tap(env, *fns) if fns else contextlib.nullcontext()
+
+
 @torch.no_grad()
-def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=None, log=log):
-    """Episodes on all tasks in batches -> concatenated record dict (``run_tasks`` layout)."""
+def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=None, log=log, lag_rec=False):
+    """Episodes on all tasks in batches -> concatenated record dict (``run_tasks`` layout); ``lag_rec``: also the
+    states of the last ``viral.LAG_REC`` control steps before every row (``row_lag``, image lag)."""
     n = len(tasks["seeds"])
     parts, t0 = [], time.time()
     for s0 in range(0, n, batch):
         idx = np.arange(s0, min(n, s0 + batch))
         env = cache.get(world, len(idx))
-        r = JT.run_tasks(env, subset(tasks, idx), jt, student, src[idx], noise[idx], seed, record=True)
+        sl = VI.SubstepLog() if lag_rec else None
+        push = student.push if student is not None and student.needs_tap else None
+        with taps(env, sl, push):
+            r = JT.run_tasks(env, subset(tasks, idx), jt, student, src[idx], noise[idx], seed, record=True)
+        if sl is not None:
+            r["row_lag"] = VI.lag_rows(r, sl.array(), VI.LAG_REC)
         parts.append(r)
         s = np.asarray(r["src"]) == 1
         msg = f"  collect {world}: tasks {s0}-{idx[-1]}, lenient {r['lenient'].mean() * 100:.1f} %"
@@ -108,17 +128,43 @@ def concat(parts):
 
 
 def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None, record_states=False,
-             full_horizon=False, device="cuda"):
-    actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device)
+             full_horizon=False, device="cuda", lag=None, lag_range=None):
+    """``lag``: image lag in control steps (default the student's nominal ``cfg.lag``); ``lag_range``: drawn per world
+    instead."""
+    actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device, lag=lag, lag_range=lag_range)
     env = cache.get(world, len(tasks["seeds"]))
-    r = JT.run_tasks(env, tasks, jt, actor, np.ones(len(tasks["seeds"]), np.int64), None, 0,
-                     record=True, record_states=record_states, full_horizon=full_horizon)
+    with taps(env, actor.push if actor.needs_tap else None):
+        r = JT.run_tasks(env, tasks, jt, actor, np.ones(len(tasks["seeds"]), np.int64), None, 0,
+                         record=True, record_states=record_states, full_horizon=full_horizon)
     r["render_s"], r["model_s"] = np.float64(actor.t_render), np.float64(actor.t_model)
     r["summary"] = np.array(json.dumps(JT.summarize(r)))
     r["world"] = np.array(world)
     r["randomise"] = np.bool_(randomise)
     r["jaw_lead"] = np.int64(actor.jaw_lead)
+    if actor.kmax > 0:
+        r["image_lag"] = np.array(json.dumps(dict(lag=actor.lag, lag_range=actor.lag_range)))
+    if st.cfg.scene:
+        r["scene"] = np.array(json.dumps(dict(scene=st.cfg.scene, scene_sha256=st.cfg.scene_sha256,
+                                              calib_sha256=st.cfg.calib_sha256, crops=st.cfg.crops)))
     return r
+
+
+def eval_sets(paths, n=0):
+    """``--eval-tasks`` files -> [(tag prefix, tasks)]: the first file keeps the old names (prefix ""), the others
+    are prefixed with their file stem."""
+    out = []
+    for i, p_ in enumerate(paths):
+        out.append(("" if i == 0 else Path(p_).stem + "_", load_tasks(p_, np.arange(n) if n else None)))
+    return out
+
+
+def guard(tasks, paths):
+    """No training task may be an evaluation task."""
+    tr = set(np.asarray(tasks["seeds"]).tolist())
+    for p_ in paths:
+        hit = tr & set(np.asarray(load_tasks(p_)["seeds"]).tolist())
+        if hit:
+            raise ValueError(f"{len(hit)} training task seeds are in {p_}")
 
 
 def agree(r_a, r_b):
@@ -139,16 +185,25 @@ def cmd_run(a):
         cfg_d[k] = json.loads(v)
     cfg_d["seed"] = a.seed
     cfg = VI.ViralConfig.from_dict(cfg_d)
+    VI.pin_real(cfg, a.allow_scene_change)              # real scene: crops + file hashes into the student config
+    if cfg.scene:                                        # a resumed run must keep its scene (rounds share one scene)
+        pin = dict(scene=cfg.scene, scene_sha256=cfg.scene_sha256, calib_sha256=cfg.calib_sha256, crops=cfg.crops)
+        pf = out / "real_pin.json"
+        if pf.exists():
+            old = json.loads(pf.read_text())
+            diff = [k for k in ("scene_sha256", "calib_sha256", "crops") if old.get(k) != pin[k]]
+            if diff and not a.allow_scene_change:
+                raise ValueError(f"{pf}: {diff} changed since the run started (--allow-scene-change to continue)")
+        else:
+            pf.write_text(json.dumps(pin, indent=1))
     tasks = load_tasks(a.tasks)
     from nedm.so101_policy.vision.teacher import check_seeds
     check_seeds(tasks["seeds"])
-    ev = load_tasks(a.eval_tasks, np.arange(a.eval_n) if a.eval_n else None)
-    for p_ in [a.eval_tasks] + list(a.guard_tasks or []):          # no training task may be an evaluation task
-        hit = set(np.asarray(tasks["seeds"]).tolist()) & set(np.asarray(load_tasks(p_)["seeds"]).tolist())
-        if hit:
-            raise ValueError(f"{len(hit)} training task seeds are in {p_}")
+    evs = eval_sets(a.eval_tasks, a.eval_n)
+    guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon)
-    views = VI.DRViews(a.render_worlds, cfg.res, cfg.cameras, dr=VI.DRConfig.from_dict(cfg.dr), seed=a.seed)
+    views = VI.make_views(cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
+    lag_rec = cfg.lag_max > 0
     rows = [np.arange(0, a.r0_tasks)]
     for i in range(a.rounds):
         s0 = a.r0_tasks + i * a.round_tasks
@@ -173,8 +228,9 @@ def cmd_run(a):
             student = None
             if (src == 1).any():
                 st, _ = VI.load_student(prev, a.device)
-                student = VI.Actor(st, views, randomise=a.collect_randomise, device=a.device)
-            d = collect(t, a.world, jt, cache, src, noise, a.seed + 1000 * i, a.batch, student)
+                student = VI.Actor(st, views, randomise=a.collect_randomise, device=a.device,
+                                   lag_range=cfg.lag_range, seed=a.seed + i)
+            d = collect(t, a.world, jt, cache, src, noise, a.seed + 1000 * i, a.batch, student, lag_rec=lag_rec)
             d["meta"] = np.array(json.dumps(dict(round=i, world=a.world, jt=jt.info(), teacher_share=share,
                                                  noise=a.noise, student=str(prev) if student else "",
                                                  collect_randomise=a.collect_randomise, wall_s=time.time() - t0)))
@@ -189,7 +245,7 @@ def cmd_run(a):
         ck = out / f"r{i}" / "last.pt"
         if not ck.exists():
             t0 = time.time()
-            data = VI.StudentSet(files, a.device, cfg.chunk, seed=a.seed)
+            data = VI.StudentSet(files, a.device, cfg.chunk, seed=a.seed, lag=cfg.lag_max)
             first = i == 0 and not a.init_from
             steps = a.train_steps0 if first else a.train_steps
             VI.train(data, views, cfg, out / f"r{i}", max_steps=steps, init_from=None if first else prev, log=log,
@@ -202,19 +258,19 @@ def cmd_run(a):
         if i % a.eval_every == 0 or i == a.rounds:
             st, _ = VI.load_student(ck, a.device)
             res = {}
-            for w in a.eval_worlds:
-                for rnd in ([False, True] if a.eval_randomise else [False]):
-                    tag = f"{w}{'_dr' if rnd else ''}"
-                    fe = out / f"r{i}" / f"eval_{tag}.npz"
-                    if not fe.exists():
-                        t0 = time.time()
-                        r = evaluate(st, jt, ev, w, cache, views, rnd, device=a.device)
-                        np.savez_compressed(fe, **r)
-                        s = json.loads(str(r["summary"]))
-                        progress(out, stage=f"eval r{i} {tag}", wall_s=time.time() - t0, **s)
-                        log(f"r{i} eval {tag}: lenient {s['lenient'] * 100:.0f} % strict {s['strict'] * 100:.0f} % "
-                            f"lifted {s['lifted'] * 100:.0f} % causes {s['causes_not_lenient']}")
-                    res[tag] = dict(np.load(fe))
+            for pre, ev, w, rnd in [(p_, e_, w_, r_) for p_, e_ in evs for w_ in a.eval_worlds
+                                    for r_ in ([False, True] if a.eval_randomise else [False])]:
+                tag = f"{pre}{w}{'_dr' if rnd else ''}"
+                fe = out / f"r{i}" / f"eval_{tag}.npz"
+                if not fe.exists():
+                    t0 = time.time()
+                    r = evaluate(st, jt, ev, w, cache, views, rnd, device=a.device)
+                    np.savez_compressed(fe, **r)
+                    s = json.loads(str(r["summary"]))
+                    progress(out, stage=f"eval r{i} {tag}", wall_s=time.time() - t0, **s)
+                    log(f"r{i} eval {tag}: lenient {s['lenient'] * 100:.0f} % strict {s['strict'] * 100:.0f} % "
+                        f"lifted {s['lifted'] * 100:.0f} % causes {s['causes_not_lenient']}")
+                res[tag] = dict(np.load(fe))
             if "mujoco" in res and "nrd" in res:
                 progress(out, stage=f"agree r{i}", **agree(res["mujoco"], res["nrd"]))
             del st
@@ -241,6 +297,7 @@ def cmd_online(a):
         st.cfg = VI.ViralConfig.from_dict(cd)
         if hist != st.cfg.hist:
             st = VI.expand_hist(st, hist, a.device)
+    VI.pin_real(st.cfg, a.allow_scene_change)
     oc = json.loads(Path(a.online_config).read_text()) if a.online_config else {}
     for s_ in a.oset or []:
         k, v = s_.split("=", 1)
@@ -249,14 +306,10 @@ def cmd_online(a):
     tasks = load_tasks(a.tasks)
     from nedm.so101_policy.vision.teacher import check_seeds
     check_seeds(tasks["seeds"])
-    ev = load_tasks(a.eval_tasks, np.arange(a.eval_n) if a.eval_n else None)
-    for p_ in [a.eval_tasks] + list(a.guard_tasks or []):
-        hit = set(np.asarray(tasks["seeds"]).tolist()) & set(np.asarray(load_tasks(p_)["seeds"]).tolist())
-        if hit:
-            raise ValueError(f"{len(hit)} training task seeds are in {p_}")
-    dr = VI.DRConfig.from_dict(st.cfg.dr)
-    views = VI.DRViews(ocfg.envs, st.cfg.res, st.cfg.cameras, dr=dr, seed=a.seed)
-    eviews = VI.DRViews(a.render_worlds, st.cfg.res, st.cfg.cameras, dr=dr, seed=a.seed + 1)
+    evs = eval_sets(a.eval_tasks, a.eval_n)
+    guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
+    views = VI.make_views(st.cfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
+    eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device)
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon)
     od = VI.OnlineDAgger(st, jt, tasks, x(a.nrd_ckpt), views, ocfg, a.device, a.seed, log)
     (out / "meta.json").write_text(json.dumps(dict(student_cfg=VI.asdict(st.cfg), online=VI.asdict(ocfg),
@@ -303,8 +356,8 @@ def cmd_online(a):
             VI.save_student(st, out / "last.pt", it=it, samples=od.samples)
         if it % ocfg.eval_every == 0 or it == ocfg.iterations:
             st.eval()
-            for rnd in ([False, True] if a.eval_randomise else [False]):
-                tag = f"mujoco{'_dr' if rnd else ''}"
+            for (pre, ev), rnd in [(e_, r_) for e_ in evs for r_ in ([False, True] if a.eval_randomise else [False])]:
+                tag = f"{pre}mujoco{'_dr' if rnd else ''}"
                 te = time.time()
                 r = evaluate(st, jt, ev, "mujoco", cache, eviews, rnd, device=a.device)
                 np.savez_compressed(out / f"eval_it{it:05d}_{tag}.npz", **r)
@@ -320,9 +373,9 @@ def cmd_eval(a):
     st, _ = VI.load_student(a.student, a.device)
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon)
-    dr = VI.DRConfig.from_dict(st.cfg.dr)
-    views = VI.DRViews(a.render_worlds, st.cfg.res, st.cfg.cameras, dr=dr, seed=a.seed)
-    r = evaluate(st, jt, t, a.world, cache, views, a.randomise, a.jaw_lead, a.record_states, a.full_horizon, a.device)
+    views = VI.make_views(st.cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
+    r = evaluate(st, jt, t, a.world, cache, views, a.randomise, a.jaw_lead, a.record_states, a.full_horizon, a.device,
+                 lag=a.lag, lag_range=a.lag_range)
     r["student"] = np.array(str(a.student))
     if a.out:
         np.savez_compressed(a.out, **r)
@@ -339,11 +392,11 @@ def cmd_collect(a):
     src = np.zeros(n, np.int64)
     if a.student:
         st, _ = VI.load_student(a.student, a.device)
-        views = VI.DRViews(a.render_worlds, st.cfg.res, st.cfg.cameras, dr=VI.DRConfig.from_dict(st.cfg.dr), seed=a.seed)
-        student = VI.Actor(st, views, randomise=a.randomise, device=a.device)
+        views = VI.make_views(st.cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
+        student = VI.Actor(st, views, randomise=a.randomise, device=a.device, lag_range=st.cfg.lag_range, seed=a.seed)
         src = np.where(rng.random(n) < a.teacher_share, 0, 1)
     noise = np.where((src == 0) & (rng.random(n) < a.noise_frac), a.noise, 0.0)
-    d = collect(t, a.world, jt, cache, src, noise, a.seed, a.batch, student)
+    d = collect(t, a.world, jt, cache, src, noise, a.seed, a.batch, student, lag_rec=a.lag_rec)
     np.savez_compressed(a.out, **d)
     log(f"-> {a.out}")
 
@@ -360,12 +413,14 @@ def main(argv=None):
         q.add_argument("--horizon", type=int, default=400)
         q.add_argument("--seed", type=int, default=0)
         q.add_argument("--render-worlds", type=int, default=256)
+        q.add_argument("--allow-scene-change", action="store_true",
+                       help="real scene: render with scene / calibration files whose sha256 differ from the student's")
 
     q = sub.add_parser("run")
     common(q)
     q.add_argument("--out", required=True)
     q.add_argument("--tasks", required=True)
-    q.add_argument("--eval-tasks", required=True)
+    q.add_argument("--eval-tasks", nargs="+", required=True)
     q.add_argument("--eval-n", type=int, default=0)
     q.add_argument("--guard-tasks", nargs="*", default=["~/so101_policy/runs/viral/tasks/fresh100.npz"])
     q.add_argument("--config", required=True)
@@ -394,7 +449,7 @@ def main(argv=None):
     q.add_argument("--out", required=True)
     q.add_argument("--init", required=True)
     q.add_argument("--tasks", required=True)
-    q.add_argument("--eval-tasks", required=True)
+    q.add_argument("--eval-tasks", nargs="+", required=True)
     q.add_argument("--eval-n", type=int, default=0)
     q.add_argument("--guard-tasks", nargs="*", default=["~/so101_policy/runs/viral/tasks/fresh100.npz"])
     q.add_argument("--config", default="")
@@ -417,6 +472,8 @@ def main(argv=None):
     q.add_argument("--jaw-lead", type=int, default=None)
     q.add_argument("--record-states", action="store_true")
     q.add_argument("--full-horizon", action="store_true")
+    q.add_argument("--lag", type=int, default=None, help="image lag (control steps); default the student's cfg.lag")
+    q.add_argument("--lag-range", type=int, nargs=2, default=None, help="image lag drawn per world (lo hi)")
     q.add_argument("--out", default="")
     q.set_defaults(fn=cmd_eval)
 
@@ -433,6 +490,7 @@ def main(argv=None):
     q.add_argument("--noise", type=float, default=1.0)
     q.add_argument("--randomise", action="store_true")
     q.add_argument("--batch", type=int, default=1024)
+    q.add_argument("--lag-rec", action="store_true", help="record the 20 ms states for image lag (row_lag)")
     q.add_argument("--out", required=True)
     q.set_defaults(fn=cmd_collect)
 

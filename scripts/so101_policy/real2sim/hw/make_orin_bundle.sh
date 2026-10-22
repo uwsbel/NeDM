@@ -15,8 +15,9 @@ POINTS="${SO101_KIN_POINTS:-$HOME/so101_policy/ckpt/kin_points_v1.npz}"
 [ -f "$CKPT" ] || { echo "student checkpoint $CKPT missing"; exit 1; }
 [ -f "$POINTS" ] || { echo "kin points $POINTS missing"; exit 1; }
 rm -rf "$OUT"
-mkdir -p "$OUT/src/nedm/so101_policy/vision" "$OUT/scripts/so101_policy/real2sim/hw" "$OUT/assets"
+mkdir -p "$OUT/src/nedm/so101_policy/vision" "$OUT/src/nedm/render" "$OUT/scripts/so101_policy/real2sim/hw" "$OUT/assets"
 cp "$ROOT/src/nedm/__init__.py" "$OUT/src/nedm/"
+cp "$ROOT/src/nedm/render/student_view.py" "$OUT/src/nedm/render/"       # the crop code shared with the renderer
 cp "$ROOT"/src/nedm/so101_policy/*.py "$OUT/src/nedm/so101_policy/"
 cp "$ROOT"/src/nedm/so101_policy/vision/*.py "$OUT/src/nedm/so101_policy/vision/"
 cp "$HW/hw_lib.py" "$HW/run_student_real.py" "$HW/README.md" "$OUT/scripts/so101_policy/real2sim/hw/"

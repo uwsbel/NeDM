@@ -92,13 +92,19 @@ def pose_to_opencv(transform) -> torch.Tensor:
 def opencv_look_at(eye, target, up=(0.0, 0.0, 1.0)) -> torch.Tensor:
     """OpenCV-convention poses (N, 7) x y z, qw qx qy qz of cameras at ``eye`` (N, 3) looking at ``target`` (N, 3)
     (image up towards world ``up``), float64 throughout: the contract's layout, for placeholder calibrations and
-    tests."""
+    tests. A view direction parallel to ``up`` has no defined roll: those rows use world +y as ``up`` (+x if the view
+    is along y), so the result is always a unit quaternion. ``eye`` == ``target`` raises ValueError."""
     eye = torch.as_tensor(eye, dtype=torch.float64).reshape(-1, 3)
     target = torch.as_tensor(target, dtype=torch.float64).reshape(-1, 3)
     eye, target = torch.broadcast_tensors(eye, target)
+    if bool(((target - eye).norm(dim=-1) < 1e-12).any()):
+        raise ValueError("opencv_look_at: eye and target coincide")
     z = torch.nn.functional.normalize(target - eye, dim=-1)
-    x = torch.nn.functional.normalize(torch.cross(z, torch.as_tensor(up, dtype=torch.float64).expand_as(z), dim=-1),
-                                      dim=-1)
+    up_t = torch.as_tensor(up, dtype=torch.float64).expand_as(z).clone()
+    for alt in ((0.0, 1.0, 0.0), (1.0, 0.0, 0.0)):
+        bad = torch.cross(z, up_t, dim=-1).norm(dim=-1) < 1e-9 * up_t.norm(dim=-1).clamp_min(1e-300)
+        up_t[bad] = torch.tensor(alt, dtype=torch.float64)
+    x = torch.nn.functional.normalize(torch.cross(z, up_t, dim=-1), dim=-1)
     y = torch.cross(z, x, dim=-1)                                   # image down
     m = torch.stack([x, y, z], -1)                                  # columns = camera axes in the world
     m00, m01, m02, m10, m11, m12, m20, m21, m22 = m.reshape(-1, 9).unbind(-1)

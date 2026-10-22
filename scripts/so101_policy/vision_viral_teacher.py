@@ -11,7 +11,14 @@
 
 Task kinds: ``C`` = build8's stage-C sampler (collector start sampler + MuJoCo warm-up; random cube, random goal 6-30 cm,
 yaw +-30 deg), seeds 640,000+ (training) or 590,000+ (``--dev``; ``--first 1000`` = the fresh set 591,000+, ``--first 2000`` videos);
-``bank`` = start bank + sample_goals (NRD only), seeds 700,000+.
+``bank`` = start bank + sample_goals (NRD only), seeds 700,000+; ``H`` (real2sim) = HOME starts (``tray.make_tasks``
+stage H: the real robot's HOME pose + ``--home-config`` noise, a start-bank cube, stage C's goal), seeds 690,000+
+(training) or 597,000+ (``--dev``; ``--first 1000`` = fresh 598,000+). ``mix`` = a training table of several task files
+(e.g. 50 % C + 50 % H, rows shuffled):
+
+    $PY -P scripts/so101_policy/vision_viral_teacher.py tasks --kind H --n 100 --dev --home-config \
+        configs/so101_policy/vision/viral_r2s_home.json --out home_dev100.npz
+    $PY -P scripts/so101_policy/vision_viral_teacher.py mix --inputs C.npz H.npz --counts 8192 8192 --out mix.npz
 """
 from __future__ import annotations
 
@@ -44,6 +51,10 @@ def x(p):
 def cmd_tasks(a):
     if a.kind == "bank":
         t = JT.bank_tasks(a.n, a.seed, a.first)
+    elif a.kind == "H":
+        from nedm.so101_policy.vision import tray as TR
+        home = json.loads(Path(a.home_config).read_text()) if a.home_config else {}
+        t = TR.make_tasks("H", a.n, a.first, a.dev, log=log, home=home)
     else:
         from nedm.so101_policy.vision import tray as TR
         t = TR.make_tasks("C", a.n, (DEV_FIRST if a.dev else TRAIN_FIRST) + a.first, a.dev, log=log)
@@ -52,6 +63,18 @@ def cmd_tasks(a):
         raise ValueError("reserved seeds")
     np.savez(a.out, **t)
     log(f"-> {a.out}: {len(t['seeds'])} tasks, seeds {t['seeds'][0]}-{t['seeds'][-1]}")
+
+
+def cmd_mix(a):
+    from nedm.so101_policy.vision import tray as TR
+    from nedm.so101_policy.vec_env import reserved_seed_hits
+    tables = [dict(np.load(x(p_))) for p_ in a.inputs]
+    t = TR.mix_tasks(tables, a.counts, a.seed)
+    if reserved_seed_hits(t["seeds"]):
+        raise ValueError("reserved seeds")
+    t["mix_inputs"] = np.array([str(x(p_)) for p_ in a.inputs])
+    np.savez(a.out, **t)
+    log(f"-> {a.out}: {len(t['seeds'])} tasks, kinds {np.bincount(t['kind']).tolist()} ({t['kind_stage'].tolist()})")
 
 
 def cmd_expert(a):
@@ -187,13 +210,21 @@ def main(argv=None):
         q.add_argument("--seed", type=int, default=0)
 
     q = sub.add_parser("tasks")
-    q.add_argument("--kind", choices=("C", "bank"), default="C")
+    q.add_argument("--kind", choices=("C", "bank", "H"), default="C")
     q.add_argument("--n", type=int, required=True)
     q.add_argument("--first", type=int, default=0)
     q.add_argument("--dev", action="store_true")
     q.add_argument("--seed", type=int, default=0)
+    q.add_argument("--home-config", default="", help="kind H: JSON with home_deg, noise_deg, bank")
     q.add_argument("--out", required=True)
     q.set_defaults(fn=cmd_tasks)
+
+    q = sub.add_parser("mix")
+    q.add_argument("--inputs", nargs="+", required=True)
+    q.add_argument("--counts", type=int, nargs="+", required=True)
+    q.add_argument("--seed", type=int, default=0)
+    q.add_argument("--out", required=True)
+    q.set_defaults(fn=cmd_mix)
 
     q = sub.add_parser("expert")
     common(q)

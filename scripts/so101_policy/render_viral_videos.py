@@ -14,6 +14,10 @@ Two steps, two conda environments:
 Frames: one per 20 ms control step at 50 frames per second (real time), the whole recorded horizon (with --full-horizon
 the episode is not stopped at success or failure; the text shows when the lenient success first held and how the task
 rule ended the episode).
+
+Real2sim students (``viral.ViralConfig.scene``): ``cams`` renders the real scene (``viral.make_views``) and shows each
+step's image as the student saw it: the state ``--lag`` control steps earlier (default the student's ``cfg.lag``;
+the first steps repeat the first recorded state).
 """
 from __future__ import annotations
 
@@ -35,8 +39,12 @@ def cmd_cams(a):
     from nedm.so101_policy.vision import viral as VI
     ev = np.load(a.eval, allow_pickle=True)
     st, _ = VI.load_student(a.student, "cuda")
-    views = VI.DRViews(64, st.cfg.res, st.cfg.cameras, dr=VI.DRConfig.from_dict(st.cfg.dr), seed=a.seed)
+    views = VI.make_views(st.cfg, 64, seed=a.seed, allow_change=a.allow_scene_change)
     q, cube = ev["state_q"], ev["state_cube"]                          # [E, S, 6], [E, S, 7] (pos, quat w x y z)
+    lag = int(st.cfg.lag if a.lag is None else a.lag)
+    if lag > 0:                                                        # image lag: step s shows the state of s - lag
+        src = np.maximum(np.arange(q.shape[1]) - lag, 0)
+        q, cube = q[:, src], cube[:, src]
     rows = a.rows if a.rows else list(range(q.shape[0]))
     S = q.shape[1]
     goal = np.concatenate([ev["goal_xy"], ev["goal_yaw"][:, None]], 1)
@@ -165,6 +173,8 @@ def main():
     p.add_argument("--rows", type=int, nargs="*")
     p.add_argument("--randomise", action="store_true")
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--lag", type=int, default=None, help="image lag in control steps (default the student's cfg.lag)")
+    p.add_argument("--allow-scene-change", action="store_true")
     p = sub.add_parser("video")
     p.add_argument("--eval", required=True), p.add_argument("--cams", required=True), p.add_argument("--out", required=True)
     p.add_argument("--title", default="")

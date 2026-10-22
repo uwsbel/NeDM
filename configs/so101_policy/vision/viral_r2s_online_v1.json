@@ -1,0 +1,17 @@
+{
+ "note": "real2sim online loop v1 (2026-10-21): build9's viral_online_v1 (the o16 / o17 loop: 1,024 NRD worlds, slots 0-511 JT-driven, half of them with 1 x std noise, 20 % nominal-visual slots, the scene light in 25 % of the decisions, 100,000-sample GPU buffer, 8 steps of 128 per decision, constant lr 1e-4 / 5e-5) for 3,000 decisions (o16 was cancelled after 3,000 of 6,000; constant lr, so the same schedule). Use with --config viral_r2s_v1.json (jaw lead 0).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 0.00005,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25
+}

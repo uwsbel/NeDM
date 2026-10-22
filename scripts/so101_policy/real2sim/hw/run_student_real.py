@@ -275,11 +275,22 @@ def build_common(args):
     policy = H.StudentPolicy(args.student, dev, args.cam_map or None, args.jaw_lead, None if args.amp is None else
                              bool(args.amp))
     views = H.view_specs(calib, H.REAL_CAMERAS, policy.res, interp=args.interp)
+    # a real2sim student pins the crops it was trained with (cfg.crops, keyed by the student's camera names): use them;
+    # a --crop that differs from them is refused unless --allow-crop-change (the images would differ from training)
+    pinned = {policy.cam_map[c]: tuple(int(v) for v in b) for c, b in (getattr(policy.cfg, "crops", None) or {}).items()
+              if c in policy.cam_map}
+    for cam, box in pinned.items():
+        views[cam] = H.ViewSpec(box, (policy.res, policy.res), args.interp, "student checkpoint (cfg.crops)")
     if args.crop:                                      # override: "external=x,y,w,h;wrist=x,y,w,h"
         for part in args.crop.split(";"):
             cam, box = part.split("=")
-            views[cam.strip()] = H.ViewSpec(tuple(int(v) for v in box.split(",")), (policy.res, policy.res),
-                                            args.interp, "--crop")
+            cam, box = cam.strip(), tuple(int(v) for v in box.split(","))
+            if cam in pinned and box != pinned[cam] and not args.allow_crop_change:
+                raise SystemExit(f"--crop {cam}={box} differs from the student's training crop {pinned[cam]} "
+                                 "(add --allow-crop-change to use it anyway)")
+            views[cam] = H.ViewSpec(box, (policy.res, policy.res), args.interp, "--crop")
+    if not pinned:
+        log("NOTE: the student has no pinned crops (cfg.crops); the views come from --calib / --crop")
     info = dict(student=policy.ckpt, student_cfg=dict(cameras=policy.cams, res=policy.res, chunk=policy.chunk,
                                                       n_exec=policy.n_exec, hist=policy.H, jaw_lead=policy.jaw_lead,
                                                       amp=policy.amp), device=dev, cam_map=policy.cam_map,
@@ -810,6 +821,8 @@ def main(argv=None):
     ap.add_argument("--device", default="", help="cuda / cpu (default cuda if available)")
     ap.add_argument("--cam-map", default="", help="student camera=real camera, e.g. top=external,wrist=wrist")
     ap.add_argument("--crop", default="", help="override crops: external=x,y,w,h;wrist=x,y,w,h")
+    ap.add_argument("--allow-crop-change", action="store_true",
+                    help="accept a --crop that differs from the crops pinned in the student checkpoint")
     ap.add_argument("--interp", default="area", choices=("area", "linear", "nearest", "cubic"))
     ap.add_argument("--jaw-lead", type=int, default=None, help="default: the checkpoint's cfg.jaw_lead")
     ap.add_argument("--amp", type=int, default=None, help="bf16 autocast 1 / 0 (default: cfg.amp on cuda)")

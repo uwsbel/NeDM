@@ -39,8 +39,11 @@ STS_RES = 4096                 # STS3215 ticks per turn (LeRobot: max_res = reso
 REAL_CAMERAS = ("external", "wrist")
 DEFAULT_CAM_MAP = {"top": "external", "external": "external", "wrist": "wrist"}
 # Default HOME pose in SIM degrees: the median start of the build9 development tasks (dev100.npz: 1.0, -5.2, -14.8,
-# 92.1, 11.0, 36.3) rounded, pan and roll set to 0. Grasp point (0.27, 0.0, 0.14) m, lowest gripper point 121 mm.
-HOME_SIM_DEG = (0.0, -5.0, -15.0, 92.0, 0.0, 30.0)
+# 92.1, 11.0, 36.3) rounded, pan set to 0, wrist roll 45 (teacher jt_h110 in CPU MuJoCo, 1,500 paired tasks: roll 45
+# 98.1 % vs roll 0 95.1 %, McNemar p 0.002 on the 500 tasks not used to choose it; roll 30-60 all >= 97 %, roll -45
+# 91 %; ~/so101_r2s_claude/teacher_check). Real LeRobot degrees with calib_v1: (0.0, -3.2, -6.5, 93.1, 120.8), gripper
+# 31.2. Grasp point (0.27, 0.0, 0.14) m, lowest gripper point 121 mm (roll 0).
+HOME_SIM_DEG = (0.0, -5.0, -15.0, 92.0, 45.0, 30.0)
 
 
 # ---- calibration file ---------------------------------------------------------------------------------------------
@@ -152,66 +155,36 @@ class RealLimits:
 
 
 # ---- images ---------------------------------------------------------------------------------------------------------
-@dataclass
-class ViewSpec:
-    """Crop box (x, y, w, h in the 640 x 480 camera image) and output size (W, H) of one student camera."""
-    crop_xywh: tuple
-    out_wh: tuple
-    interp: str = "area"
-    source: str = ""
-
-    def __post_init__(self):
-        self.crop_xywh = tuple(int(v) for v in self.crop_xywh)
-        self.out_wh = tuple(int(v) for v in self.out_wh)
-        x, y, w, h = self.crop_xywh
-        if w <= 0 or h <= 0 or x < 0 or y < 0:
-            raise ValueError(f"bad crop {self.crop_xywh}")
-
-
-def centre_square(width=640, height=480, out=224, interp="area"):
-    s = min(width, height)
-    return ViewSpec(((width - s) // 2, (height - s) // 2, s, s), (out, out), interp, "centre square (no calib view)")
-
-
-def view_specs(calib, real_cams, out_res, width=640, height=480, interp="area"):
-    """{real camera: ViewSpec}: calib["student_view"][camera] = {"crop_xywh": [x, y, w, h] or "crop_xyxy": [x0, y0, x1,
-    y1], "out_wh": [W, H] (default out_res square), "interp": "area" | "linear"}; else a centred square crop."""
-    sv = (calib or {}).get("student_view") or {}
-    out = {}
-    for cam in real_cams:
-        d = sv.get(cam)
-        if d is None:
-            out[cam] = centre_square(width, height, out_res, interp)
+# ONE crop + resize for sim and real: src/nedm/render/student_view.py (numpy + cv2 only), also used by the renderer
+# (nedm.render.so101.RealScene). Loaded by file path, so no nedm.render package import (no torch / newton / warp).
+def _load_student_view():
+    import importlib.util
+    import os
+    import sys
+    mod = sys.modules.get("nedm.render.student_view")
+    if mod is not None:
+        return mod
+    roots = [os.environ.get("NEDM_SRC"), str(Path(__file__).resolve().parents[4] / "src")]
+    for root in roots:
+        if not root:
             continue
-        if "crop_xywh" in d:
-            box = d["crop_xywh"]
-        else:
-            x0, y0, x1, y1 = d["crop_xyxy"]
-            box = (x0, y0, x1 - x0, y1 - y0)
-        wh = tuple(d.get("out_wh", (out_res, out_res)))
-        out[cam] = ViewSpec(box, wh, d.get("interp", interp), "calib student_view")
-    return out
+        path = Path(root) / "nedm/render/student_view.py"
+        if path.exists():
+            spec = importlib.util.spec_from_file_location("_nedm_student_view", path)
+            mod = importlib.util.module_from_spec(spec)
+            sys.modules[spec.name] = mod                  # dataclasses need the module registered
+            spec.loader.exec_module(mod)
+            return mod
+    raise ImportError("src/nedm/render/student_view.py not found (NEDM_SRC or the repo / bundle layout): the robot "
+                      "bundle must contain it (make_orin_bundle.sh)")
 
 
-_INTERP = {"area": 3, "linear": 1, "nearest": 0, "cubic": 2}          # cv2.INTER_* values
-
-
-def preprocess(img, spec: ViewSpec, bgr: bool):
-    """Camera image uint8 [H, W, 3] (BGR if ``bgr``: cv2 decode; RGB: LeRobot camera with color_mode rgb) -> the
-    student's RGB uint8 [out_h, out_w, 3]: crop box, then resize (cv2, ``spec.interp``)."""
-    import cv2
-    a = np.asarray(img)
-    if a.ndim != 3 or a.shape[2] != 3 or a.dtype != np.uint8:
-        raise ValueError(f"expected uint8 [H, W, 3], got {a.dtype} {a.shape}")
-    x, y, w, h = spec.crop_xywh
-    if y + h > a.shape[0] or x + w > a.shape[1]:
-        raise ValueError(f"crop {spec.crop_xywh} outside the image {a.shape[1]} x {a.shape[0]}")
-    c = a[y:y + h, x:x + w]
-    if bgr:
-        c = c[..., ::-1]
-    if (w, h) != spec.out_wh:
-        c = cv2.resize(np.ascontiguousarray(c), spec.out_wh, interpolation=_INTERP[spec.interp])
-    return np.ascontiguousarray(c)
+_SV = _load_student_view()
+ViewSpec = _SV.ViewSpec
+centre_square = _SV.centre_square
+view_specs = _SV.view_specs                 # (calib, real_cams, out_res, width=640, height=480, interp="area")
+preprocess = _SV.crop_resize                # (img, spec, bgr): crop box, then cv2 resize -> RGB uint8 [out_h, out_w, 3]
+_INTERP = _SV._INTERP
 
 
 def thumb(img, res):

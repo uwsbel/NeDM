@@ -9,6 +9,9 @@
   the MJCF wrist camera, the external pose, mat corners from the calibration, outward prism faces, bad parents.
 - RealSceneOnGpu (Newton): image shapes, the mat plane depth against the calibrated rays, mat dark / floor bright,
   the cube where cv2.fisheye.projectPoints puts it, per-world randomisation and its reset, light randomisation.
+- RealSceneFeatures (Newton): supersampling = the pooled 2x render, tone map = sRGB of the linear output, the body
+  index per pixel, the near-occluder check, the table plane, render_dr without colours = nominal colours, RealDR on a
+  CPU generator with a CUDA scene, intrinsics draws hit the ray cache, the bracket plate part.
 
     PYTHONPATH=src ~/miniconda3/envs/so101_vision/bin/python -m unittest tests/so101_policy/test_real2sim_render.py -v
 """
@@ -296,6 +299,150 @@ class RealSceneOnGpu(unittest.TestCase):
             self.r.set_camera_models(self.r.scene.camera_models)
         self.assertTrue(torch.equal(self.r.render(*args), a))
 
+
+@unittest.skipUnless(GPU and HAVE_MUJOCO and HAVE_CV2, "needs newton on CUDA, mujoco and cv2")
+class RealSceneFeatures(unittest.TestCase):
+    K = 3
+
+    def _args(self, n=None):
+        n = n or self.K
+        cube = torch.tensor([[0.25, -0.10, 0.015]]).expand(n, 3)
+        quat, goal = torch.tensor([[1.0, 0, 0, 0]]).expand(n, 4), torch.tensor([[0.3, 0.1, 0.4]]).expand(n, 3)
+        q = torch.tensor([[0.2, -0.3, 0.5, 1.2, 0.3, 0.4]], dtype=torch.float64).expand(n, 6)
+        return q, cube, quat, goal
+
+    def _renderer(self, res, **kw):
+        from nedm.render.so101 import RealScene, SO101Renderer
+        real = kw.pop("real", None) or RealScene(room={"center": (0.3, 0, 0.6), "half": (2.0, 2.0, 1.5),
+                                                       "floor_z": -0.75})
+        return SO101Renderer(self.K, res, res, backend="newton", assets=assets(), real=real, **kw)
+
+    def test_supersample_is_the_pooled_double_resolution(self):
+        from dataclasses import replace
+        from nedm.render.so101 import RealScene
+        real = RealScene()
+        r2 = self._renderer(32, real=replace(real, supersample=2))
+        a, da = r2.render(*self._args(), depth=True)
+        del r2
+        r1 = self._renderer(64, real=real)
+        b, db = r1.render(*self._args(), depth=True)
+        pooled = (b.float().reshape(self.K, 2, 32, 2, 32, 2, 3).mean((3, 5)) + 0.5).clamp(0, 255).to(torch.uint8)
+        self.assertTrue(torch.equal(a, pooled))
+        hit = (db > 0).float().reshape(self.K, 2, 32, 2, 32, 2)
+        dmean = (db.reshape(self.K, 2, 32, 2, 32, 2) * hit).sum((3, 5)) / hit.sum((3, 5)).clamp_min(1)
+        self.assertLess((da - dmean).abs().max().item(), 1e-5)
+
+    def test_tone_map_and_hdr_and_segments(self):
+        """With an identity tone map the colour is sRGB(clamp(linear)); hdr returns that linear colour (sky filled);
+        the body index per pixel puts the mat where the mat colour is."""
+        from dataclasses import replace
+        from nedm.render.camera_fx import srgb_oetf, to_uint8
+        from nedm.render.so101 import RealScene
+        ident = {"exposure": 1.0, "wb": [1, 1, 1], "black": [0, 0, 0], "gamma": 1.0, "vignette": 0.0}
+        real = replace(RealScene(), tone={"external": ident, "wrist": ident}, sky=(0, 0, 0))
+        r = self._renderer(48, real=real, segment=True)
+        rgb, seg, hdr = r.render(*self._args(), segment=True, hdr=True)
+        self.assertTrue(torch.equal(rgb, to_uint8(srgb_oetf(hdr.clamp(0, 1)))))
+        mat = r.scene.groups["mat"][0]
+        self.assertGreater(int((seg == mat).sum()), 100)
+        floor = r.scene.groups["floor"][0]
+        lum = rgb.float().mean(-1)
+        self.assertLess(lum[seg == mat].mean().item() + 50, lum[seg == floor].mean().item())
+        self.assertTrue(bool(((seg >= -1) & (seg < len(r.scene.body_names))).all()))
+
+    def test_nominal_camera_effects_applied_once(self):
+        """A tone-mapped real scene with ``image_fx`` nominal blur / chroma returns the renderer's picture with
+        ``ImageFX.nominal`` applied (before the 8-bit rounding), per camera."""
+        from dataclasses import replace
+        from nedm.render.camera_fx import ImageFX, srgb_oetf, to_uint8
+        from nedm.render.so101 import RealScene
+        ident = {"exposure": 1.0, "wb": [1, 1, 1], "black": [0, 0, 0], "gamma": 1.0, "vignette": 0.0}
+        fxd = {"nominal_blur_px": 0.6, "nominal_chroma_px": {"external": 2.0}}
+        base = replace(RealScene(), tone={"external": ident, "wrist": ident}, sky=(0, 0, 0))
+        r = self._renderer(40, real=replace(base, image_fx=fxd), hdr=True)
+        rgb, hdr = r.render(*self._args(), hdr=True)
+        y = srgb_oetf(hdr.clamp(0, 1))
+        fx = ImageFX.from_dict(fxd)
+        want = torch.stack([fx.nominal(y[:, c], cam) for c, cam in enumerate(r.cameras)], 1)
+        self.assertLessEqual((rgb.int() - to_uint8(want).int()).abs().max().item(), 1)
+        self.assertFalse(torch.equal(rgb, to_uint8(y)))
+
+    def test_near_occluder_check(self):
+        """The MJCF camera board 9.5 mm behind the MJCF wrist camera: with the mount NOT hidden and the wrist camera
+        moved 12 mm back, most wrist pixels are closer than 12 mm and the renderer refuses to build."""
+        import copy
+        from nedm.render.cameras import pose_from_opencv, pose_to_opencv
+        from nedm.render.so101 import RealScene, qrot, wxyz
+        real = RealScene(hide_bodies=(), board=None)
+        cal = copy.deepcopy(real.calib)
+        gl = pose_from_opencv(cal["cameras"]["wrist"]["T_parent_cam"])
+        back = qrot(wxyz(gl[3:]), torch.tensor([0.0, 0.0, 0.012], dtype=torch.float64))   # renderer +z = backwards
+        gl[:3] += back
+        cal["cameras"]["wrist"]["T_parent_cam"] = pose_to_opencv(gl).tolist()
+        with self.assertRaises(ValueError):
+            self._renderer(32, real=RealScene(calib=cal, hide_bodies=(), board=None))
+        r = self._renderer(32, real=RealScene(calib=cal))                  # mount hidden: fine
+        self.assertLess(max(r.check_near().values()), 0.2)
+
+    def test_table_plane_and_plate(self):
+        """The floor, mat and goal plate follow the table plane (z = c0 + c1 x + c2 y): a lower plane moves the
+        external camera's mat depth by about the plane offset along the view."""
+        from dataclasses import replace
+        from nedm.render.so101 import RealScene
+        real = RealScene()
+        r0 = self._renderer(48, real=real, segment=True)
+        _, d0, s0 = r0.render(*self._args(), depth=True, segment=True)
+        mat = r0.scene.groups["mat"][0]
+        del r0
+        r1 = self._renderer(48, real=replace(real, table_plane=(-0.02, 0.0, 0.0)), segment=True)
+        _, d1, s1 = r1.render(*self._args(), depth=True, segment=True)
+        both = (s0[0, 0] == mat) & (s1[0, 0] == mat)
+        self.assertGreater(int(both.sum()), 50)
+        self.assertGreater((d1[0, 0] - d0[0, 0])[both].median().item(), 0.005)
+        g = r1.scene.goal_transform(torch.tensor([[0.3, 0.1, 0.4]]), 1)
+        body_q, _ = r1.scene.transforms(*self._args(1))
+        self.assertAlmostEqual(body_q[0, r1.scene.groups["plate"][0], 2].item(), -0.02, places=5)
+        self.assertAlmostEqual(g[0, 2].item(), 0.0, places=9)
+
+    def test_render_dr_reset_cpu_generator_and_ray_cache(self):
+        from nedm.render.so101 import RealDR
+        r = self._renderer(32)
+        args = self._args()
+        a = r.render_dr(*args).clone()
+        dr = RealDR(focal=0.03, pp_px=2.0, focal_levels=3)
+        draw = dr.draw(r.scene, self.K, torch.Generator().manual_seed(0))       # CPU generator, CUDA scene
+        self.assertEqual(draw["colors"].device.type, "cuda")
+        b = r.render_dr(*args, draw=draw).clone()
+        self.assertFalse(torch.equal(a, b))
+        c = r.render_dr(*args, draw={"cam_offset": torch.zeros(self.K, 2, 6)})   # no colours: nominal colours
+        self.assertTrue(torch.equal(c, a))
+        g = torch.Generator().manual_seed(3)
+        cache = r.renderer.backend._ray_cache
+        for _ in range(20):
+            r.set_camera_models(dr.camera_models(r.scene, g, out_res=32))
+        self.assertLessEqual(len(cache), r.renderer.backend.RAY_CACHE)
+        models = dr.camera_models(r.scene, g, out_res=32)
+        r.set_camera_models(models)
+        n, rays = len(cache), r.renderer.backend._rays
+        r.set_camera_models(models)                                      # the same draw again: a cache hit
+        self.assertEqual(len(cache), n)
+        self.assertIs(r.renderer.backend._rays, rays)
+        r.set_camera_models(r.scene.camera_models)
+        self.assertTrue(torch.equal(r.render_dr(*args), a))
+
+    def test_parts_prism(self):
+        """A prism part on the camera mount is drawn (group board) and its faces point outwards."""
+        from nedm.render.so101 import RealScene, SO101Scene, polygon_prism
+        poly = [[0.0, 0.0, 0.0], [0.02, 0.0, 0.0], [0.02, 0.02, 0.001], [0.0, 0.02, 0.001]]
+        v, f = polygon_prism(poly, [0.0, 0.0, 0.003])
+        tri = v[f].astype(np.float64)
+        n = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+        self.assertTrue((np.einsum("ij,ij->i", n, tri.mean(1) - v.mean(0)) > 0).all())
+        sc = SO101Scene(assets(), real=RealScene(parts=({"name": "p", "body": "camera_mount", "group": "board",
+                                                        "polygon": poly, "offset": [0, 0, 0.003]},)))
+        self.assertEqual(len(sc.groups["board"]), 2)                    # the camera board + the part
+        mount = {m.name for body, m in assets().meshes if body == "camera_mount"}
+        self.assertTrue(mount and not mount & set(sc.body_names))       # the MJCF camera mount is left out
 
 if __name__ == "__main__":
     unittest.main()

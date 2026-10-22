@@ -37,10 +37,12 @@ class BatchRenderer:
         backend: str = "newton",
         camera_models: Sequence | None = None,
         hdr: bool = False,
+        segment: bool = False,
     ) -> None:
         """``camera_models``: None (every camera a pinhole of ``fov_deg``, the original behaviour) or one model per
         camera from :mod:`nedm.render.cameras` (``PinholeCamera(fovy_deg)``, ``CalibratedCamera(...)``; Newton only).
-        Rays are shared by all worlds; camera POSES stay per world. ``hdr``: keep the linear colour too (Newton)."""
+        Rays are shared by all worlds; camera POSES stay per world. ``hdr``: keep the linear colour too (Newton).
+        ``segment``: keep the shape index per pixel too (Newton, ``Frames.shape_index_torch``)."""
         self.scene, self.num_worlds = scene, int(num_worlds)
         self.width, self.height, self.cameras = int(width), int(height), int(cameras)
         self.body_names = scene.body_names
@@ -52,8 +54,11 @@ class BatchRenderer:
             extra["camera_models"] = list(camera_models)
         if hdr:
             extra["hdr"] = True
+        if segment:
+            extra["segment"] = True
         if extra and backend != "newton":
-            raise NotImplementedError(f"camera models and hdr output need the newton backend, not {backend!r}")
+            raise NotImplementedError(f"camera models, hdr and segment outputs need the newton backend, "
+                                      f"not {backend!r}")
         self.backend = backends.make(backend)(scene, self.num_worlds, self.width, self.height, self.cameras,
                                               fov_deg, device, shadows, sky, **extra)
         self.device = self.backend.device
@@ -62,7 +67,8 @@ class BatchRenderer:
 
     @property
     def valid_mask(self) -> torch.Tensor | None:
-        """(C, H, W) bool: pixels with a ray in their camera model (None: all of them, or not a Newton renderer)."""
+        """(C, H, W) bool: pixels with a ray in their camera model (None: no camera models, i.e. Newton's own pinholes,
+        or not a Newton renderer; with camera models it is always an array, all True when every pixel has a ray)."""
         valid = getattr(self.backend, "valid", None)
         return None if valid is None else torch.from_numpy(valid)
 

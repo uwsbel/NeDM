@@ -82,7 +82,26 @@ STAGES = {
     "A": dict(cube="fixed", tray="fixed", train0=530_000, dev0=560_000),
     "B": dict(cube="random", tray="fixed", train0=540_000, dev0=561_000),
     "C": dict(cube="random", tray="random", train0=550_000, dev0=562_000),
+    # real2sim HOME starts (~/so101_r2s_claude/docs/integrate.md): the arm at rest at the real robot's HOME pose
+    # (+ small per-joint noise), the cube resting at the xy / yaw of a random row of the teacher's PPO start bank, the
+    # goal by stage C's rule. Seeds: training 690,000+, development 597,000+ (fresh: --first 1000 = 598,000+).
+    "H": dict(cube="bank", tray="random", arm="home", train0=690_000, dev0=597_000),
 }
+HOME_SIM_DEG = (0.0, -5.0, -15.0, 92.0, 45.0, 30.0)     # = scripts/so101_policy/real2sim/hw/hw_lib.HOME_SIM_DEG
+HOME_BANK = "~/so101_policy/runs/viral/data/bank_pp_split0.npz"   # jt_h110's PPO start bank (production_plus split 0)
+
+
+def _home_cfg(home):
+    """HOME task options: home_deg (6 sim deg), noise_deg (U(-n, n) per joint; a number or 6), bank (start bank .npz)."""
+    h = dict(home or {})
+    bad = sorted(set(h) - {"home_deg", "noise_deg", "bank", "note", "notes"})
+    if bad:
+        raise ValueError(f"unknown HOME task keys {bad}")
+    deg = np.asarray(h.get("home_deg", HOME_SIM_DEG), np.float64)
+    noise = np.broadcast_to(np.asarray(h.get("noise_deg", 0.0), np.float64), (6,)).copy()
+    if deg.shape != (6,):
+        raise ValueError("home_deg: 6 sim joint angles (deg)")
+    return deg, noise, str(Path(h.get("bank", HOME_BANK)).expanduser())
 # Teacher-side decoder changes of this build (written down here; build8 sec. 1b-1e). A student that sees only images, q
 # and qdot cannot see the decoder's clocks: (v2) the place opening ramp kept the command below the cube-blocked jaw
 # angle for a whole decision (no visible change: the student stayed with the jaw closed); (v3) the holds before the
@@ -115,14 +134,20 @@ def wrap90(a):
     return -(((-a + q / 2) % q) - q / 2)
 
 
-def make_tasks(stage, n, first=0, dev=False, log=log_default):
+def make_tasks(stage, n, first=0, dev=False, log=log_default, home=None):
     """n tasks of a stage (module docstring), seeds = the stage's training (or ``dev``) start + first + i. Per seed:
     rng = default_rng(seed): the cube (A: fixed spot; B: the collector's ``sample_cube`` until it is 6-30 cm from the
     fixed tray and the needed turn |wrap90(tray yaw - cube yaw)| <= 30 deg; C: ``sample_cube``), the arm start
     (``Scene.sample_above`` within 40 deg (70 %) or 60 deg (30 %) of the cube direction, as the expert_base family),
     the collector's 0.3 s warm-up (rejected if it ends, touches the table or has a jaw on the cube), the goal (A, B: the
     fixed tray; C: ``task.sample_goals``, 6-30 cm, yaw +-30 deg). -> task table (gate_expert format: start_*, state_*,
-    goal_xy, goal_yaw, seeds)."""
+    goal_xy, goal_yaw, seeds).
+
+    Stage H (real2sim HOME starts; ``home``: ``_home_cfg`` options): the arm at ``home_deg`` + U(-noise_deg, noise_deg)
+    per joint (at rest), the cube resting flat at the xy and yaw of a random row of the start ``bank`` (redrawn with the
+    arm noise until the warm-up passes), the goal by stage C's rule; extra keys bank_index, home_deg, home_noise_deg."""
+    if STAGES[stage].get("arm") == "home":
+        return _make_home_tasks(stage, n, first, dev, log, home)
     from nedm.contact_nrd.collect import so101_grasp as g
     from nedm.so101_policy import task as T
     from nedm.so101_policy.mujoco_env import RAW, _Block, _SAMPLER, reserved_seeds
@@ -184,6 +209,81 @@ def make_tasks(stage, n, first=0, dev=False, log=log_default):
     for name, sl in (("q", slice(0, 6)), ("qd", slice(6, 12)), ("cube_pos", slice(12, 15)), ("cube_quat", slice(15, 19)),
                      ("cube_v", slice(19, 22)), ("cube_w", slice(22, 25))):
         out[f"state_{name}"] = r[:, sl]
+    return out
+
+
+def _make_home_tasks(stage, n, first, dev, log, home):
+    """Stage H of ``make_tasks`` (its docstring)."""
+    from nedm.contact_nrd.collect import so101_grasp as g
+    from nedm.so101_policy import task as T
+    from nedm.so101_policy.mujoco_env import RAW, _Block, _SAMPLER, reserved_seeds
+    from nedm.so101_policy.vision.teacher import check_seeds
+    st = STAGES[stage]
+    deg, noise, bank_path = _home_cfg(home)
+    seeds = np.arange(n, dtype=np.int64) + (st["dev0"] if dev else st["train0"]) + int(first)
+    check_seeds(seeds)
+    bad = sorted(set(seeds.tolist()) & reserved_seeds())
+    if bad:
+        raise ValueError(f"seeds {bad[:5]} are collector campaign seeds")
+    bank = np.load(bank_path)
+    byaw, _ = T.cube_yaw_tilt(torch.as_tensor(bank["cube_quat"]).double())
+    byaw, bxy, N = byaw.numpy(), bank["cube_pos"][:, :2].astype(np.float64), len(bank["q"])
+    key = ("block", True)
+    if key not in _SAMPLER:
+        _SAMPLER[key] = _Block(1, overlap=True)
+    blk = _SAMPLER[key]
+    half = blk.s.half
+    q, pos, quat, raw = np.zeros((n, 6)), np.zeros((n, 3)), np.zeros((n, 4)), np.zeros((n, RAW))
+    gxy, gyaw, tries, bi = np.zeros((n, 2)), np.zeros(n), np.zeros(n, np.int64), np.zeros(n, np.int64)
+    t0 = time.time()
+    for k, seed in enumerate(seeds):
+        rng = np.random.default_rng(int(seed))
+        while True:
+            tries[k] += 1
+            if tries[k] > 500:
+                raise RuntimeError(f"seed {seed}: no start")
+            i = int(rng.integers(N))
+            q0 = np.radians(deg + rng.uniform(-1.0, 1.0, 6) * noise)
+            c = g.resting_cube(np.array([bxy[i, 0], bxy[i, 1], half]), float(byaw[i]))
+            row = np.concatenate((q0, np.zeros(6), c["pos"], c["quat"], np.zeros(6)))[None]
+            res = blk.reset([0], row, warmup=True)
+            if res["code"][0] == 0 and not res["arm_table"][0] and not res["contact"][0, :2].any():
+                break
+        q[k], pos[k], quat[k], raw[k], bi[k] = q0, c["pos"], c["quat"], res["raw"][0], i
+        gen = torch.Generator().manual_seed(int(seed) * 7 + 3)
+        cy, _ = T.cube_yaw_tilt(torch.as_tensor(raw[k:k + 1, 15:19]).float().double())
+        gg, gy = T.sample_goals(torch.as_tensor(raw[k:k + 1, 12:14]).float().double(), cy, gen)
+        gxy[k], gyaw[k] = gg[0].numpy(), float(gy[0])
+    r = raw.astype(np.float32).astype(np.float64)
+    log(f"stage {stage}: {n} tasks (seeds {seeds[0]}-{seeds[-1]}) in {time.time() - t0:.0f} s, tries p50 "
+        f"{np.median(tries):.0f} max {tries.max()}")
+    out = dict(seeds=seeds, start_q=q, start_cube_pos=pos, start_cube_quat=quat, goal_xy=gxy, goal_yaw=gyaw,
+               spread_deg=np.zeros(n), tries=tries, stage=np.array(stage), dev=np.bool_(dev), bank_index=bi,
+               home_deg=deg, home_noise_deg=noise, bank=np.array(bank_path))
+    for name, sl in (("q", slice(0, 6)), ("qd", slice(6, 12)), ("cube_pos", slice(12, 15)), ("cube_quat", slice(15, 19)),
+                     ("cube_v", slice(19, 22)), ("cube_w", slice(22, 25))):
+        out[f"state_{name}"] = r[:, sl]
+    return out
+
+
+def mix_tasks(tables, counts, seed=0):
+    """Training task table of ``counts[k]`` rows (the first ones) of each table, rows shuffled with ``seed``; per-task
+    keys kept where every table has them, ``kind`` = the table index, ``kind_stage`` = their stages."""
+    parts = []
+    for t, c in zip(tables, counts):
+        n = len(t["seeds"])
+        if c > n:
+            raise ValueError(f"{c} rows wanted, {n} in the table")
+        parts.append({k: v[:c] for k, v in t.items() if np.ndim(v) and len(v) == n})
+    keys = set.intersection(*[set(p) for p in parts])
+    out = {k: np.concatenate([p[k] for p in parts]) for k in sorted(keys)}
+    out["kind"] = np.concatenate([np.full(c, k, np.int64) for k, c in enumerate(counts)])
+    perm = np.random.default_rng(seed).permutation(len(out["seeds"]))
+    out = {k: v[perm] for k, v in out.items()}
+    if len(np.unique(out["seeds"])) != len(out["seeds"]):
+        raise ValueError("duplicate seeds in the mixed table")
+    out["kind_stage"] = np.array([str(t.get("stage", "?")) for t in tables])
+    out["mix_seed"] = np.int64(seed)
     return out
 
 
