@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import copy
 import math
+import os
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
@@ -98,6 +99,9 @@ class Codec:
 
 
 FLOOR = 0.0015                                       # m, the decoder's low_min (lowest gripper / moving-jaw point)
+# evaluation only (real2sim debugging): a weaker arm servo, as the real STS3215 (P 16): the executed arm target is moved
+# to q + s * (target - q), i.e. the position gain times s; 1 = off. Not used in training or data collection.
+EVAL_KP_SCALE = float(os.environ.get("NEDM_SO101_EVAL_KP_SCALE", "1"))
 
 
 def _low(kin, u, q, plane=None):
@@ -459,6 +463,10 @@ class JointVecEnv:
                 u = safety(u5[:, j], self.ws.q.to(torch.float64) + qo, self.tlo, self.thi, self.lead, self.kin, fl,
                            self.floor_plane) - qo
             ex.append(u)
+            if EVAL_KP_SCALE != 1.0:
+                qn = self.ws.q.to(device=u.device, dtype=u.dtype)
+                u = u.clone()
+                u[:, :5] = qn[:, :5] + EVAL_KP_SCALE * (u[:, :5] - qn[:, :5])
             ws = self.world.step(u)
             self.ws = ws if self.cfg.world != "mujoco" else ws.to(self.dev)
             r, _, _, info = task.step(self.ws, None, None)
