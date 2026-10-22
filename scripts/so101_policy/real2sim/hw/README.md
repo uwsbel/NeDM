@@ -71,7 +71,8 @@ Luffy replay of a) with the robot student: cube error before the grasp 25.3 / 21
 4. Table height: the real table is 4-17 mm below the sim table over that region (tilted about 2 deg; 10-18 mm at the
    15 recorded cubes). Keep `--table-z 0`: the gripper floor then stays 5 mm or more above the real table.
    CPU MuJoCo with this table (held-out tasks, 100 each): the robot student 89 % (normal starts) / 91 % (HOME).
-   Optional correction `--q-offset-deg 0,-2.086,0,0,0` (shoulder_lift joint-map offset = the table tilt): 90 / 94 %.
+   Optional correction `--q-offset-deg 0,-2.086,0,0,0` (shoulder_lift joint-map offset = the x tilt of the fitted
+   table plane; correct only if the arm base is really tilted, not for a shoulder_lift calibration error): 90 / 94 %.
    A flat table 10 mm lower: 96 / 98 %. Level table: 98 / 98 %. If you can, make the table level with the arm base.
    `--table-z` is one flat height: a value below -0.005 lets the gripper reach the table at the high side.
 5. Workspace clear, you at the robot, one hand near the arm, the other on the keyboard (q / space / Esc / Ctrl+C).
