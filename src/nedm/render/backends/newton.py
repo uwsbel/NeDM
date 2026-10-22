@@ -9,16 +9,47 @@ port, and CPU. Apache-2.0, as are Newton and Warp.
 from __future__ import annotations
 
 import math
-from typing import Any
+import warnings
+from typing import Any, Sequence
 
 import numpy as np
+
+# where a ray of an invalid pixel starts (camera frame, m): far behind the camera, pointing away from everything
+INVALID_RAY_ORIGIN = 1.0e4
+LIGHT_TYPES = {"spot": 0, "directional": 1, "point": 2}     # 2: Newton's point-light branch (any id but 0 and 1)
+_KERNELS: dict = {}
+
+
+def _mask_kernel():
+    """Warp kernel: colour black (alpha 255) and depth 0 at the invalid pixels of every world."""
+    if "mask" not in _KERNELS:
+        import warp as wp
+
+        @wp.kernel(enable_backward=False)
+        def mask_invalid(valid: wp.array3d(dtype=wp.int32), color: wp.array4d(dtype=wp.uint32),
+                         depth: wp.array4d(dtype=wp.float32)):
+            w, c, y, x = wp.tid()
+            if valid[c, y, x] == 0:
+                color[w, c, y, x] = wp.uint32(0xFF000000)
+                depth[w, c, y, x] = 0.0
+
+        _KERNELS["mask"] = mask_invalid
+    return _KERNELS["mask"]
 
 
 class Frames:
     """The images of one render call. Views into the renderer's buffers: copy to keep them."""
 
-    def __init__(self, color, depth):
-        self._color, self._depth = color, depth
+    def __init__(self, color, depth, hdr=None):
+        self._color, self._depth, self._hdr = color, depth, hdr
+
+    def hdr_torch(self):
+        """(N, C, H, W, 3) float32 linear colour before the 8-bit clamp, on the render device (``hdr=True`` only)."""
+        import warp as wp
+        if self._hdr is None:
+            raise RuntimeError("build the renderer with hdr=True")
+        h = wp.to_torch(self._hdr)
+        return h.reshape(*h.shape[:4], 3)
 
     @property
     def rgb(self) -> np.ndarray:
@@ -45,8 +76,14 @@ class Frames:
 
 
 class NewtonBackend:
+    """``camera_models``: None (every camera a pinhole of ``fov_deg``: Newton's own rays, the original behaviour) or one
+    model per camera (:class:`~nedm.render.cameras.PinholeCamera` / :class:`~nedm.render.cameras.CalibratedCamera`);
+    pixels without a ray in their model are drawn black with depth 0 (:attr:`valid`). ``hdr``: also keep the linear
+    colour before the 8-bit clamp (:meth:`Frames.hdr_torch`)."""
+
     def __init__(self, scene, num_worlds: int, width: int, height: int, cameras: int, fov_deg: float,
-                 device: Any, shadows: bool, sky: tuple[int, int, int]) -> None:
+                 device: Any, shadows: bool, sky: tuple[int, int, int], camera_models: Sequence | None = None,
+                 hdr: bool = False) -> None:
         import newton
         import warp as wp
         from newton.sensors import SensorTiledCamera
@@ -80,9 +117,18 @@ class NewtonBackend:
 
         self._camera = SensorTiledCamera(model=self.model)
         self._camera.utils.create_default_light(enable_shadows=shadows)
-        self._rays = self._camera.utils.compute_pinhole_camera_rays(width, height, [math.radians(fov_deg)] * self.cameras)
+        self.width, self.height, self.fov_deg = int(width), int(height), float(fov_deg)
+        self.camera_models = None
+        self.valid = None            # (C, H, W) bool numpy, None: every pixel has a ray
+        self._valid = None           # its int32 Warp copy, only when some pixel is invalid
+        if camera_models is None:
+            self._rays = self._camera.utils.compute_pinhole_camera_rays(width, height,
+                                                                        [math.radians(fov_deg)] * self.cameras)
+        else:
+            self.set_camera_models(camera_models)
         self._color = self._camera.utils.create_color_image_output(width, height, self.cameras)
         self._depth = self._camera.utils.create_depth_image_output(width, height, self.cameras)
+        self._hdr = self._camera.utils.create_hdr_color_image_output(width, height, self.cameras) if hdr else None
         r, g, bl = sky
         self._clear = SensorTiledCamera.ClearData(clear_color=0xFF000000 | (bl << 16) | (g << 8) | r)
         self._camera_xf = wp.zeros((self.cameras, self.num_worlds), dtype=wp.transformf, device=self.device)
@@ -98,10 +144,94 @@ class NewtonBackend:
         else:
             geometry.build_bvh_shape(self.model, self.state)
             self._bvh_built = True
-        self._camera.update(self.state, self._camera_xf, self._rays, color_image=self._color,
-                            depth_image=self._depth, clear_data=self._clear)
+        if self._hdr is None:       # the original call, unchanged
+            self._camera.update(self.state, self._camera_xf, self._rays, color_image=self._color,
+                                depth_image=self._depth, clear_data=self._clear)
+        else:
+            self._camera.update(self.state, self._camera_xf, self._rays, color_image=self._color,
+                                depth_image=self._depth, clear_data=self._clear, hdr_color_image=self._hdr)
+        if self._valid is not None:
+            self._wp.launch(_mask_kernel(), dim=(self.num_worlds, self.cameras, self.height, self.width),
+                            inputs=[self._valid, self._color, self._depth], device=self.device)
         self._wp.synchronize()
-        return Frames(self._color, self._depth)
+        return Frames(self._color, self._depth, self._hdr)
+
+    # ---- camera models -------------------------------------------------------------------------------------------
+    def set_camera_models(self, models: Sequence) -> None:
+        """One camera model per camera (rays shared by all worlds; call again to change intrinsics between calls).
+        Pinholes get Newton's own pinhole rays (their own fov each); calibrated cameras get their undistorted rays."""
+        from nedm.render.cameras import camera_rays
+        wp = self._wp
+        models = list(models)
+        if len(models) != self.cameras:
+            raise ValueError(f"{len(models)} camera models for {self.cameras} cameras")
+        fovs = [math.radians(m.fovy_deg) if m.kind == "pinhole" else 1.0 for m in models]
+        rays = self._camera.utils.compute_pinhole_camera_rays(self.width, self.height, fovs)
+        dirs, valid = camera_rays(models, self.width, self.height)
+        custom = [c for c, m in enumerate(models) if m.kind != "pinhole"]
+        if custom:
+            r = rays.numpy()                                        # (C, H, W, 2, 3): origin, direction
+            for c in custom:
+                ok = valid[c]
+                r[c, :, :, 0] = np.where(ok[..., None], 0.0, np.array([0.0, 0.0, INVALID_RAY_ORIGIN]))
+                r[c, :, :, 1] = np.where(ok[..., None], dirs[c], np.array([0.0, 0.0, 1.0]))
+            rays = wp.array(r.astype(np.float32), dtype=wp.vec3f, device=self.device)
+        self._rays = rays
+        self.camera_models = models
+        self.valid = valid
+        self._valid = None if valid.all() else wp.array(valid.astype(np.int32), dtype=wp.int32, device=self.device)
+        # z-depth per unit ray length (camera -z component of the unit ray), 0 at invalid pixels
+        self.ray_z = np.where(valid, -dirs[..., 2], 0.0).astype(np.float32)
+
+    # ---- lights (shared by all worlds: Newton has no per-world lights) -------------------------------------------
+    def set_lights(self, lights: Sequence[dict], shadows: bool | None = None, ambient: bool | None = None) -> None:
+        """Replace the lights. Each light: ``{"type": "directional" | "spot" | "point", "direction": (3,) (the way the
+        light travels; directional and spot), "position": (3,) (spot, point), "shadow": bool}``. Newton lights have no
+        intensity or colour (each adds albedo * max(0, n.L), spot/point times 1/(1 + 0.02 d^2)). ``shadows``: the
+        global shadow switch; ``ambient``: Newton's fixed hemispheric ambient term on/off.
+
+        A directional light may carry ``"intensity"`` w in (0, 1) (and ``"center"`` (3,), default the origin): it is
+        drawn as a POINT light at distance d = sqrt((1/w - 1) / 0.02) m from ``center``, against the light's direction,
+        whose attenuation 1/(1 + 0.02 d^2) is w there (an approximation: over +-0.25 m around ``center`` the direction
+        varies by atan(0.25/d) and the intensity by about +-0.5 d / (d^2 + 50) relative; d = 7.1 m at w = 0.5)."""
+        wp = self._wp
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            rc = self._camera.render_context
+        lights = [self._dimmed(dict(lt)) for lt in lights]
+        n = len(lights)
+        if n == 0:
+            rc.lights_active = None
+        else:
+            dev = self.device
+            rc.lights_active = wp.array([True] * n, dtype=wp.bool, device=dev)
+            rc.lights_type = wp.array([LIGHT_TYPES[lt.get("type", "directional")] for lt in lights], dtype=wp.int32,
+                                      device=dev)
+            rc.lights_cast_shadow = wp.array([bool(lt.get("shadow", True)) for lt in lights], dtype=wp.bool,
+                                             device=dev)
+            pos = [np.asarray(lt.get("position", (0.0, 0.0, 0.0)), float) for lt in lights]
+            way = [np.asarray(lt.get("direction", (0.0, 0.0, -1.0)), float) for lt in lights]
+            rc.lights_position = wp.array([wp.vec3f(*p) for p in pos], dtype=wp.vec3f, device=dev)
+            rc.lights_orientation = wp.array([wp.vec3f(*(d / np.linalg.norm(d))) for d in way], dtype=wp.vec3f,
+                                             device=dev)
+        if shadows is not None:
+            self._camera.render_config.enable_shadows = bool(shadows)
+        if ambient is not None:
+            self._camera.render_config.enable_ambient_lighting = bool(ambient)
+
+    @staticmethod
+    def _dimmed(light: dict) -> dict:
+        """A directional light with ``intensity`` < 1 -> the equivalent far point light (see :meth:`set_lights`)."""
+        w = float(light.pop("intensity", 1.0))
+        center = np.asarray(light.pop("center", (0.0, 0.0, 0.0)), float)
+        if w >= 1.0:
+            return light
+        if w <= 0.0 or light.get("type", "directional") != "directional":
+            raise ValueError(f"intensity {w}: only directional lights, 0 < intensity <= 1")
+        d = np.asarray(light["direction"], float)
+        dist = math.sqrt((1.0 / w - 1.0) / 0.02)
+        return {"type": "point", "position": center - dist * d / np.linalg.norm(d),
+                "shadow": light.get("shadow", True)}
 
     def _put(self, dst, src) -> None:
         """Write a torch tensor into a Warp array, in place when both are on the render device."""

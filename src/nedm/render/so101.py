@@ -10,7 +10,15 @@ across the table, facing the arm), ``top`` (fixed, straight down over the worksp
     rgb = r.render_state(world_state, goal)                    # a WorldState of the NRD or of MuJoCo, same function
 
 One renderer has one resolution and one field of view for all its cameras (the wrist camera's fovy 61 deg, as
-``BatchRenderer`` takes one ``fov_deg``); the fixed cameras are placed so that 61 deg frames the workspace. Madrona:
+``BatchRenderer`` takes one ``fov_deg``); the fixed cameras are placed so that 61 deg frames the workspace. The REAL
+setup (off by default; Newton only) instead draws the calibrated real cameras (fisheye / radial-tangential lens models
+from the calibration contract, a crop box of the real 640 x 480 image per camera) in a light-box scene:
+
+    real = RealScene.from_path("~/so101_r2s_claude/calib/calib_v1.json", crop={"external": None, "wrist": None})
+    r = SO101Renderer(1024, 224, 224, real=real)              # cameras ("external", "wrist")
+    rgb = r.render_dr(q, cube_pos, cube_quat, goal, draw=RealDR().draw(r.scene, 1024, gen))   # per-world DR
+
+Madrona:
 one renderer per process, NVIDIA only (luffy: ``source ~/so101_policy/runs/render/madrona_luffy/env_luffy.sh``),
 7-20x faster than Newton on recorded states (luffy 5090, 2026-10-11); its engine start aborts the whole process (C++
 FATAL, CUDA out of memory / out of resources at the first launch) when other jobs fill the GPU: retry the process.
@@ -33,7 +41,7 @@ from __future__ import annotations
 
 import json
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Sequence
 
@@ -98,6 +106,24 @@ def box_mesh(half, center=(0.0, 0.0, 0.0)) -> tuple[np.ndarray, np.ndarray]:
     """Box with half sizes ``half`` (3,) around ``center``: vertices (8, 3) float32, faces (12, 3) int32."""
     corners = np.array([[x, y, z] for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)], dtype=np.float64)
     return (corners * np.asarray(half, float) + np.asarray(center, float)).astype(np.float32), BOX_FACES.copy()
+
+
+def prism_mesh(corners_xy, z0: float, z1: float, center=None) -> tuple[np.ndarray, np.ndarray]:
+    """Closed prism over a convex polygon ``corners_xy`` (k, 2) from z0 to z1, outward-facing triangles (Newton culls
+    back faces), vertices relative to ``center`` (3,) (default: the polygon centroid at z = 0): (2k, 3) float32,
+    (4k - 4, 3) int32."""
+    c = np.asarray(corners_xy, np.float64).reshape(-1, 2)
+    mid = c.mean(0)
+    c = c[np.argsort(np.arctan2(c[:, 1] - mid[1], c[:, 0] - mid[0]))]           # counter-clockwise from above
+    k = len(c)
+    v = np.concatenate([np.c_[c, np.full(k, z0)], np.c_[c, np.full(k, z1)]])
+    faces = [[k, k + i, k + i + 1] for i in range(1, k - 1)]                        # top (+z)
+    faces += [[0, i + 1, i] for i in range(1, k - 1)]                               # bottom (-z)
+    for i in range(k):
+        j = (i + 1) % k
+        faces += [[i, j, k + j], [i, k + j, k + i]]                                 # sides, outward
+    center = np.r_[mid, 0.0] if center is None else np.asarray(center, np.float64)
+    return (v - center).astype(np.float32), np.array(faces, np.int32)
 
 
 def load_config(path: str | Path = CONFIG) -> dict:
@@ -329,12 +355,25 @@ class SO101Scene:
     ``table_body``: draw the table as the LAST body (fixed pose) instead of a static mesh, so that a backend with
     per-world body colours (Newton: :meth:`SO101Renderer.set_appearance`) can colour it per world (build9's visual
     randomisation); the pictures are the same as with the static table.
+
+    ``real``: a :class:`RealScene` (off by default) builds the REAL setup instead (:meth:`_init_real`): no sim table;
+    cameras from REAL_VIEWS (default ``external`` + ``wrist``, calibrated, :attr:`camera_models`); everything is a body
+    (per-world colours and poses for all of it): the moving arm meshes, the cube, the goal plate (the 50 mm ``block``
+    style in the plate colour; none with ``goal=None``), the arm base meshes, then the floor, the mat and the walls
+    (:attr:`env_pose`, overridable per world). :attr:`groups` = body indices of REAL_GROUPS.
     """
 
     def __init__(self, assets: SO101Assets | None = None, cube_colors=None, goal: str | None = "plate",
                  front_eye=FRONT_EYE, front_target=FRONT_TARGET, device=None, cfg: dict | None = None,
-                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET, table_body: bool = False):
+                 cameras: Sequence[str] | None = None, top_eye=TOP_EYE, top_target=TOP_TARGET,
+                 table_body: bool = False, real: "RealScene | None" = None):
         from nedm.render import cameras as cams
+        self.real, self.camera_models = real, None
+        if real is not None:
+            self._init_real(real, assets, cube_colors, goal, front_eye, front_target, device, cfg, cameras, top_eye,
+                            top_target)
+            return
+        cameras = CAMERAS if cameras is None else cameras
         self.cameras = tuple(cameras)
         self.table_body = bool(table_body)
         if not self.cameras or len(set(self.cameras)) != len(self.cameras) or not set(self.cameras) <= set(VIEWS):
@@ -416,6 +455,119 @@ class SO101Scene:
         self.cam_quat = torch.tensor(cam["quat"], dtype=torch.float64, device=self.device)
         self.fovy_deg = float(cam["fovy_deg"])
 
+    def _init_real(self, real: "RealScene", assets, cube_colors, goal, front_eye, front_target, device, cfg, cameras,
+                   top_eye, top_target) -> None:
+        """The real-setup scene (class docstring, :class:`RealScene`)."""
+        from nedm.render import cameras as cams
+        self.cameras = tuple(REAL_CAMERAS if cameras is None else cameras)
+        if not self.cameras or len(set(self.cameras)) != len(self.cameras) or not set(self.cameras) <= set(REAL_VIEWS):
+            raise ValueError(f"cameras {cameras!r}: distinct names from {REAL_VIEWS} in the real scene")
+        self.table_body = False
+        self.assets = assets = assets if assets is not None else load_assets()
+        cfg = cfg or load_config()
+        self.device = torch.device(device or "cpu")
+        self.kin = SO101Kinematics(assets.links, self.device)
+        moving = self._moving_bodies()
+        groups: dict[str, list[int]] = {g: [] for g in REAL_GROUPS}
+        bodies, mesh_body = [], []
+        for body, mesh in assets.meshes:
+            if body in moving:
+                part = arm_part(mesh.color)
+                groups[part].append(len(bodies))
+                bodies.append(replace(mesh, color=real.color(part)))
+                mesh_body.append(self.kin.bodies.index(body))
+        self.mesh_body = torch.tensor(mesh_body, device=self.device)
+        self.cube_half = 0.5 * float(cfg["cube"]["size_m"])
+        v, f = box_mesh([self.cube_half] * 3)
+        groups["cube"].append(len(bodies))
+        bodies.append(MeshBody("cube", vertices=v, faces=f,
+                               color=tuple(cube_colors) if cube_colors is not None else real.color("cube")))
+        self.cube_meshes = 1
+        self.goal_style = None if goal is None else "block"
+        self.goal_meshes = 0 if goal is None else 1
+        if goal is not None:
+            v, f = box_mesh([BLOCK_HALF, BLOCK_HALF, BLOCK_THICKNESS / 2], (0.0, 0.0, BLOCK_THICKNESS / 2))
+            groups["plate"].append(len(bodies))
+            bodies.append(MeshBody("goal", vertices=v, faces=f, color=real.color("plate")))
+        # fixed bodies: the arm base meshes (at their welded pose), then the floor, the mat and the walls
+        zero = torch.zeros(1, 6, dtype=torch.float64, device=self.device)
+        bpos, bquat = self.kin(zero)
+        fixed = []
+        for body, mesh in assets.meshes:
+            if body not in moving:
+                i = self.kin.bodies.index(body)
+                part = arm_part(mesh.color)
+                groups[part].append(len(bodies))
+                bodies.append(replace(mesh, color=real.color(part)))
+                fixed.append(torch.cat([bpos[0, i], xyzw(bquat[0, i])]))
+        self.env_groups, self.env_names = [], []
+        for g, name, mesh, pose in real.env_meshes():
+            groups[g].append(len(bodies))
+            bodies.append(mesh)
+            fixed.append(torch.tensor(pose, dtype=torch.float64, device=self.device))
+            self.env_groups.append(g)
+            self.env_names.append(name)
+        self.fixed_pose = torch.stack(fixed)                         # [n_fixed, 7] x y z qx qy qz qw, float64
+        self.n_env = len(self.env_names)
+        self.groups = groups
+        self.scene = Scene.from_meshes(bodies)
+        # cameras: calibrated external (world-fixed) and wrist (on its calibrated body); top and front as the sim's
+        f64 = lambda v: torch.tensor([v], dtype=torch.float64)                                     # noqa: E731
+        self.front = cams.look_at(f64(front_eye), f64(front_target))[0].to(self.device)
+        self.top = cams.look_at(f64(top_eye), f64(top_target), up=TOP_UP)[0].to(self.device)
+        self.fovy_deg = float(assets.wrist_cam["fovy_deg"])
+        calib = real.calib["cameras"]
+        cam = assets.wrist_cam
+        self.cam_body = self.kin.bodies.index(cam["body"])
+        self.cam_pos = torch.tensor(cam["pos"], dtype=torch.float64, device=self.device)
+        self.cam_quat = torch.tensor(cam["quat"], dtype=torch.float64, device=self.device)
+        if "wrist" in self.cameras:
+            c = calib["wrist"]
+            if c["parent"] not in self.kin.bodies:
+                raise ValueError(f"wrist camera parent {c['parent']!r} is not a body of the MJCF: {self.kin.bodies}")
+            local = cams.pose_from_opencv(c["T_parent_cam"]).to(self.device)
+            self.cam_body = self.kin.bodies.index(c["parent"])
+            self.cam_pos, self.cam_quat = local[:3], wxyz(local[3:])
+        if "external" in self.cameras:
+            c = calib["external"]
+            if c["parent"] != "world":
+                raise ValueError(f"external camera parent {c['parent']!r}: only 'world' is handled")
+            self.external = cams.pose_from_opencv(c["T_parent_cam"]).to(self.device)
+        self.camera_models = [real.camera_model(n) if n in REAL_CAMERAS else cams.PinholeCamera(self.fovy_deg)
+                              for n in self.cameras]
+
+    @property
+    def env_pose(self) -> torch.Tensor:
+        """Nominal poses [n_env, 7] (x y z qx qy qz qw, float64) of the floor, mat and walls (real scene)."""
+        return self.fixed_pose[len(self.fixed_pose) - self.n_env:]
+
+    def _real_transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None):
+        f64 = dict(device=self.device, dtype=torch.float64)
+        q = torch.as_tensor(q).to(**f64)
+        n = q.shape[0]
+        pos, quat = self.kin(q)
+        parts = [torch.cat([pos[:, self.mesh_body], xyzw(quat[:, self.mesh_body])], -1)]
+        cq = torch.as_tensor(cube_quat).to(**f64)
+        cube = torch.cat([torch.as_tensor(cube_pos).to(**f64), xyzw(cq / cq.norm(dim=-1, keepdim=True))], -1)
+        parts.append(cube[:, None])
+        if self.goal_style is not None:
+            parts.append(self.goal_transform(goal_pose, n)[:, None])
+        fixed = self.fixed_pose.expand(n, *self.fixed_pose.shape)
+        if env_pose is not None:
+            e = torch.as_tensor(env_pose).to(**f64).reshape(n, self.n_env, 7)
+            fixed = torch.cat([fixed[:, : len(self.fixed_pose) - self.n_env], e], 1)
+        parts.append(fixed)
+        body_q = torch.cat(parts, 1)
+        views = []
+        for name in self.cameras:
+            if name == "wrist":
+                bp, bq = pos[:, self.cam_body], quat[:, self.cam_body]
+                views.append(torch.cat([bp + qrot(bq, self.cam_pos.expand(n, 3)),
+                                        xyzw(qmul(bq, self.cam_quat.expand(n, 4)))], -1))
+            else:
+                views.append(getattr(self, name).to(torch.float64).expand(n, 7))
+        return body_q.float(), torch.stack(views, 1).float()
+
     def _moving_bodies(self) -> set[str]:
         """Bodies with a hinge on the path to the world."""
         moving: set[str] = set()
@@ -428,13 +580,18 @@ class SO101Scene:
     def body_names(self) -> list[str]:
         return self.scene.body_names
 
-    def transforms(self, q, cube_pos, cube_quat, goal_pose=None) -> tuple[torch.Tensor, torch.Tensor]:
+    def transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None) -> tuple[torch.Tensor, torch.Tensor]:
         """Body transforms [B, bodies, 7] and camera transforms [B, cameras, 7] (x y z, qx qy qz qw; float32).
 
         q [B, 6] rad; cube_pos [B, 3] m; cube_quat [B, 4] w x y z (normalised here); goal_pose None (hidden),
         [B, 3] = goal cube centre x, y (m) and yaw (rad), or [B, 7] = goal cube pose (position, quaternion w x y z),
         of which x, y and the yaw of the face closest to the table (:func:`flat_yaw`) are used. The marker lies on the
-        table top under that point. Rows with a non-finite goal are hidden."""
+        table top under that point. Rows with a non-finite goal are hidden. ``env_pose`` (real scene only)
+        [B, n_env, 7] x y z qx qy qz qw replaces the floor, mat and wall poses (:attr:`env_pose`)."""
+        if self.real is not None:
+            return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose)
+        if env_pose is not None:
+            raise ValueError("env_pose needs the real scene")
         f64 = dict(device=self.device, dtype=torch.float64)
         q = torch.as_tensor(q).to(**f64)
         n = q.shape[0]
@@ -474,6 +631,216 @@ class SO101Scene:
         return torch.where(ok, shown, hidden)
 
 
+# ---- the real setup (real2sim) ------------------------------------------------------------------------------------
+# Off by default: ``SO101Scene(real=RealScene(...))`` / ``SO101Renderer(real=...)``. The calibration contract
+# (``~/so101_r2s_claude/calib/calib_v1.json``): cameras with K, D, image size, parent and T_parent_cam in the OpenCV
+# convention; scene.mat.corners_xy; colours measured from real frames. All numbers below are PLACEHOLDER defaults until
+# the calibration measures them (a white light box with a black cloth mat, a white printed arm with black servos, a
+# green 30 mm cube, a red 50 mm square plate, an LED strip light on the right).
+REAL_VIEWS = ("external", "wrist", "top", "front")      # external, wrist: calibrated; top, front: the 61 deg pinholes
+REAL_CAMERAS = ("external", "wrist")
+REAL_GROUPS = ("printed", "servo", "cube", "plate", "floor", "mat", "walls")
+SERVO_MAX_MJCF = 0.3       # so101.xml: the sts3215 servo materials (and the wrist camera board) are rgba 0.1 0.1 0.1
+
+
+def arm_part(color) -> str:
+    """``"servo"`` for the MJCF's black servo material (rgb 0.1), else ``"printed"`` (the yellow printed parts)."""
+    return "servo" if max(color) < SERVO_MAX_MJCF else "printed"
+
+
+def load_calibration(path: str | Path) -> dict:
+    """The calibration contract (JSON) at ``path``."""
+    return json.loads(Path(path).expanduser().read_text())
+
+
+def placeholder_calibration() -> dict:
+    """A TEMPORARY calibration in the contract's layout for tests (not measured): both cameras fisheye fx = fy = 300,
+    cx = 320, cy = 240, D = (0.05, 0, 0, 0), 640 x 480; external at (0.35, -0.35, 0.45) looking at (0.2, 0, 0); wrist =
+    the MJCF ``wrist_cam`` pose on ``camera_mount`` (turned to the OpenCV convention)."""
+    from nedm.render import cameras as cams
+    ext = cams.opencv_look_at([0.35, -0.35, 0.45], [0.2, 0.0, 0.0])[0].tolist()
+    q = (0.958280, -0.285792, -0.001556, 0.004547)                                    # so101.xml wrist_cam, w x y z
+    gl = torch.tensor([-0.00296, 0.05436, -0.05310, q[1], q[2], q[3], q[0]], dtype=torch.float64)
+    wrist = cams.pose_to_opencv(gl).tolist()
+    lens = dict(model="opencv_fisheye", width=640, height=480, K=[300.0, 300.0, 320.0, 240.0], D=[0.05, 0.0, 0.0, 0.0],
+                rms_px=float("nan"), n_points=0, holdout_rms_px=float("nan"))
+    return {"placeholder": True,
+            "cameras": {"external": dict(lens, parent="world", T_parent_cam=ext),
+                        "wrist": dict(lens, parent="camera_mount", T_parent_cam=wrist)},
+            "scene": {"mat": {"corners_xy": None}, "notes": "placeholder, not measured"}}
+
+
+@dataclass
+class RealScene:
+    """The real-setup scene configuration (all geometry in the world = arm base frame, table/mat top z = 0, m).
+
+    ``calib``: the contract dict (or :meth:`from_path`). ``crop``: per calibrated camera the real-pixel box
+    [x0, y0, w, h] the output image samples (None: the whole 640 x 480 image), see ``CalibratedCamera``. Geometry:
+    the black mat = a prism over ``mat_corners_xy`` (None: the calibration's ``scene.mat.corners_xy``, else
+    ``DEFAULT_MAT``) from z = -``mat_thickness`` to 0; the white floor = a box over ``floor_xy`` (x0, x1, y0, y1) with
+    its top at z = -``mat_thickness``; ``walls``: vertical white panels, each a floor segment ((x0, y0), (x1, y1)) of
+    the panel's inner face, ``wall_height`` tall and ``wall_thickness`` thick away from the mat (empty: none).
+    Colours (linear 0-1 albedo, Newton multiplies by the light): ``colors[group]`` for REAL_GROUPS. ``lights``: Newton
+    lights (``NewtonBackend.set_lights``), shared by all worlds; ``ambient``: Newton's fixed ambient term; ``sky``:
+    8-bit colour of rays that hit nothing (the dark room outside the box)."""
+
+    DEFAULT_MAT = ((0.08, -0.22), (0.42, -0.22), (0.42, 0.22), (0.08, 0.22))
+    DEFAULT_COLORS = {"printed": (0.92, 0.92, 0.90), "servo": (0.05, 0.05, 0.05), "cube": (0.05, 0.62, 0.22),
+                      "plate": (0.85, 0.08, 0.08), "floor": (0.93, 0.93, 0.93), "mat": (0.03, 0.03, 0.03),
+                      "walls": (0.93, 0.93, 0.93)}
+    # A key light from above (shadows) and dimmed shadowless fills from the sides and from below (the light box's
+    # diffuse glow and the floor's bounce: Newton has no inter-reflection and a fixed weak ambient, so without them
+    # the white walls come out grey and every face turned from the key light near black). Placeholders, not measured.
+    DEFAULT_LIGHTS = ({"type": "directional", "direction": (-0.25, 0.35, -1.0), "shadow": True},
+                      {"type": "directional", "direction": (0.1, 1.0, -0.35), "shadow": False, "intensity": 0.6,
+                       "center": (0.25, 0.0, 0.0)},
+                      {"type": "directional", "direction": (1.0, -0.1, -0.35), "shadow": False, "intensity": 0.6,
+                       "center": (0.25, 0.0, 0.0)},
+                      {"type": "directional", "direction": (0.0, -1.0, -0.3), "shadow": False, "intensity": 0.4,
+                       "center": (0.25, 0.0, 0.0)},
+                      {"type": "directional", "direction": (-1.0, 0.0, -0.3), "shadow": False, "intensity": 0.4,
+                       "center": (0.25, 0.0, 0.0)},
+                      {"type": "directional", "direction": (0.0, 0.0, 1.0), "shadow": False, "intensity": 0.35,
+                       "center": (0.25, 0.0, 0.0)})
+
+    calib: dict = field(default_factory=placeholder_calibration)
+    crop: dict = field(default_factory=lambda: {"external": None, "wrist": None})
+    mat_corners_xy: Sequence | None = None
+    mat_thickness: float = 0.001
+    floor_xy: tuple = (-0.25, 0.60, -0.45, 0.45)
+    floor_thickness: float = 0.01
+    walls: Sequence = (((-0.25, 0.45), (0.60, 0.45)), ((0.60, 0.45), (0.60, -0.45)))
+    wall_height: float = 0.60
+    wall_thickness: float = 0.005
+    colors: dict = field(default_factory=dict)
+    lights: Sequence = DEFAULT_LIGHTS
+    shadows: bool = True
+    ambient: bool = True
+    sky: tuple = (25, 25, 25)
+
+    @classmethod
+    def from_path(cls, path: str | Path, **kw) -> "RealScene":
+        return cls(calib=load_calibration(path), **kw)
+
+    def color(self, group: str) -> tuple:
+        return tuple(float(c) for c in self.colors.get(group, self.DEFAULT_COLORS[group]))
+
+    def mat_corners(self) -> np.ndarray:
+        if self.mat_corners_xy is not None:
+            return np.asarray(self.mat_corners_xy, np.float64)
+        mat = (self.calib.get("scene") or {}).get("mat") or {}
+        corners = mat.get("corners_xy")
+        return np.asarray(corners if corners is not None else self.DEFAULT_MAT, np.float64)
+
+    def camera_model(self, name: str):
+        from nedm.render.cameras import CalibratedCamera
+        return CalibratedCamera.from_contract(self.calib["cameras"][name], (self.crop or {}).get(name))
+
+    def env_meshes(self) -> list[tuple[str, str, MeshBody, np.ndarray]]:
+        """(group, name, mesh in its own frame, pose (7,) x y z qx qy qz qw) of the floor, mat and walls."""
+        out = []
+        x0, x1, y0, y1 = self.floor_xy
+        top = -self.mat_thickness
+        v, f = box_mesh([(x1 - x0) / 2, (y1 - y0) / 2, self.floor_thickness / 2])
+        out.append(("floor", "floor", MeshBody("floor", vertices=v, faces=f, color=self.color("floor")),
+                    np.array([(x0 + x1) / 2, (y0 + y1) / 2, top - self.floor_thickness / 2, 0, 0, 0, 1.0])))
+        corners = self.mat_corners()
+        v, f = prism_mesh(corners, -self.mat_thickness, 0.0)
+        out.append(("mat", "mat", MeshBody("mat", vertices=v, faces=f, color=self.color("mat")),
+                    np.r_[corners.mean(0), 0.0, 0, 0, 0, 1.0]))
+        mid = corners.mean(0)
+        for k, (a, b) in enumerate(self.walls):
+            a, b = np.asarray(a, np.float64), np.asarray(b, np.float64)
+            t = (b - a) / np.linalg.norm(b - a)
+            nrm = np.array([t[1], -t[0]])
+            if np.dot(nrm, (a + b) / 2 - mid) < 0:                  # thickness away from the mat
+                nrm = -nrm
+            quad = np.stack([a, b, b + nrm * self.wall_thickness, a + nrm * self.wall_thickness])
+            v, f = prism_mesh(quad, top, top + self.wall_height)
+            out.append(("walls", f"wall{k}", MeshBody(f"wall{k}", vertices=v, faces=f, color=self.color("walls")),
+                        np.r_[quad.mean(0), 0.0, 0, 0, 0, 1.0]))
+        return out
+
+
+@dataclass
+class RealDR:
+    """Per-world visual randomisation of the real scene (as build9's ``viral.DRConfig``): per group a brightness
+    factor and a per-channel tint of the colour, camera pose offsets (world position m, local rotation rad), the mat
+    pose (xy m, yaw rad), the walls' xy (m); per call the light directions (deg)."""
+
+    bright: dict = field(default_factory=lambda: {"printed": (0.85, 1.1), "servo": (0.6, 2.0), "cube": (0.75, 1.25),
+                                                  "plate": (0.75, 1.25), "floor": (0.8, 1.1), "mat": (0.5, 2.5),
+                                                  "walls": (0.75, 1.1)})
+    tint: dict = field(default_factory=lambda: {"printed": 0.05, "servo": 0.1, "cube": 0.1, "plate": 0.1,
+                                                "floor": 0.05, "mat": 0.15, "walls": 0.06})
+    cam_pos: dict = field(default_factory=lambda: {"external": 0.01, "wrist": 0.002, "top": 0.01, "front": 0.01})
+    cam_rot: dict = field(default_factory=lambda: {"external": 0.03, "wrist": 0.02, "top": 0.03, "front": 0.03})
+    mat_xy: float = 0.01
+    mat_yaw: float = 0.03
+    wall_xy: float = 0.03
+    light_deg: float = 15.0
+
+    def draw(self, scene: "SO101Scene", n: int, generator: torch.Generator | None = None, device=None) -> dict:
+        """Per-world draws for n worlds: ``colors`` [n, bodies, 3], ``cam_offset`` [n, C, 6] (dpos, drot),
+        ``env_pose`` [n, n_env, 7] (x y z qx qy qz qw), for :meth:`SO101Renderer.render_dr`."""
+        dev = torch.device(device or scene.device)
+
+        def u(lo, hi, *shape):
+            return lo + (hi - lo) * torch.rand(n, *shape, device=dev, generator=generator, dtype=torch.float64)
+
+        base = torch.tensor([m.color for m in scene.scene.bodies], dtype=torch.float64, device=dev)
+        cols = base.expand(n, *base.shape).clone()
+        for g, idx in scene.groups.items():
+            if not idx:
+                continue
+            lo, hi = self.bright.get(g, (1.0, 1.0))
+            ti = self.tint.get(g, 0.0)
+            cols[:, idx] = (cols[:, idx] * u(lo, hi, 1, 1) * u(1 - ti, 1 + ti, 1, 3)).clamp(0, 1)
+        C = len(scene.cameras)
+        pos = torch.tensor([self.cam_pos.get(c, 0.0) for c in scene.cameras], dtype=torch.float64, device=dev)
+        rot = torch.tensor([self.cam_rot.get(c, 0.0) for c in scene.cameras], dtype=torch.float64, device=dev)
+        off = torch.cat([u(-1, 1, C, 3) * pos[None, :, None], u(-1, 1, C, 3) * rot[None, :, None]], -1)
+        env = scene.env_pose.to(dev).expand(n, *scene.env_pose.shape).clone()
+        for k, g in enumerate(scene.env_groups):
+            if g == "mat":
+                env[:, k, :2] += u(-1, 1, 2) * self.mat_xy
+                env[:, k, 3:] = xyzw(yaw_quat(u(-1, 1) * self.mat_yaw))
+            elif g == "walls":
+                env[:, k, :2] += u(-1, 1, 2) * self.wall_xy
+        return dict(colors=cols.float(), cam_offset=off.float(), env_pose=env)
+
+    def lights(self, lights: Sequence[dict], generator: torch.Generator | None = None) -> list[dict]:
+        """The lights with each direction turned by up to ``light_deg`` about a random axis (one draw per call)."""
+        out = []
+        for lt in lights:
+            lt = dict(lt)
+            if "direction" in lt:
+                d = np.asarray(lt["direction"], np.float64)
+                axis = torch.randn(3, generator=generator, dtype=torch.float64).numpy()
+                ang = math.radians(self.light_deg) * float(torch.rand(1, generator=generator, dtype=torch.float64))
+                q = np.r_[math.cos(ang / 2), math.sin(ang / 2) * axis / np.linalg.norm(axis)]
+                lt["direction"] = qrot(torch.tensor(q), torch.tensor(d / np.linalg.norm(d))).tolist()
+            out.append(lt)
+        return out
+
+
+def axis_angle_quat(v: torch.Tensor) -> torch.Tensor:
+    """[..., 3] rotation vectors -> quaternions w x y z (as ``viral._quat_axis_angle``)."""
+    a = v.norm(dim=-1, keepdim=True)
+    s = torch.where(a > 1e-12, torch.sin(a / 2) / a.clamp_min(1e-12), torch.full_like(a, 0.5))
+    return torch.cat((torch.cos(a / 2), v * s), -1)
+
+
+def offset_cameras(cam_q: torch.Tensor, cam_offset: torch.Tensor) -> torch.Tensor:
+    """Camera transforms [B, C, 7] (x y z qx qy qz qw) moved by ``cam_offset`` [B, C, 6]: + dpos in the world, then
+    turned by the rotation vector drot in the camera's own frame (build9's camera randomisation)."""
+    cq = cam_q.clone()
+    off = cam_offset.to(cq)
+    cq[..., :3] = cq[..., :3] + off[..., :3]
+    cq[..., 3:] = xyzw(qmul(wxyz(cq[..., 3:]), axis_angle_quat(off[..., 3:])))
+    return cq
+
+
 # ---- renderer -----------------------------------------------------------------------------------------------------
 class SO101Renderer:
     """Images of ``num_worlds`` SO101 worlds per call from the ``cameras`` (names from VIEWS, default front + wrist),
@@ -483,12 +850,17 @@ class SO101Renderer:
     AMD, CPU; ``device`` = a Warp device, default the GPU if there is one). All cameras share one resolution
     (``width`` x ``height``, e.g. 224 x 224 for ACT) and the wrist camera's field of view (fovy 61 deg, ``so101.xml``).
     Calls with fewer than ``num_worlds`` rows are padded (the extra worlds repeat row 0) and the outputs cut back.
+
+    ``real``: a :class:`RealScene` (Newton only, off by default): the real setup with its calibrated cameras (default
+    ``external`` + ``wrist``; every output pixel samples the camera's crop box, pixels without a ray are black), the
+    scene's lights and sky (``sky`` is ignored). Per-world randomisation: :class:`RealDR` + :meth:`render_dr`.
     """
 
     def __init__(self, num_worlds: int, width: int = 128, height: int = 128, backend: str = "newton",
                  shadows: bool = True, assets: SO101Assets | None = None, cube_colors=None, goal: str | None = "plate",
                  front_eye=FRONT_EYE, front_target=FRONT_TARGET, sky=SKY, device=None,
-                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET, table_body: bool = False):
+                 cameras: Sequence[str] | None = None, top_eye=TOP_EYE, top_target=TOP_TARGET,
+                 table_body: bool = False, real: "RealScene | None" = None):
         from nedm.render.renderer import BatchRenderer
         if backend == "madrona":
             torch_device = "cuda:0"
@@ -496,14 +868,28 @@ class SO101Renderer:
             torch_device = "cuda:0" if ("cuda" in str(device) or (device is None and torch.cuda.is_available())) \
                 else "cpu"
         self.scene = SO101Scene(assets, cube_colors, goal, front_eye, front_target, device=torch_device,
-                                cameras=cameras, top_eye=top_eye, top_target=top_target, table_body=table_body)
+                                cameras=cameras, top_eye=top_eye, top_target=top_target, table_body=table_body,
+                                real=real)
         self.cameras = self.scene.cameras
-        self.renderer = BatchRenderer(self.scene.scene, num_worlds, width, height, cameras=len(self.cameras),
-                                      fov_deg=self.scene.fovy_deg, device=device, shadows=shadows, sky=sky,
-                                      backend=backend)
+        self.real = real
+        if real is None:
+            self.renderer = BatchRenderer(self.scene.scene, num_worlds, width, height, cameras=len(self.cameras),
+                                          fov_deg=self.scene.fovy_deg, device=device, shadows=shadows, sky=sky,
+                                          backend=backend)
+        else:
+            if backend != "newton":
+                raise NotImplementedError("the real scene's calibrated cameras need the newton backend")
+            self.renderer = BatchRenderer(self.scene.scene, num_worlds, width, height, cameras=len(self.cameras),
+                                          fov_deg=self.scene.fovy_deg, device=device, shadows=shadows,
+                                          sky=tuple(real.sky), backend=backend, camera_models=self.scene.camera_models)
+            self.set_lights(real.lights, shadows=bool(shadows and real.shadows), ambient=real.ambient)
         self.device = torch.device(torch_device)
         self.num_worlds, self.width, self.height, self.backend = int(num_worlds), int(width), int(height), backend
         self.shadows = bool(shadows)
+        self._nominal = True
+        if real is not None:        # per camera: ray length -> z-depth (0 at pixels without a ray)
+            self.z_per_ray = torch.from_numpy(self.renderer.backend.ray_z).to(self.device)
+            return
         # ray length -> z-depth, at pixel centres (fovy vertical, square pixels)
         focal = 0.5 * height / math.tan(math.radians(self.scene.fovy_deg) / 2)
         u = (torch.arange(width, dtype=torch.float64) + 0.5 - width / 2) / focal
@@ -511,16 +897,40 @@ class SO101Renderer:
         self.z_per_ray = (1.0 / torch.sqrt(1 + u[None, :] ** 2 + v[:, None] ** 2)).float().to(self.device)
 
     @property
+    def valid_mask(self) -> torch.Tensor | None:
+        """[C, H, W] bool: pixels with a ray (real scene; None: every pixel)."""
+        return self.renderer.valid_mask
+
+    def set_camera_models(self, models: Sequence) -> None:
+        """New camera models, one per camera in :attr:`cameras` order (Newton; e.g. intrinsics randomised per call:
+        rays are shared by all worlds of a call). Updates the z-depth factors."""
+        self.renderer.set_camera_models(models)
+        self.z_per_ray = torch.from_numpy(self.renderer.backend.ray_z).to(self.device)
+
+    def set_lights(self, lights: Sequence[dict], shadows: bool | None = None, ambient: bool | None = None) -> None:
+        """Replace the lights of every world (Newton: :meth:`~nedm.render.backends.newton.NewtonBackend.set_lights`)."""
+        if not hasattr(self.renderer.backend, "set_lights"):
+            raise NotImplementedError("set_lights: newton backend only")
+        self.renderer.backend.set_lights(list(lights), shadows=shadows, ambient=ambient)
+
+    @property
     def geom_names(self) -> list[str]:
         """Names of the backend's drawn objects in its order: the bodies, then the statics (base meshes, table)."""
         return self.scene.body_names + [mesh.name for mesh, _ in self.scene.scene.statics]
 
-    def render(self, q, cube_pos, cube_quat, goal_pose=None, depth: bool = False, copy: bool = True):
+    def render(self, q, cube_pos, cube_quat, goal_pose=None, depth: bool = False, copy: bool = True,
+               env_pose=None, cam_offset=None):
         """rgb [B, C, H, W, 3] uint8 (cameras in :attr:`cameras` order), and with ``depth`` also z-depth [B, C, H, W]
         float32 (m along the camera axis, 0 = nothing hit). Inputs as :meth:`SO101Scene.transforms`, any device and
         float dtype, B <= num_worlds. ``copy=False`` returns a view of the renderer's buffer (overwritten by the next
-        call)."""
-        body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose)
+        call). ``env_pose`` [B, n_env, 7] (real scene): floor, mat and wall poses; ``cam_offset`` [B, C, 6]: per-world
+        camera pose offsets (:func:`offset_cameras`)."""
+        if env_pose is None:
+            body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose)
+        else:
+            body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose, env_pose=env_pose)
+        if cam_offset is not None:
+            cam_q = offset_cameras(cam_q, torch.as_tensor(cam_offset, device=cam_q.device))
         n = body_q.shape[0]
         if n > self.num_worlds:
             raise ValueError(f"{n} states for {self.num_worlds} worlds")
@@ -535,6 +945,24 @@ class SO101Renderer:
         if not depth:
             return rgb
         return rgb, frames.depth_torch()[:n] * self.z_per_ray.to(rgb.device)
+
+    def render_dr(self, q, cube_pos, cube_quat, goal_pose=None, draw: dict | None = None, **kw):
+        """:meth:`render` with per-world randomisation ``draw`` (:meth:`RealDR.draw`: colors [B, bodies, 3],
+        cam_offset [B, C, 6], env_pose [B, n_env, 7]; any key may be missing), or the nominal scene with None.
+        Newton colours are per world (rows beyond B repeat row 0)."""
+        if draw is None:
+            if not self._nominal:
+                self.set_appearance(reset=True)
+                self._nominal = True
+            return self.render(q, cube_pos, cube_quat, goal_pose, **kw)
+        if draw.get("colors") is not None:
+            cols = torch.as_tensor(draw["colors"], dtype=torch.float32)
+            if cols.shape[0] < self.num_worlds:
+                cols = torch.cat([cols, cols[:1].expand(self.num_worlds - cols.shape[0], *cols.shape[1:])])
+            self.set_appearance(cols)
+            self._nominal = False
+        return self.render(q, cube_pos, cube_quat, goal_pose, env_pose=draw.get("env_pose"),
+                           cam_offset=draw.get("cam_offset"), **kw)
 
     def render_state(self, state, goal_pose=None, **kw):
         """Render a :class:`nedm.so101_policy.world.WorldState` (``q``, ``cube_pos``, true ``cube_quat`` w x y z), the

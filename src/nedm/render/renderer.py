@@ -35,18 +35,42 @@ class BatchRenderer:
         shadows: bool = True,
         sky: tuple[int, int, int] = (200, 215, 230),
         backend: str = "newton",
+        camera_models: Sequence | None = None,
+        hdr: bool = False,
     ) -> None:
+        """``camera_models``: None (every camera a pinhole of ``fov_deg``, the original behaviour) or one model per
+        camera from :mod:`nedm.render.cameras` (``PinholeCamera(fovy_deg)``, ``CalibratedCamera(...)``; Newton only).
+        Rays are shared by all worlds; camera POSES stay per world. ``hdr``: keep the linear colour too (Newton)."""
         self.scene, self.num_worlds = scene, int(num_worlds)
         self.width, self.height, self.cameras = int(width), int(height), int(cameras)
         self.body_names = scene.body_names
         self.body_index = {name: i for i, name in enumerate(self.body_names)}
         self.joint_index, self.coord_count = scene.joint_index, scene.coord_count
         self.backend_name = backend
+        extra = {}
+        if camera_models is not None:
+            extra["camera_models"] = list(camera_models)
+        if hdr:
+            extra["hdr"] = True
+        if extra and backend != "newton":
+            raise NotImplementedError(f"camera models and hdr output need the newton backend, not {backend!r}")
         self.backend = backends.make(backend)(scene, self.num_worlds, self.width, self.height, self.cameras,
-                                              fov_deg, device, shadows, sky)
+                                              fov_deg, device, shadows, sky, **extra)
         self.device = self.backend.device
         self._torch_device = torch.device("cuda:0" if "cuda" in str(self.device) else "cpu")
         self._body_q: torch.Tensor | None = None
+
+    @property
+    def valid_mask(self) -> torch.Tensor | None:
+        """(C, H, W) bool: pixels with a ray in their camera model (None: all of them, or not a Newton renderer)."""
+        valid = getattr(self.backend, "valid", None)
+        return None if valid is None else torch.from_numpy(valid)
+
+    def set_camera_models(self, models: Sequence) -> None:
+        """New camera models (one per camera) for the next renders (Newton). Poses stay per world and per call."""
+        if self.backend_name != "newton":
+            raise NotImplementedError("camera models need the newton backend")
+        self.backend.set_camera_models(models)
 
     @property
     def interop(self) -> str | None:
