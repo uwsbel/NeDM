@@ -39,6 +39,19 @@ keys q / space / Esc need a TTY, else only Ctrl+C stops. Do not pipe into `tee` 
 
 ## 2. Commands on the Orin
 
+Short form (`robot_test.sh`, in the bundle root; it activates `lerobot`, writes to `~/so101_hw_runs/<mode>_<time>`,
+refuses dry / live without a TTY, with changed bundle files, or while another process has the port or a camera open):
+
+```bash
+cd ~/so101_hw_robot
+./robot_test.sh check        # files, env, port, cameras, calibration (opens no device)
+./robot_test.sh replay       # a) below
+./robot_test.sh dry          # b) below, 30 s
+./robot_test.sh live         # c) below, 15 s  (live-tilt = c) + --q-offset-deg 0,-2.086,0,0,0)
+```
+
+Long form:
+
 ```bash
 conda activate lerobot
 cd ~/so101_hw_robot
