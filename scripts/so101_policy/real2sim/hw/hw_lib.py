@@ -326,7 +326,12 @@ class GuardConfig:
 class Guard:
     """Hardware guard (``GuardConfig``). ``check_measured`` -> stop reasons of the measured state; ``apply`` -> the
     command (sim and real units) after: step limit vs the previous command, the action layer, LeRobot-unit range and
-    max relative target vs the measured q, then the final checks (finite, workspace box, commanded floor)."""
+    max relative target vs the measured q, then the final checks (finite, workspace box, commanded floor).
+
+    ``u_layer`` (sim rad [6], None before the first ``apply`` or after a non-finite target): the target of the last
+    ``apply`` right after the step limit and the action layer, BEFORE the integral correction and the LeRobot-unit
+    clamps = the sim's executed target (``joint_env`` ``u_exe``). The command input of a ``cmd_in`` student reads it,
+    never the sent command (``u_sim``: + the integral correction) or ``prev`` (+ the LeRobot clamps)."""
 
     def __init__(self, cfg: GuardConfig, layer: ActionLayer, jmap: JointMap, limits: RealLimits):
         self.cfg, self.layer, self.jmap, self.limits = cfg, layer, jmap, limits
@@ -335,11 +340,13 @@ class Guard:
         self.prev = None
         self.err_run = 0
         self.integ = np.zeros(ARM)
+        self.u_layer = None
 
     def reset(self, q_sim):
         self.prev = np.asarray(q_sim, np.float64).copy()
         self.err_run = 0
         self.integ = np.zeros(ARM)
+        self.u_layer = None
 
     def _box(self, p):
         c = self.cfg
@@ -371,6 +378,7 @@ class Guard:
         c = self.cfg
         ev = dict(step=False, lead=False, range=False, floor=False, real_range=False, max_rel=False)
         u = np.asarray(u_sim, np.float64)
+        self.u_layer = None
         if not np.all(np.isfinite(u)):
             return None, None, ev, ["student target: not finite"]
         if self.prev is None:
@@ -379,6 +387,7 @@ class Guard:
         ev["step"] = bool(np.any(np.abs(d - (u - self.prev)) > 1e-12))
         u = self.prev + d
         u, info = self.layer(u, q_sim)
+        self.u_layer = np.array(u, np.float64)   # the sim's executed target (class docstring): before the integral
         ev.update(info)
         if c.i_time_s > 0:                 # the real servos stop short of a small command under load (sim: they follow)
             imax = math.radians(c.i_max_deg)
@@ -486,7 +495,19 @@ class StudentPolicy:
     """The build9 camera student (``vision.viral.ViralNet``) as a real-robot policy: images of its cameras (the student's
     RGB uint8 [res, res, 3], ``preprocess``), q and qdot (sim units) -> absolute chunk [K, 6] (sim rad), the executed
     part [n_exec, 6] (jaw ``jaw_lead`` steps ahead, as ``viral.Actor``), the auxiliary predictions (block = plate
-    x, y, yaw mod 90 deg; cube x, y, z). Same normalisation and bf16 autocast as ``viral.Actor``."""
+    x, y, yaw mod 90 deg; cube x, y, z). Same normalisation and bf16 autocast as ``viral.Actor``.
+
+    Input options (as ``viral.OnlineDAgger`` / ``viral.Actor``; ``reset`` at every episode start):
+    - ``cfg.hist``: [q, qd] of the previous ``hist`` queries, newest first (the current values repeated at the first
+      query).
+    - ``cfg.cmd_in``: the previous decision's 5 executed targets - q now, raw rad [5, 6] flattened after the history
+      (the net divides by ``cmd_scale``); 0 at the first query. ``query(..., u_prev=)`` = ``Guard.u_layer`` of the 5
+      loop steps since the last query (``Controller`` passes them); a missing ``u_prev`` after the first query is
+      refused.
+    - ``cfg.img_hist``: the previous query's image features (cached, no second encoder pass; the current ones at the
+      first query) appended to the head input.
+    A student whose head input is not exactly [features, robot vector above, (previous features)] (an input option this
+    class does not know) is refused. ``query`` returns the robot vector it fed (``robot``)."""
 
     def __init__(self, ckpt, device="cuda", cam_map=None, jaw_lead=None, amp=None):
         import torch
@@ -505,18 +526,34 @@ class StudentPolicy:
         self.jaw_lead = int(self.cfg.jaw_lead if jaw_lead is None else jaw_lead)
         self.amp = bool(self.cfg.amp if amp is None else amp) and self.dev.type == "cuda"
         self.H = int(self.cfg.hist)
+        self.cmd_in = bool(getattr(self.cfg, "cmd_in", False))
+        self.img_hist = bool(getattr(self.cfg, "img_hist", False))
+        fd = int(self.st.fd)
+        want = fd + 12 * (1 + self.H) + (6 * self.n_exec if self.cmd_in else 0) + (fd if self.img_hist else 0)
+        got = int(self.st.head[0].in_features)
+        if got != want:
+            raise ValueError(f"student {self.ckpt}: head input {got} != {want} = features {fd} + [q, qd] x (1 + hist "
+                             f"{self.H}) + cmd_in {self.cmd_in} + img_hist {self.img_hist}: an input option that the "
+                             f"robot code does not implement")
         self.rhist = None
+        self.prev_feat = None       # img_hist: the previous query's image features
+        self.n_query = 0            # queries since ``reset``
 
     def reset(self):
         self.rhist = None
+        self.prev_feat = None
+        self.n_query = 0
 
     def warmup(self, n=3):
+        """``n`` (>= 2) queries on black images (the history / image-history paths included), then ``reset``."""
         z = {self.cam_map[c]: np.zeros((self.res, self.res, 3), np.uint8) for c in self.cams}
-        for _ in range(n):
-            self.query(z, np.zeros(6), np.zeros(6))
+        for i in range(max(2, int(n))):
+            self.query(z, np.zeros(6), np.zeros(6), u_prev=np.zeros((self.n_exec, 6)) if i else None)
         self.reset()
 
-    def query(self, images, q_sim, qd_sim):
+    def query(self, images, q_sim, qd_sim, u_prev=None):
+        """``u_prev`` (``cmd_in`` students; others ignore it): the previous decision's executed targets [n_exec, 6]
+        (sim rad, ``Guard.u_layer`` of the loop steps since the last query); ignored at the first query (input 0)."""
         torch, VI = self.torch, self.VI
         t0 = time.perf_counter()
         with torch.no_grad():
@@ -533,8 +570,25 @@ class StudentPolicy:
                 now = robot
                 robot = torch.cat((now, self.rhist.reshape(1, -1)), -1)
                 self.rhist = torch.cat((now[:, None, :], self.rhist[:, :-1]), 1)
+            if self.cmd_in:             # the previous decision's executed targets - q now (0 at the first query)
+                if self.n_query == 0:
+                    cmd = torch.zeros(1, 6 * self.n_exec, device=self.dev)
+                else:
+                    if u_prev is None:
+                        raise ValueError("cmd_in student: pass u_prev (Guard.u_layer of the loop steps since the last "
+                                         "query) after the first query of an episode")
+                    up = np.asarray(u_prev, np.float32)
+                    if up.shape != (self.n_exec, 6):
+                        raise ValueError(f"u_prev shape {up.shape}, expected ({self.n_exec}, 6)")
+                    cmd = (torch.as_tensor(up, device=self.dev) - q[:, None, :]).nan_to_num().reshape(1, -1)
+                robot = torch.cat((robot, cmd), -1)
             with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=self.amp):
-                p, f = self.st(img, robot)
+                if self.img_hist:       # the previous query's features (the first query: the current ones)
+                    f = self.st.features(img)
+                    p = self.st.head_from_features(f, robot, self.prev_feat)
+                    self.prev_feat = f
+                else:
+                    p, f = self.st(img, robot)
                 aux = self.st.aux(f)
             delta = VI.denormalise(self.st, p.float())
             aux = aux.float() * self.st.aux_std + self.st.aux_mean
@@ -542,7 +596,9 @@ class StudentPolicy:
             jj = torch.arange(self.n_exec, device=self.dev)
             kk = (jj + self.jaw_lead).clamp_max(u.shape[0] - 1)
             ex = torch.cat((u[jj, :ARM], u[kk, ARM:]), -1)
-            out = dict(chunk=u.double().cpu().numpy(), exec=ex.double().cpu().numpy(), aux=aux[0].double().cpu().numpy())
+            out = dict(chunk=u.double().cpu().numpy(), exec=ex.double().cpu().numpy(),
+                       aux=aux[0].double().cpu().numpy(), robot=robot[0].double().cpu().numpy())
+        self.n_query += 1
         a = out["aux"]
         out["plate_xy"] = a[:2]
         out["plate_yaw4_deg"] = math.degrees(math.atan2(a[2], a[3]) / 4)
@@ -566,7 +622,10 @@ class Controller:
     """The student's control step, identical for a replayed recording and the robot: measured q (real units) at time
     t -> qdot estimate, every n_exec steps a query (``get_frames()`` -> {real camera: (image uint8 [480, 640, 3],
     age ms)}; ``bgr``: images are BGR), the executed target of this step through ``Guard.apply`` (step limit, action
-    layer, LeRobot-unit limits). Keeps a per-step and per-query log (``arrays``: per-query keys start with "qry_")."""
+    layer, LeRobot-unit limits). Keeps a per-step and per-query log (``arrays``: per-query keys start with "qry_").
+    Per step ``u_layer`` (``Guard.u_layer``: the action-layer target, before the integral correction and the LeRobot
+    clamps); a ``cmd_in`` student gets the ``u_layer`` of the 5 loop steps since the last query (by loop step: a query
+    every ``n_exec`` steps); a student with history / new inputs logs the robot vector it was fed (``qry_robot``)."""
 
     def __init__(self, policy: StudentPolicy, jmap: JointMap, guard: Guard, views: dict, qdot: QdotEstimator,
                  bgr: bool, max_frame_age_ms=150.0, thumb_res=112, qd_gain=1.0):
@@ -579,16 +638,18 @@ class Controller:
         self.bgr, self.max_age, self.thumb_res = bool(bgr), float(max_frame_age_ms), int(thumb_res)
         self.k = 0
         self.ex = None
-        self.S = {k: [] for k in ("t", "q_real", "q_sim", "qd_sim", "u_target", "u_sim", "u_real", "i_corr", "query",
-                                  "ev_step", "ev_lead", "ev_range", "ev_floor", "ev_real_range", "ev_max_rel", "n_stop",
-                                  "ms_qdot", "ms_frames", "ms_pre", "ms_model", "ms_guard", "ms_ctrl")}
+        self.u_layer = []           # Guard.u_layer of the last n_exec loop steps (NaN: no command that step)
+        self.S = {k: [] for k in ("t", "q_real", "q_sim", "qd_sim", "u_target", "u_layer", "u_sim", "u_real", "i_corr",
+                                  "query", "ev_step", "ev_lead", "ev_range", "ev_floor", "ev_real_range", "ev_max_rel",
+                                  "n_stop", "ms_qdot", "ms_frames", "ms_pre", "ms_model", "ms_guard", "ms_ctrl")}
         self.Q = {k: [] for k in ("t", "step", "chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz",
-                                  "frame_age_ms", "thumbs")}
+                                  "frame_age_ms", "thumbs", "robot")}     # robot: empty (no key) for a plain student
         self.events = {}
 
     def reset(self, q_real=None):
         self.k = 0
         self.ex = None
+        self.u_layer = []
         self.qdot.reset()
         self.p.reset()
         if q_real is not None:
@@ -618,10 +679,19 @@ class Controller:
                     stop.append(f"camera age: {rc} frame {age:.0f} ms old")
                 imgs[rc] = preprocess(im, self.views[rc], self.bgr)
             T["ms_pre"] = (time.perf_counter() - t2) * 1e3
-            r = self.p.query(imgs, q_sim, qd if self.qd_gain == 1.0 else qd * self.qd_gain)
+            qd_in = qd if self.qd_gain == 1.0 else qd * self.qd_gain
+            if getattr(self.p, "cmd_in", False):          # the action-layer targets of the last n_exec loop steps
+                n = self.p.n_exec
+                r = self.p.query(imgs, q_sim, qd_in, u_prev=np.stack(self.u_layer[-n:]) if len(self.u_layer) >= n
+                                 else None)
+            else:
+                r = self.p.query(imgs, q_sim, qd_in)
             T["ms_model"] = r["t_model_ms"]
             self.ex = r["exec"]
             Q = self.Q
+            if "robot" in r and (getattr(self.p, "H", 0) or getattr(self.p, "cmd_in", False)
+                                 or getattr(self.p, "img_hist", False)):
+                Q["robot"].append(np.asarray(r["robot"]))
             Q["t"].append(t)
             Q["step"].append(self.k)
             for kk in ("chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz"):
@@ -631,13 +701,16 @@ class Controller:
         t3 = time.perf_counter()
         target = self.ex[self.k % self.p.n_exec]
         u_sim, u_real, ev, stop2 = self.g.apply(target, q_sim, q_real, qd)
+        nan6 = np.full(6, np.nan)
+        ul = nan6 if self.g.u_layer is None else self.g.u_layer.copy()
+        self.u_layer = (self.u_layer + [ul])[-self.p.n_exec:]
         stop += stop2
         T["ms_guard"] = (time.perf_counter() - t3) * 1e3
         T["ms_ctrl"] = (time.perf_counter() - t0) * 1e3
         S = self.S
-        nan6 = np.full(6, np.nan)
         for kk, v in (("t", t), ("q_real", q_real), ("q_sim", q_sim), ("qd_sim", qd), ("u_target", target),
-                      ("u_sim", nan6 if u_sim is None else u_sim), ("u_real", nan6 if u_real is None else u_real),
+                      ("u_layer", ul), ("u_sim", nan6 if u_sim is None else u_sim),
+                      ("u_real", nan6 if u_real is None else u_real),
                       ("i_corr", self.g.integ.copy()), ("query", query), ("n_stop", len(stop))):
             S[kk].append(v)
         for kk in ("step", "lead", "range", "floor", "real_range", "max_rel"):

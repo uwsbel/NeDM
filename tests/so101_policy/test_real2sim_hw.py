@@ -2,7 +2,8 @@
 (real LeRobot units <-> sim rad), the LeRobot-unit limits, the safety limits (action layer and hardware guard), the
 table floor without mujoco (against the MuJoCo path when mujoco and the vendor model are present), image
 preprocessing, joint paths, the dry-mode write block, and the dry / live robot loop and the replay path on a fake robot
-/ a synthetic recording with a tiny random student. CPU, about 30 s:
+/ a synthetic recording with a tiny random student; the studentlab student inputs on the robot side (``StudentPolicy``
+with hist / cmd_in / img_hist, ``Guard.u_layer`` as the command input). CPU, about 40 s:
 
     CUDA_VISIBLE_DEVICES= PYTHONPATH=src ~/miniconda3/envs/so101_vision/bin/python -m unittest \
         tests.so101_policy.test_real2sim_hw -v
@@ -23,6 +24,7 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[2]
+S28 = Path("~/so101_studentlab_claude/ckpt/robot_v2_s28_it03000.pt").expanduser()      # the robot student (optional)
 HW = ROOT / "scripts" / "so101_policy" / "real2sim" / "hw"
 sys.path.insert(0, str(HW))
 import hw_lib as H  # noqa: E402
@@ -256,6 +258,32 @@ class TestActionLayerAndGuard(unittest.TestCase):
         _, _, _, stop = g.apply(low, low, self.jm.sim_to_real(low))
         self.assertTrue(any(s.startswith("command floor") or s.startswith("command workspace") for s in stop), stop)
 
+    def test_u_layer_is_the_action_layer_target(self):
+        """``Guard.u_layer`` = the step limit + action layer output, without the integral correction and the
+        LeRobot-unit clamps (the sim's u_exe: the cmd_in student's input); ``Guard.prev`` has the clamps."""
+        q = self.mid.copy()
+        tgt = q.copy()
+        tgt[1:3] -= np.radians(0.45)
+        g = self.guard(i_time_s=0.2, i_max_deg=3.0)
+        g.reset(q)
+        self.assertIsNone(g.u_layer)
+        for _ in range(200):
+            u, _, _, _ = g.apply(tgt, q, self.jm.sim_to_real(q))
+        np.testing.assert_allclose(g.u_layer, self.layer(tgt, q)[0], atol=1e-12)
+        np.testing.assert_allclose(np.degrees(u - g.u_layer)[1:3], -3.0, atol=1e-9)     # the sent command: + integral
+        qe = q.copy()
+        qe[0] = math.radians(self.lim.hi[0] - 0.01)       # near the LeRobot pan limit, the target beyond it
+        g = self.guard()
+        g.reset(qe)
+        ue = qe + np.array([0.04, 0, 0, 0, 0, 0])
+        us, ur, ev, _ = g.apply(ue, qe, self.jm.sim_to_real(qe))
+        self.assertTrue(ev["real_range"])
+        np.testing.assert_allclose(g.u_layer, self.layer(ue, qe)[0], atol=1e-12)
+        self.assertGreater(g.u_layer[0], us[0] + 1e-3)
+        np.testing.assert_allclose(g.prev, us, atol=1e-12)
+        g.apply(np.full(6, np.nan), qe, self.jm.sim_to_real(qe))
+        self.assertIsNone(g.u_layer)
+
     def test_measured_checks_and_stall(self):
         g = self.guard()
         q = self.home.copy()
@@ -412,6 +440,14 @@ def tiny_student(path, res=64):
     return path
 
 
+def tiny_expanded(path, base, **kw):
+    """``viral.expand_student`` of the student at ``base`` (hist / cmd_in / img_hist), saved at ``path``."""
+    from nedm.so101_policy.vision import viral as VI
+    st, _ = VI.load_student(base, "cpu")
+    VI.save_student(VI.expand_student(st, device="cpu", **kw), path)
+    return path
+
+
 class Clock:
     """poll() True after n calls (a scripted stop key)."""
 
@@ -498,10 +534,25 @@ class TestRobotLoopFake(unittest.TestCase):
 
     def test_replay_synthetic_recording(self):
         """A 2 s LeRobot-v3-shaped recording (parquet + mp4) through ``run_student_real.py replay``."""
+        self.replay(self.ck, "rec")
+
+    def test_replay_studentlab_student(self):
+        """The same with a hist 4 + cmd_in + img_hist student: the robot vector fed per query (``qry_robot``), the
+        command input = the logged ``u_layer`` of the 5 steps before - q (0 at the first query)."""
+        ck = tiny_expanded(Path(self.tmp.name) / "a4.pt", self.ck, hist=4, cmd_in=True, img_hist=True)
+        z = self.replay(ck, "rec_a4")
+        rob, qs = z["qry_robot"], z["qry_step"]
+        self.assertEqual(rob.shape[1], 12 * 5 + 30)
+        self.assertEqual(float(np.abs(rob[0, 60:]).max()), 0.0)
+        for i, k in enumerate(qs[1:], 1):
+            want = z["u_layer"][k - 5:k].astype(np.float32) - z["q_sim"][k].astype(np.float32)
+            np.testing.assert_allclose(rob[i, 60:].reshape(5, 6), want, atol=1e-6)
+
+    def replay(self, ck, name):
         import cv2
         import pyarrow as pa
         import pyarrow.parquet as pq
-        root = Path(self.tmp.name) / "rec"
+        root = Path(self.tmp.name) / name
         n, fps = 60, 30
         st = np.zeros((n, 6), np.float32)
         st[:, 0] = np.linspace(0, 10, n)
@@ -529,16 +580,160 @@ class TestRobotLoopFake(unittest.TestCase):
                 w.write(f)
             w.release()
         pq.write_table(pa.table(ep), root / "meta" / "episodes" / "chunk-000" / "file-000.parquet")
-        out = Path(self.tmp.name) / "replay_out"
+        out = Path(self.tmp.name) / f"replay_out_{name}"
         lr = Path(self.tmp.name) / "lr.json"
         lr.write_text(json.dumps(LR_CAL))
-        summ = self.R.main(["replay", "--student", str(self.ck), "--device", "cpu", "--data-root", str(root.parent),
-                            "--episodes", "rec:0", "--out", str(out), "--calib", "", "--lerobot-calib", str(lr)])
+        summ = self.R.main(["replay", "--student", str(ck), "--device", "cpu", "--data-root", str(root.parent),
+                            "--episodes", f"{name}:0", "--out", str(out), "--calib", "", "--lerobot-calib", str(lr)])
         self.assertEqual(summ[0]["steps"], int(math.floor((n - 1) / fps / H.DT)) + 1)
-        z = np.load(out / "rec_ep00.npz")
+        z = np.load(out / f"{name}_ep00.npz")
         self.assertEqual(z["qry_chunk"].shape[1:], (10, 6))
         np.testing.assert_allclose(z["q_real"][0], st[0], atol=1e-5)
         np.testing.assert_allclose(z["q_real"][5], st[3], atol=1e-4)                  # t 0.1 s = recorded frame 3
+        return z
+
+
+class TestStudentPolicyInputs(unittest.TestCase):
+    """``StudentPolicy`` with the studentlab inputs (``viral.expand_student`` students of the tiny student): zero-init
+    expansions give the base chunk; the robot vector and the image history equal the training path; refusals."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        d = Path(cls.tmp.name)
+        cls.base = tiny_student(d / "tiny.pt")
+        cls.a1 = tiny_expanded(d / "a1.pt", cls.base, hist=4, cmd_in=True)
+        cls.a4 = tiny_expanded(d / "a4.pt", cls.base, hist=4, cmd_in=True, img_hist=True)
+        cls.ih = tiny_expanded(d / "ih.pt", cls.base, img_hist=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    @staticmethod
+    def seq(n, seed=0, res=64):
+        rng = np.random.default_rng(seed)
+        out = []
+        for _ in range(n):
+            imgs = {c: rng.integers(0, 256, (res, res, 3), dtype=np.uint8) for c in H.REAL_CAMERAS}
+            q, qd = rng.uniform(-1, 1, 6), rng.uniform(-1, 1, 6)
+            out.append((imgs, q, qd, q + rng.uniform(-0.1, 0.1, (5, 6))))
+        return out
+
+    @staticmethod
+    def run_pol(pol, seq):
+        pol.reset()
+        return [pol.query(imgs, q, qd, u_prev=u if i else None) for i, (imgs, q, qd, u) in enumerate(seq)]
+
+    def test_zero_init_expansions_give_the_base_chunk(self):
+        s = self.seq(6)
+        ref = self.run_pol(H.StudentPolicy(self.base, "cpu"), s)
+        for ck in (self.a1, self.a4, self.ih):
+            got = self.run_pol(H.StudentPolicy(ck, "cpu"), s)
+            for r0, r1 in zip(ref, got):
+                np.testing.assert_allclose(r1["chunk"], r0["chunk"], atol=1e-5)
+                np.testing.assert_allclose(r1["aux"], r0["aux"], atol=1e-6)
+
+    @unittest.skipUnless(S28.exists(), "robot student s28 checkpoint missing")
+    def test_s28_expansions(self):
+        from nedm.so101_policy.vision import viral as VI
+        s = self.seq(3, seed=2, res=224)
+        ref = self.run_pol(H.StudentPolicy(S28, "cpu"), s)
+        st, _ = VI.load_student(S28, "cpu")
+        for kw in (dict(hist=4, cmd_in=True), dict(hist=4, cmd_in=True, img_hist=True)):
+            ck = Path(self.tmp.name) / "s28x.pt"
+            VI.save_student(VI.expand_student(st, device="cpu", **kw), ck)
+            got = self.run_pol(H.StudentPolicy(ck, "cpu"), s)
+            for r0, r1 in zip(ref, got):
+                np.testing.assert_allclose(r1["chunk"], r0["chunk"], atol=1e-5)
+
+    def test_inputs_match_the_training_path(self):
+        """robot vector = [q, qd, hist newest first (the first query repeated), u_prev - q (0 at the first query)];
+        the chunk (cached previous features) = ``ViralNet.predict`` with the previous images (the training path)."""
+        from nedm.so101_policy.vision import viral as VI
+        pol = H.StudentPolicy(self.a4, "cpu")
+        with torch.no_grad():                                  # weights on the new columns: the inputs matter
+            g = torch.Generator().manual_seed(1)
+            w = pol.st.head[0].weight
+            w.add_(0.05 * torch.randn(w.shape, generator=g))
+        pol.reset()
+        nows, prev_img = [], None
+        for i, (imgs, q, qd, u) in enumerate(self.seq(5, seed=1)):
+            r = pol.query(imgs, q, qd, u_prev=u if i else None)
+            rob = r["robot"]
+            nows.append(np.r_[q, qd].astype(np.float32))
+            for h in range(5):
+                np.testing.assert_allclose(rob[12 * h:12 * (h + 1)], nows[max(i - h, 0)], atol=1e-7)
+            cmd = rob[60:].reshape(5, 6)
+            want = np.zeros((5, 6), np.float32) if i == 0 else u.astype(np.float32) - q.astype(np.float32)
+            np.testing.assert_allclose(cmd, want, atol=1e-7)
+            rgb = np.stack([imgs[pol.cam_map[c]] for c in pol.cams])[None]
+            img = VI.to_input(torch.from_numpy(rgb))
+            prev = img if prev_img is None else prev_img
+            p = pol.st.predict(img, torch.as_tensor(rob, dtype=torch.float32)[None], prev)
+            chunk = (torch.as_tensor(q, dtype=torch.float32)[None, None] + VI.denormalise(pol.st, p))[0]
+            np.testing.assert_allclose(r["chunk"], chunk.double().numpy(), atol=1e-5)
+            prev_img = img
+        imgs, q, qd, _ = self.seq(1)[0]
+        with self.assertRaises(ValueError):                    # a caller that does not pass the executed targets
+            pol.query(imgs, q, qd)
+        with self.assertRaises(ValueError):
+            pol.query(imgs, q, qd, u_prev=np.zeros((4, 6)))
+        pol.reset()
+        self.assertEqual(float(np.abs(pol.query(imgs, q, qd)["robot"][60:]).max()), 0.0)
+
+    def test_warmup_and_refusal(self):
+        from dataclasses import replace
+        from unittest import mock
+
+        from nedm.so101_policy.vision import viral as VI
+        pol = H.StudentPolicy(self.a4, "cpu")
+        self.assertEqual((pol.H, pol.cmd_in, pol.img_hist), (4, True, True))
+        pol.warmup()
+        self.assertEqual((pol.n_query, pol.prev_feat, pol.rhist), (0, None, None))
+        st, _ = VI.load_student(self.a1, "cpu")
+        st.cfg = replace(st.cfg, cmd_in=False)                 # a head with inputs the code would not feed
+        with mock.patch.object(VI, "load_student", return_value=(st, {})):
+            with self.assertRaises(ValueError) as e:
+                H.StudentPolicy(self.a1, "cpu")
+        self.assertIn("does not implement", str(e.exception))
+
+
+@needs_points
+class TestControllerCmdInput(unittest.TestCase):
+    def test_cmd_input_is_the_action_layer_target(self):
+        """The Controller feeds a cmd_in student the ``Guard.u_layer`` of the 5 loop steps since the last query (not
+        the sent command with the integral correction); 0 at the first query."""
+        with tempfile.TemporaryDirectory() as d:
+            base = tiny_student(Path(d) / "tiny.pt")
+            pol = H.StudentPolicy(tiny_expanded(Path(d) / "a4.pt", base, hist=4, cmd_in=True, img_hist=True), "cpu")
+        seen = []
+        query = pol.query
+
+        def spy(images, q, qd, u_prev=None):
+            seen.append(None if u_prev is None else np.array(u_prev))
+            return query(images, q, qd, u_prev=u_prev)
+
+        pol.query = spy
+        layer = H.ActionLayer(KIN_POINTS)
+        lim = H.RealLimits.from_lerobot_calibration(LR_CAL, 3.0)
+        jm = H.JointMap.placeholder_identity()
+        g = H.Guard(H.GuardConfig(i_time_s=1e6, i_max_deg=3.0), layer, jm, lim)
+        c = H.Controller(pol, jm, g, H.view_specs(None, H.REAL_CAMERAS, pol.res), H.QdotEstimator(), bgr=False)
+        io = H.FakeRobotIO(jm.sim_to_real(np.radians(H.HOME_SIM_DEG)), writes=False)
+        c.reset(io.read_q())
+        g.integ[:] = 0.01                         # an integral correction of 0.01 rad (arm): u_sim = u_layer + 0.01
+        for k in range(21):
+            c.step(k * H.DT, io.read_q(), lambda: io.frames())
+        A = c.arrays()
+        self.assertEqual(A["qry_step"].tolist(), [0, 5, 10, 15, 20])
+        self.assertIsNone(seen[0])
+        self.assertEqual(float(np.abs(A["qry_robot"][0, 60:]).max()), 0.0)
+        for i, k in enumerate(A["qry_step"][1:], 1):
+            np.testing.assert_array_equal(seen[i], A["u_layer"][k - 5:k])
+            self.assertGreater(float(np.abs(A["u_sim"][k - 5:k, :5] - A["u_layer"][k - 5:k, :5]).min()), 0.005)
+            want = A["u_layer"][k - 5:k].astype(np.float32) - A["q_sim"][k].astype(np.float32)
+            np.testing.assert_allclose(A["qry_robot"][i, 60:].reshape(5, 6), want, atol=1e-6)
 
 
 class TestDeviceUsers(unittest.TestCase):
