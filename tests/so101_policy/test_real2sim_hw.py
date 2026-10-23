@@ -580,3 +580,24 @@ class TestDeviceUsers(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestQdGain(unittest.TestCase):
+    def test_query_gets_scaled_qdot(self):
+        seen = []
+
+        class P:                                          # a stand-in student: records the qdot it is given
+            cams, cam_map, n_exec, res = ("external",), {"external": "external"}, 5, 8
+
+            def query(self, imgs, q, qd):
+                seen.append(np.asarray(qd).copy())
+                return dict(exec=np.zeros((5, 6)), chunk=np.zeros((10, 6)), aux=np.zeros(7), plate_xy=np.zeros(2),
+                            plate_yaw4_deg=0.0, cube_xyz=np.zeros(3), t_model_ms=0.0)
+
+        for g in (1.0, 2.0):
+            ctrl = H.Controller.__new__(H.Controller)
+            ctrl.qd_gain = g
+            qd = np.arange(6.0)
+            ctrl.p = P()
+            ctrl.p.query(None, np.zeros(6), qd if ctrl.qd_gain == 1.0 else qd * ctrl.qd_gain)
+            np.testing.assert_allclose(seen[-1], qd * g)

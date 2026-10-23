@@ -569,8 +569,13 @@ class Controller:
     layer, LeRobot-unit limits). Keeps a per-step and per-query log (``arrays``: per-query keys start with "qry_")."""
 
     def __init__(self, policy: StudentPolicy, jmap: JointMap, guard: Guard, views: dict, qdot: QdotEstimator,
-                 bgr: bool, max_frame_age_ms=150.0, thumb_res=112):
+                 bgr: bool, max_frame_age_ms=150.0, thumb_res=112, qd_gain=1.0):
         self.p, self.jm, self.g, self.views, self.qdot = policy, jmap, guard, views, qdot
+        # real2sim (2026-10-22): the student's qdot INPUT x qd_gain (1 = off). The student's step size follows the
+        # measured speed; the real arm is ~5x slower than the sim arm, so its steps shrink until the arm holds still
+        # above the plate (robot-like sim, today's student: 50 % at gain 1, 88 % at 2, 94 % at 3; nominal sim 98 / 90 /
+        # 75 %). The guard and the log keep the measured qdot.
+        self.qd_gain = float(qd_gain)
         self.bgr, self.max_age, self.thumb_res = bool(bgr), float(max_frame_age_ms), int(thumb_res)
         self.k = 0
         self.ex = None
@@ -613,7 +618,7 @@ class Controller:
                     stop.append(f"camera age: {rc} frame {age:.0f} ms old")
                 imgs[rc] = preprocess(im, self.views[rc], self.bgr)
             T["ms_pre"] = (time.perf_counter() - t2) * 1e3
-            r = self.p.query(imgs, q_sim, qd)
+            r = self.p.query(imgs, q_sim, qd if self.qd_gain == 1.0 else qd * self.qd_gain)
             T["ms_model"] = r["t_model_ms"]
             self.ex = r["exec"]
             Q = self.Q

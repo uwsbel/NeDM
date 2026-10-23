@@ -368,7 +368,7 @@ def build_common(args):
                                                       n_exec=policy.n_exec, hist=policy.H, jaw_lead=policy.jaw_lead,
                                                       amp=policy.amp), device=dev, cam_map=policy.cam_map,
                 calib=str(args.calib) if calib is not None else None, joint_map=jm.describe(), kin_points=str(kp),
-                table_z=args.table_z, guard=gcfg.__dict__, qdot_window=args.qdot_window,
+                table_z=args.table_z, guard=gcfg.__dict__, qdot_window=args.qdot_window, qd_gain=args.qd_gain,
                 views={k: dict(crop_xywh=v.crop_xywh, out_wh=v.out_wh, interp=v.interp, source=v.source)
                        for k, v in views.items()})
     return calib, jm, layer, gcfg, policy, views, info
@@ -382,6 +382,8 @@ def print_setup(info):
         f"{np.round(jm['offset_rad'], 4).tolist()} gripper_lin {np.round(jm['gripper_lin'], 5).tolist()}")
     for k, v in info["views"].items():
         log(f"view {k}: crop {v['crop_xywh']} -> {v['out_wh']} ({v['interp']}, {v['source']})")
+    if info.get("qd_gain", 1.0) != 1.0:
+        log(f"qdot input gain {info['qd_gain']} (the student's qdot input x {info['qd_gain']}; guard and log: measured)")
 
 
 # ---- replay -------------------------------------------------------------------------------------------------------
@@ -477,7 +479,7 @@ def run_replay(args):
         ep = LeRobotEpisode(Path(args.data_root).expanduser() / ds, int(e))
         guard = H.Guard(gcfg, layer, jm, limits)
         ctrl = H.Controller(policy, jm, guard, views, H.QdotEstimator(args.qdot_window), bgr=True,
-                            max_frame_age_ms=float("inf"), thumb_res=args.thumb_res)
+                            max_frame_age_ms=float("inf"), thumb_res=args.thumb_res, qd_gain=args.qd_gain)
         ctrl.reset(ep.q_at(0.0))
         T = ep.duration if args.max_seconds <= 0 else min(ep.duration, args.max_seconds)
         n = int(math.floor(T / H.DT)) + 1
@@ -766,7 +768,7 @@ def run_robot(args, live):
 
     def new_ctrl():
         return H.Controller(policy, jm, guard, views, H.QdotEstimator(args.qdot_window), bgr=io.bgr,
-                            max_frame_age_ms=args.max_frame_age_ms, thumb_res=args.thumb_res)
+                            max_frame_age_ms=args.max_frame_age_ms, thumb_res=args.thumb_res, qd_gain=args.qd_gain)
 
     reason = "not started"
     try:
@@ -1017,6 +1019,8 @@ def main(argv=None):
     ap.add_argument("--jaw-lead", type=int, default=None, help="default: the checkpoint's cfg.jaw_lead")
     ap.add_argument("--amp", type=int, default=None, help="bf16 autocast 1 / 0 (default: cfg.amp on cuda)")
     ap.add_argument("--qdot-window", type=int, default=3)
+    ap.add_argument("--qd-gain", type=float, default=1.0, help="the student's qdot INPUT x this gain (1 = off; real2sim "
+                    "2026-10-22: the slow real arm makes the student's steps shrink; robot-like sim 50 %% at 1, 88 %% at 2)")
     ap.add_argument("--table-z", type=float, default=0.0, help="real table top z in the arm base frame (m)")
     ap.add_argument("--guard", default="", help="GuardConfig overrides as JSON")
     ap.add_argument("--thumb-res", type=int, default=112, help="logged student input images (px; 0 = full)")

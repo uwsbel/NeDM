@@ -65,6 +65,13 @@ the student (space ends the episode), type the result (g grasp, l lift, p placed
 space), `r` = back to HOME for the next episode (the gripper opens), `s` = end -> menu (r return to the start pose,
 t torque off). Logs: `<out>/ep_NN/episode_live.{npz,json}` (outcome in the json), `<out>/session.json`.
 
+e) Joint-speed input gain (`--qd-gain g`, default 1 = off; 2026-10-22 evening). The student's step size follows the
+measured joint speed; the real arm is about 5 x slower than the sim arm, so near the plate the steps shrink until the
+arm holds still and never releases (10 of 12 eval episodes). `--qd-gain` multiplies only the student's qdot input (the
+guard and the log keep the measured qdot). CPU MuJoCo, today's student, 12 real layouts x 4: robot-like dynamics
+50 / 88 / 94 / 83 / 48 % at gain 1 / 2 / 3 / 4 / 5; nominal sim 98 / 90 / 75 % at 1 / 2 / 3 (more arm-table contacts).
+Test plan: QDGAIN_TEST.md. Example: `./robot_test.sh eval 5 --qd-gain 2`.
+
 Long form:
 
 ```bash
