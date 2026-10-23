@@ -1531,6 +1531,10 @@ class OnlineConfig:
     # real2sim: in robot-dynamics worlds (``dyn``), the JT labels with the commanded speed (the last decision's
     # action-layer target change / 20 ms) in its qdot observation, so its labels keep the nominal pace on a slow arm
     relabel_cmd_speed: bool = False
+    # ... only in the place phase (> 0): the cube held, lifted and within relabel_near_m (xy) of the goal; the grasp and
+    # the carry keep the measured-speed labels (robot 10-22: relabel everywhere carried the cube ~4 cm lower and grasped
+    # worse); 0 = everywhere
+    relabel_near_m: float = 0.0
 
     @staticmethod
     def from_dict(d):
@@ -1736,7 +1740,12 @@ class OnlineDAgger:
         if o.relabel_cmd_speed and env.dyn is not None and env.u_exe is not None and bool(env.dyn.on.any()):
             v = ((env.u_exe[:, -1] - env.u_exe[:, -2]) / JE.CONTROL_DT).to(obs.dtype)      # commanded speed [B, 6]
             obs = obs.clone()
-            obs[:, 6:12] = torch.where(env.dyn.on[:, None], v, obs[:, 6:12])               # obs layout: q, qd, ...
+            m = env.dyn.on
+            if o.relabel_near_m > 0 and env.task.F is not None:                            # place phase only
+                F = env.task.F
+                m = m & F["held"] & env.task.tr.lifted & \
+                    ((F["c"][:, :2] - env.task.goal_xy).norm(dim=-1) < o.relabel_near_m)
+            obs[:, 6:12] = torch.where(m[:, None], v, obs[:, 6:12])                        # obs layout: q, qd, ...
         a = self.jt.act(obs).to(torch.float64)
         lab = env.codec.targets(a, q)                                              # [N, 5, 6] the label
         noise = (self.noisy.double()[:, None] * o.noise) * self.jt.std.to(a)[None] * \
