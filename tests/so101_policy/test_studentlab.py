@@ -2,6 +2,8 @@
 ``hist``, ``viral.expand_student``, ``viral.ReplayBuffer`` previous-sample links, ``joint_env.GoalJumpConfig`` in the
 env, the online loop and ``joint_teacher.run_tasks``). CPU; the online-loop tests run ``viral.OnlineDAgger`` in the
 kinematic world with a tiny student and fake views (``studentlab_ref.py``), and need jt_h110 and the dev task file.
+The per-call render state (``OnlineConfig.light_redraw_p``, ``DRViews.render(keep=)``, review 2026-10-23): image pairs
+share light / intrinsics or are cut, in the online loop and the evaluation actor.
 
     CUDA_VISIBLE_DEVICES= PYTHONPATH=src ~/miniconda3/envs/so101_vision/bin/python -m unittest \
         tests.so101_policy.test_studentlab -v
@@ -407,8 +409,12 @@ class TestOnlineLoop(unittest.TestCase):
 
     def test_history_cmd_and_images_reset_at_episode_starts(self):
         H = 2
-        od, rec = self.run_loop(dict(hist=H, cmd_in=True, img_hist=True), dict(horizon=40, buffer=40), 30)
+        od, rec = self.run_loop(dict(hist=H, cmd_in=True, img_hist=True), dict(horizon=40, buffer=40,
+                                                                               light_redraw_p=0.3), 30)
         N, P = 16, 12 * (1 + H)
+        states = od.views.states
+        same = [True] + [states[t] == states[t - 1] for t in range(1, len(states))]   # per-call render state kept
+        self.assertTrue(any(same[1:]) and not all(same[1:]), same)
         starts = 0
         for t, d in enumerate(rec):
             rob, fresh = d["last"]["robot"], d["last"]["fresh"]
@@ -432,10 +438,12 @@ class TestOnlineLoop(unittest.TestCase):
             if t > 0:
                 want = (d["pre"]["u"] - d["pre"]["q"][:, None, :]).reshape(N, 30)
                 self.assertLess(float((cmd[~fresh] - want[~fresh]).abs().max()), 1e-6, t)
-                # previous images: the last decision's own images inside an episode, the current ones at a start
+                # previous images: the last decision's own images inside an episode while the per-call render state
+                # is kept, the current ones at a start or after a change of that state
                 prev, cur, last_rgb = d["last"]["prev_rgb"], d["last"]["rgb"], rec[t - 1]["last"]["rgb"]
-                self.assertTrue(torch.equal(prev[~fresh], last_rgb[~fresh]))
-                self.assertTrue(torch.equal(prev[fresh], cur[fresh]))
+                pair = ~fresh & torch.full_like(fresh, same[t])
+                self.assertTrue(torch.equal(prev[pair], last_rgb[pair]), t)
+                self.assertTrue(torch.equal(prev[~pair], cur[~pair]), t)
             self.assertTrue(torch.equal(now, torch.cat((d["pre"]["q"], now[:, 6:]), -1)))
         self.assertGreater(starts, N + 10)                                     # resets happened at many decisions
         # buffer links: (t, w) -> (t - 1, w) in the same episode, valid until that slot is overwritten
@@ -444,13 +452,53 @@ class TestOnlineLoop(unittest.TestCase):
         for t in range(max(1, len(rec) - 2), len(rec)):
             sl = rec[t]["slots"]
             fresh = rec[t]["last"]["fresh"]
-            exp = ~fresh & torch.tensor([(t - 1) * N + w >= total - cap for w in range(N)])
+            exp = ~fresh & same[t] & torch.tensor([(t - 1) * N + w >= total - cap for w in range(N)])
             self.assertTrue(torch.equal(od.buf.prev_valid(sl), exp), t)
             img, ok = od.buf.prev_rgb(sl)
             self.assertTrue(torch.equal(img[ok], rec[t - 1]["last"]["rgb"][ok]))
             checked += int(ok.sum())
         self.assertGreater(checked, 0)
         self.assertEqual(od.buf.robot.shape[1], P + 30)
+
+    def test_light_redraw_keeps_the_render_state_and_cuts_changed_pairs(self):
+        """light_redraw_p 0.1: ~90 % of the decisions keep the last per-call render state (no new draw: keep=True);
+        the log share img_pair_same = the in-episode pairs with a kept state; training reports prev_ok. The default
+        (1.0) never asks to keep, and the pairs whose state changed are cut as well."""
+        n_dec = 80
+        od, rec = self.run_loop(dict(img_hist=True), dict(horizon=60, buffer=400, light_redraw_p=0.1), n_dec)
+        v = od.views
+        same = [v.states[t] == v.states[t - 1] for t in range(1, n_dec)]
+        self.assertGreater(sum(same) / len(same), 0.78)
+        self.assertEqual(v.keeps[0], False)                       # the first decision draws
+        self.assertGreater(sum(v.keeps), 0.7 * n_dec)
+        pairs = sum(int((~rec[t]["last"]["fresh"]).sum()) for t in range(1, n_dec))
+        kept = sum(int((~rec[t]["last"]["fresh"]).sum()) for t in range(1, n_dec) if same[t - 1])
+        self.assertEqual((od.stats["img_pairs"], od.stats["img_pairs_same"]), (pairs, kept))
+        self.assertAlmostEqual(od.log_extra()["img_pair_same"], round(kept / pairs, 4))
+        info = od.train_steps()
+        self.assertTrue(0.0 < info["prev_ok"] <= 1.0, info)
+        # buffer: the newest samples link to the previous decision only where the render state was kept
+        sl = rec[-1]["slots"]
+        self.assertEqual(od.buf.prev_valid(sl).tolist(), (~rec[-1]["last"]["fresh"] & same[-1]).tolist())
+        # default: no keep requests; a new random draw (or a switch) between almost all decisions: those pairs are cut
+        od1, rec1 = self.run_loop(dict(img_hist=True), dict(horizon=60, buffer=400), 30)
+        self.assertFalse(any(od1.views.keeps))
+        same1 = [od1.views.states[t] == od1.views.states[t - 1] for t in range(1, 30)]
+        self.assertLess(sum(same1) / len(same1), 0.4)
+        for t in range(1, 30):
+            d = rec1[t]["last"]
+            cut = d["fresh"] | (not same1[t - 1])
+            self.assertTrue(torch.equal(d["prev_rgb"][cut], d["rgb"][cut]), t)
+        self.assertFalse(od1.redraw_gen is not None)
+
+    def test_light_redraw_off_does_not_touch_the_main_stream(self):
+        """light_redraw_p uses its own generator: the light draws, labels and buffer of a run without image history
+        are the same with 1.0 and with 0.5 except for the render calls' keep flags."""
+        od_a, rec_a = self.run_loop({}, dict(horizon=60, buffer=400), 12)
+        od_b, rec_b = self.run_loop({}, dict(horizon=60, buffer=400, light_redraw_p=0.5), 12)
+        self.assertTrue(torch.equal(od_a.buf.lab1, od_b.buf.lab1))
+        self.assertTrue(torch.equal(od_a.buf.robot, od_b.buf.robot))
+        self.assertTrue(any(od_b.views.keeps) and not any(od_a.views.keeps))
 
     def test_goal_jump_moves_render_teacher_and_aux_goal_together(self):
         od, rec = self.run_loop({}, dict(horizon=400, buffer=4000, teacher_share=1.0, noise_share=0.0,
@@ -471,6 +519,90 @@ class TestOnlineLoop(unittest.TestCase):
                 pv = d["pre"]["prev_slot"][j]
                 self.assertFalse(bool(od.buf.valid2[pv[pv >= 0]].any()))                 # no 2nd-half label
         self.assertGreater(moved, 0)
+
+
+class TestRenderState(unittest.TestCase):
+    """``DRViews`` per-call state (real scene): ``keep`` keeps the last random lights / intrinsics, ``call_id`` counts
+    the changes; no renderer (fake ``r`` / ``rdr``)."""
+
+    def views(self):
+        log = []
+
+        class FakeR:
+            def set_lights(self, lights):
+                log.append(("lights", lights))
+
+            def set_camera_models(self, models):
+                log.append(("models", models))
+
+        class FakeRDR:
+            n = 0
+
+            def lights(self, lights0, gen):
+                FakeRDR.n += 1
+                return [dict(draw=FakeRDR.n)]
+
+            def camera_models(self, scene, gen, out_res=224):
+                return ["model", FakeRDR.n]
+
+        v = object.__new__(VI.DRViews)
+        v.r, v.rdr, v.res = FakeR(), FakeRDR(), 224
+        v.r.scene = None
+        v.lights0, v.models0 = [dict(draw=0)], ["model", 0]
+        v.intrinsics_dr, v.light_gen = True, torch.Generator()
+        v._call_state, v.call_id = "nominal", 0
+        return v, log
+
+    def test_keep_and_call_id(self):
+        v, log = self.views()
+        seq = [(False, False, 1, 2), (False, True, 1, 0), (False, True, 1, 0), (True, False, 2, 2), (True, True, 2, 0),
+               (False, True, 3, 2), (False, False, 4, 2), (True, False, 5, 2), (True, False, 5, 0)]
+        for i, (nominal, keep, cid, n_set) in enumerate(seq):
+            n0 = len(log)
+            v._per_call_real(nominal, keep)
+            self.assertEqual((v.call_id, len(log) - n0), (cid, n_set), i)
+        self.assertEqual(log[-2], ("lights", [dict(draw=0)]))                 # back to the scene's own lights
+        self.assertEqual(log[-1], ("models", ["model", 0]))
+
+
+@unittest.skipUnless(R.HAVE, "jt_h110 / dev task file missing")
+class TestActorRenderState(unittest.TestCase):
+    """The evaluation actor with ``light_redraw_p``: an image-history student gets the last decision's images while
+    the render state is kept, its current images after a change; 1.0 = no keep requests."""
+
+    def run_actor(self, p, n=30, B=4):
+        st = VI.expand_student(R.tiny_student(0), img_hist=True, device="cpu").eval()
+        seen = []
+        orig = st.predict
+
+        def spy(img, robot, prev=None):
+            seen.append((img.clone(), None if prev is None else prev.clone()))
+            return orig(img, robot, prev)
+
+        st.predict = spy
+        views = R.FakeViews(st.cfg.res, st.cfg.cameras)
+        actor = VI.Actor(st, views, randomise=True, device="cpu", light_redraw_p=p, seed=3)
+        actor.reset(B)
+        g = torch.Generator().manual_seed(0)
+        for _ in range(n):
+            ws = SimpleNamespace(q=0.3 * torch.randn(B, 6, generator=g, dtype=torch.float64),
+                                 qd=torch.randn(B, 6, generator=g, dtype=torch.float64),
+                                 cube_pos=torch.rand(B, 3, generator=g, dtype=torch.float64) * 0.1,
+                                 cube_quat=torch.tensor([[1.0, 0, 0, 0]] * B, dtype=torch.float64))
+            actor(ws, torch.zeros(B, 3))
+        return actor, views, seen
+
+    def test_pairs(self):
+        actor, views, seen = self.run_actor(0.3)
+        same = [views.states[t] == views.states[t - 1] for t in range(1, len(seen))]
+        self.assertTrue(any(same) and not all(same))
+        self.assertEqual(actor.state_changes, len(same) - sum(same))
+        self.assertTrue(torch.equal(seen[0][1], seen[0][0]))                  # the first decision: its own images
+        for t in range(1, len(seen)):
+            want = seen[t - 1][0] if same[t - 1] else seen[t][0]
+            self.assertTrue(torch.equal(seen[t][1], want), t)
+        _, views1, _ = self.run_actor(1.0, n=8)
+        self.assertFalse(any(views1.keeps))
 
 
 if __name__ == "__main__":

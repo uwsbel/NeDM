@@ -36,7 +36,9 @@ config adds inputs (``hist``, ``cmd_in``, ``img_hist``: ``viral.expand_student``
 ``goal_jump`` / ``hold_cap_s`` in the online config (arms: ``configs/so101_policy/vision/studentlab/``,
 ``cluster/studentlab_online.sbatch``); ``eval --goal-shift 'p=1,d=10:25,lat=8'`` is the evaluation-only goal shift
 (the overshoot gate: once per episode, same trigger as the training jumps, the cube ends PAST the moved goal; the
-summary adds ``goal_shift`` with the shifted / unshifted episodes).
+summary adds ``goal_shift`` with the shifted / unshifted episodes). The online config's ``light_redraw_p`` (< 1: the
+per-call light and intrinsics stay for several decisions; the image-history arm A4) also applies to the in-run
+evaluations; ``eval --light-redraw-p P`` is the same for a standalone evaluation (with ``--randomise``).
 """
 from __future__ import annotations
 
@@ -182,11 +184,12 @@ def concat(parts):
 
 
 def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None, record_states=False,
-             full_horizon=False, device="cuda", lag=None, lag_range=None, qd_window=0):
+             full_horizon=False, device="cuda", lag=None, lag_range=None, qd_window=0, light_redraw_p=1.0):
     """``lag``: image lag in control steps (default the student's nominal ``cfg.lag``); ``lag_range``: drawn per world
-    instead; ``qd_window`` > 0: the robot-like qdot input (``viral.robot_qd``)."""
+    instead; ``qd_window`` > 0: the robot-like qdot input (``viral.robot_qd``); ``light_redraw_p`` < 1: the per-call
+    light / intrinsics stay for several decisions (``viral.Actor``)."""
     actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device, lag=lag, lag_range=lag_range,
-                     qd_window=qd_window)
+                     qd_window=qd_window, light_redraw_p=light_redraw_p)
     env = cache.get(world, len(tasks["seeds"]))
     actor.bind(env)                                     # cmd_in: the env's executed targets
     if getattr(env, "q_offset", None) is not None:      # evaluation only (table.py): the student's joint frame
@@ -207,6 +210,9 @@ def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None,
     r["world"] = np.array(world)
     r["randomise"] = np.bool_(randomise)
     r["jaw_lead"] = np.int64(actor.jaw_lead)
+    if actor.light_redraw_p < 1.0:  # per-call light / intrinsics kept for several decisions: the setting, the changes
+        r["light_redraw"] = np.array(json.dumps(dict(p=actor.light_redraw_p, changes=actor.state_changes,
+                                                     decisions=actor.calls)))
     if actor.kmax > 0:
         r["image_lag"] = np.array(json.dumps(dict(lag=actor.lag, lag_range=actor.lag_range)))
     if actor.qd_window > 0:       # the robot-like qdot: window and the student's qdot INPUT per row (row_qd: the sim's)
@@ -485,7 +491,8 @@ def cmd_online(a):
             for (pre, ev), rnd in [(e_, r_) for e_ in evs for r_ in ([False, True] if a.eval_randomise else [False])]:
                 tag = f"{pre}mujoco{'_dr' if rnd else ''}"
                 te = time.time()
-                r = evaluate(st, jt, ev, "mujoco", cache, eviews, rnd, device=a.device)
+                r = evaluate(st, jt, ev, "mujoco", cache, eviews, rnd, device=a.device,
+                             light_redraw_p=ocfg.light_redraw_p)
                 np.savez_compressed(out / f"eval_it{it:05d}_{tag}.npz", **r)
                 s_ = json.loads(str(r["summary"]))
                 progress(out, stage=f"eval it {it} {tag}", wall_s=time.time() - te, samples=od.samples, **s_)
@@ -517,7 +524,7 @@ def cmd_eval(a):
     views = VI.make_views(st.cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device,
                           geometry_over=geo)
     r = evaluate(st, jt, t, a.world, cache, views, a.randomise, a.jaw_lead, a.record_states, a.full_horizon, a.device,
-                 lag=a.lag, lag_range=a.lag_range, qd_window=a.qd_robot)
+                 lag=a.lag, lag_range=a.lag_range, qd_window=a.qd_robot, light_redraw_p=a.light_redraw_p)
     r["student"] = np.array(str(a.student))
     if a.out:
         np.savez_compressed(a.out, **r)
@@ -626,6 +633,10 @@ def main(argv=None):
                    help="evaluation-only goal shift (overshoot gate), e.g. 'p=1,d=10:25,lat=8' (mm; JE.GoalJumpConfig "
                         "with the training trigger; defaults n=1 jump per episode, before=0: the cube ends PAST the "
                         "moved goal); the student's renders and the success check use the moved goal")
+    q.add_argument("--light-redraw-p", type=float, default=1.0,
+                   help="with --randomise: per decision the probability of a new random light / intrinsics draw, else "
+                        "the last one stays (an image-history student: use its online config's light_redraw_p); "
+                        "1 = a new draw every decision")
     q.add_argument("--out", default="")
     q.add_argument("--scene-path", default="", help="the student's scene file at this path (same sha256)")
     q.add_argument("--calib-path", default="", help="the student's calibration file at this path (same sha256)")

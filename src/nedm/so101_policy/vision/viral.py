@@ -52,7 +52,10 @@ now, / ``cmd_scale``, appended to the robot vector), ``ViralConfig.img_hist`` (t
 the same encoders, features appended to the head input; ``ReplayBuffer`` links to the previous sample instead of
 copies), ``expand_student`` (zero-init expansion: the same chunk as the given student), ``OnlineConfig.goal_jump``
 (``joint_env.GoalJumpConfig``: goal jumps while the cube is held near the goal). Saved configs keep the old keys while
-the new inputs are off (``cfg_dict``).
+the new inputs are off (``cfg_dict``). ``OnlineConfig.light_redraw_p`` (< 1; review 2026-10-23): the per-call light and
+intrinsics stay for several decisions, so the image pairs of the image history share them as on the robot (a change
+cuts the pair). The robot side of the new inputs: ``scripts/so101_policy/real2sim/hw/hw_lib.py`` (``StudentPolicy``,
+``Guard.u_layer``).
 
 - Robot timing and servo in the online loop (``OnlineConfig.dyn`` -> ``joint_env.RobotDynConfig``: command delay with
   jitter, weaker arm servo, command lag, gravity sag, command noise; per world per episode), robot-like qdot inputs
@@ -518,7 +521,11 @@ class DRViews:
 
     ``real`` (a ``RealSetup``; ``make_views``): the real scene instead (module docstring): draws = colors [n, nb, 3],
     cam_offset [n, C, 6], env_pose [n, n_env, 7] (``RealDR``) and exposure [n, C] (tone map only); the scene's lights
-    (randomised per call by ``RealDR.lights`` when ``light``); ``fx`` = the cameras' ``CamFX`` (None: sim scene)."""
+    (randomised per call by ``RealDR.lights`` when ``light``); ``fx`` = the cameras' ``CamFX`` (None: sim scene).
+
+    Per-call state (studentlab image history): ``render(..., keep=True)`` keeps the last call's random light (and
+    intrinsics) instead of a new draw (no random numbers used); ``call_id`` counts the changes of the per-call state
+    (a new random draw, or random -> nominal), so a caller can tell whether two calls share it."""
 
     def __init__(self, num_worlds, res=224, cameras=CAMERAS, backend="newton", tiled=True, shadows=True,
                  top_eye=V.TOP_EYE, top_target=V.TOP_TARGET, dr: DRConfig | None = None, seed=0, device="cuda",
@@ -550,6 +557,8 @@ class DRViews:
         self.gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 911)
         self._colors_nominal = True
         self.light_default = (-0.57735026, 0.57735026, -0.57735026)
+        self._light_state = "nominal"
+        self.call_id = 0            # changes of the per-call state (class docstring)
 
     # -- the real scene (real2sim) --
     def _init_real(self, num_worlds, res, cameras, backend, tiled, shadows, dr, seed, device, rs: RealSetup):
@@ -580,6 +589,7 @@ class DRViews:
         self.models0 = list(sc.camera_models)
         self.intrinsics_dr = float(getattr(self.rdr, "focal", 0.0)) > 0 or float(getattr(self.rdr, "pp_px", 0.0)) > 0
         self._call_state = "nominal"
+        self.call_id = 0            # changes of the per-call state (class docstring)
         self.fx = ViewFX.from_setup(rs, self.cameras)
 
     def nominal_draw(self, n):
@@ -601,23 +611,28 @@ class DRViews:
         d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev)
         return {k: v.to(self.dev) for k, v in d.items()}
 
-    def _per_call_real(self, nominal):
-        """Lights (and the intrinsics, if the scene randomises them) of the call: shared by all worlds."""
+    def _per_call_real(self, nominal, keep=False):
+        """Lights (and the intrinsics, if the scene randomises them) of the call: shared by all worlds. ``keep``: a
+        random call keeps the last random draw (no new draw) if the last call was random as well."""
         if nominal:
             if self._call_state != "nominal":
                 self.r.set_lights(self.lights0)
                 if self.intrinsics_dr:
                     self.r.set_camera_models(self.models0)
                 self._call_state = "nominal"
+                self.call_id += 1
+            return
+        if keep and self._call_state == "random":
             return
         self.r.set_lights(self.rdr.lights(self.lights0, self.light_gen))
         if self.intrinsics_dr:
             self.r.set_camera_models(self.rdr.camera_models(self.r.scene, self.light_gen, out_res=self.res))
         self._call_state = "random"
+        self.call_id += 1
 
-    def _render_real(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None):
+    def _render_real(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False):
         t0 = time.time()
-        self._per_call_real((dr is None) if light is None else not light)
+        self._per_call_real((dr is None) if light is None else not light, keep)
         out = []
         for s in range(0, q.shape[0], self.num_worlds):
             e = min(q.shape[0], s + self.num_worlds)
@@ -652,24 +667,32 @@ class DRViews:
         drot = self._u(n, -1.0, 1.0, C, 3) * rot[None, :, None]
         return dict(colors=cols, cam_dpos=dpos, cam_drot=drot)
 
-    def _light(self, nominal):
+    def _light(self, nominal, keep=False):
         import warp as wp
         if nominal:
             d = self.light_default
+            if self._light_state != "nominal":
+                self._light_state = "nominal"
+                self.call_id += 1
         else:
+            if keep and self._light_state == "random":
+                return                                  # the last call's random light stays
+            self._light_state = "random"
+            self.call_id += 1
             el = math.radians(float(self._u(1, *self.dr.light_elev)[0]))
             az = float(self._u(1, 0.0, 2 * math.pi)[0])
             d = (-math.cos(el) * math.cos(az), -math.cos(el) * math.sin(az), -math.sin(el))
         self.r.renderer.backend._camera.utils.create_default_light(self.r.shadows, direction=wp.vec3f(*d))
 
     @torch.no_grad()
-    def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None):
+    def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False):
+        """``keep``: keep the last call's random per-call state (class docstring)."""
         if self.real is not None:
-            return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light)
+            return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light, keep)
         from nedm.render.so101 import qmul, wxyz, xyzw
         t0 = time.time()
         nominal = dr is None
-        self._light(nominal if light is None else not light)
+        self._light(nominal if light is None else not light, keep)
         out = []
         for s in range(0, q.shape[0], self.num_worlds):
             e = min(q.shape[0], s + self.num_worlds)
@@ -915,6 +938,15 @@ class ViralNet(nn.Module):
         f = self.features(images)
         return self.head(torch.cat((f, self.robot(robot, qd_scale).to(f.dtype)), -1).float()).view(
             -1, self.cfg.chunk, 6), f
+
+    def head_from_features(self, f, robot, fp=None):
+        """The normalised chunk [B, chunk, 6] from the encoder features ``f`` [B, fd] (``img_hist``: + ``fp``, the
+        previous decision's features; None = ``f``, as at an episode start) = ``forward`` without its encoder pass
+        (the robot caches the previous query's features: ``hw_lib.StudentPolicy``)."""
+        parts = [f, self.robot(robot).to(f.dtype)]
+        if getattr(self.cfg, "img_hist", False):
+            parts.append(f if fp is None else fp.to(f.dtype))
+        return self.head(torch.cat(parts, -1).float()).view(-1, self.cfg.chunk, 6)
 
     def loss(self, images, robot, tgt_n, valid, aux_n=None, qd_scale=None, prev=None):
         p, f = self(images, robot, qd_scale, prev)
@@ -1464,10 +1496,14 @@ class Actor:
 
     Studentlab inputs: ``cfg.cmd_in`` needs the env (``bind(env)``: its ``u_exe``, the targets the action layer
     executed in the last decision); ``cfg.img_hist`` keeps the last decision's rendered images. Both start from zero /
-    the current images at the first call after ``reset``."""
+    the current images at the first call after ``reset``. ``light_redraw_p`` < 1 (randomised visuals): per decision
+    the probability of a new per-call render state (random light and intrinsics, ``DRViews.render(keep=)``), else the
+    last one stays (the robot's frames share light and intrinsics); an image-history student gets the current images
+    as its previous ones when the state changed (as ``OnlineDAgger``). 1 = a new draw every decision (the old
+    behaviour)."""
 
     def __init__(self, student: ViralNet, views: DRViews, randomise=False, jaw_lead=None, device="cuda", lag=None,
-                 lag_range=None, seed=0, qd_window=0):
+                 lag_range=None, seed=0, qd_window=0, light_redraw_p=1.0):
         self.st, self.views, self.dev = student, views, torch.device(device)
         self.randomise = bool(randomise)
         self.jaw_lead = student.cfg.jaw_lead if jaw_lead is None else int(jaw_lead)
@@ -1488,6 +1524,12 @@ class Actor:
         self.env = None         # cmd_in: the env whose u_exe holds the last decision's executed targets (``bind``)
         self.n_dec = 0          # decisions since ``reset``
         self.prev_rgb = None    # img_hist: the last decision's rendered images
+        self.light_redraw_p = float(light_redraw_p)
+        if not 0.0 <= self.light_redraw_p <= 1.0:
+            raise ValueError(f"light_redraw_p {light_redraw_p}: a probability in [0, 1]")
+        self.redraw_gen = torch.Generator().manual_seed(int(seed) + 4249) if self.light_redraw_p < 1.0 else None
+        self.call_id = None     # the views' per-call state id at the last decision
+        self.state_changes = 0  # decisions (after the first) whose per-call render state differs from the last one
 
     def bind(self, env):
         self.env = env
@@ -1497,6 +1539,7 @@ class Actor:
         self.dr = self.views.draw(B) if self.randomise else None
         self.n_dec = 0
         self.prev_rgb = None
+        self.call_id = None
         self.rhist = None
         self.qd_hist = None
         self.qd_log = []
@@ -1532,7 +1575,15 @@ class Actor:
                 raise RuntimeError("image lag: the 20 ms states are missing (run the episodes inside step_tap(env, "
                                    "actor.push))")
             iq, icp, icq = self.hist.get(self.k)
-        rgb = self.views.render(iq, icp, icq, goal_pose.to(self.dev, torch.float32), dr=self.dr)
+        kw = {}
+        if self.redraw_gen is not None and self.dr is not None and self.n_dec > 0 and \
+                bool(torch.rand(1, generator=self.redraw_gen) >= self.light_redraw_p):
+            kw["keep"] = True                             # the last decision's random light / intrinsics stay
+        rgb = self.views.render(iq, icp, icq, goal_pose.to(self.dev, torch.float32), dr=self.dr, **kw)
+        cid = getattr(self.views, "call_id", None)
+        changed = cid is not None and self.call_id is not None and cid != self.call_id
+        self.call_id = cid
+        self.state_changes += int(changed)
         img = to_input(rgb, fx=self.views.fx)
         if self.dev.type == "cuda":
             torch.cuda.synchronize()
@@ -1570,8 +1621,9 @@ class Actor:
                 cmd = (u.to(self.dev, torch.float32) - qm[:, None, :]).nan_to_num().reshape(len(q), -1)
             robot = torch.cat((robot, cmd), -1)
         prev = None
-        if getattr(self.st.cfg, "img_hist", False):    # the last decision's images (the first call: the current ones)
-            prev = img if self.prev_rgb is None else to_input(self.prev_rgb, fx=self.views.fx)
+        if getattr(self.st.cfg, "img_hist", False):    # the last decision's images (the current ones at the first
+            own = self.prev_rgb is None or changed      # call and after a change of the per-call render state)
+            prev = img if own else to_input(self.prev_rgb, fx=self.views.fx)
             self.prev_rgb = rgb
         out = []
         for s in range(0, img.shape[0], 256):
@@ -1660,6 +1712,13 @@ class OnlineConfig:
     # observation and the aux targets read the moved goal from the next decision on; the sample of the decision
     # before a jump gets no second-half label (``valid2`` False: its images showed the old goal)
     goal_jump: dict = field(default_factory=dict)
+    # studentlab review (2026-10-23): per decision the probability of a NEW per-call render state (the light choice
+    # ``default_light_p``, the random lights and the random intrinsics; one state for all worlds of a call); else the
+    # last decision's state stays (``DRViews.render(keep=)``). 1 = a new draw every decision (the old behaviour). For
+    # the image history (``ViralConfig.img_hist``): the robot's consecutive frames share light and intrinsics, so a
+    # pair of images should as well; when the state changes, the decision's previous images are its current ones
+    # (acting) and its buffer link is cut (training), as at an episode start. Also used by the in-run evaluation.
+    light_redraw_p: float = 1.0
 
     @staticmethod
     def from_dict(d):
@@ -1674,6 +1733,8 @@ class OnlineConfig:
                 raise ValueError(f"online lag_range {d['lag_range']}: (lo, hi) control steps, 0 <= lo <= hi")
         if d.get("goal_jump"):
             JE.goal_jump_config(d["goal_jump"])                                # validate now
+        if "light_redraw_p" in d and not 0.0 <= float(d["light_redraw_p"]) <= 1.0:
+            raise ValueError(f"light_redraw_p {d['light_redraw_p']}: a probability in [0, 1]")
         return OnlineConfig(**{k: v for k, v in d.items() if k in known})
 
 
@@ -1778,6 +1839,12 @@ class OnlineDAgger:
         self.fresh = torch.ones(N, dtype=torch.bool, device=self.dev)            # the next decision starts an episode
         self.prev_rgb = None                                                     # img_hist: the last decision's images
         self.last = {}                                                           # the last decision's inputs (tests)
+        self.light_prev = None                                                   # light_redraw_p < 1: the last light
+        self.redraw_gen = torch.Generator().manual_seed(int(seed) + 919) if float(ocfg.light_redraw_p) < 1.0 else None
+        self.call_id = None                                                      # the views' per-call state id
+        if self.img_hist and self.redraw_gen is None and getattr(views, "call_id", None) is not None:
+            log("NOTE: img_hist with light_redraw_p 1: a new light / intrinsics draw at most decisions, so most image "
+                "pairs are cut (previous images = current ones); light_redraw_p 0.1 keeps ~91 % of them")
         self.kmax = int(st.cfg.lag_max)
         self.lag_hist = LagHistory(N, self.kmax, self.dev) if self.kmax > 0 else None
         lo, hi = (int(v) for v in st.cfg.lag_range)
@@ -1813,6 +1880,8 @@ class OnlineDAgger:
         self.stats = dict(ep_student=0, len_student=0, ep_teacher=0, len_teacher=0)
         if self.env.goal_jump is not None:      # episodes with >= 1 goal jump (and their lenient successes)
             self.stats.update(ep_jump_student=0, len_jump_student=0, ep_jump_teacher=0, len_jump_teacher=0)
+        if self.img_hist:                       # in-episode image pairs, and those with the same per-call render state
+            self.stats.update(img_pairs=0, img_pairs_same=0)
 
     def _lag_reset(self, idx):
         """Episode start of worlds ``idx`` (the env already holds their start states): lag draw, history = start."""
@@ -1868,6 +1937,9 @@ class OnlineDAgger:
             out["qd_robot"] = round(float(self.qd_rob.float().mean()), 3)
         if self.env.goal_jump is not None:
             out.update(self.env.goal_jump.summary())
+        if self.img_hist:       # in-episode image pairs since the last log row: the share with the same light etc.
+            n = self.stats.get("img_pairs", 0)
+            out["img_pair_same"] = round(self.stats.get("img_pairs_same", 0) / n, 4) if n else float("nan")
         return out
 
     def _draw(self, idx):
@@ -1923,12 +1995,20 @@ class OnlineDAgger:
         T["jt"] = time.time() - t0
         t1 = time.time()
         light = bool(torch.rand(1, device=self.dev, generator=self.gen) >= o.default_light_p)
+        kw = {}
+        if self.redraw_gen is not None:   # light_redraw_p < 1: the last decision's per-call state stays unless redrawn
+            if self.light_prev is not None and bool(torch.rand(1, generator=self.redraw_gen) >= o.light_redraw_p):
+                light, kw = self.light_prev, dict(keep=True)
+            self.light_prev = light
         icp = cp
         if self.lag_hist is not None:                     # the images lag; q, qd, the labels stay current
             iq, icp, icq = self.lag_hist.get(self.lagk)
-            rgb = self.views.render(iq, icp, icq, gp, dr=self.dr, light=light)
+            rgb = self.views.render(iq, icp, icq, gp, dr=self.dr, light=light, **kw)
         else:
-            rgb = self.views.render(qf, cp, cq, gp, dr=self.dr, light=light)
+            rgb = self.views.render(qf, cp, cq, gp, dr=self.dr, light=light, **kw)
+        cid = getattr(self.views, "call_id", None)
+        same_call = cid is None or self.call_id is None or cid == self.call_id     # the last decision's light etc.
+        self.call_id = cid
         torch.cuda.synchronize() if self.dev.type == "cuda" else None
         T["render"] = time.time() - t1
         t2 = time.time()
@@ -1949,8 +2029,12 @@ class OnlineDAgger:
                 cmd = torch.where(fr[:, None], torch.zeros_like(cmd), cmd)
             robot_all = torch.cat((robot_all, cmd), -1)
         prgb = None
-        if self.img_hist:   # the last decision's images of the same episode (an episode start: the current ones)
-            prgb = rgb if self.prev_rgb is None else torch.where(fr[:, None, None, None, None], rgb, self.prev_rgb)
+        if self.img_hist:   # the last decision's images of the same episode (an episode start, or a new per-call render
+            own = fr if same_call else torch.ones_like(fr)                         # state: the current ones)
+            prgb = rgb if self.prev_rgb is None else torch.where(own[:, None, None, None, None], rgb, self.prev_rgb)
+            if self.prev_rgb is not None:
+                self.stats["img_pairs"] += int((~fr).sum())
+                self.stats["img_pairs_same"] += int((~fr).sum()) if same_call else 0
         self.last = dict(robot=robot_all, fresh=fr.clone(), prev_rgb=prgb, rgb=rgb, goal_pose=gp, aux_cp=icp)
         if bool(stud.any()):
             si = stud.nonzero().flatten()
@@ -1982,8 +2066,10 @@ class OnlineDAgger:
             self.buf.valid2[pv[has]] = True
         idx = live.nonzero().flatten()
         aux = aux_targets(gp[idx], icp[idx])
-        slots = self.buf.add(rgb[idx], qf[idx], robot_all[idx], lab[idx], aux, ~self.nominal[idx],
-                             prev=pv[idx] if self.img_hist else None)
+        plink = None
+        if self.img_hist:     # the link to the previous sample (cut when the per-call render state changed)
+            plink = pv[idx] if same_call else torch.full_like(pv[idx], -1)
+        slots = self.buf.add(rgb[idx], qf[idx], robot_all[idx], lab[idx], aux, ~self.nominal[idx], prev=plink)
         if self.H:
             self.rhist = torch.cat((now[:, None, :], self.rhist[:, :-1]), 1)
         self.fresh = torch.zeros_like(self.fresh)
@@ -2043,7 +2129,8 @@ class OnlineDAgger:
             pimg = None
             if self.img_hist:
                 ge = self.gen.get_state()
-                prgb, _ = self.buf.prev_rgb(i)
+                prgb, pok = self.buf.prev_rgb(i)
+                info_sum["prev_ok"] = info_sum.get("prev_ok", 0.0) + float(pok.float().mean())
                 self.gen.set_state(gs)
                 pimg = to_input(prgb, self.drc, self.gen, fx=fx)
                 pimg = torch.where(aug[:, None, None, None, None], pimg, to_input(prgb, fx=fx, fx_random=False))
