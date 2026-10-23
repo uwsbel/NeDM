@@ -255,6 +255,94 @@ def dyn_config(v) -> RobotDynConfig | None:
     return RobotDynConfig.from_dict(v)
 
 
+@dataclass
+class PauseConfig:
+    """The real robot's hold state (real2sim, 2026-10-22): on the robot the student carries the cube over the plate,
+    then the arm stands still 1-5 cm above it (qdot exactly 0) and the student never releases; in the sim the arm
+    never stands still there, so the student has no data of that state. A pause freezes the 5 arm joints at their
+    measured q for ``s_lo``-``s_hi`` s (the jaw follows its command), started at a decision where the cube is held,
+    lifted, within ``near_m`` (xy) of the goal and its bottom ``z_lo``-``z_hi`` above z = 0, with probability ``rate``
+    per decision, at most ``max_n`` times per episode, in a share ``p`` of the episodes. The JT labels the still
+    states ("descend"); after the pause the normal physics continue. Training only (``JointEnvConfig.pause``)."""
+    p: float = 0.5
+    s_lo: float = 0.5
+    s_hi: float = 3.0
+    near_m: float = 0.04
+    z_lo: float = 0.008
+    z_hi: float = 0.06
+    rate: float = 0.25
+    max_n: int = 2
+
+    def __post_init__(self):
+        if not (0.0 <= self.p <= 1.0 and 0.0 <= self.rate <= 1.0 and 0.0 < self.s_lo <= self.s_hi
+                and self.z_lo <= self.z_hi and self.near_m > 0 and int(self.max_n) >= 1):
+            raise ValueError(f"pause config out of range: {self}")
+        self.max_n = int(self.max_n)
+
+
+def pause_config(v) -> PauseConfig | None:
+    """None / False / {} / "" -> None (off); a dict or a JSON string -> ``PauseConfig``."""
+    if isinstance(v, PauseConfig):
+        return v
+    if isinstance(v, str):
+        v = json.loads(v) if v.strip() else None
+    if v is None or v is False or (isinstance(v, dict) and not v):
+        return None
+    d = {k: x for k, x in dict(v).items() if k != "note"}
+    bad = sorted(set(d) - {f.name for f in fields(PauseConfig)})
+    if bad:
+        raise ValueError(f"unknown pause keys {bad}")
+    return PauseConfig(**d)
+
+
+class Pause:
+    """Per-world state of ``PauseConfig`` (``JointVecEnv.step``), own generator."""
+
+    def __init__(self, cfg: PauseConfig, B, device, seed):
+        self.cfg, self.B, self.dev = cfg, int(B), torch.device(device)
+        self.gen = torch.Generator(self.dev).manual_seed(int(seed))
+        self.on = torch.zeros(B, dtype=torch.bool, device=self.dev)
+        self.n = torch.zeros(B, dtype=torch.long, device=self.dev)        # pauses so far in this episode
+        self.left = torch.zeros(B, dtype=torch.long, device=self.dev)     # steps left in the current pause
+        self.qh = torch.zeros(B, 6, dtype=torch.float64, device=self.dev)  # the frozen arm q
+        self.started = 0                                                  # pauses started (log)
+
+    def reset(self, idx):
+        u = torch.rand(len(idx), generator=self.gen, dtype=torch.float64, device=self.dev)
+        self.on[idx] = u < self.cfg.p
+        self.n[idx], self.left[idx] = 0, 0
+
+    def begin(self, task, q):
+        """Decision start: start a pause where the condition holds (task.F of the last step, q [B, 6] measured)."""
+        c, F = self.cfg, task.F
+        if F is None:
+            return
+        r = torch.rand(self.B, 2, generator=self.gen, dtype=torch.float64, device=self.dev)
+        dxy = (F["c"][:, :2] - task.goal_xy).norm(dim=-1)
+        zb = F["c"][:, 2] - T.CUBE_HALF
+        go = (self.on & (self.left == 0) & (self.n < c.max_n) & F["held"] & task.tr.lifted & (dxy < c.near_m)
+              & (zb >= c.z_lo) & (zb <= c.z_hi) & (r[:, 0] < c.rate))
+        if bool(go.any()):
+            steps = torch.round((c.s_lo + r[:, 1] * (c.s_hi - c.s_lo)) / CONTROL_DT).long().clamp(min=1)
+            self.left = torch.where(go, steps, self.left)
+            self.qh = torch.where(go[:, None], q.to(torch.float64), self.qh)
+            self.n = self.n + go.long()
+            self.started += int(go.sum())
+
+    def apply(self, u):
+        """One 20 ms step: the paused worlds' arm targets = the frozen q (the jaw keeps its command)."""
+        m = self.left > 0
+        if not bool(m.any()):
+            return u
+        out = torch.where(m[:, None], torch.cat((self.qh[:, :5], u[:, 5:]), -1), u)
+        self.left = (self.left - 1).clamp(min=0)
+        return out
+
+    def summary(self):
+        return dict(pause_on=round(float(self.on.double().mean()), 3),
+                    pause_now=round(float((self.left > 0).double().mean()), 3), pause_started=int(self.started))
+
+
 def dyn_from_env() -> RobotDynConfig | None:
     """The evaluation setting of ``$NEDM_SO101_DYN`` (JSON ``RobotDynConfig``, e.g. '{"d": 2, "s": 0.1, "tau": 0.1,
     "sag_deg": 1.7}'); unset / empty = off."""
@@ -474,11 +562,13 @@ class JointEnvConfig:
     mj_python: object = None
     mjwarp: dict = field(default_factory=dict)
     dyn: object = None                                # RobotDynConfig (or its dict): robot dynamics stage; None = off
+    pause: object = None                              # PauseConfig (or its dict): the robot's hold state; None = off
     hold_obs_s: float = 0.0                           # held-time scale (s) of the JT observation; 0 = task hold_cap_s
                                                       # (``hold_cap_kw`` keeps the old envs' 3.5 s with a new cap)
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
+        self.pause = pause_config(self.pause)
 
     @staticmethod
     def from_dict(d):
@@ -553,6 +643,8 @@ class JointVecEnv:
         # robot dynamics stage (real2sim; None = off) with its own generator, and the JT observation's held-time scale
         self.dyn = None if cfg.dyn is None else RobotDyn(cfg.dyn, B, dev, (int(cfg.seed) * 0x9E3779B1 + 0xD1A) &
                                                          0x7FFFFFFFFFFF)
+        self.pause = None if cfg.pause is None else Pause(cfg.pause, B, dev, (int(cfg.seed) * 0x2545F491 + 0x9A5) &
+                                                          0x7FFFFFFFFFFF)
         self.obs_tcfg = None
         if cfg.hold_obs_s and float(cfg.hold_obs_s) != self.tcfg.hold_cap_s:
             from dataclasses import replace
@@ -633,6 +725,8 @@ class JointVecEnv:
         self.ep_ret[idx], self.ep_len[idx] = 0.0, 0
         if self.dyn is not None:          # robot dynamics: new draws, hold / lag state = the measured start q
             self.dyn.reset(idx, self.ws.q[idx])
+        if self.pause is not None:
+            self.pause.reset(idx)
 
     def _pool_reset(self, idx):
         from nedm.so101_policy.vec_env import start_rows
@@ -720,6 +814,8 @@ class JointVecEnv:
         dyn = self.dyn if self.dyn is not None and self.dyn.active else None      # None: the old path, bit for bit
         if dyn is not None:
             dyn.begin()
+        if self.pause is not None:
+            self.pause.begin(task, self.ws.q)
         for j in range(STEPS):
             if self.q_offset is None:
                 u = safety(u5[:, j], self.ws.q.to(torch.float64), self.tlo, self.thi, self.lead, self.kin, fl,
@@ -735,6 +831,8 @@ class JointVecEnv:
                 qn = self.ws.q.to(device=u.device, dtype=u.dtype)
                 u = u.clone()
                 u[:, :5] = qn[:, :5] + EVAL_KP_SCALE * (u[:, :5] - qn[:, :5])
+            if self.pause is not None:    # the robot's hold state (training only): frozen arm in paused worlds
+                u = self.pause.apply(u)
             ws = self.world.step(u)
             self.ws = ws if self.cfg.world != "mujoco" else ws.to(self.dev)
             r, _, _, info = task.step(self.ws, None, None)

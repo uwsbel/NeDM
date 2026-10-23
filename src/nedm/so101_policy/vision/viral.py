@@ -1492,6 +1492,7 @@ class OnlineConfig:
     # world per episode; the JT labels the reached states
     dyn: dict = field(default_factory=dict)
     dyn_student_only: bool = False      # the stage only in the student-driven slots (the JT-driven slots stay nominal)
+    pause: dict = field(default_factory=dict)   # the robot's hold state (``JE.PauseConfig``; {} = off)
     # robot-like qdot of the student's INPUT (acting and the buffer's robot state) with probability qd_robot_p per world
     # per episode: the least-squares slope over the last qd_window 20 ms states of q quantised to the STS3215 step
     # 2 pi / 4096 (``robot_qd``; the robot's ``QdotEstimator``): exactly 0 when the arm is still
@@ -1568,6 +1569,7 @@ class OnlineDAgger:
         N = int(ocfg.envs)
         cfg = JE.JointEnvConfig(world="nrd", num_envs=N, device=device, ckpts=[str(nrd_ckpt)], auto_reset=True,
                                 stagger=True, starts="", seed=seed, horizon=int(ocfg.horizon), dyn=ocfg.dyn or None,
+                                pause=ocfg.pause or None,
                                 **JE.hold_cap_kw(ocfg.hold_cap_s, ocfg.hold_obs_s))
         self.env = JE.JointVecEnv(cfg, jt.codec)
         f64 = dict(dtype=torch.float64, device=self.dev)
@@ -1670,6 +1672,8 @@ class OnlineDAgger:
         out = {}
         if self.env.dyn is not None:
             out.update(self.env.dyn.summary())
+        if self.env.pause is not None:
+            out.update(self.env.pause.summary())
         if self.qd_hist is not None:
             out["qd_robot"] = round(float(self.qd_rob.float().mean()), 3)
         return out

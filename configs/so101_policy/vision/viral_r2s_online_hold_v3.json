@@ -1,0 +1,37 @@
+{
+ "note": "real2sim online loop v3 'hold state' (2026-10-22 night): viral_r2s_online_v1 + the robot's hold state only (JE.PauseConfig): in 60 % of the episodes, while the held, lifted cube is within 4 cm (xy) of the goal and its bottom 8-60 mm above the table, a pause (p 0.25 per decision, at most 2 per episode) freezes the 5 arm joints at their measured q for 0.5-3 s (jaw follows its command); the JT labels the still states ('descend'), then the normal physics continue. Plus robot-like qdot input in half of the worlds (exact zeros when still), image lag 1-4, 600-step episodes with an 8 s hold cap (JT held-time scale 3.5 s), loss-side qdot noise with 30 % noise-free samples, 3,000 decisions. Why: dyn v2 (full timing / servo randomisation) made the grasp worse (robot-like sim 0/48, nominal 58-85 %); on the robot and in the robot-like sim the failure is only the still hold above the plate (student plans +1..3 mm up, the JT says descend).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "pause": {
+  "p": 0.6,
+  "s_lo": 0.5,
+  "s_hi": 3.0,
+  "near_m": 0.04,
+  "z_lo": 0.008,
+  "z_hi": 0.06,
+  "rate": 0.25,
+  "max_n": 2
+ },
+ "qd_robot_p": 0.5,
+ "qd_window": 3,
+ "lag_range": [
+  1,
+  4
+ ],
+ "horizon": 600,
+ "hold_cap_s": 8.0,
+ "hold_obs_s": 3.5,
+ "qd_noise_zero_p": 0.3
+}

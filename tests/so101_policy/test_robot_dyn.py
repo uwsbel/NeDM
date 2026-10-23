@@ -750,3 +750,40 @@ class TestEligible(unittest.TestCase):
         dyn.reset(torch.arange(8), q)                     # new episodes: still only the eligible worlds
         self.assertFalse(bool(dyn.on[:4].any()))
         self.assertTrue(bool(dyn.on[4:].all()))
+
+
+class TestPause(unittest.TestCase):
+    def _task(self, B, held=True, dxy=0.01, zb=0.03):
+        from nedm.so101_policy import task as T
+        c = torch.zeros(B, 3, dtype=torch.float64)
+        c[:, 0], c[:, 2] = dxy, zb + T.CUBE_HALF
+        F = dict(c=c, held=torch.full((B,), held))
+        return types.SimpleNamespace(F=F, goal_xy=torch.zeros(B, 2, dtype=torch.float64),
+                                     tr=types.SimpleNamespace(lifted=torch.ones(B, dtype=torch.bool)))
+
+    def test_freeze_arm_only_then_release(self):
+        cfg = JE.pause_config(dict(p=1.0, s_lo=0.1, s_hi=0.1, rate=1.0, max_n=1))
+        pz = JE.Pause(cfg, 4, "cpu", 0)
+        pz.reset(torch.arange(4))
+        q = torch.full((4, 6), 0.3, dtype=torch.float64)
+        pz.begin(self._task(4), q)
+        self.assertTrue(bool((pz.left == 5).all()))                    # 0.1 s = 5 steps
+        u = torch.full((4, 6), 0.9, dtype=torch.float64)
+        for _ in range(5):
+            v = pz.apply(u)
+            self.assertTrue(torch.allclose(v[:, :5], q[:, :5]))         # arm frozen at the pause start q
+            self.assertTrue(torch.allclose(v[:, 5], u[:, 5]))           # jaw follows its command
+        self.assertTrue(torch.equal(pz.apply(u), u))                    # over: the command again
+        pz.begin(self._task(4), q)                                      # max_n 1: no second pause
+        self.assertFalse(bool((pz.left > 0).any()))
+
+    def test_condition(self):
+        cfg = JE.pause_config(dict(p=1.0, rate=1.0))
+        for kw in (dict(held=False), dict(dxy=0.2), dict(zb=0.002), dict(zb=0.2)):
+            pz = JE.Pause(cfg, 3, "cpu", 0)
+            pz.reset(torch.arange(3))
+            pz.begin(self._task(3, **kw), torch.zeros(3, 6, dtype=torch.float64))
+            self.assertFalse(bool((pz.left > 0).any()), kw)
+        self.assertIsNone(JE.pause_config({}))
+        with self.assertRaises(ValueError):
+            JE.pause_config(dict(bogus=1))
