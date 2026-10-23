@@ -17,7 +17,7 @@ echo "host $(hostname) job ${SLURM_JOB_ID:-none} start $(date -Is) gpu $(rocminf
 unset NEDM_SO101_DYN
 python3.12 -P scripts/so101_policy/vision_viral_teacher.py ppo --nrd-ckpt "$R2S_NRD" --dev-tasks "$R2S_DATA/tasks/dev100.npz" \
     --critic-warmup 20 --eval-every 20 --save-every 20 --iterations "${ITERS:-200}" --envs 8192 \
-    --train-config "${TRAINCFG:-configs/so101_policy/ppo/joint_ppo_v3.json}" --init "$R2S_JT" --env-config "$ENVCFG" --out "$RUN" \
+    --train-config "${TRAINCFG:-configs/so101_policy/ppo/joint_ppo_v3.json}" --init "${INIT:-$R2S_JT}" --env-config "$ENVCFG" --out "$RUN" \
     --seed "${SEED:-0}"
 status=$?
 echo "exit $status $(date -Is)"
