@@ -15,6 +15,7 @@
 set -uo pipefail
 export R2S=/work1/dannegrut/harry/so101_studentlab_claude
 export REPO=$R2S/repo
+unset R2S_SCENE R2S_CALIB R2S_TRAIN R2S_DEV R2S_FRESH     # data always from $R2S/data (never another study's)
 set +u; source $REPO/scripts/so101_policy/cluster/r2s_env.sh; set -u
 cd "$REPO"
 ARM=${ARM:?set ARM=a0..a4}
