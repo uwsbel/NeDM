@@ -1277,3 +1277,24 @@ class TestQdInput(unittest.TestCase):
         self.assertTrue(torch.equal(VI.ViralNet.robot(net, r), r))
         oc = VI.OnlineConfig.from_dict(dict(qd_in_lo=0.0, qd_in_hi=1.0, qd_in_zero_p=0.3, relabel_cmd_speed=True))
         self.assertTrue(oc.relabel_cmd_speed)
+
+
+class TestQueueDelay(unittest.TestCase):
+    def test_queue_runs_every_target_late(self):
+        cfg = JE.dyn_config(dict(p=1.0, d_lo=2, d_hi=2, delay_mode="queue"))
+        dyn = JE.RobotDyn(cfg, 1, "cpu", 0)
+        q0 = torch.zeros(1, 6, dtype=torch.float64)
+        dyn.reset(torch.arange(1), q0)
+        tlo, thi = torch.full((6,), -10.0, dtype=torch.float64), torch.full((6,), 10.0, dtype=torch.float64)
+        sent = []
+        for dec in range(3):
+            dyn.begin()
+            ex = []
+            for j in range(JE.STEPS):
+                u = torch.full((1, 6), float(10 * dec + j + 1), dtype=torch.float64) / 100.0
+                ex.append(u)
+                sent.append(float(dyn.apply(j, ex, u, q0, tlo, thi)[0, 0]) * 100.0)
+        want = [0.0, 0.0] + [float(10 * dec + j + 1) for dec in range(3) for j in range(JE.STEPS)][:13]
+        np.testing.assert_allclose(sent, want, atol=1e-9)     # the command stream 2 steps late, nothing dropped
+        with self.assertRaises(ValueError):
+            JE.dyn_config(dict(p=1.0, d_lo=1, d_hi=1, delay_mode="bogus"))

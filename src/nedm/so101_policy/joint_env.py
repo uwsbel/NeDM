@@ -198,6 +198,10 @@ class RobotDynConfig:
     d_lo: int = 0                       # command delay (20 ms steps), per episode U{d_lo .. d_hi}: the first d steps
     d_hi: int = 0                       # of a decision run the previous decision's last command, then u5[0 .. 4 - d]
     jitter: float = 0.0                 # per decision d + (-1, 0, +1) with probability j / 2, 1 - j, j / 2 (j = jitter)
+    delay_mode: str = "hold"            # "hold": the first d steps run the previous decision's last command, then
+                                        # u5[0 .. 4 - d] (the last d targets are dropped); "queue": every target runs d
+                                        # steps late, none is dropped (the first d steps run the previous decision's
+                                        # targets 5 - d .. 4; VIRAL's action-delay rule; the robot loop runs all 5)
     s_lo: float = 1.0                   # arm servo gain scale, log-uniform: u_arm = q + s (u_arm - q) (jaw: unchanged)
     s_hi: float = 1.0
     tau_lo: float = 0.0                 # first-order lag of the arm + jaw command (s), log-uniform, 0 = off:
@@ -215,6 +219,8 @@ class RobotDynConfig:
     def __post_init__(self):
         if not 0.0 <= self.p <= 1.0 or not 0.0 <= self.jitter <= 1.0:
             raise ValueError(f"robot dyn: p {self.p}, jitter {self.jitter} must be in [0, 1]")
+        if self.delay_mode not in ("hold", "queue"):
+            raise ValueError(f"robot dyn: delay_mode {self.delay_mode!r} must be 'hold' or 'queue'")
         if not 0 <= int(self.d_lo) <= int(self.d_hi) <= STEPS - 1:
             raise ValueError(f"robot dyn: delay {self.d_lo} .. {self.d_hi} must be within 0 .. {STEPS - 1} steps")
         if not 0.0 < self.s_lo <= self.s_hi:
@@ -628,6 +634,7 @@ class RobotDyn:
         self.s, self.tau, self.a = torch.ones(B, **f), torch.zeros(B, **f), torch.ones(B, **f)
         self.sag, self.sigma = torch.zeros(B, **f), torch.zeros(B, **f)
         self.hold = torch.zeros(B, 6, **f)        # the previous decision's last command (held during the delay)
+        self.prev5 = torch.zeros(B, STEPS, 6, **f)  # the previous decision's action-layer targets (delay_mode queue)
         self.f = torch.zeros(B, 6, **f)           # the lag filter's state
         self.integ = torch.zeros(B, 5, **f)       # the integral correction (rad, arm joints; i_time_s > 0)
         self.active = False                       # any world perturbed (else ``JointVecEnv.step`` skips the stage)
@@ -662,6 +669,7 @@ class RobotDyn:
         self.sigma[idx] = c.noise_lo + u[:, 5] * (c.noise_max - c.noise_lo)
         q = q.to(torch.float64)
         self.hold[idx], self.f[idx] = q, q
+        self.prev5[idx] = q[:, None, :].expand(-1, STEPS, -1)
         self.integ[idx] = 0.0
         if self.servo is not None:        # the fitted servo: its own draws, emulated position = q
             self.servo.reset(idx, q)
@@ -681,7 +689,13 @@ class RobotDyn:
         B, d, c = self.B, self.d, self.cfg
         ar = torch.arange(B, device=self.dev)
         new = torch.stack(ex, 1)[ar, (j - d).clamp(min=0)]                     # u5[j - d] after the action layer
-        cmd = torch.where((d > j)[:, None], self.hold, new)                     # the first d steps: the held command
+        if c.delay_mode == "queue":       # every target d steps late: the first d steps run prev5[5 - d + j]
+            old = self.prev5[ar, (STEPS - d + j).clamp(max=STEPS - 1)]
+            cmd = torch.where((d > j)[:, None], old, new)
+            if j == STEPS - 1:
+                self.prev5 = torch.stack(ex, 1).to(torch.float64)
+        else:
+            cmd = torch.where((d > j)[:, None], self.hold, new)                 # the first d steps: the held command
         if j == STEPS - 1:
             self.hold = cmd                                                     # held until the next decision's d
         q = q.to(torch.float64)
