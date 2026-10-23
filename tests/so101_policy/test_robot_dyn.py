@@ -9,6 +9,7 @@ geometry, the build9 development tasks; skipped without them), the MuJoCo test n
 """
 from __future__ import annotations
 
+import dataclasses
 import importlib.util
 import json
 import math
@@ -729,6 +730,479 @@ class TestOnlineOptions(unittest.TestCase):
         self.assertTrue(torch.equal(l0, l1))
         l2, _ = st.loss(img, robot, tgt, valid, qd_scale=torch.zeros(3))
         self.assertTrue(bool(torch.isfinite(l2)))
+
+
+# ---- the fitted real servo (RobotDynConfig.servo, RealServo) ---------------------------------------------------------
+# the evaluation setting of /tmp/claude_servo_fit/servo_fit_params.json ("proposed") and its training randomisation
+EVAL_SERVO = dict(delay_ms=[25, 25, 20, 25, 20, 45], tau_ms=[50, 50, 45, 40, 40, 45],
+                  deadband_deg=[0.35, 0.30, 0.74, 0.37, 0.44, 0.37], deadband_per_Nm_deg=[0.0, 1.7, 1.3, 0.8, 0.0, 0.0],
+                  breakaway_extra_deg=[0.14, 0.0, 0.02, 0.09, 0.09, 0.29],
+                  compliance_rad_per_Nm=[0.0, 0.060, 0.055, 0.055, 0.0, 0.0],
+                  bias_deg=[-0.07, -0.22, 0.18, 0.0, -0.07, 0.03], vmax_rad_s=[3.0, 2.3, 3.0, 3.0, 1.0, 2.2],
+                  cube_mass_kg=0.03)
+EVAL_DYN = dict(d=2, jitter=0.4, i_time_s=0.2, servo=EVAL_SERVO)
+TRAIN_SERVO = dict(delay_ms=[[10, 40]] * 5 + [[30, 55]], tau_ms=[[30, 75]] * 5 + [[35, 75]],
+                   deadband_deg=[[0.25, 0.5], [0.2, 0.5], [0.55, 0.95], [0.25, 0.5], [0.3, 0.55], [0.25, 0.5]],
+                   deadband_per_Nm_deg=[0, [1.4, 2.0], [0.8, 1.6], [0.0, 1.5], 0, 0],
+                   breakaway_extra_deg=[[0.0, 0.3]] * 5 + [[0.1, 0.5]],
+                   compliance_rad_per_Nm=[0, [0.045, 0.075], [0.045, 0.075], [0.04, 0.075], 0, 0],
+                   cube_mass_kg=[0.01, 0.05], bias_deg=[[-0.35, 0.35]] * 6,
+                   vmax_rad_s=[[1.0, 3.0]] * 4 + [[0.5, 1.5], [1.5, 3.5]])
+REF_EMU = Path("/tmp/claude_servo_fit/servo_emu.py")
+MENAGERIE = Path(__file__).resolve().parents[2] / "contact_nrd/so101_grasp/vendor/mujoco_menagerie" / \
+    "robotstudio_so101/so101.xml"
+_RW_BIAS = torch.tensor([[-0.08956, -0.41704, -0.35361, -0.01302, -0.12852, -0.00093],
+                         [0.0, 0.0, -0.35361, -0.01302, -0.12852, -0.00093],
+                         [0.0, 0.0, 0.0, 0.0, -0.12852, -0.00093]], dtype=torch.float64)
+_RW_CUBE = torch.tensor([[-0.27491, -1.10161, -1.32276, -0.05156, -1.50263, -0.01843],
+                         [0.0, 0.0, -1.32276, -0.05156, -1.50263, -0.01843],
+                         [0.0, 0.0, 0.0, 0.0, -1.50263, -0.01843]], dtype=torch.float64)
+
+
+def ref_servo(p, q0, cmds, qws, held, n_sub=10, nh=5, reanchor_deg=3.0):
+    """Frozen copy of the reference emulator (/tmp/claude_servo_fit/servo_emu.py ``RealServoEmu.step``, 2026-10-22)
+    plus its sim.py's load-dependent dead band db + db1 |G|. p {delay, tau, db, db1, dbs, kg, kh, b, vmax} [B, 6] (SI),
+    q0 [B, 6], cmds / qws [N, B, 6], held [N, B] bool -> outputs [N, B, 6]."""
+    h = 0.02 / n_sub
+    y, mov = q0.clone(), torch.zeros(q0.shape, dtype=torch.bool)
+    hist = q0[:, None, :].repeat(1, nh, 1)
+    out = []
+    for cmd, qw, hd in zip(cmds, qws, held):
+        hist = torch.cat((cmd[:, None], hist[:, :-1]), 1)
+        y = torch.where((y - qw).abs() > math.radians(reanchor_deg), qw, y)
+        a1 = qw[:, 1]
+        a2 = a1 + qw[:, 2]
+        a3 = a2 + qw[:, 3]
+        X = torch.stack((a1.cos(), a1.sin(), a2.cos(), a2.sin(), a3.cos(), a3.sin()), -1)
+        bias, cube = torch.zeros_like(qw), torch.zeros_like(qw)
+        bias[:, 1:4], cube[:, 1:4] = X @ _RW_BIAS.T, X @ _RW_CUBE.T
+        o = p["b"] - p["kg"] * bias - p["kh"] * cube * hd.to(torch.float64)[:, None]
+        tau, dbs, vmax = p["tau"].clamp_min(1e-4), p["dbs"], p["vmax"]
+        db = p["db"] + p["db1"] * bias.abs()
+        vt = vmax * tau
+        dsub = torch.round(p["delay"] / h).long()
+        for i in range(n_sub):
+            m = torch.div(dsub - i + n_sub - 1, n_sub, rounding_mode="floor").clamp(0, nh - 1)
+            c = torch.gather(hist, 1, m[:, None, :]).squeeze(1)
+            r = c + o
+            e = r - y
+            ae, sg = e.abs(), torch.sign(e)
+            mv = torch.where(mov, ae > db + 1.7e-4, ae > db + dbs)
+            rp = r - db * sg
+            ep = (rp - y).abs()
+            t1 = (ep - vt) / vmax
+            q_lin = y + sg * vmax * h
+            tb = t1.clamp(0.0, h)
+            qb = torch.where(ep > vt, rp - sg * vt, y)
+            q_exp = rp - (rp - qb) * torch.exp(-(h - tb) / tau)
+            y = torch.where(mv, torch.where(t1 >= h, q_lin, q_exp), y)
+            mov = mv
+        out.append(y)
+    return torch.stack(out)
+
+
+def servo(B=4, seed=0, spec=None, q=None):
+    """A RealServo of B worlds (``spec``: default the evaluation setting), reset at q (default 0), held flag fresh."""
+    s = JE.RealServo(EVAL_SERVO if spec is None else spec, B, "cpu", seed)
+    s.reset(torch.arange(B), torch.zeros(B, 6, dtype=torch.float64) if q is None else q)
+    s.fresh[:] = False
+    return s
+
+
+def free_run(s, cmds, held=None):
+    """The servo alone with an ideal world (world q = the servo's output): cmds [N, B, 6] -> outputs [N, B, 6]."""
+    out = []
+    for c in cmds:
+        out.append(s.step(c, s.y.clone(), held).clone())
+    return torch.stack(out)
+
+
+def random_case(B, N, seed):
+    """Random command sequences (random walks with held stretches and jumps), world q = y + noise with jumps of
+    0-6 deg (re-anchor events), random held flags."""
+    g = torch.Generator().manual_seed(seed)
+    f = dict(dtype=torch.float64, generator=g)
+    q0 = 0.8 * (2 * torch.rand(B, 6, **f) - 1)
+    steps = torch.randn(N, B, 6, **f) * 0.01 * (torch.rand(N, B, 6, **f) < 0.5)
+    steps += (torch.rand(N, B, 6, **f) < 0.01) * 0.2 * torch.randn(N, B, 6, **f)
+    cmds = q0[None] + steps.cumsum(0)
+    noise = torch.randn(N, B, 6, **f) * 0.002 + (torch.rand(N, B, 6, **f) < 0.02) * math.radians(6) * \
+        (2 * torch.rand(N, B, 6, **f) - 1)
+    held = torch.rand(N, B, generator=g) < 0.5
+    return q0, cmds, noise, held
+
+
+class TestRealServo(unittest.TestCase):
+    def test_equals_the_reference_on_random_commands(self):
+        for spec in (TRAIN_SERVO, EVAL_SERVO, dict(TRAIN_SERVO, deadband_per_Nm_deg=0.0, n_sub=4)):
+            n = spec.get("n_sub", 10)
+            q0, cmds, noise, held = random_case(48, 400, 1)
+            for rule, hd in ((False, held), (True, held), (True, None)):     # held_jaw False = the reference's rule
+                s = servo(48, 3, dict(spec, held_jaw=rule), q0)
+                got, qws = [], []
+                for k in range(400):
+                    qw = s.y + noise[k]
+                    qws.append(qw.clone())
+                    got.append(s.step(cmds[k], qw, None if hd is None else hd[k]).clone())
+                want = ref_servo({k: v for k, v in s.p.items()}, q0, cmds, torch.stack(qws),
+                                 torch.zeros(400, 48, dtype=torch.bool) if hd is None else hd, n_sub=n, nh=s.nh)
+                d = (torch.stack(got) - want).abs()
+                msg = f"{str(spec)[:60]} held_jaw {rule} held {hd is not None}"
+                self.assertEqual(float(d[..., :5].max()), 0.0, msg=msg)     # the arm: always the reference
+                if rule and hd is not None:                                 # the held-cube jaw rule acts
+                    self.assertGreater(float(d[..., 5].max()), 1e-3, msg=msg)
+                else:
+                    self.assertEqual(float(d[..., 5].max()), 0.0, msg=msg)
+                self.assertGreater(float((torch.stack(qws) - torch.stack(got)).abs().max()), math.radians(3))
+            if spec is TRAIN_SERVO:
+                self.assertTrue(bool((s.p["db1"][:, 1:3] > 0).all()))  # the load term is in the test
+
+    @unittest.skipUnless(REF_EMU.exists(), "reference emulator /tmp/claude_servo_fit/servo_emu.py missing")
+    def test_equals_the_reference_file(self):
+        """The reference file itself (no load-dependent dead band: db1 0)."""
+        spec = importlib.util.spec_from_file_location("servo_emu_ref", REF_EMU)
+        SE = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(SE)
+        B, N = 48, 400
+        q0, cmds, noise, held = random_case(B, N, 2)
+        s = servo(B, 5, dict(TRAIN_SERVO, deadband_per_Nm_deg=0.0, held_jaw=False), q0)
+        R = SE.RealServoEmu(B, "cpu", n_sub=10)
+        R.set_params(list(range(B)), {k: s.p[k] for k in SE.KEYS})
+        R.reset(list(range(B)), q0)
+        mx = 0.0
+        for k in range(N):
+            qw = s.y + noise[k]
+            mx = max(mx, float((s.step(cmds[k], qw, held[k]) - R.step(cmds[k], qw, held[k])).abs().max()))
+        self.assertEqual(mx, 0.0)
+
+    @unittest.skipUnless(HAVE_MUJOCO and MENAGERIE.exists(), "mujoco / the Menagerie SO101 model missing")
+    def test_gravity_closed_form_vs_mujoco(self):
+        import mujoco
+        from nedm.so101_policy.kin import GRASP_POINT
+        m = mujoco.MjModel.from_xml_path(str(MENAGERIE))
+        d = mujoco.MjData(m)
+        gid = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "gripper")
+        rng = np.random.default_rng(0)
+        lo = np.array([-1.9, -1.74, -1.69, -1.65, -2.7, 0.0])
+        hi = np.array([1.9, 1.74, 1.69, 1.65, 2.7, 1.7])
+        Q = lo + (hi - lo) * rng.random((300, 6))
+        jac = np.zeros((3, m.nv))
+        bias, cube = np.zeros((300, 6)), np.zeros((300, 6))
+        for k, q in enumerate(Q):
+            d.qpos[:6], d.qvel[:] = q, 0.0
+            mujoco.mj_forward(m, d)
+            bias[k] = d.qfrc_bias[:6]
+            p = d.xpos[gid] + d.xmat[gid].reshape(3, 3) @ np.asarray(GRASP_POINT)
+            mujoco.mj_jac(m, d, jac, None, p, gid)
+            cube[k] = jac[:, :6].T @ np.array([0.0, 0.0, 9.81])
+        w = (torch.tensor(JE.SERVO_W_BIAS, dtype=torch.float64), torch.tensor(JE.SERVO_W_CUBE, dtype=torch.float64))
+        G, Gc = JE.servo_gravity(torch.as_tensor(Q), w)
+        rb = np.sqrt(((G.numpy() - bias)[:, 1:4] ** 2).mean(0))
+        rc = np.sqrt(((Gc.numpy() - cube)[:, 1:4] ** 2).mean(0))
+        self.assertLess(float(rb.max()), 0.01)                          # N m (the fit: 0.004)
+        self.assertLess(float(rc.max()), 0.05)                          # N m / kg (x 0.05 kg: < 2.5 mN m)
+        self.assertEqual(float(G[:, [0, 4, 5]].abs().max()), 0.0)
+
+    def test_dead_band_delay_lag_and_speed_limit(self):
+        D = math.radians
+        spec = dict(delay_ms=26, tau_ms=50, deadband_deg=0.4, breakaway_extra_deg=0.1)
+        s = servo(1, spec=spec)
+        z = torch.zeros(1, 6, dtype=torch.float64)
+        small = torch.full((1, 6), D(0.45), dtype=torch.float64)        # < dead band + break-away (0.5 deg)
+        out = free_run(s, small[None].expand(50, 1, 6))
+        self.assertTrue(torch.equal(out, z[None].expand(50, 1, 6)))     # holds still, exactly
+        big = torch.full((1, 6), D(2.0), dtype=torch.float64)
+        out = free_run(s, big[None].expand(60, 1, 6))
+        self.assertTrue(torch.equal(out[0], z))                         # 26 ms delay: the first step is still
+        self.assertGreater(float(out[1].min()), 0.0)
+        settle = big - D(0.4)                                           # stops at the dead band's edge: 0.4 deg short
+        self.assertLess(float((out[-1] - settle).abs().max()), JE.SERVO_EPS + 1e-12)
+        self.assertLessEqual(float((out[-1] - settle).max()), 1e-12)
+        t = (torch.arange(1, 7, dtype=torch.float64) * 0.02 - 0.026).clamp(min=0.0)       # first-order lag
+        np.testing.assert_allclose(out[:6, 0, 0].numpy(), (D(1.6) * (1 - torch.exp(-t / 0.05))).numpy(), atol=1e-12)
+        rest = out[-1].clone()
+        for dc in (0.08, -0.3, -0.75):                                  # small changes of the command: no motion
+            o = free_run(s, (big + D(dc))[None].expand(20, 1, 6))
+            self.assertTrue(torch.equal(o[-1], rest), msg=str(dc))
+        o = free_run(s, (big + D(0.3))[None].expand(40, 1, 6))          # 0.3 + 0.4 > 0.5: it moves (to 0.4 short)
+        self.assertLess(float((o[-1] - (big + D(0.3) - D(0.4))).abs().max()), JE.SERVO_EPS + 1e-12)
+        v = servo(1, spec=dict(spec, vmax_rad_s=1.0))                   # speed limit: <= vmax DT per step
+        o = free_run(v, torch.full((30, 1, 6), D(30.0), dtype=torch.float64))
+        self.assertLessEqual(float(o.diff(dim=0).abs().max()), 1.0 * JE.CONTROL_DT + 1e-12)
+        self.assertGreater(float(o.diff(dim=0).abs().max()), 0.99 * JE.CONTROL_DT)
+
+    def test_gravity_sag_and_held_cube(self):
+        q = torch.tensor([[0.0, 0.3, 0.4, 0.5, 0.0, 0.2]], dtype=torch.float64)
+        w = (torch.tensor(JE.SERVO_W_BIAS, dtype=torch.float64), torch.tensor(JE.SERVO_W_CUBE, dtype=torch.float64))
+        G, Gc = JE.servo_gravity(q, w)
+        spec = dict(delay_ms=0, tau_ms=40, deadband_deg=0.0, compliance_rad_per_Nm=[0, 0.06, 0.055, 0.055, 0, 0],
+                    cube_mass_kg=0.03, bias_deg=0.0)
+        kg = torch.tensor([[0, 0.06, 0.055, 0.055, 0, 0]], dtype=torch.float64)
+        for held in (False, True):
+            s = servo(1, spec=spec, q=q)
+            for _ in range(100):                                        # a constant command at q, the world at q
+                y = s.step(q, q, torch.tensor([held]))
+            want = q - kg * (G + 0.03 * Gc * held)                      # settles at command - compliance x torque
+            self.assertLess(float((y - want).abs().max()), 1e-9, msg=str(held))
+        self.assertGreater(float(G[0, 1:3].abs().min()), 0.1)           # a loaded pose (N m)
+        # the dead band grows with the load: db + db1 |G| (shoulder_lift: 0.3 + 1.7 |G| deg)
+        s = servo(1, spec=dict(spec, deadband_deg=0.3, deadband_per_Nm_deg=[0, 1.7, 0, 0, 0, 0],
+                               compliance_rad_per_Nm=0.0), q=q)
+        c = q.clone()
+        c[0, 1] += math.radians(0.3 + 1.7 * abs(float(G[0, 1]))) * 0.98
+        y = free_run(s, c[None].expand(20, 1, 6))[-1]
+        self.assertTrue(torch.equal(y, q))                              # inside the load-grown dead band: still
+
+    def test_held_cube_jaw(self):
+        """A held cube blocks the jaw at 15 deg (the world: max(target, 15 deg)), the command closes to 5 deg, then
+        opens to 40 deg: with ``held_jaw`` the world's jaw target is the settle point (command + bias) once the delayed
+        command acts, the emulated jaw stays at the held angle, and the release opens from there; the reference's
+        target is only 2.5 / 4.9 deg below the held jaw, and it opens later."""
+        D = math.radians
+        blk = D(15.0)
+
+        def run(rule, close=5.0, n_close=30, n_open=12, after=40.0):
+            q0 = torch.tensor([[0.0, 0.3, 0.4, 0.5, 0.0, D(20.0)]], dtype=torch.float64)
+            s = servo(1, spec=dict(EVAL_SERVO, held_jaw=rule), q=q0)
+            qw = s.y.clone()
+            out, st = [], []
+            for k in range(n_close + n_open):
+                c = q0.clone()
+                c[0, 5] = D(close) if k < n_close else D(after)
+                held = torch.tensor([bool(qw[0, 5] <= blk + 1e-12)])
+                o = s.step(c, qw, held)
+                out.append(float(o[0, 5]))
+                st.append(float(s.y[0, 5]))
+                qw = o.clone()
+                qw[0, 5] = max(float(o[0, 5]), blk)                     # the stiff world, the cube blocks the jaw
+            return np.degrees(out), np.degrees(st), s
+
+        out, st, s = run(True)
+        held = np.flatnonzero(out < 15.0)
+        sq = out[8:30]                                                  # squeezing: the 45 ms delayed 5 deg command
+        np.testing.assert_allclose(sq, 5.0 + 0.03, atol=1e-9)           # + the jaw bias (0.03 deg)
+        self.assertTrue(np.all(st[8:30] >= 15.0 - 2.53))                # the emulated jaw: one step from the held angle
+        ref, ref_st, _ = run(False)
+        g = ref[8:30] - 15.0
+        self.assertTrue(np.all((g < -2.4) & (g > -5.0)), msg=str(g))    # the reference: 2.5 / 4.9 deg below
+        self.assertGreater(np.ptp(g), 2.0)                              # alternating
+        o_new, o_ref = [], []
+        for n in (29, 30):                                              # both phases of the reference's alternation
+            a_, b_ = run(True, n_close=n)[0], run(False, n_close=n)[0]
+            o_new.append(int(np.flatnonzero(a_[n:] > 15.2)[0]))
+            o_ref.append(int(np.flatnonzero(b_[n:] > 15.2)[0]))
+            self.assertLessEqual(a_[n + o_new[-1]] - 15.0, 2.2 * JE.CONTROL_DT * 180 / math.pi + 1e-9)
+        self.assertEqual(o_new, [2, 2])                                 # opens from the held angle after the delay
+        self.assertEqual(sorted(o_ref), [2, 3])                         # the reference: one step later from 4.9 deg
+        self.assertGreater(len(held), 20)
+        # held, then a command inside the dead band (0.3 deg below the held jaw): no squeeze, the target = the held jaw
+        out, _, _ = run(True, n_close=15, n_open=15, after=14.7)
+        np.testing.assert_allclose(out[15:17], 5.03, atol=1e-9)        # the delayed squeeze (step 17: the change)
+        np.testing.assert_allclose(out[18:], 15.0, atol=1e-9)
+        self.assertEqual(JE.servo_spec(dict(EVAL_SERVO))[2]["held_jaw"], True)    # the default
+        with self.assertRaises(ValueError):
+            JE.servo_spec(dict(EVAL_SERVO, held_jaw=1))
+
+    def test_reset_reanchor_and_stale_held_flag(self):
+        B = 6
+        s = servo(B, spec=TRAIN_SERVO)
+        cmds = torch.full((30, B, 6), 0.1, dtype=torch.float64)
+        free_run(s, cmds)
+        y0, h0, m0, d0 = s.y.clone(), s.hist.clone(), s.moving.clone(), s.draw.clone()
+        q2 = torch.randn(2, 6, dtype=torch.float64)
+        s.reset(torch.tensor([1, 4]), q2)
+        keep = torch.tensor([0, 2, 3, 5])
+        self.assertTrue(torch.equal(s.y[[1, 4]], q2) and not bool(s.moving[[1, 4]].any()))
+        self.assertTrue(bool((s.hist[[1, 4]] == q2[:, None]).all()))
+        self.assertTrue(torch.equal(s.y[keep], y0[keep]) and torch.equal(s.hist[keep], h0[keep])
+                        and torch.equal(s.moving[keep], m0[keep]) and torch.equal(s.draw[keep], d0[keep]))
+        self.assertFalse(torch.equal(s.draw[[1, 4]], d0[[1, 4]]))       # new draws for the reset worlds
+        self.assertEqual(s.fresh.tolist(), [False, True, False, False, True, False])
+        # re-anchor: a joint whose world q is > 3 deg from y restarts there, the others keep y
+        a = servo(1, spec=dict(delay_ms=0, tau_ms=40, deadband_deg=0.4))
+        qw = torch.zeros(1, 6, dtype=torch.float64)
+        qw[0, 5], qw[0, 2] = math.radians(3.5), math.radians(2.5)
+        cmd = torch.zeros(1, 6, dtype=torch.float64)
+        cmd[0, 5] = math.radians(3.5)                                   # commands = y after the re-anchor: no motion
+        y = a.step(cmd, qw)
+        self.assertEqual(float(y[0, 5]), math.radians(3.5))             # 3.5 deg off: re-anchored to the world q
+        self.assertEqual(float(y[0, 2]), 0.0)                           # 2.5 deg off: kept
+        # the held flag of a reset world is the old episode's: ignored for one step
+        q = torch.tensor([[0.0, 0.3, 0.4, 0.5, 0.0, 0.2]] * 2, dtype=torch.float64)
+        spec = dict(delay_ms=0, tau_ms=40, deadband_deg=0.0, compliance_rad_per_Nm=[0, 0.06, 0.055, 0.055, 0, 0],
+                    cube_mass_kg=0.03)
+        b = JE.RealServo(spec, 2, "cpu", 0)
+        b.reset(torch.arange(2), q)
+        hd = torch.tensor([True, False])
+        o1 = b.step(q, q, hd)
+        self.assertTrue(torch.equal(o1[0], o1[1]))                      # first step: both as not held
+        o2 = b.step(q, b.y.clone(), hd)
+        self.assertFalse(torch.equal(o2[0], o2[1]))
+
+    def test_off_is_the_old_stage(self):
+        self.assertEqual(JE.RobotDynConfig(servo={}), JE.RobotDynConfig())
+        self.assertEqual(JE.RobotDynConfig.from_dict(dict(TRAIN, servo={})), JE.RobotDynConfig.from_dict(TRAIN))
+        self.assertEqual(JE.RobotDynConfig.from_dict(dict(servo=None)), JE.RobotDynConfig())
+        self.assertTrue(JE.RobotDynConfig(servo={}).neutral)
+        self.assertFalse(JE.RobotDynConfig(servo=EVAL_SERVO).neutral)     # the servo alone acts
+        self.assertTrue(JE.dyn_config(dict(servo={})).neutral)          # only an empty servo: the stage never runs
+        g = torch.Generator().manual_seed(0)
+        u = torch.randn(6, 5, 6, generator=g, dtype=torch.float64)
+        q = torch.randn(6, 6, generator=g, dtype=torch.float64)
+        for kw in (TRAIN, dict(d=2, jitter=0.4, s=0.5, tau=0.1, sag_deg=1.5, i_time_s=0.2)):
+            a, b = dyn(6, 3, **kw), dyn(6, 3, **dict(kw, servo={}))
+            self.assertIsNone(b.servo)
+            a.reset(torch.arange(6), q)
+            b.reset(torch.arange(6), q)
+            for _ in range(3):                                          # the held flag is ignored without the servo
+                a.begin(), b.begin()
+                ex, oa, ob = [], [], []
+                for j in range(JE.STEPS):
+                    ex.append(u[:, j])
+                    oa.append(a.apply(j, ex, u[:, j], q, *BIG))
+                    ob.append(b.apply(j, ex, u[:, j], q, *BIG, None, torch.ones(6, dtype=torch.bool)))
+                self.assertTrue(torch.equal(torch.stack(oa), torch.stack(ob)))
+            self.assertEqual(tuple(b.summary()), JE.RobotDyn.SUMMARY)    # the old log columns
+        cfg = JE.JointEnvConfig(dyn=EVAL_DYN)                           # serialised with the servo, round trip
+        back = JE.JointEnvConfig.from_dict(json.loads(json.dumps(cfg.to_dict())))
+        self.assertEqual(back.dyn, cfg.dyn)
+        self.assertEqual(back.dyn.servo, EVAL_SERVO)
+
+    @unittest.skipUnless(HAVE_KIN, "kinematics files / development tasks missing")
+    def test_env_off_and_empty_servo_are_the_old_step(self):
+        t = tasks(6)
+        ref = roll(kin_env(t), step=head_step)
+        self.assertTrue(torch.equal(roll(kin_env(t, dict(NEUTRAL, servo={}))), ref))
+        a, b = roll(kin_env(t, TRAIN)), roll(kin_env(t, dict(TRAIN, servo={})))
+        self.assertTrue(torch.equal(a, b))
+
+    def test_draws_per_world_and_reproducible(self):
+        B = 4000
+        s = JE.RealServo(TRAIN_SERVO, B, "cpu", 11)
+        s.reset(torch.arange(B), torch.zeros(B, 6, dtype=torch.float64))
+        lo, hi = s.lo, s.hi
+        self.assertTrue(bool(((s.draw >= lo - 1e-15) & (s.draw <= hi + 1e-15)).all()))
+        K = {k: i for i, k in enumerate(JE.SERVO_KEYS)}
+        dl = s.draw[:, K["delay_ms"], 0]
+        self.assertAlmostEqual(float(dl.mean()), 0.025, delta=0.0006)   # uniform 10-40 ms
+        lt = torch.log(s.draw[:, K["tau_ms"], 0])
+        self.assertAlmostEqual(float(lt.mean()), (math.log(0.03) + math.log(0.075)) / 2, delta=0.01)   # log-uniform
+        cm = s.draw[:, K["cube_mass_kg"]]
+        self.assertTrue(bool((cm == cm[:, :1]).all()))                  # one cube mass per world
+        self.assertGreater(len(set(cm[:, 0].tolist())), B - 5)          # independent per world
+        self.assertEqual(float(s.draw[:, K["compliance_rad_per_Nm"], [0, 4, 5]].abs().max()), 0.0)   # fixed 0
+        np.testing.assert_allclose(s.p["kh"].numpy(), (s.draw[:, K["compliance_rad_per_Nm"]] * cm).numpy(), atol=0)
+        e = JE.RealServo(TRAIN_SERVO, B, "cpu", 11)
+        e.reset(torch.arange(B), torch.zeros(B, 6, dtype=torch.float64))
+        self.assertTrue(torch.equal(e.draw, s.draw))                    # same seed: same draws
+        # in the stage: the servo's generator is its own, the stage's draws are those without the servo
+        a = JE.RobotDyn(JE.RobotDynConfig.from_dict(dict(d_lo=0, d_hi=3, jitter=0.4, p=0.8)), 500, "cpu", 4)
+        b = JE.RobotDyn(JE.RobotDynConfig.from_dict(dict(d_lo=0, d_hi=3, jitter=0.4, p=0.8, servo=TRAIN_SERVO)), 500,
+                        "cpu", 4)
+        for x in (a, b):
+            x.reset(torch.arange(500), torch.zeros(500, 6, dtype=torch.float64))
+            x.begin()
+        self.assertTrue(torch.equal(a.params(), b.params()) and torch.equal(a.d, b.d))
+        p0 = b.servo_params().clone()
+        b.reseed(5)
+        b.reset(torch.arange(500), torch.zeros(500, 6, dtype=torch.float64))
+        c = JE.RobotDyn(b.cfg, 500, "cpu", 99)
+        c.reseed(5)
+        c.reset(torch.arange(500), torch.zeros(500, 6, dtype=torch.float64))
+        self.assertTrue(torch.equal(b.servo_params(), c.servo_params()))   # reseed: reproducible
+        self.assertFalse(torch.equal(b.servo_params(), p0))
+        sm = b.summary()
+        self.assertEqual(tuple(sm), JE.RobotDyn.SUMMARY + JE.SERVO_SUMMARY)
+
+    def test_eval_json_parse_and_errors(self):
+        js = json.dumps(EVAL_DYN)
+        with mock.patch.dict(os.environ, {JE.DYN_ENV: js}):
+            c = JE.dyn_from_env()
+        self.assertEqual((c.d_lo, c.d_hi, c.jitter, c.i_time_s, c.s_lo, c.tau_hi), (2, 2, 0.4, 0.2, 1.0, 0.0))
+        self.assertEqual(c.servo, EVAL_SERVO)
+        d = JE.RobotDyn(c, 3, "cpu", 0)
+        d.reset(torch.arange(3), torch.zeros(3, 6, dtype=torch.float64))
+        for i, k in enumerate(JE.SERVO_KEYS):                           # fixed: every world gets the exact values
+            want = np.broadcast_to(np.asarray(EVAL_SERVO[k], dtype=np.float64) * JE.SERVO_SI[k], (3, 6))
+            np.testing.assert_allclose(d.servo.draw[:, i].numpy(), want, rtol=1e-15, atol=0, err_msg=k)
+        np.testing.assert_allclose(d.servo.p["kh"][0].numpy(), np.asarray([0, 0.06, 0.055, 0.055, 0, 0]) * 0.03,
+                                   rtol=1e-15)
+        self.assertEqual(d.servo.m[0, 0].tolist(), [2, 2, 1, 2, 1, 3])   # delays 25 / 20 / 45 ms: commands 2, 1, 3 back
+        bad = [dict(EVAL_DYN, s=0.5), dict(EVAL_DYN, tau=0.1), dict(EVAL_DYN, sag_deg=1.5),       # counted twice
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, gain=1)), dict(EVAL_DYN, servo=dict(tau_ms=40, deadband_deg=0.3)),
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, tau_ms=[40] * 5)),
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, deadband_deg=[[0.5, 0.3]] * 6)),
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, deadband_deg=-0.1)),
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, delay_ms=300)), dict(EVAL_DYN, servo=dict(EVAL_SERVO, tau_ms=0)),
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, n_sub=0)),
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, cube_mass_kg=[1] * 6)),
+               dict(EVAL_DYN, servo=dict(EVAL_SERVO, bias_deg=True)), dict(EVAL_DYN, servo=[1, 2])]
+        for b in bad:
+            with self.assertRaises(ValueError, msg=str(b)[:120]):
+                JE.dyn_config(b)
+        self.assertEqual(JE.dyn_config(dict(servo=dict(EVAL_SERVO, note="x", n_sub=5))).servo["n_sub"], 5)
+
+    @unittest.skipUnless(HAVE_KIN, "kinematics files / development tasks missing")
+    def test_env_make_env_records_and_dead_band_in_the_loop(self):
+        from nedm.so101_policy import joint_teacher as JT
+        codec = JE.Codec(np.zeros(18), np.ones(18))
+        with mock.patch.dict(os.environ, {JE.DYN_ENV: json.dumps(EVAL_DYN)}):
+            e = JT.make_env("kin", 2, codec, "cpu")
+        self.assertIsNotNone(e.dyn.servo)
+        self.assertEqual(e.resolved()["env"]["dyn"]["servo"], EVAL_SERVO)
+        t = tasks(4)
+        a, b = kin_env(t, EVAL_DYN), kin_env(t, EVAL_DYN)
+        self.assertTrue(torch.equal(a.dyn.servo_params(), b.dyn.servo_params()))
+        self.assertTrue(torch.equal(roll(a, 4), roll(b, 4)))            # reproducible from the task seeds
+        info = a.dyn_info()
+        self.assertEqual(np.asarray(info["servo_params"]).shape, (4, len(JE.SERVO_KEYS), 6))
+        self.assertEqual(info["servo_keys"], list(JE.SERVO_KEYS))
+        json.dumps(info)
+        off = kin_env(t, TRAIN)                                         # off: the old records, no "servo" key
+        self.assertNotIn("servo_params", off.dyn_info())
+        self.assertNotIn("servo", off.dyn_info()["cfg"])
+        self.assertNotIn("servo", off.resolved()["env"]["dyn"])
+        old = {k: v for k, v in dataclasses.asdict(off.dyn.cfg).items() if k != "servo"}
+        self.assertEqual(off.dyn_info()["cfg"], old)
+        self.assertEqual(JE.JointEnvConfig.from_dict(off.cfg.to_dict()), off.cfg)
+        with mock.patch.object(JE, "EVAL_KP_SCALE", 0.5):              # the softness counted twice: an error
+            with self.assertRaises(ValueError):
+                kin_env(t, EVAL_DYN)
+            kin_env(t, TRAIN)                                           # without the servo: as before
+        # in the loop, without the loop delay: a 0.25 deg pan target change does not move the arm, 2 deg does
+        moved = {}
+        for tag, d_ in (("servo", dict(servo=EVAL_SERVO)), ("off", False)):
+            for dc in (0.25, 2.0):
+                env = kin_env(t, d_)
+                q0 = env.ws.q.to(torch.float64).clone()
+                for _ in range(4):
+                    tg = q0[:, None].expand(env.B, JE.STEPS, 6).clone()
+                    tg[..., 0] += math.radians(dc)
+                    env.step(None, targets=tg)
+                moved[tag, dc] = float(torch.rad2deg(env.ws.q[:, 0].to(torch.float64) - q0[:, 0]).abs().max())
+        self.assertLess(moved["servo", 0.25], 0.01)
+        self.assertGreater(moved["off", 0.25], 0.2)
+        self.assertGreater(moved["servo", 2.0], 1.3)
+
+    @unittest.skipUnless(HAVE_MUJOCO and HAVE_KIN, "mujoco / development tasks missing")
+    def test_mujoco_world_follows_the_servo(self):
+        from nedm.so101_policy import joint_teacher as JT
+        from nedm.so101_policy.vision.demos import start_state
+        t = tasks(2)
+        e = JT.make_env("mujoco", 2, JE.Codec(np.zeros(18), np.ones(18)), "cpu", dyn=dict(servo=EVAL_SERVO))
+        mj = dict(q=t["start_q"], cube_pos=t["start_cube_pos"], cube_quat=t["start_cube_quat"])
+        e.reset_tasks(torch.arange(2), start_state(t, "cpu"), torch.as_tensor(t["goal_xy"]),
+                      torch.as_tensor(t["goal_yaw"]), torch.as_tensor(t["seeds"]), mj, check_tol=None)
+        q0 = e.ws.q.to(torch.float64).clone()
+        gap = []
+        for k in range(8):
+            tg = q0[:, None].expand(2, JE.STEPS, 6).clone()
+            tg[..., 0] += math.radians(1.5 * (k + 1))
+            e.step(None, targets=tg)
+            gap.append(float(torch.rad2deg(e.ws.q.to(torch.float64)[:, :5] - e.dyn.servo.y[:, :5]).abs().max()))
+        e.close()
+        self.assertLess(max(gap), 0.3)                                  # the stiff sim servo follows the output y
+        self.assertGreater(float(torch.rad2deg(e.dyn.servo.y[:, 0] - q0[:, 0]).min()), 5.0)   # and the arm moved
 
 
 if __name__ == "__main__":

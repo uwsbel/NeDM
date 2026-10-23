@@ -33,7 +33,8 @@ Robot dynamics (real2sim, OFF by default: ``JointEnvConfig.dyn`` None): ``RobotD
 the world step of every 20 ms step and emulates the real SO101's timing and servo per world (command delay with jitter,
 weaker arm servo, first-order command lag, gravity sag of shoulder_lift / elbow with the robot guard's integral
 correction, command noise; ``RobotDynConfig``), drawn at every episode reset. ``joint_teacher.make_env`` reads a fixed
-evaluation setting from ``$NEDM_SO101_DYN``.
+evaluation setting from ``$NEDM_SO101_DYN``. ``RobotDynConfig.servo`` (off: {}) replaces the crude gain / lag / sag by
+the servo model fitted on the robot logs (``RealServo``: delay, lag, dead band, gravity compliance, speed limit).
 """
 from __future__ import annotations
 
@@ -108,7 +109,8 @@ class Codec:
 FLOOR = 0.0015                                       # m, the decoder's low_min (lowest gripper / moving-jaw point)
 # evaluation only (real2sim debugging): a weaker arm servo, as the real STS3215 (P 16): the executed arm target is moved
 # to q + s * (target - q), i.e. the position gain times s; 1 = off. Not used in training or data collection. Applied
-# after the robot dynamics stage (``RobotDyn``; the two compound); per world and recorded: ``RobotDynConfig.s_*``.
+# after the robot dynamics stage (``RobotDyn``; the two compound; with the fitted servo ``RobotDynConfig.servo`` an
+# error: counted twice); per world and recorded: ``RobotDynConfig.s_*``.
 EVAL_KP_SCALE = float(os.environ.get("NEDM_SO101_EVAL_KP_SCALE", "1"))
 
 
@@ -187,7 +189,11 @@ class RobotDynConfig:
     adds its own error at a low gain on top (MuJoCo, measured - command: s 0.1 alone +0.14 / +0.21 deg, s 0.1 with a
     1.7 deg sag +1.84 / +1.91 deg). The integral correction (``i_time_s`` > 0) is the robot guard's
     (``hw_lib.GuardConfig.i_*``, robot runs: i_time_s 0.2, i_max_deg 3): without it a constant sag moves a policy
-    that commands relative to the measured q by the sag at every decision (jt_h110: 0.8 % lenient at 0.5 deg)."""
+    that commands relative to the measured q by the sag at every decision (jt_h110: 0.8 % lenient at 0.5 deg).
+    ``servo`` ({} = off): the real servo fitted on the robot logs (``RealServo``, ``servo_spec``; report
+    ~/so101_r2s_claude/sim_debug/scout/tr_servo.md), per joint fixed values or [lo, hi] ranges drawn per world and
+    episode. It REPLACES the lag / sag / gain (they must stay neutral: s 1, tau 0, sag 0, else counted twice); stage
+    order then: delay -> integral correction -> servo -> noise -> actuator range (its input is the command SENT)."""
     p: float = 1.0                      # share of perturbed worlds (per episode)
     d_lo: int = 0                       # command delay (20 ms steps), per episode U{d_lo .. d_hi}: the first d steps
     d_hi: int = 0                       # of a decision run the previous decision's last command, then u5[0 .. 4 - d]
@@ -204,6 +210,7 @@ class RobotDynConfig:
     i_max_deg: float = 3.0              #   integ += (command - q) DT / i_time_s, |integ| <= i_max_deg, only while
     i_e_max_deg: float = 1.0            #   |command - q| < i_e_max_deg and the joint does not move to its command
     i_v_min: float = 0.02               #   faster than i_v_min (rad/s); the sent command = command + integ
+    servo: dict = field(default_factory=dict)   # the fitted real servo (``servo_spec`` keys); {} = off
 
     def __post_init__(self):
         if not 0.0 <= self.p <= 1.0 or not 0.0 <= self.jitter <= 1.0:
@@ -219,6 +226,17 @@ class RobotDynConfig:
         if self.i_time_s < 0.0 or self.i_max_deg < 0.0 or self.i_e_max_deg < 0.0:
             raise ValueError("robot dyn: integral correction i_time_s / i_max_deg / i_e_max_deg must be >= 0")
         self.d_lo, self.d_hi = int(self.d_lo), int(self.d_hi)
+        if self.servo is None or self.servo is False:
+            self.servo = {}
+        if not isinstance(self.servo, dict):
+            raise ValueError(f"robot dyn: servo must be a dict ({{}} = off), got {self.servo!r}")
+        if self.servo:
+            self.servo = copy.deepcopy(self.servo)
+            servo_spec(self.servo)                                          # raises on bad keys / values
+            if not (self.s_lo == self.s_hi == 1.0 and self.tau_hi == 0.0 and self.sag_lo_deg == self.sag_max_deg
+                    == 0.0):
+                raise ValueError("robot dyn: the servo model replaces the gain s, lag tau and sag; keep them neutral "
+                                 "(s 1, tau 0, sag 0), else they are counted twice")
 
     @staticmethod
     def from_dict(d):
@@ -234,12 +252,20 @@ class RobotDynConfig:
                 d[lo] = d[hi] = d.pop(k)
         return RobotDynConfig(**{k: v for k, v in d.items() if k in known})
 
+    def to_dict(self):
+        """The record (``asdict``) without the servo key while it is off: records of servo-free settings stay as they
+        were before the servo existed (older code copies reject unknown keys in ``from_dict``)."""
+        d = copy.deepcopy(asdict(self))
+        if not d["servo"]:
+            del d["servo"]
+        return d
+
     @property
     def neutral(self):
         """True: every perturbed world equals the old path (no delay, gain 1, no lag, sag, noise or integral
-        correction); ``RobotDyn`` then skips the stage (bit for bit the old step)."""
+        correction, no servo model); ``RobotDyn`` then skips the stage (bit for bit the old step)."""
         return (self.d_hi == 0 and self.s_lo == self.s_hi == 1.0 and self.tau_hi == 0.0 and self.sag_lo_deg ==
-                self.sag_max_deg == 0.0 and self.noise_max == 0.0 and self.i_time_s == 0.0)
+                self.sag_max_deg == 0.0 and self.noise_max == 0.0 and self.i_time_s == 0.0 and not self.servo)
 
 
 def dyn_config(v) -> RobotDynConfig | None:
@@ -355,12 +381,241 @@ def _log_uniform(lo, hi, u):
     return torch.exp(math.log(lo) + u * (math.log(hi) - math.log(lo)))
 
 
+# ---- the fitted real servo (``RobotDynConfig.servo``) ----------------------------------------------------------------
+# Per joint, continuous time, exact per sub-step for the piecewise-constant command c = the command SENT (after the
+# stage's delay d and the integral correction); fitted on 12 robot + 15 teleop episodes (report
+# ~/so101_r2s_claude/sim_debug/scout/tr_servo.md; reference /tmp/claude_servo_fit/servo_emu.py plus the load-dependent
+# dead band of its sim.py):
+#     r = c(t - delay) + o,   o = bias - compliance (G(q) + m_cube Gc(q) held)         (where the servo settles)
+#     e = r - y,   db = deadband + deadband_per_Nm |G(q)|
+#     a still joint starts only if |e| > db + breakaway_extra, a moving joint stops once |e| <= db (+ SERVO_EPS)
+#     while moving: dy/dt = clip((e - db sign e) / tau, +-vmax)
+# G, Gc: closed-form gravity torque (N m) of shoulder_lift / elbow / wrist_flex and the held-cube torque per kg at the
+# grasp point (least squares on the Menagerie MuJoCo model, residual 0.004 N m) at the MEASURED q; ``held`` = the
+# task's held flag. The output y (the emulated real joint position at the end of the step) is the target sent to the
+# world: the sim servo is stiff (MuJoCo kp 998: lag 3 ms, sag < 0.03 deg), so the world follows y within a few ms.
+# y is re-anchored per joint to the world q where they differ by more than ``reanchor_deg`` (contact, blocked jaw).
+# Held cube (``held_jaw``, default on; off = the reference): while the task's held flag is set the cube blocks the
+# jaw, so the emulated jaw cannot close past the world's jaw angle (y = max(y, q)), and while the servo squeezes
+# (its settle point below q - the dead band) the world's jaw target is that settle point (the delayed command), not y:
+# with the reference's y the jaw target is only 2.5 / 4.9 deg (alternating) past the held jaw instead of the commanded
+# ~9.6 deg; MuJoCo's grip does not change (force-saturated beyond 0.2 deg), the NRD world's does (jt_h110 on dev100:
+# 99 % lenient nominal, 97 % at a 4.9 deg gap, 35 % alternating, 0 % at 2.5 deg; the fitted jaw servo alone: 10 %
+# with the reference rule, 97 % with this one, MuJoCo 78 / 81 %; ~/so101_r2s_claude/sim_debug/servo/diag), and on
+# release the jaw opens from the held angle (the reference first runs back up from up to 4.9 deg: 0-1 step later).
+SERVO_KEYS = ("delay_ms", "tau_ms", "deadband_deg", "deadband_per_Nm_deg", "breakaway_extra_deg",
+              "compliance_rad_per_Nm", "cube_mass_kg", "bias_deg", "vmax_rad_s")   # = servo_fit_params.json "proposed"
+SERVO_NEED = ("delay_ms", "tau_ms", "deadband_deg")              # required keys; the others default to:
+SERVO_DEFAULT = dict(deadband_per_Nm_deg=0.0, breakaway_extra_deg=0.0, compliance_rad_per_Nm=0.0, cube_mass_kg=0.0,
+                     bias_deg=0.0, vmax_rad_s=1e3)               # 1e3 rad/s = no speed limit
+SERVO_LOG = ("tau_ms", "vmax_rad_s")                             # [lo, hi] log-uniform (the fit's randomisation)
+SERVO_OPTS = dict(n_sub=10, reanchor_deg=3.0, held_jaw=True)     # sub-steps per 20 ms step, re-anchor threshold,
+                                                                 # the held-cube jaw rule (False = the reference)
+SERVO_SI = dict(delay_ms=1e-3, tau_ms=1e-3, deadband_deg=math.pi / 180, deadband_per_Nm_deg=math.pi / 180,
+                breakaway_extra_deg=math.pi / 180, compliance_rad_per_Nm=1.0, cube_mass_kg=1.0,
+                bias_deg=math.pi / 180, vmax_rad_s=1.0)          # config units -> s, rad, rad / N m, kg, rad / s
+SERVO_MAX_DELAY_S = 0.25
+SERVO_EPS = 1.7e-4                                               # rad: a moving joint stops this far past the edge
+SERVO_SUMMARY = ("dyn_servo_still", "dyn_servo_db_deg")          # ``RobotDyn.summary`` keys with the servo on
+# gravity torque (N m) of joints 1..3 and the held-cube torque (N m per kg): w . [c1 s1 c12 s12 c123 s123]
+SERVO_W_BIAS = ((-0.08956, -0.41704, -0.35361, -0.01302, -0.12852, -0.00093),
+                (0.0, 0.0, -0.35361, -0.01302, -0.12852, -0.00093),
+                (0.0, 0.0, 0.0, 0.0, -0.12852, -0.00093))
+SERVO_W_CUBE = ((-0.27491, -1.10161, -1.32276, -0.05156, -1.50263, -0.01843),
+                (0.0, 0.0, -1.32276, -0.05156, -1.50263, -0.01843),
+                (0.0, 0.0, 0.0, 0.0, -1.50263, -0.01843))
+
+
+def servo_spec(d):
+    """``RobotDynConfig.servo`` dict -> (lo, hi) float64 [len(SERVO_KEYS), 6] in SI units (``SERVO_SI``) and the options
+    (``SERVO_OPTS``). Per key: a number (every joint) or 6 entries (shoulder_pan .. gripper), each a number (fixed) or
+    [lo, hi] (drawn per world and episode: log-uniform for ``SERVO_LOG``, else uniform); cube_mass_kg: a number or
+    [lo, hi] (one draw per world). Missing keys: ``SERVO_DEFAULT`` (``SERVO_NEED`` must be given); "note" ignored.
+    Raises ValueError on unknown keys, bad shapes or ranges."""
+    import numbers
+    d = {k: v for k, v in dict(d).items() if k != "note"}
+    bad = sorted(set(d) - set(SERVO_KEYS) - set(SERVO_OPTS))
+    if bad:
+        raise ValueError(f"robot dyn servo: unknown keys {bad} (known: {list(SERVO_KEYS) + list(SERVO_OPTS)})")
+    miss = [k for k in SERVO_NEED if k not in d]
+    if miss:
+        raise ValueError(f"robot dyn servo: missing keys {miss}")
+    num = lambda x: isinstance(x, numbers.Real) and not isinstance(x, bool)          # noqa: E731
+    seq = lambda x, n: isinstance(x, (list, tuple)) and len(x) == n                  # noqa: E731
+    lo, hi = np.zeros((len(SERVO_KEYS), 6)), np.zeros((len(SERVO_KEYS), 6))
+    for i, k in enumerate(SERVO_KEYS):
+        v = d.get(k, SERVO_DEFAULT.get(k))
+        if num(v) or (k == "cube_mass_kg" and seq(v, 2)):
+            ent = [v] * 6
+        elif seq(v, 6) and k != "cube_mass_kg":
+            ent = list(v)
+        else:
+            raise ValueError(f"robot dyn servo: {k} = {v!r}: a number, " +
+                             ("or [lo, hi]" if k == "cube_mass_kg" else "or 6 entries (numbers or [lo, hi])"))
+        for j, e in enumerate(ent):
+            if num(e):
+                a = b = float(e)
+            elif seq(e, 2) and num(e[0]) and num(e[1]):
+                a, b = float(e[0]), float(e[1])
+            else:
+                raise ValueError(f"robot dyn servo: {k}[{j}] = {e!r}: a number or [lo, hi]")
+            if not (math.isfinite(a) and math.isfinite(b) and a <= b):
+                raise ValueError(f"robot dyn servo: {k}[{j}] = {e!r}: finite, lo <= hi")
+            lo[i, j], hi[i, j] = a * SERVO_SI[k], b * SERVO_SI[k]
+    K = {k: i for i, k in enumerate(SERVO_KEYS)}
+    if lo[K["delay_ms"]].min() < 0.0 or hi[K["delay_ms"]].max() > SERVO_MAX_DELAY_S:
+        raise ValueError(f"robot dyn servo: delay_ms must be within 0 .. {SERVO_MAX_DELAY_S * 1e3:g}")
+    if min(lo[K["tau_ms"]].min(), lo[K["vmax_rad_s"]].min()) <= 0.0:
+        raise ValueError("robot dyn servo: tau_ms and vmax_rad_s must be > 0")
+    for k in ("deadband_deg", "deadband_per_Nm_deg", "breakaway_extra_deg", "compliance_rad_per_Nm", "cube_mass_kg"):
+        if lo[K[k]].min() < 0.0:
+            raise ValueError(f"robot dyn servo: {k} must be >= 0")
+    opts = dict(SERVO_OPTS, **{k: d[k] for k in SERVO_OPTS if k in d})
+    if not (num(opts["n_sub"]) and int(opts["n_sub"]) == opts["n_sub"] and int(opts["n_sub"]) >= 1
+            and num(opts["reanchor_deg"]) and opts["reanchor_deg"] > 0 and isinstance(opts["held_jaw"], bool)):
+        raise ValueError(f"robot dyn servo: n_sub (int >= 1) / reanchor_deg (> 0) / held_jaw (bool): {opts}")
+    return lo, hi, dict(n_sub=int(opts["n_sub"]), reanchor_deg=float(opts["reanchor_deg"]),
+                        held_jaw=bool(opts["held_jaw"]))
+
+
+def servo_gravity(q, w):
+    """q [B, 6] (sim rad) -> (G, Gc) [B, 6] float64: the gravity torque (N m) and the held-cube torque per kg (N m / kg)
+    of shoulder_lift / elbow / wrist_flex (zero for pan, wrist_roll, jaw); w = (``SERVO_W_BIAS``, ``SERVO_W_CUBE``) as
+    [3, 6] float64 tensors on q's device."""
+    a1 = q[:, 1]
+    a2 = a1 + q[:, 2]
+    a3 = a2 + q[:, 3]
+    X = torch.stack((a1.cos(), a1.sin(), a2.cos(), a2.sin(), a3.cos(), a3.sin()), -1).to(torch.float64)
+    G = torch.zeros(q.shape[0], 6, dtype=torch.float64, device=q.device)
+    Gc = torch.zeros_like(G)
+    G[:, 1:4] = X @ w[0].T
+    Gc[:, 1:4] = X @ w[1].T
+    return G, Gc
+
+
+def _servo_seed(seed):
+    return (int(seed) * 0x5851F42D + 0x5E7) & 0x7FFFFFFFFFFF
+
+
+class RealServo:
+    """Per-world state of the fitted real servo (``RobotDynConfig.servo``; the model above) for B worlds x 6 joints,
+    float64, vectorised over worlds and joints, own generator (``RobotDyn`` seeds it from its own seed, so the stage's
+    other draws do not change with the servo on). State: the emulated position y, the moving / still flag, the last
+    ``nh`` sent commands. At every reset one uniform per world, key and joint (``SERVO_KEYS`` x 6, fixed keys too), so
+    paired settings share their draws. ``step``: one 20 ms step in ``n_sub`` sub-steps, each in closed form (lag +
+    speed limit) for the command acting in that sub-step (the command of m steps ago, m = ceil((delay / h - i) / n))."""
+
+    def __init__(self, spec: dict, B, device, seed):
+        lo, hi, opts = servo_spec(spec)
+        self.B, self.dev = int(B), torch.device(device)
+        f = dict(dtype=torch.float64, device=self.dev)
+        self.lo, self.hi = torch.as_tensor(lo, **f), torch.as_tensor(hi, **f)
+        self.log = torch.tensor([k in SERVO_LOG for k in SERVO_KEYS], dtype=torch.bool, device=self.dev)[:, None]
+        self.n = int(opts["n_sub"])
+        self.h = CONTROL_DT / self.n
+        self.reanchor = math.radians(opts["reanchor_deg"])
+        self.held_jaw = bool(opts["held_jaw"])
+        self.nh = int(math.ceil(float(hi[SERVO_KEYS.index("delay_ms")].max()) / CONTROL_DT)) + 2   # history (steps)
+        self.gen = torch.Generator(self.dev).manual_seed(int(seed))
+        self.w = (torch.tensor(SERVO_W_BIAS, **f), torch.tensor(SERVO_W_CUBE, **f))
+        self.draw = torch.zeros(B, len(SERVO_KEYS), 6, **f)          # per-world values (SI units, ``SERVO_KEYS``)
+        self.p = {k: torch.zeros(B, 6, **f) for k in ("delay", "tau", "db", "db1", "dbs", "kg", "kh", "b", "vmax")}
+        self.p["tau"][:], self.p["vmax"][:] = 0.04, 1e3
+        self.m = torch.zeros(B, self.n, 6, dtype=torch.long, device=self.dev)    # command age per sub-step (steps)
+        self.y = torch.zeros(B, 6, **f)                                 # the emulated real joint position
+        self.moving = torch.zeros(B, 6, dtype=torch.bool, device=self.dev)
+        self.hist = torch.zeros(B, self.nh, 6, **f)                     # hist[:, m] = the command sent m steps ago
+        self.fresh = torch.ones(B, dtype=torch.bool, device=self.dev)   # reset since the last step: held flag stale
+
+    def reseed(self, seed):
+        self.gen.manual_seed(int(seed))
+
+    def reset(self, idx, q):
+        """Episode start of worlds ``idx`` (q [n, 6] measured): new draws; y = q, still, command history = q."""
+        n = len(idx)
+        u = torch.rand(n, len(SERVO_KEYS), 6, generator=self.gen, dtype=torch.float64, device=self.dev)
+        lo, hi = self.lo, self.hi
+        lin = lo + u * (hi - lo)                                        # lo == hi: exactly lo
+        llo, lhi = torch.log(lo.clamp_min(1e-300)), torch.log(hi.clamp_min(1e-300))
+        v = torch.where(self.log & (hi > lo), torch.exp(llo + u * (lhi - llo)), lin)
+        km = SERVO_KEYS.index("cube_mass_kg")
+        v[:, km] = v[:, km, :1].expand(n, 6)                            # one cube mass per world
+        self.draw[idx] = v
+        K = {k: v[:, i] for i, k in enumerate(SERVO_KEYS)}
+        p = self.p
+        for a, k in (("delay", "delay_ms"), ("tau", "tau_ms"), ("db", "deadband_deg"), ("db1", "deadband_per_Nm_deg"),
+                     ("dbs", "breakaway_extra_deg"), ("kg", "compliance_rad_per_Nm"), ("b", "bias_deg"),
+                     ("vmax", "vmax_rad_s")):
+            p[a][idx] = K[k]
+        p["kh"][idx] = K["compliance_rad_per_Nm"] * K["cube_mass_kg"]
+        dsub = torch.round(K["delay_ms"] / self.h).long()              # delay in sub-steps
+        i = torch.arange(self.n, device=self.dev)[None, :, None]
+        self.m[idx] = torch.div(dsub[:, None, :] - i + self.n - 1, self.n, rounding_mode="floor").clamp(0, self.nh - 1)
+        q = q.to(torch.float64)
+        self.y[idx] = q
+        self.moving[idx] = False
+        self.hist[idx] = q[:, None, :]
+        self.fresh[idx] = True
+
+    def step(self, cmd, q, held=None):
+        """One 20 ms step: cmd [B, 6] the command sent (after delay + integral correction), q [B, 6] the measured q
+        (world), held [B] bool the task's held flag (None: not held) -> the target for the world [B, 6] (y at the end
+        of the step; ``held_jaw``: a held jaw that squeezes gets the settle point instead)."""
+        p, h = self.p, self.h
+        cmd, qw = cmd.to(torch.float64), q.to(torch.float64)
+        hb = torch.zeros(self.B, dtype=torch.bool, device=self.dev) if held is None else \
+            held.to(self.dev).bool() & ~self.fresh                      # a reset world's flag is the old episode's
+        hf = hb.to(torch.float64)
+        self.fresh = torch.zeros_like(self.fresh)
+        self.hist = torch.cat((cmd[:, None], self.hist[:, :-1]), 1)
+        y = torch.where((self.y - qw).abs() > self.reanchor, qw, self.y)
+        if self.held_jaw:                 # the held cube blocks the jaw: it cannot close past the world's jaw angle
+            y = torch.cat((y[:, :5], torch.where(hb, torch.maximum(y[:, 5], qw[:, 5]), y[:, 5])[:, None]), -1)
+        G, Gc = servo_gravity(qw, self.w)
+        o = p["b"] - p["kg"] * G - p["kh"] * Gc * hf[:, None]
+        tau, vmax, dbs = p["tau"].clamp_min(1e-4), p["vmax"], p["dbs"]
+        db = p["db"] + p["db1"] * G.abs()                               # the dead band grows with the load
+        vt = vmax * tau
+        th_mov, th_still = db + SERVO_EPS, db + dbs                     # stiction: a still joint needs db + dbs
+        R = torch.gather(self.hist, 1, self.m) + o[:, None]             # [B, n_sub, 6] the settle point per sub-step
+        mov = self.moving
+        for i in range(self.n):
+            r = R[:, i]
+            e = r - y
+            ae, sg = e.abs(), torch.sign(e)
+            mv = torch.where(mov, ae > th_mov, ae > th_still)
+            rp = r - db * sg                                            # it settles at the dead band's edge
+            ep = (rp - y).abs()
+            t1 = (ep - vt) / vmax                                       # length of the speed-limited phase
+            q_lin = y + sg * vmax * h
+            tb = t1.clamp(0.0, h)
+            qb = torch.where(ep > vt, rp - sg * vt, y)                  # the state after the speed-limited phase
+            q_exp = rp - (rp - qb) * torch.exp(-(h - tb) / tau)
+            y = torch.where(mv, torch.where(t1 >= h, q_lin, q_exp), y)
+            mov = mv
+        self.y, self.moving = y, mov
+        if not self.held_jaw:
+            return y
+        rj = R[:, -1, 5]                  # held and squeezing (settle point below the jaw angle - the dead band): the
+        sq = hb & (rj < qw[:, 5] - db[:, 5])                            # world's jaw target is the settle point
+        return torch.cat((y[:, :5], torch.where(sq, rj, y[:, 5])[:, None]), -1)
+
+    def summary(self, on):
+        """``SERVO_SUMMARY`` over the worlds ``on`` [B] bool: share of still arm joints in the last step, mean arm dead
+        band (deg, without the load term)."""
+        if not bool(on.any()):
+            return dict.fromkeys(SERVO_SUMMARY, float("nan"))
+        return dict(dyn_servo_still=round(float((~self.moving[on, :5]).double().mean()), 3),
+                    dyn_servo_db_deg=round(float(torch.rad2deg(self.p["db"][on, :5]).mean()), 3))
+
+
 class RobotDyn:
     """Per-world state of ``RobotDynConfig`` for B worlds on one device (``JointVecEnv.step``). Own generator (seeded
     from the env seed; ``reseed`` at ``reset_tasks``), so the env's other draws never change. Six uniforms per world
     and reset (perturbed, delay, gain, tau, sag, sigma), B uniforms per decision (jitter) and B x 5 normals per step
     (noise), all drawn whatever the ranges are, so paired settings share their draws. A neutral config
-    (``RobotDynConfig.neutral``) never activates the stage."""
+    (``RobotDynConfig.neutral``) never activates the stage. ``servo`` (``RealServo``, None = off) has its own
+    generator: the draws above are the same with and without it."""
     COLS = ("on", "d0", "s", "tau", "sag_deg", "sigma")
     SUMMARY = ("dyn_on", "dyn_d0", "dyn_d", "dyn_s_p50", "dyn_tau_p50", "dyn_sag_deg", "dyn_sigma", "dyn_i_deg")
 
@@ -378,9 +633,12 @@ class RobotDyn:
         self.active = False                       # any world perturbed (else ``JointVecEnv.step`` skips the stage)
         self.eligible = None                      # [B] bool: worlds that may be perturbed (None = all; ``set_eligible``)
         self.sag_idx = torch.tensor(SAG_JOINTS, dtype=torch.long, device=self.dev)
+        self.servo = RealServo(cfg.servo, B, self.dev, _servo_seed(seed)) if cfg.servo else None
 
     def reseed(self, seed):
         self.gen.manual_seed(int(seed) & 0x7FFFFFFFFFFFFFFF)
+        if self.servo is not None:
+            self.servo.reseed(_servo_seed(int(seed) & 0x7FFFFFFFFFFFFFFF))
 
     def set_eligible(self, mask):
         """Only these worlds may be perturbed (e.g. the online loop's student slots); the draws stay the same."""
@@ -405,6 +663,8 @@ class RobotDyn:
         q = q.to(torch.float64)
         self.hold[idx], self.f[idx] = q, q
         self.integ[idx] = 0.0
+        if self.servo is not None:        # the fitted servo: its own draws, emulated position = q
+            self.servo.reset(idx, q)
         self.active = bool(self.on.any()) and not c.neutral
 
     def begin(self):
@@ -413,10 +673,11 @@ class RobotDyn:
         j = self.cfg.jitter
         self.d = (self.d0 + (r >= 1.0 - j / 2).long() - (r < j / 2).long()).clamp(0, STEPS - 1)
 
-    def apply(self, j, ex, u, q, tlo, thi, qd=None):
+    def apply(self, j, ex, u, q, tlo, thi, qd=None, held=None):
         """Step j of the decision: ``ex`` = the action layer's targets of steps 0 .. j (list of [B, 6]), ``u`` = ex[j],
-        q [B, 6] the measured q now, ``qd`` [B, 6] its speed (integral correction; None = not moving) -> the target
-        sent to the world [B, 6] (unperturbed rows: ``u`` itself)."""
+        q [B, 6] the measured q now, ``qd`` [B, 6] its speed (integral correction; None = not moving), ``held`` [B]
+        the task's held flag (the servo's cube term and held-cube jaw rule; None = not held; unused without the servo)
+        -> the target sent to the world [B, 6] (unperturbed rows: ``u`` itself)."""
         B, d, c = self.B, self.d, self.cfg
         ar = torch.arange(B, device=self.dev)
         new = torch.stack(ex, 1)[ar, (j - d).clamp(min=0)]                     # u5[j - d] after the action layer
@@ -434,12 +695,16 @@ class RobotDyn:
             self.integ = torch.where(self.on[:, None], (self.integ + e * (CONTROL_DT / c.i_time_s)).clamp(-im, im),
                                      self.integ)
             cmd = torch.cat((cmd[:, :5] + self.integ, cmd[:, 5:]), -1)
-        a = self.a[:, None]
-        self.f = torch.where(a >= 1.0, cmd, self.f + a * (cmd - self.f))       # first-order lag of the command
-        v = self.f.clone()
-        v[:, self.sag_idx] += self.sag[:, None]                                 # static error (before the gain)
-        s = self.s[:, None]
-        arm = torch.where(s == 1.0, v[:, :5], q[:, :5] + s * (v[:, :5] - q[:, :5]))
+        if self.servo is not None:        # the fitted real servo (arm + jaw) replaces the lag / sag / gain (neutral)
+            v = self.servo.step(cmd, q, held)
+            arm = v[:, :5]
+        else:
+            a = self.a[:, None]
+            self.f = torch.where(a >= 1.0, cmd, self.f + a * (cmd - self.f))   # first-order lag of the command
+            v = self.f.clone()
+            v[:, self.sag_idx] += self.sag[:, None]                             # static error (before the gain)
+            s = self.s[:, None]
+            arm = torch.where(s == 1.0, v[:, :5], q[:, :5] + s * (v[:, :5] - q[:, :5]))
         arm = arm + self.sigma[:, None] * torch.randn(B, 5, generator=self.gen, dtype=torch.float64, device=self.dev)
         out = torch.minimum(torch.maximum(torch.cat((arm, v[:, 5:]), -1), tlo), thi)    # actuator range
         return torch.where(self.on[:, None], out, u)
@@ -449,10 +714,14 @@ class RobotDyn:
         return torch.stack((self.on.double(), self.d0.double(), self.s, self.tau, torch.rad2deg(self.sag), self.sigma),
                            -1)
 
+    def servo_params(self):
+        """[B, len(SERVO_KEYS), 6] float64 per-world servo draws in SI units (``SERVO_SI``); None without the servo."""
+        return None if self.servo is None else self.servo.draw
+
     def summary(self):
         """Compact draw statistics (perturbed share; means / medians over the perturbed worlds; the mean |integral
         correction| in deg) for logs. Always the keys ``SUMMARY`` (NaN while no world is perturbed), so the log's
-        csv header (taken from its first row) has every column."""
+        csv header (taken from its first row) has every column; with the servo also ``SERVO_SUMMARY``."""
         on = self.on
         out = dict.fromkeys(self.SUMMARY, float("nan"))
         out["dyn_on"] = round(float(on.double().mean()), 3)
@@ -462,6 +731,8 @@ class RobotDyn:
                        dyn_s_p50=r(self.s[on].median(), 4), dyn_tau_p50=r(self.tau[on].median(), 4),
                        dyn_sag_deg=r(torch.rad2deg(self.sag[on]).mean()), dyn_sigma=r(self.sigma[on].mean(), 5),
                        dyn_i_deg=r(torch.rad2deg(self.integ[on].abs()).mean()))
+        if self.servo is not None:
+            out.update(self.servo.summary(on))
         return out
 
 
@@ -582,7 +853,10 @@ class JointEnvConfig:
         return JointEnvConfig(**{k: v for k, v in d.items() if k in known})
 
     def to_dict(self):
-        return copy.deepcopy(asdict(self))
+        d = copy.deepcopy(asdict(self))
+        if isinstance(self.dyn, RobotDynConfig):
+            d["dyn"] = self.dyn.to_dict()     # no "servo" key while it is off (``RobotDynConfig.to_dict``)
+        return d
 
 
 def load_codec(path, device="cpu"):
@@ -643,6 +917,9 @@ class JointVecEnv:
         # robot dynamics stage (real2sim; None = off) with its own generator, and the JT observation's held-time scale
         self.dyn = None if cfg.dyn is None else RobotDyn(cfg.dyn, B, dev, (int(cfg.seed) * 0x9E3779B1 + 0xD1A) &
                                                          0x7FFFFFFFFFFF)
+        if self.dyn is not None and self.dyn.servo is not None and EVAL_KP_SCALE != 1.0:
+            raise ValueError(f"robot dyn servo with $NEDM_SO101_EVAL_KP_SCALE = {EVAL_KP_SCALE:g}: the fitted servo "
+                             "already has the real servo's softness (counted twice); unset it (1)")
         self.pause = None if cfg.pause is None else Pause(cfg.pause, B, dev, (int(cfg.seed) * 0x2545F491 + 0x9A5) &
                                                           0x7FFFFFFFFFFF)
         self.obs_tcfg = None
@@ -695,11 +972,15 @@ class JointVecEnv:
 
     def dyn_info(self) -> dict | None:
         """The robot dynamics setting (``RobotDynConfig`` as a dict) + the per-world draws of the current episodes
-        (``RobotDyn.COLS``) + the hold cap / observation scale; None = off (evaluation files: the "dyn" key)."""
+        (``RobotDyn.COLS``) + the hold cap / observation scale; None = off (evaluation files: the "dyn" key). With the
+        fitted servo also its per-world draws ``servo_params`` [B, len(SERVO_KEYS), 6] (SI units, ``servo_keys``)."""
         if self.dyn is None:
             return None
-        return dict(cfg=asdict(self.dyn.cfg), cols=list(RobotDyn.COLS), params=self.dyn.params().cpu().tolist(),
-                    hold_cap_s=self.tcfg.hold_cap_s, hold_obs_s=float(self.cfg.hold_obs_s), kp_scale=EVAL_KP_SCALE)
+        out = dict(cfg=self.dyn.cfg.to_dict(), cols=list(RobotDyn.COLS), params=self.dyn.params().cpu().tolist(),
+                   hold_cap_s=self.tcfg.hold_cap_s, hold_obs_s=float(self.cfg.hold_obs_s), kp_scale=EVAL_KP_SCALE)
+        if self.dyn.servo is not None:
+            out.update(servo_keys=list(SERVO_KEYS), servo_params=self.dyn.servo_params().cpu().tolist())
+        return out
 
     # ---- tasks -------------------------------------------------------------------------------------------------
     def refresh_pool(self, n=None):
@@ -825,8 +1106,9 @@ class JointVecEnv:
                 u = safety(u5[:, j], self.ws.q.to(torch.float64) + qo, self.tlo, self.thi, self.lead, self.kin, fl,
                            self.floor_plane) - qo
             ex.append(u)                  # u_exe: the action layer's targets (before the robot dynamics / servo scale)
-            if dyn is not None:           # the robot's timing and servo (RobotDyn), perturbed worlds only
-                u = dyn.apply(j, ex, u, self.ws.q, self.tlo, self.thi, self.ws.qd)
+            if dyn is not None:           # the robot's timing and servo (RobotDyn), perturbed worlds only; the held
+                u = dyn.apply(j, ex, u, self.ws.q, self.tlo, self.thi, self.ws.qd,       # flag: the servo's cube / jaw
+                              None if task.F is None else task.F["held"])
             if EVAL_KP_SCALE != 1.0:
                 qn = self.ws.q.to(device=u.device, dtype=u.dtype)
                 u = u.clone()
