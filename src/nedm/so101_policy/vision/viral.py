@@ -1859,6 +1859,10 @@ class OnlineConfig:
     # the carry keep the measured-speed labels (robot 10-22: relabel everywhere carried the cube ~4 cm lower and grasped
     # worse); 0 = everywhere
     relabel_near_m: float = 0.0
+    # ... not in the grasp zone (> 0): no relabel while the cube is not held and the grasp point is within
+    # relabel_grasp_zone_m (xy) of it (grasp diagnosis 2026-10-23: relabel at the cube -> the student hovers above an
+    # off-centre cube with the jaw open on the robot); the approach, lift, carry and place keep the relabel; 0 = off
+    relabel_grasp_zone_m: float = 0.0
     # the student must have the last-command input (``ViralConfig.lastcmd``, e.g. --config viral_r2s_v1_lastcmd.json):
     # a guard against a launch with the wrong student config (the input itself follows the student's config)
     require_lastcmd: bool = False
@@ -1952,6 +1956,20 @@ class ReplayBuffer:
         """The previous-decision images of samples i (their own images where ``prev_valid`` is False)."""
         ok = self.prev_valid(i)
         return torch.where(ok[:, None, None, None, None], self.rgb[self.prev[i].clamp_min(0)], self.rgb[i]), ok
+
+
+def relabel_mask(o, env):
+    """[B] bool: the worlds whose JT label gets the commanded speed (``OnlineConfig.relabel_cmd_speed``): robot-dynamics
+    worlds, not the first decision of an episode (``env.u_exe`` still holds the previous episode's targets after an
+    auto reset), only in the place phase if ``relabel_near_m`` > 0, and not in the grasp zone if
+    ``relabel_grasp_zone_m`` > 0."""
+    m = env.dyn.on & (env.ep_len > 0)
+    F = env.task.F
+    if o.relabel_near_m > 0 and F is not None:                                             # place phase only
+        m = m & F["held"] & env.task.tr.lifted & ((F["c"][:, :2] - env.task.goal_xy).norm(dim=-1) < o.relabel_near_m)
+    if o.relabel_grasp_zone_m > 0 and F is not None:                                       # not at the grasp
+        m = m & ~(~F["held"] & (F["dxy"] < o.relabel_grasp_zone_m))
+    return m
 
 
 class OnlineDAgger:
@@ -2151,11 +2169,7 @@ class OnlineDAgger:
         if o.relabel_cmd_speed and env.dyn is not None and env.u_exe is not None and bool(env.dyn.on.any()):
             v = ((env.u_exe[:, -1] - env.u_exe[:, -2]) / JE.CONTROL_DT).to(obs.dtype)      # commanded speed [B, 6]
             obs = obs.clone()
-            m = env.dyn.on
-            if o.relabel_near_m > 0 and env.task.F is not None:                            # place phase only
-                F = env.task.F
-                m = m & F["held"] & env.task.tr.lifted & \
-                    ((F["c"][:, :2] - env.task.goal_xy).norm(dim=-1) < o.relabel_near_m)
+            m = relabel_mask(o, env)
             obs[:, 6:12] = torch.where(m[:, None], v, obs[:, 6:12])                        # obs layout: q, qd, ...
         a = self.jt.act(obs).to(torch.float64)
         lab = env.codec.targets(a, q)                                              # [N, 5, 6] the label
