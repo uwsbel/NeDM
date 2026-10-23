@@ -1,0 +1,243 @@
+{
+ "note": "Round v7 F (2026-10-23): v7 C (grasp-zone relabel off) with the FITTED real servo (RobotDynConfig.servo: dead band + load, breakaway, gravity compliance, delay / lag, speed limit; the ranges of teacher_dyn_v7.json) instead of the gain / lag / sag model in the robot-dynamics worlds, no command delay. Gate 7 (sim start at the real hover poses): the open-jaw hover needs the fitted servo (C1 26/31 with it, 0/31 without). Base: Round v7 C (2026-10-23): the v7 control without the commanded-speed labels in the grasp zone (cube not held and the grasp point within 4 cm xy of it: relabel_grasp_zone_m 0.04); the approach, lift, carry and place keep them. Grasp diagnosis: C1 hovers open-jawed above an off-centre cube where s28 descends (real-frame replay 31 % vs 89 % descent). Base: Round v7 control (2026-10-23, grasp diagnosis ~/so101_r2s_claude/grasp_diag/VERDICT.md): C1 + the studentlab background fix. = viral_r2s_online_relabel_v4.json (the C1 recipe: robot dynamics in 80 % of the student worlds, servo gain 0.3-1, lag 20-150 ms, sag up to 1.5 deg + the guard's integral correction, commanded-speed labels in those worlds, robot-like qdot input in half of the worlds, image lag 1-4, 30 s episodes) + the one online key of the studentlab bg_b1 arm (studentlab/b1_online.json): light_redraw_p 0.1 (the per-call light and intrinsics stay for about 10 decisions; b1 used it in all arms). The background randomisation itself is NOT an online key: it is switched on by the STUDENT config's scene file, as in studentlab/b1_student.json: scene = real_scene_v3.json (scene_sha256 2bd9cf93906e2e80775e420b6b9235c9101ccf18592a6a8bc9b620cd505b0a98; floor turn +-8 deg, shift +-30 mm, wall end +-40 mm, background layers family train_noise_v1 on the external camera). r2s_online.sbatch passes --set scene=$R2S_SCENE, which overrides the config's scene: for this arm R2S_SCENE must point at the v3 file (on AMD /work1/dannegrut/harry/so101_studentlab_claude/data/scene/real_scene_v3.json or a copy of it), else pin_real stops the run on the sha256 (with STUDENT_CFG=studentlab/b1_student.json) or the run trains without the background fix (with viral_r2s_v1.json). The online lag_range [1, 4] (as C1) replaces the student config's [1, 3] for this run. Base note (relabel v4): Root cause (2026-10-22): the student's step size follows the MEASURED qdot; the real arm is ~5x slower, so the steps shrink and the arm holds still above the plate (robot-like sim: today's student 50 %, 88-94 % with its qdot input x2-3). Track C1: robot dynamics in the student slots (no command delay: it dropped commands and broke the grasp in dyn v2; gain 0.3-1, lag 20-150 ms, sag 0-1.5 deg + the guard's integral correction), the JT labels those worlds with the COMMANDED speed in its qdot observation (relabel_cmd_speed) so its labels keep the nominal pace; robot-like qdot input in half of the worlds, image lag 1-4, 30 s episodes.",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 0,
+  "jitter": 0.0,
+  "delay_mode": "hold",
+  "s_lo": 1.0,
+  "s_hi": 1.0,
+  "tau_lo": 0.0,
+  "tau_hi": 0.0,
+  "sag_max_deg": 0.0,
+  "noise_max": 0.0,
+  "i_time_s": 0.2,
+  "i_max_deg": 3.0,
+  "i_e_max_deg": 1.0,
+  "i_v_min": 0.02,
+  "servo": {
+   "delay_ms": [
+    [
+     10,
+     40
+    ],
+    [
+     10,
+     40
+    ],
+    [
+     10,
+     40
+    ],
+    [
+     10,
+     40
+    ],
+    [
+     10,
+     40
+    ],
+    [
+     30,
+     55
+    ]
+   ],
+   "tau_ms": [
+    [
+     30,
+     75
+    ],
+    [
+     30,
+     75
+    ],
+    [
+     30,
+     75
+    ],
+    [
+     30,
+     75
+    ],
+    [
+     30,
+     75
+    ],
+    [
+     35,
+     75
+    ]
+   ],
+   "deadband_deg": [
+    [
+     0.25,
+     0.5
+    ],
+    [
+     0.2,
+     0.5
+    ],
+    [
+     0.55,
+     0.95
+    ],
+    [
+     0.25,
+     0.5
+    ],
+    [
+     0.3,
+     0.55
+    ],
+    [
+     0.25,
+     0.5
+    ]
+   ],
+   "deadband_per_Nm_deg": [
+    0.0,
+    [
+     1.4,
+     2.0
+    ],
+    [
+     0.8,
+     1.6
+    ],
+    [
+     0.0,
+     1.5
+    ],
+    0.0,
+    0.0
+   ],
+   "breakaway_extra_deg": [
+    [
+     0.0,
+     0.3
+    ],
+    [
+     0.0,
+     0.3
+    ],
+    [
+     0.0,
+     0.3
+    ],
+    [
+     0.0,
+     0.3
+    ],
+    [
+     0.0,
+     0.3
+    ],
+    [
+     0.1,
+     0.5
+    ]
+   ],
+   "compliance_rad_per_Nm": [
+    0.0,
+    [
+     0.045,
+     0.075
+    ],
+    [
+     0.045,
+     0.075
+    ],
+    [
+     0.04,
+     0.075
+    ],
+    0.0,
+    0.0
+   ],
+   "cube_mass_kg": [
+    0.01,
+    0.05
+   ],
+   "bias_deg": [
+    [
+     -0.35,
+     0.35
+    ],
+    [
+     -0.35,
+     0.35
+    ],
+    [
+     -0.35,
+     0.35
+    ],
+    [
+     -0.35,
+     0.35
+    ],
+    [
+     -0.35,
+     0.35
+    ],
+    [
+     -0.35,
+     0.35
+    ]
+   ],
+   "vmax_rad_s": [
+    [
+     1.0,
+     3.0
+    ],
+    [
+     1.0,
+     3.0
+    ],
+    [
+     1.0,
+     3.0
+    ],
+    [
+     1.0,
+     3.0
+    ],
+    [
+     0.5,
+     1.5
+    ],
+    [
+     1.5,
+     3.5
+    ]
+   ]
+  }
+ },
+ "dyn_student_only": true,
+ "qd_robot_p": 0.5,
+ "qd_window": 3,
+ "horizon": 1500,
+ "hold_cap_s": 20.0,
+ "hold_obs_s": 3.5,
+ "lag_range": [
+  1,
+  4
+ ],
+ "relabel_cmd_speed": true,
+ "light_redraw_p": 0.1,
+ "relabel_grasp_zone_m": 0.04
+}
