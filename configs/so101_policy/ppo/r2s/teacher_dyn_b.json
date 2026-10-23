@@ -1,0 +1,35 @@
+{
+ "starts": "/work1/dannegrut/harry/so101_r2s_claude/data/bank_pp_split0.npz",
+ "horizon": 1500,
+ "task": {
+  "hold_cap_s": 20.0
+ },
+ "hold_obs_s": 3.5,
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 0,
+  "jitter": 0.0,
+  "s_lo": 0.3,
+  "s_hi": 1.0,
+  "tau_lo": 0.02,
+  "tau_hi": 0.15,
+  "sag_max_deg": 1.5,
+  "noise_max": 0.0,
+  "i_time_s": 0.2,
+  "i_max_deg": 3.0,
+  "i_e_max_deg": 1.0,
+  "i_v_min": 0.02
+ },
+ "pause": {
+  "p": 0.6,
+  "s_lo": 0.5,
+  "s_hi": 3.0,
+  "near_m": 0.04,
+  "z_lo": 0.008,
+  "z_hi": 0.06,
+  "rate": 0.25,
+  "max_n": 2
+ },
+ "note": "real2sim 2026-10-22: the teacher jt_h110 fails (0-4 %) when the arm is slow like the real SO101 (its step size follows the measured joint speed), so its DAgger labels in slow worlds are slow and failing. PPO fine-tune from jt_h110 under the robot dynamics stage (no command delay; it dropped commands). A0b: A0a + the hold-state pause (hold v3)."
+}
