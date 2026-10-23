@@ -362,15 +362,16 @@ EP_OUT = ("end", "success", "success10", "lifted", "end_xy", "end_yaw", "ret", "
 
 
 def make_env(world, B, codec, device="cuda", nrd_ckpt=None, workers=0, mj_python=None, horizon=400, members="split",
-             lead_clamp=True, floor_guard=True, hold_cap_s=None, hold_obs_s=0.0, dyn=None):
+             lead_clamp=True, floor_guard=True, hold_cap_s=None, hold_obs_s=0.0, dyn=None, goal_jump=None):
     """Fixed-task env (evaluation, round collection). ``hold_cap_s`` / ``hold_obs_s``: ``JE.hold_cap_kw`` (None / 0 =
     the task defaults). ``dyn``: robot dynamics (``JE.RobotDynConfig`` or its dict); None = the process-wide
-    evaluation setting of ``$NEDM_SO101_DYN`` (unset = off), False = off."""
+    evaluation setting of ``$NEDM_SO101_DYN`` (unset = off), False = off. ``goal_jump``: ``JE.GoalJumpConfig`` (or
+    its dict; None = off): goal jumps during the episodes (the evaluation-only goal shift)."""
     ck = [str(Path(c).expanduser()) for c in ([nrd_ckpt] if isinstance(nrd_ckpt, (str, Path)) else (nrd_ckpt or []))]
     dyn = JE.dyn_from_env() if dyn is None else JE.dyn_config(dyn)
     cfg = JE.JointEnvConfig(world=world, num_envs=B, device=device, ckpts=ck, members=members, auto_reset=False,
                             stagger=False, starts="", horizon=int(horizon), mj_workers=workers, mj_python=mj_python,
-                            lead_clamp=lead_clamp, floor_guard=floor_guard, dyn=dyn,
+                            lead_clamp=lead_clamp, floor_guard=floor_guard, dyn=dyn, goal_jump=goal_jump,
                             **JE.hold_cap_kw(hold_cap_s, hold_obs_s))
     return JE.JointVecEnv(cfg, codec)
 
@@ -386,6 +387,10 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
     (the label: defined at every state), the JT observation ``obs`` [47] (relabelling by another JT), who drove; per
     episode the outcomes. ``record_states``: per 20 ms step q and
     cube pose [B, S, ...] (videos). ``full_horizon``: keep stepping after the task ended (videos).
+    Goal jumps (``env.goal_jump``, off by default): the student gets the env's CURRENT goal at every decision; extra
+    outputs ``goal_jumps`` (per episode), ``goal_xy_final``, ``goal_jump_d`` / ``goal_jump_lat`` (the last jump's
+    offset of the cube from the new goal, m; + = past along the carry) and, with ``record``, ``row_goal_xy``
+    (``goal_xy`` stays the task's own goal).
     -> dict of numpy arrays."""
     from nedm.so101_policy.vision.demos import start_state
     from nedm.so101_policy.vision.teacher import hash_normal
@@ -410,7 +415,10 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
         torch.as_tensor(np.broadcast_to(np.asarray(noise, np.float64), (B,)).copy(), device=dev)
     hseed = seeds * 1_000_003 + 7919 * int(noise_seed) + 23
     std = teacher.std.to(dev, torch.float64) if teacher is not None else None
+    gj = getattr(env, "goal_jump", None)
     R = {k: [] for k in ("q", "qd", "cube_pos", "cube_quat", "lab", "obs", "live")} if record else None
+    if R is not None and gj is not None:
+        R["goal_xy"] = []
     SS = {k: [] for k in ("q", "cube", "u")} if record_states else None
     keep = None
     t0 = time.time()
@@ -434,6 +442,8 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
                 eps = hash_normal(hseed, k, JE.ACT_DIM).to(a)
                 a = a + (nz[:, None] * std[None]) * eps
         tg = None
+        if gj is not None:              # goal jumps: the current goal (the task's, the teacher observation's)
+            goal_pose = torch.cat((env.task.goal_xy, env.task.goal_yaw[:, None]), -1).to(dev, torch.float64)
         if bool(stud.any()):
             ts = time.time()
             tg = student(ws, goal_pose, k).to(dev, torch.float64)
@@ -444,6 +454,8 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
             R["lab"].append(lab.float().cpu() if lab is not None else torch.zeros(B, JE.STEPS, 6))
             R["obs"].append(obs.float().cpu())
             R["live"].append(live.cpu())
+            if "goal_xy" in R:
+                R["goal_xy"].append(env.task.goal_xy.float().cpu())
         obs, _, done, ex = env.step(a, targets=tg, use_targets=stud if tg is not None else None,
                                     step_hook=hook if SS is not None else None)
         ep = ex["episode"]
@@ -464,6 +476,13 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
     out["student_s"] = np.float64(t_student)
     if env.cfg.world == "mujoco":
         out["mj_reason"] = env.world.end_reason.clone().numpy().astype(np.int16)
+    if gj is not None:
+        out["goal_jumps"] = gj.n.cpu().numpy().astype(np.int16)
+        out["goal_xy_final"] = env.task.goal_xy.float().cpu().numpy()
+        out["goal_jump_d"] = gj.d_last.float().cpu().numpy()
+        out["goal_jump_lat"] = gj.lat_last.float().cpu().numpy()
+        out["goal_jump_z"] = gj.z_last.float().cpu().numpy()
+        out["goal_jump_cfg"] = np.array(json.dumps(JE.asdict(gj.cfg)))
     if R is not None:
         rows = {k_: torch.stack(v, 1).numpy() for k_, v in R.items()}
         n_rows = out["length"].astype(np.int64)
@@ -472,7 +491,7 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
                 raise RuntimeError(f"episode {b}: live rows are not a prefix")
         rb = np.repeat(np.arange(B), n_rows)
         rt = np.concatenate([np.arange(n) for n in n_rows]) if B else np.zeros(0, np.int64)
-        for k_ in ("q", "qd", "cube_pos", "cube_quat", "lab", "obs"):
+        for k_ in ("q", "qd", "cube_pos", "cube_quat", "lab", "obs") + (("goal_xy",) if "goal_xy" in rows else ()):
             out[f"row_{k_}"] = rows[k_][rb, rt]
         out["row_ep"], out["row_t"] = rb.astype(np.int32), rt.astype(np.int16)
         out["ep_row_start"] = np.concatenate([[0], np.cumsum(n_rows)[:-1]]).astype(np.int64)
