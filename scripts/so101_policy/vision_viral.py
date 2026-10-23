@@ -30,6 +30,10 @@ world per episode; with ``qd_robot_p``, ``horizon``, ``hold_cap_s``, ``qd_noise_
 "dyn" in eval files, "robot" + ``dyn_params`` in round files), with ``--horizon 1500 --hold-cap-s 20`` for slow worlds
 and ``eval --qd-robot 3`` for the robot's qdot estimate (``row_qd_input``: the student's qdot input). jt_h110 scores
 0 % in that robot-like setting (NRD and MuJoCo); settings with a teacher reference: the config note.
+
+Last-command input (``ViralConfig.lastcmd``, off by default): ``online --config viral_r2s_v1_lastcmd.json`` adds it to
+a student without it (zero weights: the initial student's actions at the start); ``eval`` / ``collect`` feed it from
+the env's executed targets; ``run`` (round files) refuses it.
 """
 from __future__ import annotations
 
@@ -127,6 +131,8 @@ def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=
     for s0 in range(0, n, batch):
         idx = np.arange(s0, min(n, s0 + batch))
         env = cache.get(world, len(idx))
+        if student is not None:
+            student.env = env             # the last-command input (ViralConfig.lastcmd) reads the env's u_exe
         sl = VI.SubstepLog() if lag_rec else None
         push = student.push if student is not None and student.needs_tap else None
         with taps(env, sl, push):
@@ -175,6 +181,7 @@ def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None,
     actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device, lag=lag, lag_range=lag_range,
                      qd_window=qd_window)
     env = cache.get(world, len(tasks["seeds"]))
+    actor.env = env                                      # the last-command input (ViralConfig.lastcmd): env.u_exe
     if getattr(env, "q_offset", None) is not None:      # evaluation only (table.py): the student's joint frame
         actor.q_offset = env.q_offset.tolist()
     with taps(env, actor.push if actor.needs_tap else None):
@@ -354,10 +361,16 @@ def cmd_online(a):
         from dataclasses import asdict as _ad
         cd = _ad(st.cfg)
         hist = int(over.get("hist", cd["hist"]))
-        cd.update({k: v for k, v in over.items() if k in cd and k != "hist"})
+        lastcmd = bool(over.get("lastcmd", cd["lastcmd"]))
+        cd.update({k: v for k, v in over.items() if k in cd and k not in ("hist", "lastcmd")})
         st.cfg = VI.ViralConfig.from_dict(cd)
         if hist != st.cfg.hist:
             st = VI.expand_hist(st, hist, a.device)
+        if lastcmd != st.cfg.lastcmd:                    # + the last-command input, zero weights (acts as the init)
+            if not lastcmd:
+                raise SystemExit("--config lastcmd false: the initial student has the last-command input")
+            st = VI.expand_lastcmd(st, a.device)
+            log("student: + the last-command input (zero-initialised; ViralConfig.lastcmd)")
     VI.pin_real(st.cfg, a.allow_scene_change)
     oc = json.loads(Path(a.online_config).read_text()) if a.online_config else {}
     for s_ in a.oset or []:

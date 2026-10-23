@@ -51,6 +51,14 @@ Real2sim (``~/so101_r2s_claude/docs/integrate.md``; all OFF by default, old conf
   (``qd_robot_p``: ``robot_qd``, the slope of the quantised q, exactly 0 when still), longer episodes (``horizon``,
   ``hold_cap_s``) and a per-sample scale of the loss-side qdot noise (``qd_noise_zero_p``). Evaluation:
   ``$NEDM_SO101_DYN`` (``joint_teacher.make_env``).
+- The student's own last command (``ViralConfig.lastcmd``; VIRAL feeds its student the integrated command and the
+  last raw output): 12 more robot inputs [last target - q (6), (last target - the target before) / 20 ms (6)], the
+  targets of the last two 20 ms steps before the decision as executed (sim: ``JointVecEnv.u_exe[:, -1]`` / ``[:, -2]``
+  after the action layer, before the robot dynamics; robot: ``hw_lib.Guard.prev``, the command without the integral
+  correction), 0 at an episode start (``lastcmd_raw``), fixed scales ``LASTCMD_DQ_SCALE`` / ``LASTCMD_V_SCALE`` (not
+  data statistics). Its own zero-initialised input layer (``ViralNet.lastcmd_in``) added to the head's first layer:
+  ``expand_lastcmd`` turns a student without it into one that acts exactly like it at the start. Online loop
+  (``OnlineDAgger``: acting and the buffer, teacher slots too), evaluation (``Actor.env``), robot (``hw_lib``).
 """
 from __future__ import annotations
 
@@ -767,6 +775,8 @@ class ViralConfig:
     qd_input_zero: bool = False        # real2sim: the qdot input is always 0 (every path: training, acting, the robot),
                                        # so the student's step size cannot follow the measured arm speed
     hist: int = 0                      # robot input history: [q, qdot] of the previous ``hist`` decisions (online path)
+    lastcmd: bool = False              # real2sim: + the student's last executed command (module docstring, 12 inputs
+                                       # after the history; online loop, evaluation and robot; not the round files)
     encoder: str = "resnet18"
     stages: int = 3
     keypoints: int = 32
@@ -814,9 +824,40 @@ class ViralConfig:
     def lag_max(self):
         return max(int(self.lag), int(self.lag_range[1]))
 
+    @property
+    def robot_dim(self):
+        """Length of the robot input vector: [q, qd] now + ``hist`` decisions before (12 each) + the last command."""
+        return 12 * (1 + int(self.hist)) + 12 * int(bool(getattr(self, "lastcmd", False)))
+
 
 STAT_KEYS = ("robot_mean", "robot_std", "tgt_mean", "tgt_std", "aux_mean", "aux_std")
 AUX_DIM = 7
+# the last-command input (``ViralConfig.lastcmd``): fixed scales, NOT data statistics (a lastcmd checkpoint depends on
+# them: never change them; another scale = another option). Last target - q: arm 0.05 rad (the action layer's lead
+# band is 0.045-0.12 rad; real robot 10-22: |prev - q| p99 0.02 rad, the dead band 0.006-0.013 rad), jaw 0.25 rad (it
+# squeezes the cube: real p50 0.12, max 0.37 rad). Target change per 20 ms: arm 1 rad/s (real p99 0.6-0.9, max 1.9),
+# jaw 5 rad/s (real p99 3.9 rad/s). Normalised values are clamped to +-10 like the other robot inputs.
+LASTCMD_DQ_SCALE = (0.05, 0.05, 0.05, 0.05, 0.05, 0.25)
+LASTCMD_V_SCALE = (1.0, 1.0, 1.0, 1.0, 1.0, 5.0)
+
+
+def lastcmd_raw(u_last, u_prev, q, fresh=None):
+    """The last-command input before normalisation (``ViralConfig.lastcmd``; the same function for the sim and the
+    robot): u_last, u_prev [B, 6] the targets executed in the last and the second-to-last 20 ms step before the decision
+    (sim: ``JointVecEnv.u_exe[:, -1]``, ``[:, -2]``; robot: ``hw_lib.Guard.prev`` of those steps), q [B, 6] the
+    measured q at the decision (any joint frame: only differences) -> [B, 12] float64 = [u_last - q, (u_last - u_prev)
+    / 20 ms]; ``fresh`` [B] bool: rows at an episode start (no command yet) -> 0; non-finite entries -> 0."""
+    u1, u0 = u_last.to(torch.float64), u_prev.to(device=u_last.device, dtype=torch.float64)
+    out = torch.cat((u1 - q.to(u1), (u1 - u0) / JE.CONTROL_DT), -1)
+    out = torch.where(torch.isfinite(out), out, torch.zeros_like(out))
+    if fresh is not None:
+        out = torch.where(fresh.to(out.device).view(-1, 1), torch.zeros_like(out), out)
+    return out
+
+
+def lastcmd_zeros(B, device):
+    """[B, 12] float64: the last-command input at an episode start."""
+    return torch.zeros(int(B), 12, dtype=torch.float64, device=device)
 
 
 class ViralNet(nn.Module):
@@ -836,9 +877,18 @@ class ViralNet(nn.Module):
         self.aux = nn.Sequential(nn.Linear(fd, cfg.aux_hidden), nn.ELU(), nn.Linear(cfg.aux_hidden, AUX_DIM))
         for k_, v in stats.items():
             self.register_buffer(k_, torch.as_tensor(v, dtype=torch.float32).clone())
+        self.lastcmd = bool(getattr(cfg, "lastcmd", False))
+        if self.lastcmd:        # the last-command inputs: their own weights into the head's first layer, zero at start
+            self.lastcmd_in = nn.Linear(12, self.head[0].out_features, bias=False)
+            nn.init.zeros_(self.lastcmd_in.weight)
+            self.register_buffer("lastcmd_scale", torch.tensor(LASTCMD_DQ_SCALE + LASTCMD_V_SCALE))  # saved with the checkpoint
 
     def features(self, images):
         return torch.cat([e(images[:, i]) for i, e in enumerate(self.enc)], -1)
+
+    def lastcmd_norm(self, lc):
+        """[B, 12] raw last-command input (``lastcmd_raw``) -> / the fixed scales, clamped to +-10 (no noise)."""
+        return (lc.float() / self.lastcmd_scale).clamp(-10, 10)
 
     def robot(self, robot, qd_scale=None):
         """[B, 12 (1 + hist)] = [q, qd] now, then the previous decisions (newest first) -> normalised (+ qdot noise in
@@ -857,8 +907,18 @@ class ViralNet(nn.Module):
 
     def forward(self, images, robot, qd_scale=None):
         f = self.features(images)
-        return self.head(torch.cat((f, self.robot(robot, qd_scale).to(f.dtype)), -1).float()).view(
-            -1, self.cfg.chunk, 6), f
+        if not self.lastcmd:
+            return self.head(torch.cat((f, self.robot(robot, qd_scale).to(f.dtype)), -1).float()).view(
+                -1, self.cfg.chunk, 6), f
+        # lastcmd: robot = [q, qd, history (12 (1 + hist)), last command (12)]; the first layer's output + the
+        # last-command term (exactly + 0 while its weights are zero: the student it was expanded from, bit for bit)
+        n = 12 * (1 + int(self.cfg.hist))
+        if robot.shape[-1] != n + 12:
+            raise ValueError(f"lastcmd student: robot input of {robot.shape[-1]} values, needs {n + 12}")
+        x = torch.cat((f, self.robot(robot[:, :n].contiguous(), qd_scale).to(f.dtype)), -1).float()
+        h = self.head[0](x)
+        h = h + self.lastcmd_in(self.lastcmd_norm(robot[:, n:n + 12])).to(h.dtype)
+        return self.head[1:](h).view(-1, self.cfg.chunk, 6), f
 
     def loss(self, images, robot, tgt_n, valid, aux_n=None, qd_scale=None):
         p, f = self(images, robot, qd_scale)
@@ -909,8 +969,25 @@ def expand_hist(st: ViralNet, hist: int, device="cuda"):
     return new
 
 
+def expand_lastcmd(st: ViralNet, device="cuda"):
+    """A student with the last-command input (``ViralConfig.lastcmd``) from one without: the same weights (any
+    history), zero weights on the new inputs (``lastcmd_in``), so it acts exactly as the given student until trained.
+    A student that has it already: returned as is."""
+    from dataclasses import replace as _rep
+    if getattr(st.cfg, "lastcmd", False):
+        return st
+    new = ViralNet(_rep(st.cfg, lastcmd=True), {k: getattr(st, k) for k in STAT_KEYS}, pretrained=False).to(device)
+    miss, extra = new.load_state_dict(st.state_dict(), strict=False)
+    if sorted(miss) != ["lastcmd_in.weight", "lastcmd_scale"] or extra:
+        raise RuntimeError(f"expand_lastcmd: unexpected state keys (missing {miss}, unexpected {extra})")
+    return new.train(st.training)
+
+
 def save_student(st, path, **extra):
-    torch.save(dict(cfg=asdict(st.cfg), state_dict=st.state_dict(), stats={k: getattr(st, k).cpu() for k in STAT_KEYS},
+    cfg = asdict(st.cfg)
+    if not cfg.get("lastcmd"):          # off: the old checkpoint layout (older code, e.g. a robot bundle, can load it)
+        cfg.pop("lastcmd", None)
+    torch.save(dict(cfg=cfg, state_dict=st.state_dict(), stats={k: getattr(st, k).cpu() for k in STAT_KEYS},
                     **extra), path)
 
 
@@ -1234,6 +1311,8 @@ def train(data: StudentSet, views: DRViews, cfg: ViralConfig, out_dir, max_steps
           log=log_default, val_n=1024, val_every=1000, log_every=200, device="cuda", extra_meta=None):
     """Train (or fine-tune ``init_from``: weights and normalisation) -> student (eval mode); writes out_dir/{meta.json,
     learning_curve.csv, last.pt}."""
+    if getattr(cfg, "lastcmd", False):
+        raise NotImplementedError("ViralConfig.lastcmd: the online loop only (round files have no executed targets)")
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     cuda = torch.device(device).type == "cuda"
@@ -1366,7 +1445,12 @@ class Actor:
     ``qd_window`` > 0 (evaluation of the robot-like qdot, ``OnlineConfig.qd_robot_p``): the qdot input is the robot's
     slope over the last ``qd_window`` 20 ms states of the quantised q (``robot_qd``; needs the tap as well, else the
     second decision raises); 0 = off. ``qd_log``: that input per decision ([B, 6] float32 on the CPU; evaluation rows
-    ``row_qd_input``)."""
+    ``row_qd_input``).
+
+    Last-command input (``student.cfg.lastcmd``): set ``env`` (the ``JointVecEnv`` that ``run_tasks`` steps) before the
+    episodes; the first decision after ``reset`` gets 0, every later one ``lastcmd_raw`` of ``env.u_exe`` (the targets
+    of the decision before, after the action layer); a decision without exactly one ``env.step`` since the last one
+    raises."""
 
     def __init__(self, student: ViralNet, views: DRViews, randomise=False, jaw_lead=None, device="cuda", lag=None,
                  lag_range=None, seed=0, qd_window=0):
@@ -1387,12 +1471,16 @@ class Actor:
         self.hist = None
         self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 4243)
         self.q_offset = None    # [6] rad: robot input q + q_offset and targets in that frame (JointVecEnv.set_table)
+        self.lastcmd = bool(getattr(student.cfg, "lastcmd", False))
+        self.env = None         # lastcmd: the env stepped by the caller (its u_exe)
+        self.lc_dec = None      # lastcmd: env.decisions at the last decision (None: an episode start)
 
     def reset(self, B):
         self.dr = self.views.draw(B) if self.randomise else None
         self.rhist = None
         self.qd_hist = None
         self.qd_log = []
+        self.lc_dec = None
         if self.kmax > 0:
             self.hist = LagHistory(B, self.kmax, self.dev)
             if self.lag_range:
@@ -1452,6 +1540,8 @@ class Actor:
             now = robot
             robot = torch.cat((now, self.rhist.reshape(len(now), -1)), -1)
             self.rhist = torch.cat((now[:, None, :], self.rhist[:, :-1]), 1)
+        if self.lastcmd:                # the student's last executed command (0 at the episode start)
+            robot = torch.cat((robot, self.lastcmd_input(ws).to(robot)), -1)
         out = []
         for s in range(0, img.shape[0], 256):
             with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=self.st.cfg.amp):
@@ -1468,6 +1558,22 @@ class Actor:
         kk = (jj + self.jaw_lead).clamp_max(K - 1)
         ex = torch.cat((u[:, jj, :5], u[:, kk, 5:]), -1)
         return ex.to(ws.q.device, torch.float64)
+
+    def lastcmd_input(self, ws):
+        """[B, 12] float64 raw last-command input of this decision (``lastcmd_raw``; class docstring)."""
+        e = self.env
+        if e is None:
+            raise RuntimeError("lastcmd student: set actor.env = the JointVecEnv that runs the episodes")
+        B = ws.q.shape[0]
+        if self.lc_dec is None:
+            out = lastcmd_zeros(B, self.dev)
+        else:
+            if e.u_exe is None or int(e.decisions) != self.lc_dec + int(e.B) or e.u_exe.shape[0] != B:
+                raise RuntimeError("lastcmd: the env did not step exactly once since the last decision (actor.env is "
+                                   "not the env that runs the episodes?)")
+            out = lastcmd_raw(e.u_exe[:, -1], e.u_exe[:, -2], ws.q.to(e.u_exe.device)).to(self.dev)
+        self.lc_dec = int(e.decisions)
+        return out
 
 
 # ---- VIRAL-style online DAgger --------------------------------------------------------------------------------------------
@@ -1535,6 +1641,9 @@ class OnlineConfig:
     # the carry keep the measured-speed labels (robot 10-22: relabel everywhere carried the cube ~4 cm lower and grasped
     # worse); 0 = everywhere
     relabel_near_m: float = 0.0
+    # the student must have the last-command input (``ViralConfig.lastcmd``, e.g. --config viral_r2s_v1_lastcmd.json):
+    # a guard against a launch with the wrong student config (the input itself follows the student's config)
+    require_lastcmd: bool = False
 
     @staticmethod
     def from_dict(d):
@@ -1586,10 +1695,15 @@ class OnlineDAgger:
     goal_yaw), drawn uniformly at every reset. Image lag (``st.cfg.lag_range``, else ``st.cfg.lag``): drawn per world
     per episode; every world's 20 ms states feed a ``LagHistory`` (``JointVecEnv.step`` hook). Robot timing / servo
     (``OnlineConfig.dyn``: the env's ``RobotDyn``) and robot-like qdot inputs (``qd_robot_p``: per-world tick history of
-    the 20 ms states, same hook) are drawn per world per episode as well."""
+    the 20 ms states, same hook) are drawn per world per episode as well. Last-command input (``st.cfg.lastcmd``): every
+    world's (student and teacher slots) ``lastcmd_raw`` of the env's ``u_exe``, 0 at its episode start (``lc_fresh``),
+    in the acting input and the buffer's robot vector (``ViralConfig.robot_dim``)."""
 
     def __init__(self, st: ViralNet, jt, tasks, nrd_ckpt, views: DRViews, ocfg: OnlineConfig, device="cuda", seed=0,
                  log=log_default):
+        if ocfg.require_lastcmd and not getattr(st.cfg, "lastcmd", False):
+            raise ValueError("online config require_lastcmd: the student has no last-command input "
+                             "(ViralConfig.lastcmd; --config viral_r2s_v1_lastcmd.json)")
         self.st, self.jt, self.views, self.o, self.dev, self.log = st, jt, views, ocfg, torch.device(device), log
         N = int(ocfg.envs)
         cfg = JE.JointEnvConfig(world="nrd", num_envs=N, device=device, ckpts=[str(nrd_ckpt)], auto_reset=True,
@@ -1612,7 +1726,9 @@ class OnlineDAgger:
             self.env.dyn.set_eligible(~self.teacher)
         self.nominal = torch.rand(N, device=self.dev, generator=self.gen) < ocfg.nominal_share
         self.H = int(st.cfg.hist)
-        self.buf = ReplayBuffer(ocfg.buffer, len(st.cfg.cameras), st.cfg.res, self.dev, 12 * (1 + self.H))
+        self.LC = bool(getattr(st.cfg, "lastcmd", False))
+        self.lc_fresh = torch.ones(N, dtype=torch.bool, device=self.dev)    # lastcmd: no command yet in the episode
+        self.buf = ReplayBuffer(ocfg.buffer, len(st.cfg.cameras), st.cfg.res, self.dev, st.cfg.robot_dim)
         self.rhist = torch.zeros(N, max(self.H, 1), 12, device=self.dev)
         self.fresh = torch.ones(N, dtype=torch.bool, device=self.dev)
         self.kmax = int(st.cfg.lag_max)
@@ -1681,6 +1797,15 @@ class OnlineDAgger:
         if self.qd_hist is None:
             return qd
         return torch.where(self.qd_rob[:, None], robot_qd(self.qd_hist, self.qd_w).to(qd), qd)
+
+    def lastcmd_input(self, q):
+        """[N, 12] float64 raw last-command input of every world (``lastcmd_raw``): the env's ``u_exe`` (the targets of
+        the decision before, after the action layer) vs q [N, 6]; 0 in the worlds at an episode start (``lc_fresh``;
+        ``env.u_exe`` is not cleared at an automatic reset)."""
+        u = self.env.u_exe
+        if u is None:
+            return lastcmd_zeros(q.shape[0], self.dev)
+        return lastcmd_raw(u[:, -1], u[:, -2], q, self.lc_fresh)
 
     def _lag_hook(self, e, j):
         self.lag_hist.push(*_sane(e.ws.q, e.ws.cube_pos, e.ws.cube_quat, self.dev))
@@ -1779,6 +1904,11 @@ class OnlineDAgger:
             robot_all = torch.cat((now, self.rhist.reshape(len(now), -1)), -1)
         else:
             robot_all = now
+        if self.LC:                     # the last executed command (every slot; 0 at the start, non-finite worlds)
+            lc = torch.where(ok[:, None], self.lastcmd_input(q), torch.zeros(1, 12, dtype=torch.float64,
+                                                                              device=self.dev))
+            robot_all = torch.cat((robot_all, lc.to(robot_all)), -1)
+            self.lc_fresh = torch.zeros_like(self.lc_fresh)
         if bool(stud.any()):
             si = stud.nonzero().flatten()
             st.eval()
@@ -1819,6 +1949,7 @@ class OnlineDAgger:
             di = done.nonzero().flatten()
             self.prev_slot[di] = -1                       # the next decision is a new episode
             self.fresh[di] = True
+            self.lc_fresh[di] = True
             ep = ex["episode"]
             le = ep["lenient"][di]
             ts = self.teacher[di]

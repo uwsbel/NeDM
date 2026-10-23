@@ -486,7 +486,11 @@ class StudentPolicy:
     """The build9 camera student (``vision.viral.ViralNet``) as a real-robot policy: images of its cameras (the student's
     RGB uint8 [res, res, 3], ``preprocess``), q and qdot (sim units) -> absolute chunk [K, 6] (sim rad), the executed
     part [n_exec, 6] (jaw ``jaw_lead`` steps ahead, as ``viral.Actor``), the auxiliary predictions (block = plate
-    x, y, yaw mod 90 deg; cube x, y, z). Same normalisation and bf16 autocast as ``viral.Actor``."""
+    x, y, yaw mod 90 deg; cube x, y, z). Same normalisation and bf16 autocast as ``viral.Actor``.
+
+    Last-command input (``cfg.lastcmd``, ``lastcmd``): ``query(..., last_cmd=(u_last, u_prev))`` = the commands sent in
+    the last two 20 ms steps before the query (sim rad [6]; ``Guard.prev``: without the integral correction), None at
+    an episode start (input 0) -> ``viral.lastcmd_raw``, as the sim's ``u_exe[:, -1]`` / ``[:, -2]``."""
 
     def __init__(self, ckpt, device="cuda", cam_map=None, jaw_lead=None, amp=None):
         import torch
@@ -506,6 +510,7 @@ class StudentPolicy:
         self.amp = bool(self.cfg.amp if amp is None else amp) and self.dev.type == "cuda"
         self.H = int(self.cfg.hist)
         self.rhist = None
+        self.lastcmd = bool(getattr(self.cfg, "lastcmd", False))
 
     def reset(self):
         self.rhist = None
@@ -516,7 +521,7 @@ class StudentPolicy:
             self.query(z, np.zeros(6), np.zeros(6))
         self.reset()
 
-    def query(self, images, q_sim, qd_sim):
+    def query(self, images, q_sim, qd_sim, last_cmd=None, start=False):
         torch, VI = self.torch, self.VI
         t0 = time.perf_counter()
         with torch.no_grad():
@@ -533,6 +538,19 @@ class StudentPolicy:
                 now = robot
                 robot = torch.cat((now, self.rhist.reshape(1, -1)), -1)
                 self.rhist = torch.cat((now[:, None, :], self.rhist[:, :-1]), 1)
+            lc = None
+            if self.lastcmd:            # the last commands sent (None: the episode start, input 0)
+                if last_cmd is None:
+                    if not start:       # a caller that does not know the option would feed 0 at every query
+                        raise ValueError("lastcmd student: pass last_cmd=(u_last, u_prev), or start=True at the "
+                                         "episode start")
+                    lc = VI.lastcmd_zeros(1, self.dev)
+                else:
+                    f64 = dict(dtype=torch.float64, device=self.dev)
+                    lc = VI.lastcmd_raw(torch.as_tensor(np.asarray(last_cmd[0], np.float64), **f64)[None],
+                                        torch.as_tensor(np.asarray(last_cmd[1], np.float64), **f64)[None],
+                                        torch.as_tensor(np.asarray(q_sim, np.float64), **f64)[None])
+                robot = torch.cat((robot, lc.to(robot)), -1)
             with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=self.amp):
                 p, f = self.st(img, robot)
                 aux = self.st.aux(f)
@@ -543,6 +561,8 @@ class StudentPolicy:
             kk = (jj + self.jaw_lead).clamp_max(u.shape[0] - 1)
             ex = torch.cat((u[jj, :ARM], u[kk, ARM:]), -1)
             out = dict(chunk=u.double().cpu().numpy(), exec=ex.double().cpu().numpy(), aux=aux[0].double().cpu().numpy())
+            if lc is not None:
+                out["lastcmd"] = lc[0].cpu().numpy()
         a = out["aux"]
         out["plate_xy"] = a[:2]
         out["plate_yaw4_deg"] = math.degrees(math.atan2(a[2], a[3]) / 4)
@@ -566,7 +586,11 @@ class Controller:
     """The student's control step, identical for a replayed recording and the robot: measured q (real units) at time
     t -> qdot estimate, every n_exec steps a query (``get_frames()`` -> {real camera: (image uint8 [480, 640, 3],
     age ms)}; ``bgr``: images are BGR), the executed target of this step through ``Guard.apply`` (step limit, action
-    layer, LeRobot-unit limits). Keeps a per-step and per-query log (``arrays``: per-query keys start with "qry_")."""
+    layer, LeRobot-unit limits). Keeps a per-step and per-query log (``arrays``: per-query keys start with "qry_").
+    A student with the last-command input (``StudentPolicy.lastcmd``) gets ``Guard.prev`` after the last two steps
+    (``cmd``; none since ``reset``: 0), logged as ``qry_lastcmd`` (raw, ``viral.lastcmd_raw``). Offline from a log:
+    Guard.prev of step s = ``u_sim[s]`` with ``u_sim[s, :5] - i_corr[s]``; a query at step k > 0 gets (prev[k - 1],
+    prev[k - 2]) (k - 2 < 0: prev[k - 1] twice)."""
 
     def __init__(self, policy: StudentPolicy, jmap: JointMap, guard: Guard, views: dict, qdot: QdotEstimator,
                  bgr: bool, max_frame_age_ms=150.0, thumb_res=112, qd_gain=1.0):
@@ -579,16 +603,18 @@ class Controller:
         self.bgr, self.max_age, self.thumb_res = bool(bgr), float(max_frame_age_ms), int(thumb_res)
         self.k = 0
         self.ex = None
+        self.cmd = []               # Guard.prev after the last two steps (oldest first): the last-command input
         self.S = {k: [] for k in ("t", "q_real", "q_sim", "qd_sim", "u_target", "u_sim", "u_real", "i_corr", "query",
                                   "ev_step", "ev_lead", "ev_range", "ev_floor", "ev_real_range", "ev_max_rel", "n_stop",
                                   "ms_qdot", "ms_frames", "ms_pre", "ms_model", "ms_guard", "ms_ctrl")}
         self.Q = {k: [] for k in ("t", "step", "chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz",
-                                  "frame_age_ms", "thumbs")}
+                                  "frame_age_ms", "thumbs", "lastcmd")}            # lastcmd: empty (no key) when off
         self.events = {}
 
     def reset(self, q_real=None):
         self.k = 0
         self.ex = None
+        self.cmd = []
         self.qdot.reset()
         self.p.reset()
         if q_real is not None:
@@ -618,7 +644,13 @@ class Controller:
                     stop.append(f"camera age: {rc} frame {age:.0f} ms old")
                 imgs[rc] = preprocess(im, self.views[rc], self.bgr)
             T["ms_pre"] = (time.perf_counter() - t2) * 1e3
-            r = self.p.query(imgs, q_sim, qd if self.qd_gain == 1.0 else qd * self.qd_gain)
+            if getattr(self.p, "lastcmd", False):           # the commands of the last two steps (none yet: 0)
+                lc = (self.cmd[-1], self.cmd[-2] if len(self.cmd) > 1 else self.cmd[-1]) if self.cmd else None
+                r = self.p.query(imgs, q_sim, qd if self.qd_gain == 1.0 else qd * self.qd_gain, last_cmd=lc,
+                                 start=lc is None)
+                self.Q["lastcmd"].append(np.asarray(r["lastcmd"]))
+            else:
+                r = self.p.query(imgs, q_sim, qd if self.qd_gain == 1.0 else qd * self.qd_gain)
             T["ms_model"] = r["t_model_ms"]
             self.ex = r["exec"]
             Q = self.Q
@@ -631,6 +663,8 @@ class Controller:
         t3 = time.perf_counter()
         target = self.ex[self.k % self.p.n_exec]
         u_sim, u_real, ev, stop2 = self.g.apply(target, q_sim, q_real, qd)
+        if u_sim is not None:              # the command without the integral correction (the sim's u_exe)
+            self.cmd = (self.cmd + [self.g.prev.copy()])[-2:]
         stop += stop2
         T["ms_guard"] = (time.perf_counter() - t3) * 1e3
         T["ms_ctrl"] = (time.perf_counter() - t0) * 1e3
