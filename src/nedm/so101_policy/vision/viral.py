@@ -56,6 +56,14 @@ the new inputs are off (``cfg_dict``). ``OnlineConfig.light_redraw_p`` (< 1; rev
 intrinsics stay for several decisions, so the image pairs of the image history share them as on the robot (a change
 cuts the pair). The robot side of the new inputs: ``scripts/so101_policy/real2sim/hw/hw_lib.py`` (``StudentPolicy``,
 ``Guard.u_layer``).
+Background randomisation (studentlab external-camera fix, 2026-10-23, ~/so101_studentlab_claude/trials/bgdr/BUILD.md;
+OFF unless the scene file's ``dr`` / ``ViralConfig.real_dr`` sets it; scene v3 does): ``RealDR.floor_turn_deg`` /
+``floor_xy`` / ``wall_end`` (floor box and back-wall end per world) and ``RealDR.bg`` (``nedm.render.bg_dr``: texture,
+clutter, spots, dark-area profile, floor / mat gradients, low texture, mat folds and boundary blur in linear colour
+before the tone map, on the external camera's floor / walls / mat / dark-area pixels only). ``DRViews`` then builds
+the renderer with ``bg_cameras`` (segment output), keeps a placement prior (``bg_prior``) and adds the ``bg_*``
+layers to every per-world draw (zeros in ``nominal_draw``), so the online loop's per-world reset and
+``merge_nominal`` carry them unchanged.
 
 - Robot timing and servo in the online loop (``OnlineConfig.dyn`` -> ``joint_env.RobotDynConfig``: command delay with
   jitter, weaker arm servo, command lag, gravity sag, command noise; per world per episode), robot-like qdot inputs
@@ -520,8 +528,10 @@ class DRViews:
     cam_drot [n, C, 3]; the light direction is drawn per call when ``light`` is True. -> uint8 [n, C, H, W, 3].
 
     ``real`` (a ``RealSetup``; ``make_views``): the real scene instead (module docstring): draws = colors [n, nb, 3],
-    cam_offset [n, C, 6], env_pose [n, n_env, 7] (``RealDR``) and exposure [n, C] (tone map only); the scene's lights
-    (randomised per call by ``RealDR.lights`` when ``light``); ``fx`` = the cameras' ``CamFX`` (None: sim scene).
+    cam_offset [n, C, 6], env_pose [n, n_env, 7] (``RealDR``) and exposure [n, C] (tone map only), and with the
+    background randomisation on (``RealDR.bg``, scene v3; ``bg_cams``) the background layers ``bg_*`` (per world for
+    the episode, ``nedm.render.bg_dr``); the scene's lights (randomised per call by ``RealDR.lights`` when ``light``);
+    ``fx`` = the cameras' ``CamFX`` (None: sim scene).
 
     Per-call state (studentlab image history): ``render(..., keep=True)`` keeps the last call's random light (and
     intrinsics) instead of a new draw (no random numbers used); ``call_id`` counts the changes of the per-call state
@@ -570,8 +580,11 @@ class DRViews:
         self.dev = torch.device(device)
         self.calls, self.views, self.seconds = 0, 0, 0.0
         # the renderer checks at construction that no body sits in front of a calibrated camera (check_near)
+        self.bg_cams = rs.dr.bg_cameras(self.cameras)       # background layers (RealDR.bg; none: off, as before)
+        bgkw = dict(bg_cameras=self.bg_cams, bg_dark_groups=rs.dr.bg_dr().dark_groups) if self.bg_cams else {}
         self.r = SO101Renderer(self.num_worlds, width=self.res, height=self.res, backend="newton", cameras=self.cameras,
-                               shadows=shadows, goal="block", real=rs.real)
+                               shadows=shadows, goal="block", real=rs.real, **bgkw)
+        self.bg_prior = self.r.bg_prior().to(device) if self.bg_cams else None     # clutter / spot placement
         if tiled:
             from newton._src.sensors.warp_raytrace.types import RenderOrder
             rc = self.r.renderer.backend._camera.render_config
@@ -600,6 +613,8 @@ class DRViews:
                  env_pose=self.env0.expand(n, *self.env0.shape).clone())
         if self.tone0 is not None:
             d["tone"] = self.tone0.expand(n, *self.tone0.shape).clone()
+        if self.bg_cams:
+            d.update(self.rdr.bg_nominal(n, self.cameras, self.res, self.dev))
         return d
 
     def merge_nominal(self, d, nominal):
@@ -608,7 +623,7 @@ class DRViews:
         return {k: torch.where(nominal.view(-1, *([1] * (v.dim() - 1))), nd[k].to(v), v) for k, v in d.items()}
 
     def _draw_real(self, n):
-        d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev)
+        d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev, res=self.res, bg_prior=self.bg_prior)
         return {k: v.to(self.dev) for k, v in d.items()}
 
     def _per_call_real(self, nominal, keep=False):
