@@ -29,7 +29,7 @@ moving down to the plate and the student releases as in the sim.
 ## 3. Before the first episode
 
 1. `cd ~/so101_hw_robot && ./robot_test.sh check` must end with `CHECK OK`. The first line under "bundle files"
-   must name git commit `see section 7` or later.
+   must name git commit `bbcf9f792` or later (the commit that added `--qd-gain`).
 2. Start from the folded rest pose. In the `q real` line of the run output: the 2nd value (shoulder lift) must be
    between -88 and -100, the 3rd value (elbow) between 80 and 90. Else the run refuses (move the arm by hand with the
    torque off, then start again).
