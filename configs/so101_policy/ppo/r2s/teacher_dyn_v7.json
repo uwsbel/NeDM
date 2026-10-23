@@ -1,0 +1,31 @@
+{
+ "starts": "/work1/dannegrut/harry/so101_r2s_claude/data/bank_pp_split0.npz",
+ "horizon": 1500,
+ "task": {
+  "hold_cap_s": 20.0
+ },
+ "hold_obs_s": 3.5,
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 2,
+  "jitter": 0.4,
+  "delay_mode": "queue",
+  "i_time_s": 0.2,
+  "i_max_deg": 3.0,
+  "i_e_max_deg": 1.0,
+  "i_v_min": 0.02,
+  "servo": {
+   "delay_ms": [[10, 40], [10, 40], [10, 40], [10, 40], [10, 40], [30, 55]],
+   "tau_ms": [[30, 75], [30, 75], [30, 75], [30, 75], [30, 75], [35, 75]],
+   "deadband_deg": [[0.25, 0.5], [0.2, 0.5], [0.55, 0.95], [0.25, 0.5], [0.3, 0.55], [0.25, 0.5]],
+   "deadband_per_Nm_deg": [0.0, [1.4, 2.0], [0.8, 1.6], [0.0, 1.5], 0.0, 0.0],
+   "breakaway_extra_deg": [[0.0, 0.3], [0.0, 0.3], [0.0, 0.3], [0.0, 0.3], [0.0, 0.3], [0.1, 0.5]],
+   "compliance_rad_per_Nm": [0.0, [0.045, 0.075], [0.045, 0.075], [0.04, 0.075], 0.0, 0.0],
+   "cube_mass_kg": [0.01, 0.05],
+   "bias_deg": [[-0.35, 0.35], [-0.35, 0.35], [-0.35, 0.35], [-0.35, 0.35], [-0.35, 0.35], [-0.35, 0.35]],
+   "vmax_rad_s": [[1.0, 3.0], [1.0, 3.0], [1.0, 3.0], [1.0, 3.0], [0.5, 1.5], [1.5, 3.5]]
+  }
+ },
+ "note": "real2sim round v7 (2026-10-23), teacher fine-tune from jt_h110 for the slow real arm: the fitted real servo (RobotDynConfig.servo, randomisation ranges of ~/so101_r2s_claude/sim_debug/scout/tr_servo.md sec. 3, held-jaw rule on by default) + the queued loop delay (delay_mode queue, d 0-2 per episode, jitter 0.4 -> 0-3 per decision; every target late, none dropped) + the robot guard's integral correction, in 80 % of the worlds; 20 % nominal. The old fine-tunes (teacher_dyn_a-c) used the crude gain / lag / sag and no delay. Train with joint_ppo_v3_kl02.json, about 300 iterations. Gate (MuJoCo, 12 real layouts x 4): fitted servo + queued delay 2 lifted >= 40 and lenient >= 30 of 48; nominal >= 46 of 48. Prep and evidence: ~/so101_r2s_claude/teacher_v7."
+}
