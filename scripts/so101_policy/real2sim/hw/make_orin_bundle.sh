@@ -21,7 +21,7 @@ cp "$ROOT/src/nedm/render/student_view.py" "$OUT/src/nedm/render/"       # the c
 cp "$ROOT"/src/nedm/so101_policy/*.py "$OUT/src/nedm/so101_policy/"
 cp "$ROOT"/src/nedm/so101_policy/vision/*.py "$OUT/src/nedm/so101_policy/vision/"
 cp "$HW/hw_lib.py" "$HW/run_student_real.py" "$HW/README.md" "$OUT/scripts/so101_policy/real2sim/hw/"
-cp "$HW/robot_test.sh" "$OUT/"                                         # the one-command launcher (bundle root)
+cp "$HW/robot_test.sh" "$HW/QDGAIN_TEST.md" "$OUT/"                     # the launcher + the qd-gain test plan (bundle root)
 cp "$POINTS" "$OUT/assets/kin_points_v1.npz"
 cp "$CKPT" "$OUT/assets/student.pt"
 if [ -f "$CALIB" ]; then cp "$CALIB" "$OUT/assets/calib_v1.json"; else echo "NOTE: no $CALIB (live mode will refuse)"; fi
