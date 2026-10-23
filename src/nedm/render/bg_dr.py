@@ -14,12 +14,18 @@ per-world reset work unchanged):
   (``clutter_*``), dim colour spots (``spot_*``, red / orange / green / blue, also in the image corners).
 - ``bg_low`` [n, Cb, H, W] float16: relative brightness change of the floor and the walls (low texture, ``low_*``).
 - ``bg_mat`` [n, Cb, H, W] float16: the same for the mat (low texture + fold lines, ``fold_*``).
-- ``bg_par`` [n, Cb, NPAR] float32: on, flat dark-area profile (else the rendered shading times a linear ramp),
-  ramp amplitude, ramp direction, boundary blur sigma (px), floor gradient amplitude, floor gradient direction,
-  floor radial exponent, mat gradient amplitude, mat gradient direction, spare x 2.
+- ``bg_par`` [n, Cb, NPAR] float32: on, flat dark-area profile (else a linear ramp), ramp amplitude, ramp
+  direction, boundary blur sigma (px), floor gradient amplitude, floor gradient direction, floor radial exponent, mat
+  gradient amplitude, mat gradient direction, ramp base (1: the dark area's mean colour, 0: the rendered shading;
+  ``ramp_base``), spare.
 
-At render (:func:`apply_bg`): dark area -> (flat mean or ramp-shaded rendered colour) + ``bg_tex``, clamped at 0;
-floor x (1 + floor gradient) x cos(theta) ** -floor_radial x (1 + ``bg_low``); walls x (1 + ``bg_low``); mat x
+At render (:func:`apply_bg`): dark area -> (its flat mean colour, or the ramp base x a linear ramp) + ``bg_tex``,
+clamped at 0. Ramp base ``"mean"`` (default, fixer 2026-10-23, review finding 1): the dark area's mean colour, so that
+NO rendered structure of the dark area is left in a randomised world. With ``"rendered"`` (the first build) the
+rendered shading stayed in the ramp half of the draws, and with it the seam between the room wall (group ``room``)
+and the lab floor (``room_floor``): their brightness / tint are drawn separately and they face the light differently,
+so a world-fixed line (it moves only with the camera offset) was clear in ~34 % of the worlds (trials/bgdr/fix1).
+Then: floor x (1 + floor gradient) x cos(theta) ** -floor_radial x (1 + ``bg_low``); walls x (1 + ``bg_low``); mat x
 (1 + mat gradient) x (1 + ``bg_mat``); then the floor / dark-area boundary band (3 px each side) gets a normalised
 Gaussian blur over the floor and dark pixels only (sigma ``edge_blur_px``). Gradients are linear ramps from -1 to 1
 across the image in a random direction. ``floor_radial`` (theta = the pixel ray's angle to the optical axis: the
@@ -78,8 +84,9 @@ class BgDR:
     spot_px: tuple = (3.0, 15.0)            # diameter
     spot_bright: tuple = (0.05, 0.3)
     spot_corner_p: float = 0.5              # per spot: within 30 px of a random image corner
-    flat_p: float = 0.5                     # dark-area profile flat (its mean colour), else rendered x linear ramp
+    flat_p: float = 0.5                     # dark-area profile flat (its mean colour), else ramp base x linear ramp
     ramp_amp: tuple = (0.0, 0.5)
+    ramp_base: str = "mean"                 # "mean": the dark area's mean colour; "rendered": the rendered shading
     edge_blur_px: tuple = (0.0, 1.5)
     floor_grad: float = 0.15                # +- relative, from one side of the image to the other
     floor_radial: tuple = (0.0, 0.0)        # floor x cos(theta) ** -a, a ~ U(lo, hi) (0: off)
@@ -105,6 +112,8 @@ class BgDR:
             raise ValueError(f"RealDR.bg family {out.family!r}: training implements only {FAMILY!r}")
         if any(int(c) < 1 for c in out.tex_cells):
             raise ValueError("tex_cells: lattice cell sizes >= 1 px")
+        if out.ramp_base not in ("mean", "rendered"):
+            raise ValueError(f"RealDR.bg ramp_base {out.ramp_base!r}: 'mean' or 'rendered'")
         return out
 
     def cams(self, cameras) -> tuple:
@@ -192,6 +201,7 @@ class BgDR:
         par[:, 7] = u(*self.floor_radial, m) * on
         par[:, 8] = u(-self.mat_grad, self.mat_grad, m) * on
         par[:, 9] = u(0.0, 2 * math.pi, m) * on
+        par[:, 10] = float(self.ramp_base == "mean") * on.float()           # no random numbers (draw order kept)
         r = lambda t: t.reshape(n, cb, *t.shape[1:])                                              # noqa: E731
         return dict(bg_tex=r(tex), bg_low=r(low), bg_mat=r(mat), bg_par=r(par))
 
@@ -332,12 +342,14 @@ def apply_bg(x: torch.Tensor, gid: torch.Tensor, layers: dict, codes: dict, dark
     for c in dark_codes:
         dark |= gid == int(c)
     floor, walls, mat = (gid == int(codes[g]) for g in ("floor", "walls", "mat"))
-    # dark area: profile, then the texture layer
+    # dark area: profile (flat mean, or the ramp base x a linear ramp), then the texture layer
     dm = dark[..., None].to(x.dtype)
     mean = (x * dm).sum((1, 2)) / dm.sum((1, 2)).clamp_min(1.0)                         # [m, 3]
+    meanx = mean[:, None, None, :].expand_as(x)
     ramp = 1 + par[:, 2, None, None] * _ramp(par[:, 3], Hs, Ws)
     flat = (par[:, 1] > 0.5)[:, None, None, None]
-    prof = torch.where(flat, mean[:, None, None, :].expand_as(x), x * ramp[..., None])
+    base = torch.where((par[:, 10] > 0.5)[:, None, None, None], meanx, x)              # ramp base: mean / rendered
+    prof = torch.where(flat, meanx, base * ramp[..., None])
     y = torch.where(dark[..., None], (prof + up(layers["bg_tex"])).clamp_min(0.0), x)
     # floor gradient + low texture, mat texture + folds
     low, matl = up(layers["bg_low"]), up(layers["bg_mat"])

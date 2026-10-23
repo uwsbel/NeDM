@@ -157,6 +157,42 @@ class BgLayers(unittest.TestCase):
         self.assertTrue(bool(changed.any()))
         self.assertTrue(int(cols.min()) >= 32 // 3 - BG.BAND_PX and int(cols.max()) < 32 // 3 + BG.BAND_PX)
 
+    def test_ramp_base_mean_has_no_rendered_structure(self):
+        """Review finding 1 (fixer 2026-10-23): with ramp base "mean" (default) the ramp half of the draws keeps no
+        rendered structure of the dark area (no room wall / lab floor seam); "rendered" = the first build."""
+        x, gid = self.scene(m=2)
+        gid[:, 16:, : 32 // 3] = CODES["room"]                       # a room / room_floor seam at row 16
+        x = torch.where((gid == CODES["room"])[..., None], 0.4 * x, x)
+        dk = (gid == CODES["room"]) | (gid == CODES["room_floor"])
+        lay = {k: v[:, 0] for k, v in BG.BgDR.nominal(2, 1, 32, "cpu").items()}
+        lay["bg_par"][:, 0] = 1.0
+        lay["bg_par"][:, 2] = 0.4                                     # ramp amplitude, direction 0 (along x)
+        y_r = BG.apply_bg(x, gid, lay, CODES, DARK, 1)                # par 10 = 0: rendered x ramp (first build)
+        lay["bg_par"][:, 10] = 1.0
+        y_m = BG.apply_bg(x, gid, lay, CODES, DARK, 1)
+        ramp = 1 + 0.4 * BG._ramp(torch.zeros(2), 32, 32)
+        for i in range(2):
+            mean = x[i][dk[i]].mean(0)
+            exp = mean[None, None, :] * ramp[i][..., None]
+            self.assertTrue(torch.allclose(y_m[i][dk[i]], exp[dk[i]], atol=1e-6))
+            self.assertTrue(torch.allclose(y_r[i][dk[i]], (x[i] * ramp[i][..., None])[dk[i]], atol=1e-6))
+            # no step at the seam with the mean base (same column, rows 15 / 16), a step with the rendered base
+            self.assertLess(float((y_m[i, 16, :6] - y_m[i, 15, :6]).abs().max()), 1e-6)
+            self.assertGreater(float((y_r[i, 16, :6] - y_r[i, 15, :6]).abs().mean()), 0.05)
+        self.assertTrue(torch.equal(y_m[~dk], y_r[~dk]))              # only the dark area depends on the base
+        # draws: the flag follows ramp_base (on rows only), no change of any other draw
+        d_m = BG.BgDR().draw(6, 1, 16, torch.Generator().manual_seed(5))
+        d_r = BG.BgDR(ramp_base="rendered").draw(6, 1, 16, torch.Generator().manual_seed(5))
+        self.assertTrue(torch.equal(d_m["bg_par"][..., 10], d_m["bg_par"][..., 0]))
+        self.assertEqual(float(d_r["bg_par"][..., 10].abs().max()), 0.0)
+        for k in BG.KEYS:
+            a, b = d_m[k], d_r[k]
+            if k == "bg_par":
+                a, b = a[..., :10], b[..., :10]
+            self.assertTrue(torch.equal(a, b), k)
+        with self.assertRaises(ValueError):
+            BG.BgDR.from_dict({"ramp_base": "shading"})
+
     def test_prior_placement(self):
         prior = torch.zeros(1, 64, 64)
         prior[0, 40:, :20] = 1.0
