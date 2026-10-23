@@ -1,0 +1,20 @@
+{
+ "note": "Root cause (2026-10-22): the student's step size follows the MEASURED qdot; the real arm is ~5x slower, so the steps shrink and the arm holds still above the plate (robot-like sim: today's student 50 %, 88-94 % with its qdot input x2-3). Track D1: nominal worlds, the student's qdot INPUT in training times U(0, 1), exactly 0 for 30 % of the samples (acting keeps the measured qdot), so the step size cannot follow it.",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "qd_in_lo": 0.0,
+ "qd_in_hi": 1.0,
+ "qd_in_zero_p": 0.3
+}

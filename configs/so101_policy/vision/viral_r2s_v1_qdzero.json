@@ -1,0 +1,65 @@
+{
+ "note": "real2sim student v1 (2026-10-21, ~/so101_r2s_claude/docs/integrate.md): build9's network and round-based recipe (viral_v2 + qd_noise 0.3 = d2, jaw lead 0) with the REAL cameras and scene: external + wrist calibrated fisheye cameras (crop of the 640 x 480 frame -> 224 px, the deployment's student_view rule), the light-box scene of the scene file (body groups, RealDR randomisation, its lights, optional tone map, its image_fx camera effects), image lag 2 control steps (40 ms; real 42-48 ms) at evaluation, drawn 1-3 per world per episode in training; extra student-side effects (vignetting, white balance, gamma); DRConfig colour augmentation kept, its noise / blur off (image_fx has them). scene: the final file of the render agent; calib: '' = the scene file's own calib entry (override on AMD with --set calib=...). 2026-10-22: scene -> real_scene_v2.json (v1 + wider room colour, exposure and gamma randomisation after the scene review). DRConfig contrast p 0.5, 0.75-1.6 (was p 0.4, 0.6-1.4): real contrast was at rank 0.81 (external) / 0.93 (wrist) of the draws. | qdzero (2026-10-22): qd_input_zero true (track D2).",
+ "chunk": 10,
+ "n_exec": 5,
+ "res": 224,
+ "cameras": [
+  "external",
+  "wrist"
+ ],
+ "qd_noise": 0.3,
+ "encoder": "resnet18",
+ "stages": 3,
+ "keypoints": 32,
+ "pool_dim": 64,
+ "hidden": [
+  512,
+  512
+ ],
+ "aux_weight": 1.0,
+ "aux_hidden": 256,
+ "jaw_lead": 0,
+ "batch": 128,
+ "render_batch": 256,
+ "lr": 0.0003,
+ "lr_backbone": 0.0001,
+ "weight_decay": 0.0001,
+ "warmup": 300,
+ "grad_clip": 10.0,
+ "amp": true,
+ "dr": {
+  "p_noise": 0.0,
+  "p_blur": 0.0,
+  "p_contrast": 0.5,
+  "contrast": [
+   0.75,
+   1.6
+  ]
+ },
+ "dr_frac": 1.0,
+ "reuse": 2,
+ "scene": "~/so101_r2s_claude/scene/real_scene_v2.json",
+ "calib": "",
+ "crops": {},
+ "real_dr": {},
+ "cam_fx": {
+  "p_vignette": 0.3,
+  "vignette": [
+   0.0,
+   0.3
+  ],
+  "p_wb": 0.3,
+  "wb": 0.08,
+  "p_gamma": 0.3,
+  "gamma": [
+   0.85,
+   1.2
+  ]
+ },
+ "lag": 2,
+ "lag_range": [
+  1,
+  3
+ ],
+ "qd_input_zero": true
+}

@@ -787,3 +787,19 @@ class TestPause(unittest.TestCase):
         self.assertIsNone(JE.pause_config({}))
         with self.assertRaises(ValueError):
             JE.pause_config(dict(bogus=1))
+
+
+class TestQdInput(unittest.TestCase):
+    def test_qd_input_zero_and_online_keys(self):
+        from nedm.so101_policy.vision import viral as VI
+        cfg = VI.ViralConfig.from_dict(dict(qd_input_zero=True, qd_noise=0.0))
+        self.assertTrue(cfg.qd_input_zero)
+        net = types.SimpleNamespace(cfg=cfg, robot_mean=torch.zeros(12), robot_std=torch.ones(12), training=False)
+        r = (torch.arange(12, dtype=torch.float32)[None] + 1.0) / 4.0           # inside the [-10, 10] clamp
+        out = VI.ViralNet.robot(net, r)
+        self.assertTrue(torch.equal(out[0, :6], r[0, :6]))
+        self.assertTrue(torch.equal(out[0, 6:], torch.zeros(6)))
+        cfg.qd_input_zero = False
+        self.assertTrue(torch.equal(VI.ViralNet.robot(net, r), r))
+        oc = VI.OnlineConfig.from_dict(dict(qd_in_lo=0.0, qd_in_hi=1.0, qd_in_zero_p=0.3, relabel_cmd_speed=True))
+        self.assertTrue(oc.relabel_cmd_speed)

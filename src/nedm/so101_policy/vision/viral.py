@@ -59,6 +59,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -763,6 +764,8 @@ class ViralConfig:
     res: int = 224
     cameras: tuple = CAMERAS
     qd_noise: float = 1.0              # training: Gaussian noise (std units) on the normalised qdot input
+    qd_input_zero: bool = False        # real2sim: the qdot input is always 0 (every path: training, acting, the robot),
+                                       # so the student's step size cannot follow the measured arm speed
     hist: int = 0                      # robot input history: [q, qdot] of the previous ``hist`` decisions (online path)
     encoder: str = "resnet18"
     stages: int = 3
@@ -841,6 +844,9 @@ class ViralNet(nn.Module):
         """[B, 12 (1 + hist)] = [q, qd] now, then the previous decisions (newest first) -> normalised (+ qdot noise in
         training on every qdot block; ``qd_scale`` [B]: per-sample factor on that noise, None = 1)."""
         H = 1 + int(self.cfg.hist)
+        if getattr(self.cfg, "qd_input_zero", False):
+            robot = robot.view(-1, H, 12)
+            robot = torch.cat((robot[..., :6], torch.zeros_like(robot[..., 6:])), -1)
         r = ((robot.view(-1, H, 12) - self.robot_mean) / self.robot_std).clamp(-10, 10)
         if self.training and self.cfg.qd_noise > 0:
             n = self.cfg.qd_noise * torch.randn_like(r[..., 6:])
@@ -1343,6 +1349,11 @@ def train(data: StudentSet, views: DRViews, cfg: ViralConfig, out_dir, max_steps
 
 
 # ---- the student as a driver ---------------------------------------------------------------------------------------------
+# evaluation only (real2sim debugging, 2026-10-22): the evaluation Actor's qdot input times this gain (env
+# NEDM_SO101_EVAL_QD_GAIN; 1 = off): tests whether a slow arm's small measured qdot makes the student command smaller
+# steps (speed follows the measured speed). Not used in training or on the robot.
+EVAL_QD_GAIN = float(os.environ.get("NEDM_SO101_EVAL_QD_GAIN", "1"))
+
 class Actor:
     """``run_tasks`` student callback: renders the worlds (``dr``: per-world draws fixed for the episode, or None =
     nominal visuals), feeds [q, qdot] -> absolute targets [B, 5, 6] of the executed part of the chunk (jaw target
@@ -1431,6 +1442,8 @@ class Actor:
             self.qd_log.append(qd.cpu())
         if self.q_offset is not None:   # the policy's joint frame (images stay the true state)
             q = q + torch.as_tensor(self.q_offset, dtype=q.dtype, device=self.dev)
+        if EVAL_QD_GAIN != 1.0:         # evaluation only (real2sim debugging): the student's qdot input x gain
+            qd = qd * EVAL_QD_GAIN
         robot = torch.cat((q, qd), -1)
         H = int(self.st.cfg.hist)
         if H:
@@ -1510,6 +1523,14 @@ class OnlineConfig:
     # the loss-side qdot noise (``ViralConfig.qd_noise``): None = as before; a share p -> per sample the noise times
     # U(0, 1), exactly 0 for the share p of the samples (the robot's exact-zero qdot)
     qd_noise_zero_p: float | None = None
+    # real2sim (speed follows the measured speed): training-only per-sample factor on the student's qdot INPUT,
+    # U(qd_in_lo, qd_in_hi), exactly 0 for the share qd_in_zero_p (1, 1, 0 = off); acting keeps the measured qdot
+    qd_in_lo: float = 1.0
+    qd_in_hi: float = 1.0
+    qd_in_zero_p: float = 0.0
+    # real2sim: in robot-dynamics worlds (``dyn``), the JT labels with the commanded speed (the last decision's
+    # action-layer target change / 20 ms) in its qdot observation, so its labels keep the nominal pace on a slow arm
+    relabel_cmd_speed: bool = False
 
     @staticmethod
     def from_dict(d):
@@ -1712,6 +1733,10 @@ class OnlineDAgger:
             self._qd_reset(torch.arange(env.B, device=self.dev))
         ws, obs = env.ws, env.obs
         q = ws.q.to(torch.float64)
+        if o.relabel_cmd_speed and env.dyn is not None and env.u_exe is not None and bool(env.dyn.on.any()):
+            v = ((env.u_exe[:, -1] - env.u_exe[:, -2]) / JE.CONTROL_DT).to(obs.dtype)      # commanded speed [B, 6]
+            obs = obs.clone()
+            obs[:, 6:12] = torch.where(env.dyn.on[:, None], v, obs[:, 6:12])               # obs layout: q, qd, ...
         a = self.jt.act(obs).to(torch.float64)
         lab = env.codec.targets(a, q)                                              # [N, 5, 6] the label
         noise = (self.noisy.double()[:, None] * o.noise) * self.jt.std.to(a)[None] * \
@@ -1822,6 +1847,12 @@ class OnlineDAgger:
             valid = torch.cat((torch.ones(len(i), JE.STEPS, dtype=torch.bool, device=self.dev),
                                self.buf.valid2[i][:, None].expand(-1, JE.STEPS)), 1)[:, :st.cfg.chunk]
             robot = self.buf.robot[i]
+            if o.qd_in_zero_p > 0 or o.qd_in_lo != 1.0 or o.qd_in_hi != 1.0:      # qdot input scale (training only)
+                k = o.qd_in_lo + (o.qd_in_hi - o.qd_in_lo) * torch.rand(len(i), device=self.dev, generator=self.gen)
+                k = torch.where(torch.rand(len(i), device=self.dev, generator=self.gen) < o.qd_in_zero_p,
+                                torch.zeros_like(k), k).to(robot.dtype)
+                robot = robot.clone()
+                robot[:, 6:12] = robot[:, 6:12] * k[:, None]
             aux_n = (self.buf.aux[i] - st.aux_mean) / st.aux_std
             qs = self.qd_noise_scale(len(i))
             with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=st.cfg.amp):

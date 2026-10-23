@@ -1,0 +1,17 @@
+{
+ "note": "Root cause (2026-10-22): the student's step size follows the MEASURED qdot; the real arm is ~5x slower, so the steps shrink and the arm holds still above the plate (robot-like sim: today's student 50 %, 88-94 % with its qdot input x2-3). Track D2: nominal worlds; use with --config viral_r2s_v1_qdzero.json (ViralConfig.qd_input_zero: the qdot input is always 0, also on the robot).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25
+}

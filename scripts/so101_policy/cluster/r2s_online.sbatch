@@ -22,7 +22,7 @@ SEED=${SEED:-16}
 echo "host $(hostname) job ${SLURM_JOB_ID:-none} start $(date -Is) gpu $(rocminfo | grep -m1 -o 'gfx9[0-9a-z]*') init $INIT run $RUN"
 python3.12 -P scripts/so101_policy/vision_viral.py online --init "$INIT" --out "$RUN" --jt "$R2S_JT" \
     --nrd-ckpt "$R2S_NRD" --mj-python "$R2S_PY" --tasks "$R2S_TRAIN" --eval-tasks $R2S_DEV --guard-tasks $R2S_FRESH \
-    --config configs/so101_policy/vision/viral_r2s_v1.json --set jaw_lead=0 "scene=\"$R2S_SCENE\"" "calib=\"$R2S_CALIB\"" \
+    --config "${STUDENT_CFG:-configs/so101_policy/vision/viral_r2s_v1.json}" --set jaw_lead=0 "scene=\"$R2S_SCENE\"" "calib=\"$R2S_CALIB\"" \
     --online-config "${ONLINE_CFG:-configs/so101_policy/vision/viral_r2s_online_v1.json}" --eval-randomise --eval-workers 16 \
     --render-worlds 128 --seed "$SEED" ${EXTRA:-}
 status=$?
