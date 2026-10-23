@@ -1,0 +1,66 @@
+{
+ "note": "studentlab trial 2026-10-22 (~/so101_studentlab_claude/trials/BUILD.md): online DAgger from the robot student s28 (robot_v2_s28_it03000.pt), 3,000 decisions, 1,024 NRD worlds, the s28 recipe (viral_r2s_v1.json with jaw_lead 0 and the scene / calib --set of r2s_online.sbatch; viral_r2s_online_v1.json). A1 hist: + [q, qdot] of the previous 4 decisions (hist 4) + cmd_in (the previous decision's 5 executed targets - the measured q now, / cmd_scale = the lead band, jaw 0.1 rad); zero-init expansion of s28 (expand_student).",
+ "chunk": 10,
+ "n_exec": 5,
+ "res": 224,
+ "cameras": [
+  "external",
+  "wrist"
+ ],
+ "qd_noise": 0.3,
+ "encoder": "resnet18",
+ "stages": 3,
+ "keypoints": 32,
+ "pool_dim": 64,
+ "hidden": [
+  512,
+  512
+ ],
+ "aux_weight": 1.0,
+ "aux_hidden": 256,
+ "jaw_lead": 0,
+ "batch": 128,
+ "render_batch": 256,
+ "lr": 0.0003,
+ "lr_backbone": 0.0001,
+ "weight_decay": 0.0001,
+ "warmup": 300,
+ "grad_clip": 10.0,
+ "amp": true,
+ "dr": {
+  "p_noise": 0.0,
+  "p_blur": 0.0,
+  "p_contrast": 0.5,
+  "contrast": [
+   0.75,
+   1.6
+  ]
+ },
+ "dr_frac": 1.0,
+ "reuse": 2,
+ "scene": "~/so101_r2s_claude/scene/real_scene_v2.json",
+ "calib": "",
+ "crops": {},
+ "real_dr": {},
+ "cam_fx": {
+  "p_vignette": 0.3,
+  "vignette": [
+   0.0,
+   0.3
+  ],
+  "p_wb": 0.3,
+  "wb": 0.08,
+  "p_gamma": 0.3,
+  "gamma": [
+   0.85,
+   1.2
+  ]
+ },
+ "lag": 2,
+ "lag_range": [
+  1,
+  3
+ ],
+ "hist": 4,
+ "cmd_in": true
+}

@@ -1,0 +1,33 @@
+{
+ "note": "studentlab trial 2026-10-22 (~/so101_studentlab_claude/trials/BUILD.md): online DAgger from the robot student s28 (robot_v2_s28_it03000.pt), 3,000 decisions, 1,024 NRD worlds, the s28 recipe (viral_r2s_v1.json with jaw_lead 0 and the scene / calib --set of r2s_online.sbatch; viral_r2s_online_v1.json). A3 hist + jump: the A2 online config. Main-session change 2026-10-23 00:40: light_redraw_p 0.1 in ALL arms (clean A3-vs-A4 comparison). Jumps late only: cube bottom 5-25 mm (the overshoot gate showed s28 stalls only after late shifts).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "goal_jump": {
+  "p": 0.4,
+  "max_n": 2,
+  "rate": 0.35,
+  "gap_s": 1.0,
+  "near_m": 0.03,
+  "z_lo": 0.005,
+  "z_hi": 0.025,
+  "d_lo": 0.008,
+  "d_hi": 0.028,
+  "before_p": 0.2,
+  "lat_m": 0.008,
+  "margin_m": 0.01
+ },
+ "hold_cap_s": 6.0,
+ "light_redraw_p": 0.1
+}

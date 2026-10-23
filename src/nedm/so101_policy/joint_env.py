@@ -35,6 +35,11 @@ weaker arm servo, first-order command lag, gravity sag of shoulder_lift / elbow 
 correction, command noise; ``RobotDynConfig``), drawn at every episode reset. ``joint_teacher.make_env`` reads a fixed
 evaluation setting from ``$NEDM_SO101_DYN``. ``RobotDynConfig.servo`` (off: {}) replaces the crude gain / lag / sag by
 the servo model fitted on the robot logs (``RealServo``: delay, lag, dead band, gravity compliance, speed limit).
+
+Goal jumps (studentlab, OFF by default: ``JointEnvConfig.goal_jump`` None): ``GoalJump`` moves the goal at the end of a
+step while the cube is held and lifted near it, so the cube ends past (or before) the new goal (``GoalJumpConfig``);
+the observation rows of those worlds are recomputed, so the next decision's teacher input, task rules and renders all
+use the moved goal.
 """
 from __future__ import annotations
 
@@ -373,6 +378,176 @@ class Pause:
     def summary(self):
         return dict(pause_on=round(float(self.on.double().mean()), 3),
                     pause_now=round(float((self.left > 0).double().mean()), 3), pause_started=int(self.started))
+
+
+# ---- goal jumps (studentlab trials A2-A4, 2026-10-22; off by default) ---------------------------------------------
+@dataclass
+class GoalJumpConfig:
+    """Goal-jump coverage: states with the cube held PAST (or before) the goal, which the carry never makes on its own
+    (the real robot hovers ~19 mm past the mat centre). In a share ``p`` of the episodes, at most ``max_n`` times per
+    episode, at a decision where the cube is held, lifted (``task.tr.lifted``), its bottom ``z_lo``-``z_hi`` above the
+    table and its centre within ``near_m`` (xy) of the goal, with probability ``rate`` per such decision and at least
+    ``gap_s`` after the previous jump, the goal moves so that the cube is PAST it along the carry direction by
+    d ~ U(d_lo, d_hi) (share 1 - ``before_p``) or BEFORE it by d (share ``before_p``), plus a lateral offset
+    U(-lat_m, lat_m). Carry direction = unit vector from the cube's start xy to the goal at the episode start (radial
+    from the pan axis if they are within 1 mm). The goal yaw stays. A new goal outside the workspace annulus
+    (``task.ANNULUS_R`` / ``ANNULUS_DEG`` widened by ``margin_m``) is tried with the lateral offset mirrored, else that
+    world does not jump at this decision. ``JointVecEnv.step`` applies the jump at the END of a step (after the task
+    rules and the outcome record of that step), so from the next decision on the teacher observation, the task rules
+    (success, errors), the renderer's goal and the student's aux targets all read the moved goal (``JointVecEnv``
+    recomputes the observation rows of the worlds that jumped). Own generator: the env's other draws never change."""
+    p: float = 0.4
+    max_n: int = 2
+    rate: float = 0.35
+    gap_s: float = 1.0
+    near_m: float = 0.03
+    z_lo: float = 0.005
+    z_hi: float = 0.045
+    d_lo: float = 0.008
+    d_hi: float = 0.028
+    before_p: float = 0.2
+    lat_m: float = 0.008
+    margin_m: float = 0.01
+
+    def __post_init__(self):
+        self.max_n = int(self.max_n)
+        if not (0.0 <= self.p <= 1.0 and 0.0 <= self.rate <= 1.0 and 0.0 <= self.before_p <= 1.0 and self.max_n >= 1
+                and 0.0 <= self.d_lo <= self.d_hi and self.lat_m >= 0.0 and self.near_m > 0.0
+                and self.z_lo <= self.z_hi and self.gap_s >= 0.0 and self.margin_m >= 0.0):
+            raise ValueError(f"goal jump config out of range: {self}")
+
+    @staticmethod
+    def from_spec(spec: str, **base) -> "GoalJumpConfig":
+        """Short text form (evaluation CLI), lengths in mm: "p=1,d=10:25,lat=8[,n=1,before=0,rate=0.35,near=30,
+        z=5:45,gap=1.0,margin=10]". ``base``: defaults under the text (e.g. max_n=1, before_p=0)."""
+        kw = dict(base)
+        for part in [s.strip() for s in str(spec).split(",") if s.strip()]:
+            k, v = part.split("=", 1)
+            k = k.strip()
+            lo_hi = [float(x) for x in v.split(":")]
+            if k in ("d", "z"):
+                if len(lo_hi) != 2:
+                    raise ValueError(f"goal jump spec {k}={v}: lo:hi (mm)")
+                kw[f"{k}_lo"], kw[f"{k}_hi"] = lo_hi[0] * 1e-3, lo_hi[1] * 1e-3
+            elif k in ("lat", "near", "margin"):
+                kw[f"{k}_m"] = lo_hi[0] * 1e-3
+            elif k == "n":
+                kw["max_n"] = int(lo_hi[0])
+            elif k == "before":
+                kw["before_p"] = lo_hi[0]
+            elif k in ("p", "rate", "gap"):
+                kw[{"gap": "gap_s"}.get(k, k)] = lo_hi[0]
+            else:
+                raise ValueError(f"goal jump spec: unknown key {k!r} (p, d, lat, n, before, rate, near, z, gap, margin)")
+        return GoalJumpConfig(**kw)
+
+
+def goal_jump_config(v) -> GoalJumpConfig | None:
+    """None / False / {} / "" -> None (off); a dict / JSON string -> ``GoalJumpConfig``."""
+    if isinstance(v, GoalJumpConfig):
+        return v
+    if isinstance(v, str):
+        v = json.loads(v) if v.strip() else None
+    if v is None or v is False or (isinstance(v, dict) and not v):
+        return None
+    d = {k: x for k, x in dict(v).items() if k not in ("note", "notes")}
+    bad = sorted(set(d) - {f.name for f in fields(GoalJumpConfig)})
+    if bad:
+        raise ValueError(f"unknown goal jump keys {bad}")
+    return GoalJumpConfig(**d)
+
+
+def in_workspace(xy, margin=0.0):
+    """[n, 2] goal xy -> [n] bool: on the workspace annulus of ``task.sample_annulus`` widened by ``margin`` (m)."""
+    from nedm.so101_policy.kin import PAN_AXIS_XY
+    dx, dy = xy[:, 0] - PAN_AXIS_XY[0], xy[:, 1] - PAN_AXIS_XY[1]
+    r = torch.sqrt(dx ** 2 + dy ** 2)
+    a = torch.atan2(dy, dx).abs()
+    amax = math.radians(max(abs(T.ANNULUS_DEG[0]), abs(T.ANNULUS_DEG[1]))) + margin / r.clamp_min(1e-3)
+    return (r >= T.ANNULUS_R[0] - margin) & (r <= T.ANNULUS_R[1] + margin) & (a <= amax)
+
+
+class GoalJump:
+    """Per-world state of ``GoalJumpConfig`` (``JointVecEnv``); own generator. ``just`` [B]: jumped at the end of the
+    last step; ``n`` [B]: jumps in the current episode; ``goal0`` [B, 2]: the episode's first goal; ``d_last`` /
+    ``lat_last`` [B] (m): the last jump's offset of the cube from the new goal along the carry (+ = past) / across;
+    ``z_last`` [B] (m): the cube bottom at the last jump."""
+
+    def __init__(self, cfg: GoalJumpConfig, B, device, seed):
+        self.cfg, self.B, self.dev = cfg, int(B), torch.device(device)
+        self.gen = torch.Generator(self.dev).manual_seed(int(seed))
+        f = dict(dtype=torch.float64, device=self.dev)
+        self.on = torch.zeros(B, dtype=torch.bool, device=self.dev)
+        self.n = torch.zeros(B, dtype=torch.long, device=self.dev)
+        self.last_t = torch.full((B,), -10 ** 9, dtype=torch.long, device=self.dev)
+        self.just = torch.zeros(B, dtype=torch.bool, device=self.dev)
+        self.dir = torch.zeros(B, 2, **f)
+        self.goal0 = torch.zeros(B, 2, **f)
+        self.d_last = torch.full((B,), math.nan, **f)
+        self.lat_last = torch.full((B,), math.nan, **f)
+        self.z_last = torch.full((B,), math.nan, **f)    # cube bottom (m) at the last jump
+        self.jumps = 0                                  # jumps so far (log)
+
+    def reseed(self, seed):
+        self.gen.manual_seed(int(seed) & 0x7FFFFFFFFFFFFFFF)
+
+    def reset(self, idx, cube_xy, goal_xy):
+        """Episode start of worlds ``idx``: cube_xy, goal_xy [n, 2] of the start."""
+        from nedm.so101_policy.kin import PAN_AXIS_XY
+        u = torch.rand(len(idx), generator=self.gen, dtype=torch.float64, device=self.dev)
+        self.on[idx] = u < self.cfg.p
+        self.n[idx] = 0
+        self.last_t[idx] = -10 ** 9
+        self.just[idx] = False
+        g = torch.as_tensor(goal_xy, dtype=torch.float64, device=self.dev).reshape(-1, 2)
+        c = torch.as_tensor(cube_xy, dtype=torch.float64, device=self.dev).reshape(-1, 2)
+        v = g - c
+        nv = v.norm(dim=-1, keepdim=True)
+        rad = g - torch.tensor(PAN_AXIS_XY, dtype=torch.float64, device=self.dev)
+        rad = rad / rad.norm(dim=-1, keepdim=True).clamp_min(1e-9)
+        self.dir[idx] = torch.where(nv > 1e-3, v / nv.clamp_min(1e-9), rad)
+        self.goal0[idx] = g
+        self.d_last[idx], self.lat_last[idx], self.z_last[idx] = math.nan, math.nan, math.nan
+
+    def apply(self, task, live):
+        """End of a step (``task.F`` = this step's features): move the goal of the eligible worlds (``task.set_goal``)
+        -> long [k] indices of the worlds that jumped (empty: none). Draws B x 4 uniforms at every call."""
+        c = self.cfg
+        F, tr = task.F, task.tr
+        self.just = torch.zeros_like(self.just)
+        r = torch.rand(self.B, 4, generator=self.gen, dtype=torch.float64, device=self.dev)
+        cxy = F["c"][:, :2].to(torch.float64)
+        dxy = (cxy - task.goal_xy).norm(dim=-1)
+        zb = F["bottom"]
+        gap_ok = (tr.t - self.last_t).to(torch.float64) * CONTROL_DT >= c.gap_s - 1e-9
+        go = (self.on & live & (self.n < c.max_n) & F["held"] & tr.lifted & (dxy < c.near_m) & (zb >= c.z_lo)
+              & (zb <= c.z_hi) & gap_ok & (r[:, 0] < c.rate))
+        if not bool(go.any()):
+            return go.nonzero().flatten()
+        d = c.d_lo + r[:, 1] * (c.d_hi - c.d_lo)
+        sgn = torch.where(r[:, 2] < c.before_p, -1.0, 1.0).to(d)              # +1: the cube is PAST the new goal
+        lat = (2.0 * r[:, 3] - 1.0) * c.lat_m
+        u = self.dir
+        perp = torch.stack((-u[:, 1], u[:, 0]), -1)
+        base = cxy - (sgn * d)[:, None] * u                                     # cube - goal = sgn d u + lat perp
+        g1, g2 = base - lat[:, None] * perp, base + lat[:, None] * perp
+        ok1, ok2 = in_workspace(g1, c.margin_m), in_workspace(g2, c.margin_m)
+        go = go & (ok1 | ok2)
+        idx = go.nonzero().flatten()
+        if len(idx):
+            new = torch.where(ok1[:, None], g1, g2)[idx]
+            task.set_goal(idx, new, task.goal_yaw[idx])
+            self.n[idx] += 1
+            self.last_t[idx] = tr.t[idx]
+            self.just[idx] = True
+            self.d_last[idx] = (sgn * d)[idx]
+            self.lat_last[idx] = torch.where(ok1, lat, -lat)[idx]
+            self.z_last[idx] = zb.to(torch.float64)[idx]
+            self.jumps += len(idx)
+        return idx
+
+    def summary(self):
+        return dict(gj_on=round(float(self.on.double().mean()), 3), gj_jumps=int(self.jumps))
 
 
 def dyn_from_env() -> RobotDynConfig | None:
@@ -850,10 +1025,12 @@ class JointEnvConfig:
     pause: object = None                              # PauseConfig (or its dict): the robot's hold state; None = off
     hold_obs_s: float = 0.0                           # held-time scale (s) of the JT observation; 0 = task hold_cap_s
                                                       # (``hold_cap_kw`` keeps the old envs' 3.5 s with a new cap)
+    goal_jump: object = None                          # GoalJumpConfig (or its dict): goal jumps; None = off
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
         self.pause = pause_config(self.pause)
+        self.goal_jump = goal_jump_config(self.goal_jump)
 
     @staticmethod
     def from_dict(d):
@@ -870,6 +1047,8 @@ class JointEnvConfig:
         d = copy.deepcopy(asdict(self))
         if isinstance(self.dyn, RobotDynConfig):
             d["dyn"] = self.dyn.to_dict()     # no "servo" key while it is off (``RobotDynConfig.to_dict``)
+        if d.get("goal_jump") is None:    # off: the old record (readable by code without goal jumps)
+            d.pop("goal_jump", None)
         return d
 
 
@@ -936,6 +1115,8 @@ class JointVecEnv:
                              "already has the real servo's softness (counted twice); unset it (1)")
         self.pause = None if cfg.pause is None else Pause(cfg.pause, B, dev, (int(cfg.seed) * 0x2545F491 + 0x9A5) &
                                                           0x7FFFFFFFFFFF)
+        self.goal_jump = None if cfg.goal_jump is None else GoalJump(cfg.goal_jump, B, dev, (int(cfg.seed) * 0x5851F42D
+                                                                                            + 0x6A1) & 0x7FFFFFFFFFFF)
         self.obs_tcfg = None
         if cfg.hold_obs_s and float(cfg.hold_obs_s) != self.tcfg.hold_cap_s:
             from dataclasses import replace
@@ -1022,6 +1203,8 @@ class JointVecEnv:
             self.dyn.reset(idx, self.ws.q[idx])
         if self.pause is not None:
             self.pause.reset(idx)
+        if self.goal_jump is not None:    # goal jumps: per-episode draw, carry direction start cube -> goal
+            self.goal_jump.reset(idx, self.ws.cube_pos[idx, :2], goal_xy)
 
     def _pool_reset(self, idx):
         from nedm.so101_policy.vec_env import start_rows
@@ -1059,6 +1242,10 @@ class JointVecEnv:
         if self.dyn is not None:          # fixed tasks: robot dynamics draws from the env seed and the task seeds
             sd = torch.as_tensor(seeds).reshape(-1)
             self.dyn.reseed(int(self.cfg.seed) * 1_000_003 + 7919 * (int(sd[0]) if len(sd) else 0) + len(sd) + 0xD1A)
+        if self.goal_jump is not None:    # fixed tasks: goal-jump draws from the env seed and the task seeds
+            sd = torch.as_tensor(seeds).reshape(-1)
+            self.goal_jump.reseed(int(self.cfg.seed) * 1_000_033 + 7927 * (int(sd[0]) if len(sd) else 0) + len(sd)
+                                  + 0x6A1)
         self._reset_rows(idx, st, torch.as_tensor(goal_xy, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(goal_yaw, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(seeds, dtype=torch.long, device=self.dev), mj_start)
@@ -1147,7 +1334,15 @@ class JointVecEnv:
                   lifted=info["lifted"].clone(), end_xy=info["end_xy_err"].clone(), end_yaw=info["end_yaw_err"].clone(),
                   ret=self.ep_ret.clone(), length=self.ep_len.clone(), steps=info["t"].clone(),
                   lenient=task.lenient.clone(), lenient_t=task.lenient_t.clone())
+        if self.goal_jump is not None:    # jumps of the episode (final for the worlds that ended in this step)
+            ep["goal_jumps"] = self.goal_jump.n.clone()
         obs = self._observe(task.F)
+        if self.goal_jump is not None:    # after the outcome record: the next decision sees the moved goals
+            gj = self.goal_jump.apply(task, task.tr.end == 0)
+            if len(gj):
+                obs = obs.clone()
+                obs[gj] = markov_obs({k: v[gj] for k, v in task.F.items() if torch.is_tensor(v)}, task, gj,
+                                     self.obs_tcfg)
         final_obs = obs
         if self.cfg.auto_reset:
             idx = done.nonzero().flatten()

@@ -365,7 +365,9 @@ def build_common(args):
     if not pinned:
         log("NOTE: the student has no pinned crops (cfg.crops); the views come from --calib / --crop")
     info = dict(student=policy.ckpt, student_cfg=dict(cameras=policy.cams, res=policy.res, chunk=policy.chunk,
-                                                      n_exec=policy.n_exec, hist=policy.H, jaw_lead=policy.jaw_lead,
+                                                      n_exec=policy.n_exec, hist=policy.H, cmd_in=policy.cmd_in,
+                                                      img_hist=policy.img_hist, lastcmd=policy.lastcmd,
+                                                      jaw_lead=policy.jaw_lead,
                                                       amp=policy.amp), device=dev, cam_map=policy.cam_map,
                 calib=str(args.calib) if calib is not None else None, joint_map=jm.describe(), kin_points=str(kp),
                 table_z=args.table_z, guard=gcfg.__dict__, qdot_window=args.qdot_window, qd_gain=args.qd_gain,

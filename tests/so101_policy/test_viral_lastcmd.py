@@ -149,7 +149,9 @@ class TestOff(unittest.TestCase):
             st = tiny()
             VI.save_student(st, Path(d) / "off.pt", it=3)
             ck = torch.load(Path(d) / "off.pt", weights_only=False)
-            self.assertEqual(set(ck["cfg"]), set(dataclasses.asdict(VI.ViralConfig())) - {"lastcmd"})   # old layout
+            # old layout: no lastcmd key, and (merge with the studentlab branch, 2026-10-23) no studentlab input keys
+            self.assertEqual(set(ck["cfg"]), set(dataclasses.asdict(VI.ViralConfig())) - {"lastcmd"}
+                             - set(VI.NEW_INPUT_KEYS))
             back, _ = VI.load_student(Path(d) / "off.pt", "cpu")
             self.assertFalse(back.cfg.lastcmd)
             img, robot, lc = inputs()
@@ -363,6 +365,9 @@ OLD_LOG_KEYS = {"t", "q_real", "q_sim", "qd_sim", "u_target", "u_sim", "u_real",
                 "ms_pre", "ms_model", "ms_guard", "ms_ctrl"} | \
     {"qry_" + k for k in ("t", "step", "chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz", "frame_age_ms",
                           "thumbs")}                                     # the episode log before the last command
+# merge with the studentlab branch (2026-10-23): every student's log has the per-step Guard.u_layer (the action-layer
+# target before the integral correction and the LeRobot clamps); still no last-command key while the option is off
+BASE_LOG_KEYS = OLD_LOG_KEYS | {"u_layer"}
 
 
 def fake_robot_run(H, pol, n=32, i_time_s=0.2):
@@ -406,7 +411,7 @@ class TestRobotMatchesSim(unittest.TestCase):
             return q0(images, q_sim, qd_sim)
         pol.query = query
         A = fake_robot_run(H, pol, 12)
-        self.assertEqual(set(A), OLD_LOG_KEYS)                           # no qry_lastcmd (old episode files)
+        self.assertEqual(set(A), BASE_LOG_KEYS)                          # no qry_lastcmd (old episode files)
         self.assertEqual(len(calls), 3)
 
     def test_controller_vector_equals_the_sim(self):
@@ -423,9 +428,10 @@ class TestRobotMatchesSim(unittest.TestCase):
         self.assertTrue(pol.lastcmd)
         fed = []
         fwd = pol.st.forward
-        pol.st.forward = lambda img, robot, qd_scale=None: (fed.append(robot.clone()), fwd(img, robot, qd_scale))[1]
+        pol.st.forward = lambda img, robot, qd_scale=None, prev=None: (fed.append(robot.clone()),     # merged signature
+                                                                      fwd(img, robot, qd_scale, prev))[1]
         A = fake_robot_run(H, pol)
-        self.assertEqual(set(A), OLD_LOG_KEYS | {"qry_lastcmd"})
+        self.assertEqual(set(A), BASE_LOG_KEYS | {"qry_lastcmd"})
         prev = A["u_sim"].copy()
         prev[:, :5] -= A["i_corr"]                                       # Guard.prev from the log (class docstring)
         self.assertGreater(float(np.abs(A["i_corr"]).max()), 0.0)        # the integral acts: prev != the sent command

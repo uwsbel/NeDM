@@ -777,6 +777,13 @@ class RealScene:
     (:data:`DEFAULT_BOARD`; None: none). ``plate_thickness``: the goal plate (50 mm square) thickness. ``parts``:
     extra rigid parts on arm bodies, each ``{"name", "body", "group", "polygon": (k, 3) in the body frame, "offset":
     (3,)}`` (a prism, :func:`polygon_prism`), e.g. the real camera bracket's plate under the wrist camera.
+    ``floor_turn`` (None: none): ``{"deg": a, "pivot": (x, y)}``, the floor box turned by a about the table normal
+    through the pivot (flat-model frame; default pivot: the middle of the floor's -x edge), the measured turn of the
+    real table edge (scene v3); it is also the pivot of ``RealDR.floor_turn_deg``. ``wall_end`` (None: none):
+    ``{"wall": k, "slide": s}``: wall k's FIRST end becomes a separate piece (``wall{k}_end``, group walls) that
+    ``RealDR.wall_end`` slides along the wall by up to +-s; the main wall then starts s later, the piece is 2 s + 10 mm
+    long, 0.5 mm behind the main wall's inner face and 0.5 mm lower (no coincident faces); nominal picture = the wall
+    ending at its listed first point.
     Colours (linear albedo, Newton multiplies by the light): ``colors[group]`` for REAL_GROUPS. ``lights``: Newton
     lights (``NewtonBackend.set_lights``), shared by all worlds; ``ambient``: Newton's fixed ambient term; ``sky``:
     8-bit colour of rays that hit nothing. ``tone``: per camera a tone map (``camera_fx``: exposure, wb, black, gamma,
@@ -829,6 +836,8 @@ class RealScene:
     table_plane: Sequence | None = None
     plate_thickness: float = BLOCK_THICKNESS
     parts: Sequence = ()
+    floor_turn: dict | None = None
+    wall_end: dict | None = None
     dr: dict = field(default_factory=dict)
     image_fx: dict = field(default_factory=dict)
     source: str = ""
@@ -836,7 +845,9 @@ class RealScene:
     # keys of the scene file's "geometry" section that map to fields
     GEOMETRY_KEYS = ("mat_corners_xy", "mat_thickness", "floor_xy", "floor_thickness", "walls", "wall_height",
                      "wall_thickness", "room", "ceiling", "strip", "table_plane", "plate_thickness", "hide_bodies",
-                     "board", "parts")
+                     "board", "parts", "floor_turn", "wall_end")
+    WALL_END_OVERLAP = 0.01     # m: the end piece reaches this far past the main wall's start at its shortest
+    WALL_END_INSET = 0.0005     # m: the end piece lies this far behind the main wall's inner face and below its top
 
     @classmethod
     def from_path(cls, path: str | Path, **kw) -> "RealScene":
@@ -949,8 +960,18 @@ class RealScene:
         x0, x1, y0, y1 = self.floor_xy
         top = -self.mat_thickness
         v, f = box_mesh([(x1 - x0) / 2, (y1 - y0) / 2, self.floor_thickness / 2])
+        pose = [(x0 + x1) / 2, (y0 + y1) / 2, top - self.floor_thickness / 2, 0, 0, 0, 1.0]
+        if self.floor_turn:                              # turned about the table normal through the pivot
+            th = math.radians(float(self.floor_turn["deg"]))
+            piv = self.floor_pivot()
+            d = np.asarray(pose[:2]) - piv
+            pose[:2] = (piv + [math.cos(th) * d[0] - math.sin(th) * d[1],
+                               math.sin(th) * d[0] + math.cos(th) * d[1]]).tolist()
+            pose[3:] = [0.0, 0.0, math.sin(th / 2), math.cos(th / 2)]
         out.append(("floor", "floor", MeshBody("floor", vertices=v, faces=f, color=self.color("floor")),
-                    self.on_plane([(x0 + x1) / 2, (y0 + y1) / 2, top - self.floor_thickness / 2, 0, 0, 0, 1.0])))
+                    self.on_plane(pose)))
+        if self.wall_end and not 0 <= int(self.wall_end["wall"]) < len(self.walls):
+            raise ValueError(f"wall_end wall {self.wall_end['wall']}: no such wall ({len(self.walls)} walls)")
         corners = self.mat_corners()
         v, f = prism_mesh(corners, -self.mat_thickness, 0.0)
         out.append(("mat", "mat", MeshBody("mat", vertices=v, faces=f, color=self.color("mat")),
@@ -963,10 +984,20 @@ class RealScene:
             nrm = np.array([t[1], -t[0]])
             if np.dot(nrm, (a + b) / 2 - mid) < 0:                  # thickness away from the mat
                 nrm = -nrm
-            quad = np.stack([a, b, b + nrm * self.wall_thickness, a + nrm * self.wall_thickness])
+            end = self.wall_end_slide(k)
+            a0 = a + t * end                                       # the main wall (shortened with an end piece)
+            quad = np.stack([a0, b, b + nrm * self.wall_thickness, a0 + nrm * self.wall_thickness])
             v, f = prism_mesh(quad, top, top + height)
             out.append(("walls", f"wall{k}", MeshBody(f"wall{k}", vertices=v, faces=f, color=self.color("walls")),
                         self.on_plane(np.r_[quad.mean(0), 0.0, 0, 0, 0, 1.0])))
+            if end > 0:                                            # the end piece (RealDR.wall_end slides it)
+                e1, ins = a + t * (2 * end + self.WALL_END_OVERLAP), self.WALL_END_INSET
+                quad = np.stack([a + nrm * ins, e1 + nrm * ins, e1 + nrm * (self.wall_thickness + ins),
+                                 a + nrm * (self.wall_thickness + ins)])
+                v, f = prism_mesh(quad, top, top + height - ins)
+                out.append(("walls", f"wall{k}_end", MeshBody(f"wall{k}_end", vertices=v, faces=f,
+                                                              color=self.color("walls")),
+                            self.on_plane(np.r_[quad.mean(0), 0.0, 0, 0, 0, 1.0])))
         if self.ceiling is not None:
             v, f = box_mesh([(x1 - x0) / 2, (y1 - y0) / 2, 0.0025])
             out.append(("walls", "ceiling", MeshBody("ceiling", vertices=v, faces=f, color=self.color("walls")),
@@ -991,6 +1022,28 @@ class RealScene:
                                                                  color=self.color("room_floor")),
                             np.r_[c[0], c[1], float(self.room["floor_z"]) - 0.005, 0, 0, 0, 1.0]))
         return out
+
+    def floor_pivot(self) -> np.ndarray:
+        """(x, y) of the floor turn's pivot (flat-model frame): ``floor_turn["pivot"]``, else the middle of the floor
+        box's -x edge."""
+        ft = self.floor_turn or {}
+        if ft.get("pivot") is not None:
+            return np.asarray(ft["pivot"], np.float64)
+        x0, x1, y0, y1 = self.floor_xy
+        return np.array([x0, (y0 + y1) / 2])
+
+    def wall_end_slide(self, k: int) -> float:
+        """The slide range s (m) of wall k's end piece (0: no end piece)."""
+        we = self.wall_end
+        if not we or int(we["wall"]) != int(k):
+            return 0.0
+        s = float(we["slide"])
+        w = self.walls[k]
+        length = float(np.linalg.norm(np.asarray(w[1], np.float64) - np.asarray(w[0], np.float64)))
+        if not 0 < 2 * s + self.WALL_END_OVERLAP < length:
+            raise ValueError(f"wall_end slide {s}: needs 0 < 2 slide + {self.WALL_END_OVERLAP} < the wall length "
+                             f"{length:.3f} m")
+        return s
 
     def board_mesh(self, T_parent_cam) -> tuple[np.ndarray, np.ndarray] | None:
         """The camera board + bracket (vertices in the camera's PARENT body frame, faces), or None."""
@@ -1027,7 +1080,16 @@ class RealDR:
     ``vignette`` (lo, hi) exponent added; each a value for all cameras or a dict per camera name). Per call: the light
     directions and point-light positions (:meth:`lights`, ``light_deg``, ``light_pos`` +- m per axis) and the
     intrinsics (:meth:`camera_models`: ``focal`` +- fraction, ``pp_px`` +- px, quantised to ``focal_levels`` levels so
-    the renderer's ray cache is hit)."""
+    the renderer's ray cache is hit).
+
+    Background randomisation (studentlab external-camera fix, 2026-10-23; all OFF by default, drawn AFTER every other
+    per-world draw, so the other draws of a seed do not change when they are on): ``floor_turn_deg`` (+- deg about the
+    table normal through the scene's floor pivot, :meth:`RealScene.floor_pivot`) and ``floor_xy`` (+- m in x and y of
+    the table frame) move the floor box per world; ``wall_end`` (+- m) slides the scene's wall end piece
+    (``RealScene.wall_end``) along its wall; ``bg`` (dict of :class:`nedm.render.bg_dr.BgDR` fields; {} = off): the
+    image-space layers of the background (texture, clutter, spots, dark-area profile, floor gradient, low texture,
+    mat folds, boundary blur) in linear colour before the tone map; needs a renderer with ``bg_cameras``
+    (:meth:`bg_cameras`) and the output resolution (``draw(..., res=)``)."""
 
     bright: dict = field(default_factory=lambda: {"printed": (0.85, 1.1), "servo": (0.6, 2.0), "cube": (0.75, 1.25),
                                                   "plate": (0.75, 1.25), "floor": (0.8, 1.1), "mat": (0.5, 2.5),
@@ -1049,6 +1111,30 @@ class RealDR:
     focal: float = 0.0
     pp_px: float = 0.0
     focal_levels: int = 7
+    floor_turn_deg: float = 0.0
+    floor_xy: float = 0.0
+    wall_end: float = 0.0
+    bg: dict = field(default_factory=dict)
+
+    @property
+    def bg_on(self) -> bool:
+        """Background layers on (``bg`` set with a world probability above 0)."""
+        return bool(self.bg) and float(self.bg.get("p", 1.0)) > 0
+
+    def bg_dr(self):
+        from nedm.render.bg_dr import BgDR
+        return BgDR.from_dict(self.bg)
+
+    def bg_cameras(self, cameras: Sequence[str]) -> tuple:
+        """The cameras (in ``cameras`` order) that get the background layers (none when off)."""
+        return self.bg_dr().cams(cameras) if self.bg_on else ()
+
+    def bg_nominal(self, n: int, cameras: Sequence[str], res: int, device=None) -> dict:
+        """Background layers of n worlds without randomisation ({} when off), for nominal draws."""
+        if not self.bg_on:
+            return {}
+        from nedm.render.bg_dr import BgDR
+        return BgDR.nominal(n, len(self.bg_cameras(cameras)), res, device or "cpu")
 
     @classmethod
     def from_dict(cls, d: dict | None) -> "RealDR":
@@ -1071,11 +1157,15 @@ class RealDR:
     def _gen_device(generator) -> torch.device:
         return torch.device(generator.device) if generator is not None else torch.device("cpu")
 
-    def draw(self, scene: "SO101Scene", n: int, generator: torch.Generator | None = None, device=None) -> dict:
+    def draw(self, scene: "SO101Scene", n: int, generator: torch.Generator | None = None, device=None,
+             res: int | None = None, bg_prior: torch.Tensor | None = None) -> dict:
         """Per-world draws for n worlds: ``colors`` [n, bodies, 3], ``cam_offset`` [n, C, 6] (dpos, drot),
         ``env_pose`` [n, n_env, 7] (x y z qx qy qz qw) and, when the scene has a tone map, ``tone`` [n, C, 9]
         (``camera_fx.TONE_KEYS``), for :meth:`SO101Renderer.render_dr`. Random numbers are drawn on the generator's
-        device (CPU without a generator); the results are on ``device`` (default the scene's)."""
+        device (CPU without a generator); the results are on ``device`` (default the scene's). With ``bg`` on, also
+        the background layers ``bg_*`` (:mod:`nedm.render.bg_dr`) at the output resolution ``res`` (default: the
+        student view's output size); ``bg_prior`` [Cb, res, res]: placement weights of their clutter and spots
+        (:meth:`SO101Renderer.bg_prior`; None: uniform)."""
         gdev = self._gen_device(generator)
         dev = torch.device(device or scene.device)
 
@@ -1095,14 +1185,20 @@ class RealDR:
         pos = torch.tensor([self.cam_pos.get(c, 0.0) for c in scene.cameras], dtype=torch.float64, device=dev)
         rot = torch.tensor([self.cam_rot.get(c, 0.0) for c in scene.cameras], dtype=torch.float64, device=dev)
         off = torch.cat([u(-1, 1, C, 3) * pos[None, :, None], u(-1, 1, C, 3) * rot[None, :, None]], -1)
-        env = scene.env_pose.to(dev).expand(n, *scene.env_pose.shape).clone()
+        env0 = scene.env_pose.to(dev)
+        env = env0.expand(n, *scene.env_pose.shape).clone()
+        names = list(getattr(scene, "env_names", ()))
         for k, g in enumerate(scene.env_groups):
             if g == "mat":
                 env[:, k, :2] += u(-1, 1, 2) * self.mat_xy
                 turn = yaw_quat(u(-1, 1) * self.mat_yaw)
                 env[:, k, 3:] = xyzw(qmul(wxyz(env[:, k, 3:]), turn))   # about the mat's own normal
             elif g == "walls":
-                env[:, k, :2] += u(-1, 1, 2) * self.wall_xy
+                if names and names[k].endswith("_end"):                  # a wall end piece moves with its wall
+                    kp = names.index(names[k][:-4])
+                    env[:, k, :2] += env[:, kp, :2] - env0[kp, :2]
+                else:
+                    env[:, k, :2] += u(-1, 1, 2) * self.wall_xy
         out = dict(colors=cols.float(), cam_offset=off.float(), env_pose=env)
         tone = getattr(scene, "tone_params", None)
         if tone is not None:
@@ -1125,7 +1221,56 @@ class RealDR:
             t[..., 7] *= uc(self.gamma, (1.0, 1.0))
             t[..., 8] += uc(self.vignette, (0.0, 0.0))
             out["tone"] = t.float()
+        # background randomisation (class docstring): after every other draw
+        if self.floor_turn_deg or self.floor_xy:
+            self._floor_draw(scene, env, names, u, dev)
+        if self.wall_end:
+            self._wall_end_draw(scene, env, names, u, dev)
+        if self.bg_on:
+            cams = self.bg_cameras(scene.cameras)
+            if res is None:
+                views = [scene.real.view(c) for c in cams]
+                if not views or any(v is None for v in views):
+                    raise ValueError("RealDR.bg: pass the output resolution (draw(..., res=))")
+                res = views[0].out_wh[0]
+            out.update(self.bg_dr().draw(n, len(cams), int(res), generator, dev, prior=bg_prior))
         return out
+
+    def _floor_draw(self, scene, env, names, u, dev) -> None:
+        """Floor box per world: turned by +- floor_turn_deg about the table normal through the scene's floor pivot,
+        then shifted by +- floor_xy in x and y of the table frame (in place on ``env``)."""
+        if "floor" not in names:
+            raise ValueError("RealDR.floor_turn_deg / floor_xy: the scene has no floor")
+        k = names.index("floor")
+        n = env.shape[0]
+        th = u(-1, 1) * math.radians(float(self.floor_turn_deg))
+        sh = u(-1, 1, 2) * float(self.floor_xy)
+        o, qp = scene.plane_o.to(dev), scene.plane_q.to(dev)
+        qi = qp * torch.tensor([1.0, -1.0, -1.0, -1.0], dtype=qp.dtype, device=dev)
+        piv = torch.as_tensor(scene.real.floor_pivot(), dtype=env.dtype, device=dev)
+        pf = qrot(qi.expand(n, 4), env[:, k, :3] - o)                                   # table frame
+        d = pf[:, :2] - piv
+        c, s = torch.cos(th), torch.sin(th)
+        pf = torch.stack([piv[0] + c * d[:, 0] - s * d[:, 1] + sh[:, 0], piv[1] + s * d[:, 0] + c * d[:, 1] + sh[:, 1],
+                          pf[:, 2]], -1)
+        env[:, k, :3] = o + qrot(qp.expand(n, 4), pf)
+        env[:, k, 3:] = xyzw(qmul(wxyz(env[:, k, 3:]), yaw_quat(th)))                  # about its own normal
+
+    def _wall_end_draw(self, scene, env, names, u, dev) -> None:
+        """Wall end pieces per world: slid by +- wall_end along their wall (in place on ``env``)."""
+        ends = [k for k, nm in enumerate(names) if nm.endswith("_end")]
+        if not ends:
+            raise ValueError("RealDR.wall_end needs a wall end piece in the scene (geometry.wall_end)")
+        n = env.shape[0]
+        qp = scene.plane_q.to(dev)
+        for k in ends:
+            w = int(names[k][len("wall"):-4])
+            if float(self.wall_end) > scene.real.wall_end_slide(w) + 1e-12:
+                raise ValueError(f"RealDR.wall_end {self.wall_end} > the scene's wall_end slide "
+                                 f"{scene.real.wall_end_slide(w)}")
+            a, b = (np.asarray(p, np.float64) for p in scene.real.walls[w][:2])
+            t = torch.tensor(np.r_[(b - a) / np.linalg.norm(b - a), 0.0], dtype=env.dtype, device=dev)
+            env[:, k, :3] += (u(-1, 1) * float(self.wall_end))[:, None] * qrot(qp.expand(n, 4), t.expand(n, 3))
 
     def lights(self, lights: Sequence[dict], generator: torch.Generator | None = None) -> list[dict]:
         """The lights with each direction turned by up to ``light_deg`` about a random axis (one draw per call);
@@ -1204,6 +1349,10 @@ class SO101Renderer:
     colour even without a tone map (``render(..., hdr=True)``). At construction the real scene renders one frame and
     raises if more than ``NEAR_FRAC`` of a calibrated camera's pixels are closer than ``NEAR_M`` (a body in front of
     the lens, e.g. a camera mount: review finding 2).
+    ``bg_cameras`` (real scene with a tone map; default none): the cameras that take background layers
+    (:class:`RealDR` ``bg``, :mod:`nedm.render.bg_dr`) in :meth:`render_dr` / :meth:`render` (``bg=``); builds the
+    segment output internally (the colours are the same as without it). ``bg_dark_groups``: the groups of the dark
+    area outside the light box (``BgDR.dark_groups``).
     """
 
     NEAR_M = 0.012
@@ -1215,7 +1364,8 @@ class SO101Renderer:
                  front_eye=FRONT_EYE, front_target=FRONT_TARGET, sky=SKY, device=None,
                  cameras: Sequence[str] | None = None, top_eye=TOP_EYE, top_target=TOP_TARGET,
                  table_body: bool = False, real: "RealScene | None" = None, segment: bool = False,
-                 hdr: bool = False):
+                 hdr: bool = False, bg_cameras: Sequence[str] = (),
+                 bg_dark_groups: Sequence[str] = ("room", "room_floor")):
         from nedm.render.renderer import BatchRenderer
         if backend == "madrona":
             torch_device = "cuda:0"
@@ -1227,6 +1377,17 @@ class SO101Renderer:
                                 real=real)
         self.cameras = self.scene.cameras
         self.real = real
+        self.bg_cameras = tuple(bg_cameras or ())
+        if self.bg_cameras:
+            if real is None or real.tone is None:
+                raise ValueError("bg_cameras: background layers need the real scene with a tone map")
+            if not set(self.bg_cameras) <= set(self.cameras):
+                raise ValueError(f"bg_cameras {self.bg_cameras} are not all in the cameras {self.cameras}")
+            self.bg_cameras = tuple(c for c in self.cameras if c in self.bg_cameras)     # the cameras' order
+            bad = set(bg_dark_groups) - set(REAL_GROUPS)
+            if bad:
+                raise ValueError(f"bg_dark_groups {sorted(bad)} are not groups of the real scene {REAL_GROUPS}")
+        self._bg_dark_codes = tuple(REAL_GROUPS.index(g) for g in bg_dark_groups)
         if real is None:
             if segment or hdr:
                 raise ValueError("segment / hdr outputs need the real scene")
@@ -1248,7 +1409,8 @@ class SO101Renderer:
                                           cameras=len(self.cameras), fov_deg=self.scene.fovy_deg, device=device,
                                           shadows=shadows, sky=tuple(real.sky), backend=backend,
                                           camera_models=self.scene.camera_models,
-                                          hdr=bool(hdr or real.tone is not None), segment=segment)
+                                          hdr=bool(hdr or real.tone is not None),
+                                          segment=bool(segment or self.bg_cameras))
             self.set_lights(real.lights, shadows=bool(shadows and real.shadows), ambient=real.ambient)
         self.device = torch.device(torch_device)
         self.num_worlds, self.width, self.height, self.backend = int(num_worlds), int(width), int(height), backend
@@ -1263,6 +1425,13 @@ class SO101Renderer:
                        for c in self.cameras):
                     self._fx = f
             self._update_rays()
+            if self.bg_cameras:     # Newton shape index -> group code (REAL_GROUPS order; -1: none)
+                lut = torch.as_tensor(self.renderer.backend.shape_body, dtype=torch.long)
+                body_group = torch.full((int(lut.max()) + 2,), -1, dtype=torch.long)
+                for gi, g in enumerate(REAL_GROUPS):
+                    for b in self.scene.groups.get(g, ()):
+                        body_group[b] = gi
+                self._shape_group = body_group[lut].to(self.device)
             self.check_near()
             return
         # ray length -> z-depth, at pixel centres (fovy vertical, square pixels)
@@ -1326,6 +1495,27 @@ class SO101Renderer:
                                  f"front of the lens: hide it with RealScene.hide_bodies)")
         return out
 
+    def bg_prior(self, q=None) -> torch.Tensor:
+        """[Cb, H, W] float: the share of dark-area sub-pixels (``bg_dark_groups``) per output pixel of the
+        ``bg_cameras`` in one nominal frame (arm at ``q``, default zeros; cube and plate hidden): placement weights
+        of the background clutter and spots (:meth:`RealDR.draw` ``bg_prior``)."""
+        if not self.bg_cameras:
+            raise ValueError("bg_prior: build the renderer with bg_cameras")
+        q = torch.zeros(1, 6, dtype=torch.float64) if q is None else torch.as_tensor(q, dtype=torch.float64)
+        cube = torch.tensor([[0.0, 0.0, HIDDEN_Z]], dtype=torch.float64)
+        quat = torch.tensor([[1.0, 0.0, 0.0, 0.0]], dtype=torch.float64)
+        body_q, cam_q = self.scene.transforms(q, cube, quat, None)
+        body_q = torch.cat([body_q, body_q[:1].expand(self.num_worlds - 1, *body_q.shape[1:])])
+        cam_q = torch.cat([cam_q, cam_q[:1].expand(self.num_worlds - 1, *cam_q.shape[1:])])
+        frames = self.renderer.render(cam_q, body_q=body_q)
+        sh = frames.shape_index_torch()[:1]
+        gid = torch.where(sh >= 0, self._shape_group[sh.clamp_min(0)], torch.full_like(sh, -1))[0]
+        dark = torch.zeros_like(gid, dtype=torch.bool)
+        for c in self._bg_dark_codes:
+            dark |= gid == c
+        idx = [self.cameras.index(c) for c in self.bg_cameras]
+        return self._pool(dark[idx].float())
+
     def set_lights(self, lights: Sequence[dict], shadows: bool | None = None, ambient: bool | None = None) -> None:
         """Replace the lights of every world (Newton: :meth:`~nedm.render.backends.newton.NewtonBackend.set_lights`)."""
         if not hasattr(self.renderer.backend, "set_lights"):
@@ -1338,7 +1528,7 @@ class SO101Renderer:
         return self.scene.body_names + [mesh.name for mesh, _ in self.scene.scene.statics]
 
     def render(self, q, cube_pos, cube_quat, goal_pose=None, depth: bool = False, copy: bool = True,
-               env_pose=None, cam_offset=None, tone=None, segment: bool = False, hdr: bool = False):
+               env_pose=None, cam_offset=None, tone=None, segment: bool = False, hdr: bool = False, bg=None):
         """rgb [B, C, H, W, 3] uint8 (cameras in :attr:`cameras` order), and with ``depth`` also z-depth [B, C, H, W]
         float32 (m along the camera axis, 0 = nothing hit). Inputs as :meth:`SO101Scene.transforms`, any device and
         float dtype, B <= num_worlds. ``copy=False`` returns a view of the renderer's buffer (overwritten by the next
@@ -1348,7 +1538,9 @@ class SO101Renderer:
         Real scene only: ``tone`` [B, C, 9] per-world tone maps (default the scene's); ``segment`` (renderer built with
         ``segment=True``): also the scene body index per pixel [B, C, H, W] int64 (-1 nothing hit, -2 sub-pixels
         disagree); ``hdr``: also the linear colour [B, C, H, W, 3] float32 (sub-pixel mean; rays that hit nothing get
-        the sky colour turned linear). Extra outputs follow rgb (and depth) in the order segment, hdr."""
+        the sky colour turned linear). Extra outputs follow rgb (and depth) in the order segment, hdr. ``bg``: the
+        background layers (``bg_*`` of :meth:`RealDR.draw`, rows = B) of the ``bg_cameras``, applied to the linear
+        colour before the tone map (the ``hdr`` output stays the renderer's own)."""
         if env_pose is None:
             body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose)
         else:
@@ -1364,7 +1556,9 @@ class SO101Renderer:
             cam_q = torch.cat([cam_q, cam_q[:1].expand(pad, *cam_q.shape[1:])])
         frames = self.renderer.render(cam_q, body_q=body_q)
         if self.real is not None:
-            return self._real_outputs(frames, n, depth, tone, segment, hdr)
+            return self._real_outputs(frames, n, depth, tone, segment, hdr, bg)
+        if bg is not None:
+            raise ValueError("bg layers need the real scene")
         rgb = frames.rgb_torch()[:n]
         if copy:
             rgb = rgb.clone(memory_format=torch.contiguous_format)
@@ -1372,7 +1566,7 @@ class SO101Renderer:
             return rgb
         return rgb, frames.depth_torch()[:n] * self.z_per_ray.to(rgb.device)
 
-    def _real_outputs(self, frames, n, depth, tone, segment, hdr):
+    def _real_outputs(self, frames, n, depth, tone, segment, hdr, bg=None):
         """The real scene's outputs: tone map per sub-pixel, then the sub-pixel mean (as the real frame: tone-mapped
         sensor pixels, then area-averaged to the student size)."""
         from nedm.render import camera_fx as fx
@@ -1380,13 +1574,29 @@ class SO101Renderer:
         sky = (dz == 0) & self._valid_sub[None]
         sky8 = torch.tensor(self.real.sky, dtype=torch.float32, device=dz.device) / 255.0
         params = self.scene.tone_params if tone is None else torch.as_tensor(tone, dtype=torch.float32)
+        gid = None
+        if bg is not None:
+            if not self.bg_cameras:
+                raise ValueError("bg layers: build the renderer with bg_cameras")
+            if params is None:
+                raise ValueError("bg layers need the tone map (linear colour)")
+            sh = frames.shape_index_torch()[:n]
+            gid = torch.where(sh >= 0, self._shape_group[sh.clamp_min(0)], torch.full_like(sh, -1))
+            cb = len(self.bg_cameras)
+            for k in ("bg_tex", "bg_low", "bg_mat", "bg_par"):
+                if bg[k].shape[:2] != (n, cb):
+                    raise ValueError(f"{k} {tuple(bg[k].shape)}: expected [{n}, {cb}, ...] (bg_cameras "
+                                     f"{self.bg_cameras})")
         if params is not None:
             x = frames.hdr_torch()[:n]
             rgb = torch.empty(n, x.shape[1], self.height, self.width, 3, dtype=torch.uint8, device=x.device)
             step = max(1, self.TONE_CHUNK // (x.shape[1] * x.shape[2] * x.shape[3]))     # bounded temporaries
             for i in range(0, n, step):
                 pi = params if params.dim() == 2 else params[i:i + step]
-                y = fx.tone_map(x[i:i + step], pi, self._cos_theta)
+                xi = x[i:i + step]
+                if gid is not None:
+                    xi = self._apply_bg(xi, gid[i:i + step], {k: v[i:i + step] for k, v in bg.items()})
+                y = fx.tone_map(xi, pi, self._cos_theta)
                 y = torch.where(sky[i:i + step, ..., None], sky8, y)
                 y = torch.where(self._valid_sub[None, ..., None], y, 0.0)
                 y = self._pool(y.movedim(-1, 2)).movedim(2, -1)
@@ -1419,11 +1629,22 @@ class SO101Renderer:
             out.append(self._pool(x.movedim(-1, 2)).movedim(2, -1))
         return out[0] if len(out) == 1 else tuple(out)
 
+    def _apply_bg(self, x, gid, bg):
+        """Background layers on the linear colour x [m, C, Hs, Ws, 3] of the bg cameras (:func:`bg_dr.apply_bg`)."""
+        from nedm.render.bg_dr import apply_bg
+        codes = {g: i for i, g in enumerate(REAL_GROUPS)}
+        out = list(x.unbind(1))
+        for j, cam in enumerate(self.bg_cameras):
+            c = self.cameras.index(cam)
+            out[c] = apply_bg(x[:, c], gid[:, c], {k: v[:, j] for k, v in bg.items()}, codes, self._bg_dark_codes,
+                              self.ss, self._cos_theta[c])
+        return torch.stack(out, 1)
+
     def render_dr(self, q, cube_pos, cube_quat, goal_pose=None, draw: dict | None = None, **kw):
         """:meth:`render` with per-world randomisation ``draw`` (:meth:`RealDR.draw`: colors [B, bodies, 3],
-        cam_offset [B, C, 6], env_pose [B, n_env, 7], tone [B, C, 9]; any key may be missing: a missing key means its
-        nominal value, also for the colours), or the nominal scene with None. Newton colours are per world (rows
-        beyond B repeat row 0)."""
+        cam_offset [B, C, 6], env_pose [B, n_env, 7], tone [B, C, 9], background layers ``bg_*``; any key may be
+        missing: a missing key means its nominal value, also for the colours), or the nominal scene with None. Newton
+        colours are per world (rows beyond B repeat row 0)."""
         if draw is None or draw.get("colors") is None:
             if not self._nominal:
                 self.set_appearance(reset=True)
@@ -1438,6 +1659,8 @@ class SO101Renderer:
             self._nominal = False
         if draw.get("tone") is not None:
             kw["tone"] = draw["tone"]
+        if draw.get("bg_par") is not None:
+            kw["bg"] = {k: draw[k] for k in ("bg_tex", "bg_low", "bg_mat", "bg_par")}
         return self.render(q, cube_pos, cube_quat, goal_pose, env_pose=draw.get("env_pose"),
                            cam_offset=draw.get("cam_offset"), **kw)
 

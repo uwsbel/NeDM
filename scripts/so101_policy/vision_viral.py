@@ -34,6 +34,15 @@ and ``eval --qd-robot 3`` for the robot's qdot estimate (``row_qd_input``: the s
 Last-command input (``ViralConfig.lastcmd``, off by default): ``online --config viral_r2s_v1_lastcmd.json`` adds it to
 a student without it (zero weights: the initial student's actions at the start); ``eval`` / ``collect`` feed it from
 the env's executed targets; ``run`` (round files) refuses it.
+
+Studentlab (2026-10-22, ~/so101_studentlab_claude/trials/BUILD.md): ``online`` expands the loaded student when the
+config adds inputs (``hist``, ``cmd_in``, ``img_hist``: ``viral.expand_student``, zero-init) and takes
+``goal_jump`` / ``hold_cap_s`` in the online config (arms: ``configs/so101_policy/vision/studentlab/``,
+``cluster/studentlab_online.sbatch``); ``eval --goal-shift 'p=1,d=10:25,lat=8'`` is the evaluation-only goal shift
+(the overshoot gate: once per episode, same trigger as the training jumps, the cube ends PAST the moved goal; the
+summary adds ``goal_shift`` with the shifted / unshifted episodes). The online config's ``light_redraw_p`` (< 1: the
+per-call light and intrinsics stay for several decisions; the image-history arm A4) also applies to the in-run
+evaluations; ``eval --light-redraw-p P`` is the same for a standalone evaluation (with ``--randomise``).
 """
 from __future__ import annotations
 
@@ -79,17 +88,21 @@ def subset(t, idx):
 
 
 class EnvCache:
-    def __init__(self, jt, device, nrd, workers, mj_python, horizon, table=None, cli=None, hold_cap_s=None):
+    def __init__(self, jt, device, nrd, workers, mj_python, horizon, table=None, cli=None, hold_cap_s=None,
+                 goal_jump=None):
         self.c, self.jt, self.dev, self.nrd, self.w, self.mp, self.h = {}, jt, device, nrd, workers, mj_python, horizon
         self.table = table        # (plane, floor, q_offset) for JointVecEnv.set_table (evaluation only), None: off
         self.cli = cli            # eval args (``--log-only-extra``), None: off
         self.hold_cap_s = hold_cap_s   # the hold_cap rule (s; ``--hold-cap-s``), None: the task default
+        self.goal_jump = goal_jump     # JE.GoalJumpConfig: the evaluation-only goal shift (``--goal-shift``), None: off
 
     def get(self, world, B):
         k = (world, B)
         if k not in self.c:
             self.c[k] = JT.make_env(world, B, self.jt.codec, self.dev, self.nrd, self.w, self.mp, self.h,
-                                    hold_cap_s=self.hold_cap_s)
+                                    hold_cap_s=self.hold_cap_s, goal_jump=self.goal_jump)
+            if self.c[k].goal_jump is not None:
+                log(f"goal shift ({world}, {B} worlds): {json.dumps(VI.asdict(self.c[k].goal_jump.cfg))}")
             if self.c[k].dyn is not None:      # $NEDM_SO101_DYN (joint_teacher.make_env)
                 log(f"robot dynamics ({world}, {B} worlds): {json.dumps(VI.asdict(self.c[k].dyn.cfg))}")
             if self.table is not None:
@@ -132,7 +145,7 @@ def collect(tasks, world, jt, cache: EnvCache, src, noise, seed, batch, student=
         idx = np.arange(s0, min(n, s0 + batch))
         env = cache.get(world, len(idx))
         if student is not None:
-            student.env = env             # the last-command input (ViralConfig.lastcmd) reads the env's u_exe
+            student.bind(env)             # cmd_in and the last-command input (ViralConfig.lastcmd): the env's u_exe
         sl = VI.SubstepLog() if lag_rec else None
         push = student.push if student is not None and student.needs_tap else None
         with taps(env, sl, push):
@@ -175,13 +188,15 @@ def concat(parts):
 
 
 def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None, record_states=False,
-             full_horizon=False, device="cuda", lag=None, lag_range=None, qd_window=0):
+             full_horizon=False, device="cuda", lag=None, lag_range=None, qd_window=0, light_redraw_p=1.0):
     """``lag``: image lag in control steps (default the student's nominal ``cfg.lag``); ``lag_range``: drawn per world
-    instead; ``qd_window`` > 0: the robot-like qdot input (``viral.robot_qd``)."""
+    instead; ``qd_window`` > 0: the robot-like qdot input (``viral.robot_qd``); ``light_redraw_p`` < 1: the per-call
+    light / intrinsics stay for several decisions (``viral.Actor``)."""
     actor = VI.Actor(st, views, randomise=randomise, jaw_lead=jaw_lead, device=device, lag=lag, lag_range=lag_range,
-                     qd_window=qd_window)
+                     qd_window=qd_window, light_redraw_p=light_redraw_p)
     env = cache.get(world, len(tasks["seeds"]))
-    actor.env = env                                      # the last-command input (ViralConfig.lastcmd): env.u_exe
+    actor.bind(env)                                     # cmd_in and the last-command input (ViralConfig.lastcmd):
+                                                        # the env's executed targets (env.u_exe)
     if getattr(env, "q_offset", None) is not None:      # evaluation only (table.py): the student's joint frame
         actor.q_offset = env.q_offset.tolist()
     with taps(env, actor.push if actor.needs_tap else None):
@@ -193,10 +208,16 @@ def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None,
         r["table"] = np.array(json.dumps(env.table_info()))
     if cache.cli is not None:
         r["log_only"] = np.array(json.dumps(list(env.tcfg.log_only)))
-    r["summary"] = np.array(json.dumps(JT.summarize(r)))
+    summ = JT.summarize(r)
+    if env.goal_jump is not None:     # the evaluation-only goal shift: outcomes of the shifted / unshifted episodes
+        summ["goal_shift"] = goal_shift_summary(r)
+    r["summary"] = np.array(json.dumps(summ))
     r["world"] = np.array(world)
     r["randomise"] = np.bool_(randomise)
     r["jaw_lead"] = np.int64(actor.jaw_lead)
+    if actor.light_redraw_p < 1.0:  # per-call light / intrinsics kept for several decisions: the setting, the changes
+        r["light_redraw"] = np.array(json.dumps(dict(p=actor.light_redraw_p, changes=actor.state_changes,
+                                                     decisions=actor.calls)))
     if actor.kmax > 0:
         r["image_lag"] = np.array(json.dumps(dict(lag=actor.lag, lag_range=actor.lag_range)))
     if actor.qd_window > 0:       # the robot-like qdot: window and the student's qdot INPUT per row (row_qd: the sim's)
@@ -214,6 +235,29 @@ def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None,
         r["scene"] = np.array(json.dumps(dict(scene=st.cfg.scene, scene_sha256=st.cfg.scene_sha256,
                                               calib_sha256=st.cfg.calib_sha256, crops=st.cfg.crops)))
     return r
+
+
+def goal_shift_summary(r):
+    """Outcomes of the episodes with / without a goal jump (``run_tasks`` output with ``goal_jumps``): count, lenient,
+    strict, end xy error p50 / p90 (mm; to the final goal), failure causes; the shift offsets (mm, + = past)."""
+    from nedm.so101_policy import task as T
+    n = np.asarray(r["goal_jumps"]) > 0
+    le, s = np.asarray(r["lenient"]).astype(bool), np.asarray(r["success"]).astype(bool)
+    ex = np.asarray(r["end_xy"], np.float64) * 1e3
+    out = {}
+    for tag, m in (("shifted", n), ("unshifted", ~n)):
+        if not m.any():
+            out[tag] = dict(n=0)
+            continue
+        e = ex[m][np.isfinite(ex[m])]
+        causes = {T.ENDS[int(k)]: int(v) for k, v in zip(*np.unique(np.asarray(r["end"])[m & ~le], return_counts=True))}
+        out[tag] = dict(n=int(m.sum()), lenient=float(le[m].mean()), strict=float(s[m].mean()),
+                        end_xy_mm_p50=float(np.median(e)) if len(e) else None,
+                        end_xy_mm_p90=float(np.percentile(e, 90)) if len(e) else None, causes_not_lenient=causes)
+    if n.any():
+        d = np.asarray(r["goal_jump_d"], np.float64)[n] * 1e3
+        out["shift_d_mm"] = [float(v) for v in np.percentile(d, [0, 50, 100])]
+    return out
 
 
 def eval_sets(paths, n=0):
@@ -360,12 +404,18 @@ def cmd_online(a):
             over[k] = json.loads(v)
         from dataclasses import asdict as _ad
         cd = _ad(st.cfg)
-        hist = int(over.get("hist", cd["hist"]))
-        lastcmd = bool(over.get("lastcmd", cd["lastcmd"]))
-        cd.update({k: v for k, v in over.items() if k in cd and k not in ("hist", "lastcmd")})
+        arch = {k: over.get(k, cd[k]) for k in VI.ARCH_KEYS}       # input options: zero-init expansion of the student
+        lastcmd = bool(over.get("lastcmd", cd["lastcmd"]))           # the last-command input (own zero-init layer)
+        if "cmd_scale" in over and st.cfg.cmd_in and tuple(over["cmd_scale"]) != tuple(st.cfg.cmd_scale):
+            raise SystemExit("cmd_scale: the student already has a cmd input with another scale")
+        cd.update({k: v for k, v in over.items() if k in cd and k not in VI.ARCH_KEYS and k != "lastcmd"})
         st.cfg = VI.ViralConfig.from_dict(cd)
-        if hist != st.cfg.hist:
-            st = VI.expand_hist(st, hist, a.device)
+        if (int(arch["hist"]), bool(arch["cmd_in"]), bool(arch["img_hist"])) != \
+                (int(st.cfg.hist), bool(st.cfg.cmd_in), bool(st.cfg.img_hist)):
+            st = VI.expand_student(st, hist=int(arch["hist"]), cmd_in=bool(arch["cmd_in"]),
+                                   img_hist=bool(arch["img_hist"]), device=a.device)
+            log(f"student inputs: hist {st.cfg.hist}, cmd_in {st.cfg.cmd_in}, img_hist {st.cfg.img_hist} "
+                f"(zero-init expansion of {a.init})")
         if lastcmd != st.cfg.lastcmd:                    # + the last-command input, zero weights (acts as the init)
             if not lastcmd:
                 raise SystemExit("--config lastcmd false: the initial student has the last-command input")
@@ -392,13 +442,15 @@ def cmd_online(a):
     eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device)
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
     od = VI.OnlineDAgger(st, jt, tasks, x(a.nrd_ckpt), views, ocfg, a.device, a.seed, log)
-    meta = dict(student_cfg=VI.asdict(st.cfg), online=VI.asdict(ocfg), init=str(a.init), jt=jt.info(), argv=sys.argv)
+    meta = dict(student_cfg=VI.cfg_dict(st.cfg), online=VI.asdict(ocfg), init=str(a.init), jt=jt.info(), argv=sys.argv)
     robot_opts = od.env.dyn is not None or od.qd_hist is not None or od.env.tcfg.horizon != 400 \
-        or od.env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s
+        or od.env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s or od.env.goal_jump is not None
     if robot_opts:              # the resolved online env (robot dynamics, episode length, hold cap)
         meta["online_env"] = dict(horizon=od.env.tcfg.horizon, hold_cap_s=od.env.tcfg.hold_cap_s,
                                   hold_obs_s=od.env.cfg.hold_obs_s,
                                   dyn=VI.asdict(od.env.dyn.cfg) if od.env.dyn is not None else None)
+        if od.env.goal_jump is not None:
+            meta["online_env"]["goal_jump"] = VI.asdict(od.env.goal_jump.cfg)
         log(f"online env: {json.dumps(meta['online_env'])}")
     (out / "meta.json").write_text(json.dumps(meta, indent=1, default=str))
     f = open(out / "curve.csv", "a", newline="")
@@ -431,6 +483,8 @@ def cmd_online(a):
                        **{f"t_{k}": round(v / n_acc, 3) for k, v in tacc.items()},
                        ep_student=s_["ep_student"], len_student=round(s_["len_student"] / max(s_["ep_student"], 1), 3),
                        ep_teacher=s_["ep_teacher"], len_teacher=round(s_["len_teacher"] / max(s_["ep_teacher"], 1), 3),
+                       **{k: s_[k] for k in ("ep_jump_student", "len_jump_student", "ep_jump_teacher",
+                                             "len_jump_teacher") if k in s_},
                        **od.log_extra())
             od.stats = {k: 0 for k in s_}
             acc, tacc, n_acc = {}, {}, 0
@@ -448,13 +502,17 @@ def cmd_online(a):
             for (pre, ev), rnd in [(e_, r_) for e_ in evs for r_ in ([False, True] if a.eval_randomise else [False])]:
                 tag = f"{pre}mujoco{'_dr' if rnd else ''}"
                 te = time.time()
-                r = evaluate(st, jt, ev, "mujoco", cache, eviews, rnd, device=a.device)
+                r = evaluate(st, jt, ev, "mujoco", cache, eviews, rnd, device=a.device,
+                             light_redraw_p=ocfg.light_redraw_p)
                 np.savez_compressed(out / f"eval_it{it:05d}_{tag}.npz", **r)
                 s_ = json.loads(str(r["summary"]))
                 progress(out, stage=f"eval it {it} {tag}", wall_s=time.time() - te, samples=od.samples, **s_)
                 log(f"it {it} eval {tag}: lenient {s_['lenient'] * 100:.0f} % strict {s_['strict'] * 100:.0f} % "
                     f"lifted {s_['lifted'] * 100:.0f} % causes {s_['causes_not_lenient']}")
             st.train()
+    if torch.cuda.is_available() and torch.device(a.device).type == "cuda":
+        log(f"done: {ocfg.iterations} decisions in {(time.time() - t0) / 60:.1f} min, peak GPU memory (torch) "
+            f"{torch.cuda.max_memory_allocated() / 1e9:.2f} GB")
 
 
 def cmd_eval(a):
@@ -467,16 +525,17 @@ def cmd_eval(a):
         st.cfg.calib = x(a.calib_path)
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     plane, floor, qo, moved = TB.from_cli(a)
+    gs = JE.GoalJumpConfig.from_spec(a.goal_shift, max_n=1, before_p=0.0) if a.goal_shift else None
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                      table=(plane, floor, qo) if moved else None, cli=a if a.log_only_extra else None,
-                     hold_cap_s=a.hold_cap_s)
+                     hold_cap_s=a.hold_cap_s, goal_jump=gs)
     geo = {"table_plane": list(plane)} if plane is not None and not a.no_render_table else None
     if geo:
         log(f"render: {TB.describe(plane)} (scene geometry override, evaluation only)")
     views = VI.make_views(st.cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device,
                           geometry_over=geo)
     r = evaluate(st, jt, t, a.world, cache, views, a.randomise, a.jaw_lead, a.record_states, a.full_horizon, a.device,
-                 lag=a.lag, lag_range=a.lag_range, qd_window=a.qd_robot)
+                 lag=a.lag, lag_range=a.lag_range, qd_window=a.qd_robot, light_redraw_p=a.light_redraw_p)
     r["student"] = np.array(str(a.student))
     if a.out:
         np.savez_compressed(a.out, **r)
@@ -581,6 +640,14 @@ def main(argv=None):
     q.add_argument("--lag-range", type=int, nargs=2, default=None, help="image lag drawn per world (lo hi)")
     q.add_argument("--qd-robot", type=int, default=0,
                    help="qdot input = the robot's slope over this many 20 ms states of the quantised q (0 = sim qdot)")
+    q.add_argument("--goal-shift", default="",
+                   help="evaluation-only goal shift (overshoot gate), e.g. 'p=1,d=10:25,lat=8' (mm; JE.GoalJumpConfig "
+                        "with the training trigger; defaults n=1 jump per episode, before=0: the cube ends PAST the "
+                        "moved goal); the student's renders and the success check use the moved goal")
+    q.add_argument("--light-redraw-p", type=float, default=1.0,
+                   help="with --randomise: per decision the probability of a new random light / intrinsics draw, else "
+                        "the last one stays (an image-history student: use its online config's light_redraw_p); "
+                        "1 = a new draw every decision")
     q.add_argument("--out", default="")
     q.add_argument("--scene-path", default="", help="the student's scene file at this path (same sha256)")
     q.add_argument("--calib-path", default="", help="the student's calibration file at this path (same sha256)")

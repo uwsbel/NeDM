@@ -46,6 +46,25 @@ Real2sim (``~/so101_r2s_claude/docs/integrate.md``; all OFF by default, old conf
   (training: ``lag_range``). ``LagHistory`` keeps the states, ``step_tap`` feeds it from any ``JointVecEnv.step``
   caller (``joint_teacher.run_tasks``); round files record the states (``row_lag``, ``lag_rows``; a lag above
   ``LAG_REC`` reaches into the decisions before).
+Studentlab (2026-10-22, ~/so101_studentlab_claude/trials/BUILD.md; all OFF by default, old configs, checkpoints and
+results bit for bit unchanged): ``ViralConfig.cmd_in`` (the previous decision's 5 executed targets - the measured q
+now, / ``cmd_scale``, appended to the robot vector), ``ViralConfig.img_hist`` (the previous decision's images through
+the same encoders, features appended to the head input; ``ReplayBuffer`` links to the previous sample instead of
+copies), ``expand_student`` (zero-init expansion: the same chunk as the given student), ``OnlineConfig.goal_jump``
+(``joint_env.GoalJumpConfig``: goal jumps while the cube is held near the goal). Saved configs keep the old keys while
+the new inputs are off (``cfg_dict``). ``OnlineConfig.light_redraw_p`` (< 1; review 2026-10-23): the per-call light and
+intrinsics stay for several decisions, so the image pairs of the image history share them as on the robot (a change
+cuts the pair). The robot side of the new inputs: ``scripts/so101_policy/real2sim/hw/hw_lib.py`` (``StudentPolicy``,
+``Guard.u_layer``).
+Background randomisation (studentlab external-camera fix, 2026-10-23, ~/so101_studentlab_claude/trials/bgdr/BUILD.md;
+OFF unless the scene file's ``dr`` / ``ViralConfig.real_dr`` sets it; scene v3 does): ``RealDR.floor_turn_deg`` /
+``floor_xy`` / ``wall_end`` (floor box and back-wall end per world) and ``RealDR.bg`` (``nedm.render.bg_dr``: texture,
+clutter, spots, dark-area profile, floor / mat gradients, low texture, mat folds and boundary blur in linear colour
+before the tone map, on the external camera's floor / walls / mat / dark-area pixels only). ``DRViews`` then builds
+the renderer with ``bg_cameras`` (segment output), keeps a placement prior (``bg_prior``) and adds the ``bg_*``
+layers to every per-world draw (zeros in ``nominal_draw``), so the online loop's per-world reset and
+``merge_nominal`` carry them unchanged.
+
 - Robot timing and servo in the online loop (``OnlineConfig.dyn`` -> ``joint_env.RobotDynConfig``: command delay with
   jitter, weaker arm servo, command lag, gravity sag, command noise; per world per episode), robot-like qdot inputs
   (``qd_robot_p``: ``robot_qd``, the slope of the quantised q, exactly 0 when still), longer episodes (``horizon``,
@@ -59,6 +78,11 @@ Real2sim (``~/so101_r2s_claude/docs/integrate.md``; all OFF by default, old conf
   data statistics). Its own zero-initialised input layer (``ViralNet.lastcmd_in``) added to the head's first layer:
   ``expand_lastcmd`` turns a student without it into one that acts exactly like it at the start. Online loop
   (``OnlineDAgger``: acting and the buffer, teacher slots too), evaluation (``Actor.env``), robot (``hw_lib``).
+
+Both "last command" inputs are independent options (merge 2026-10-23): the studentlab ``cmd_in`` (the last decision's 5
+executed targets, columns of the head's first layer; robot: ``Guard.u_layer``) and the real2sim ``lastcmd`` (the last
+two 20 ms targets, its own zero-init layer; robot: ``Guard.prev``). With both on, the robot vector is [q, qd, history,
+cmd (n_exec x 6), lastcmd (12)] (``ViralConfig.robot_dim``).
 """
 from __future__ import annotations
 
@@ -81,6 +105,7 @@ from nedm.so101_policy import joint_env as JE
 from nedm.so101_policy.vision import dataset as V
 
 CAMERAS = ("top", "wrist")
+CMD_SCALE = tuple(float(v) for v in JE.LEAD) + (0.1,)    # cmd input scale (rad): the lead band (arm), 0.1 rad (jaw)
 
 
 def log_default(s):
@@ -516,8 +541,14 @@ class DRViews:
     cam_drot [n, C, 3]; the light direction is drawn per call when ``light`` is True. -> uint8 [n, C, H, W, 3].
 
     ``real`` (a ``RealSetup``; ``make_views``): the real scene instead (module docstring): draws = colors [n, nb, 3],
-    cam_offset [n, C, 6], env_pose [n, n_env, 7] (``RealDR``) and exposure [n, C] (tone map only); the scene's lights
-    (randomised per call by ``RealDR.lights`` when ``light``); ``fx`` = the cameras' ``CamFX`` (None: sim scene)."""
+    cam_offset [n, C, 6], env_pose [n, n_env, 7] (``RealDR``) and exposure [n, C] (tone map only), and with the
+    background randomisation on (``RealDR.bg``, scene v3; ``bg_cams``) the background layers ``bg_*`` (per world for
+    the episode, ``nedm.render.bg_dr``); the scene's lights (randomised per call by ``RealDR.lights`` when ``light``);
+    ``fx`` = the cameras' ``CamFX`` (None: sim scene).
+
+    Per-call state (studentlab image history): ``render(..., keep=True)`` keeps the last call's random light (and
+    intrinsics) instead of a new draw (no random numbers used); ``call_id`` counts the changes of the per-call state
+    (a new random draw, or random -> nominal), so a caller can tell whether two calls share it."""
 
     def __init__(self, num_worlds, res=224, cameras=CAMERAS, backend="newton", tiled=True, shadows=True,
                  top_eye=V.TOP_EYE, top_target=V.TOP_TARGET, dr: DRConfig | None = None, seed=0, device="cuda",
@@ -549,6 +580,8 @@ class DRViews:
         self.gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 911)
         self._colors_nominal = True
         self.light_default = (-0.57735026, 0.57735026, -0.57735026)
+        self._light_state = "nominal"
+        self.call_id = 0            # changes of the per-call state (class docstring)
 
     # -- the real scene (real2sim) --
     def _init_real(self, num_worlds, res, cameras, backend, tiled, shadows, dr, seed, device, rs: RealSetup):
@@ -560,8 +593,11 @@ class DRViews:
         self.dev = torch.device(device)
         self.calls, self.views, self.seconds = 0, 0, 0.0
         # the renderer checks at construction that no body sits in front of a calibrated camera (check_near)
+        self.bg_cams = rs.dr.bg_cameras(self.cameras)       # background layers (RealDR.bg; none: off, as before)
+        bgkw = dict(bg_cameras=self.bg_cams, bg_dark_groups=rs.dr.bg_dr().dark_groups) if self.bg_cams else {}
         self.r = SO101Renderer(self.num_worlds, width=self.res, height=self.res, backend="newton", cameras=self.cameras,
-                               shadows=shadows, goal="block", real=rs.real)
+                               shadows=shadows, goal="block", real=rs.real, **bgkw)
+        self.bg_prior = self.r.bg_prior().to(device) if self.bg_cams else None     # clutter / spot placement
         if tiled:
             from newton._src.sensors.warp_raytrace.types import RenderOrder
             rc = self.r.renderer.backend._camera.render_config
@@ -579,6 +615,7 @@ class DRViews:
         self.models0 = list(sc.camera_models)
         self.intrinsics_dr = float(getattr(self.rdr, "focal", 0.0)) > 0 or float(getattr(self.rdr, "pp_px", 0.0)) > 0
         self._call_state = "nominal"
+        self.call_id = 0            # changes of the per-call state (class docstring)
         self.fx = ViewFX.from_setup(rs, self.cameras)
 
     def nominal_draw(self, n):
@@ -589,6 +626,8 @@ class DRViews:
                  env_pose=self.env0.expand(n, *self.env0.shape).clone())
         if self.tone0 is not None:
             d["tone"] = self.tone0.expand(n, *self.tone0.shape).clone()
+        if self.bg_cams:
+            d.update(self.rdr.bg_nominal(n, self.cameras, self.res, self.dev))
         return d
 
     def merge_nominal(self, d, nominal):
@@ -597,26 +636,31 @@ class DRViews:
         return {k: torch.where(nominal.view(-1, *([1] * (v.dim() - 1))), nd[k].to(v), v) for k, v in d.items()}
 
     def _draw_real(self, n):
-        d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev)
+        d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev, res=self.res, bg_prior=self.bg_prior)
         return {k: v.to(self.dev) for k, v in d.items()}
 
-    def _per_call_real(self, nominal):
-        """Lights (and the intrinsics, if the scene randomises them) of the call: shared by all worlds."""
+    def _per_call_real(self, nominal, keep=False):
+        """Lights (and the intrinsics, if the scene randomises them) of the call: shared by all worlds. ``keep``: a
+        random call keeps the last random draw (no new draw) if the last call was random as well."""
         if nominal:
             if self._call_state != "nominal":
                 self.r.set_lights(self.lights0)
                 if self.intrinsics_dr:
                     self.r.set_camera_models(self.models0)
                 self._call_state = "nominal"
+                self.call_id += 1
+            return
+        if keep and self._call_state == "random":
             return
         self.r.set_lights(self.rdr.lights(self.lights0, self.light_gen))
         if self.intrinsics_dr:
             self.r.set_camera_models(self.rdr.camera_models(self.r.scene, self.light_gen, out_res=self.res))
         self._call_state = "random"
+        self.call_id += 1
 
-    def _render_real(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None):
+    def _render_real(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False):
         t0 = time.time()
-        self._per_call_real((dr is None) if light is None else not light)
+        self._per_call_real((dr is None) if light is None else not light, keep)
         out = []
         for s in range(0, q.shape[0], self.num_worlds):
             e = min(q.shape[0], s + self.num_worlds)
@@ -651,24 +695,32 @@ class DRViews:
         drot = self._u(n, -1.0, 1.0, C, 3) * rot[None, :, None]
         return dict(colors=cols, cam_dpos=dpos, cam_drot=drot)
 
-    def _light(self, nominal):
+    def _light(self, nominal, keep=False):
         import warp as wp
         if nominal:
             d = self.light_default
+            if self._light_state != "nominal":
+                self._light_state = "nominal"
+                self.call_id += 1
         else:
+            if keep and self._light_state == "random":
+                return                                  # the last call's random light stays
+            self._light_state = "random"
+            self.call_id += 1
             el = math.radians(float(self._u(1, *self.dr.light_elev)[0]))
             az = float(self._u(1, 0.0, 2 * math.pi)[0])
             d = (-math.cos(el) * math.cos(az), -math.cos(el) * math.sin(az), -math.sin(el))
         self.r.renderer.backend._camera.utils.create_default_light(self.r.shadows, direction=wp.vec3f(*d))
 
     @torch.no_grad()
-    def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None):
+    def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False):
+        """``keep``: keep the last call's random per-call state (class docstring)."""
         if self.real is not None:
-            return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light)
+            return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light, keep)
         from nedm.render.so101 import qmul, wxyz, xyzw
         t0 = time.time()
         nominal = dr is None
-        self._light(nominal if light is None else not light)
+        self._light(nominal if light is None else not light, keep)
         out = []
         for s in range(0, q.shape[0], self.num_worlds):
             e = min(q.shape[0], s + self.num_worlds)
@@ -776,7 +828,15 @@ class ViralConfig:
                                        # so the student's step size cannot follow the measured arm speed
     hist: int = 0                      # robot input history: [q, qdot] of the previous ``hist`` decisions (online path)
     lastcmd: bool = False              # real2sim: + the student's last executed command (module docstring, 12 inputs
-                                       # after the history; online loop, evaluation and robot; not the round files)
+                                       # after the history and the cmd input; online loop, evaluation and robot; not
+                                       # the round files; independent of ``cmd_in``)
+    # studentlab (2026-10-22; off by default, online path only): the student's own last command and its last images
+    cmd_in: bool = False               # + the previous decision's 5 EXECUTED targets (after the action layer) - the
+                                       #   measured q now, [5, 6] / cmd_scale (0 at an episode start; teacher-driven
+                                       #   worlds: the teacher's executed targets)
+    cmd_scale: tuple = CMD_SCALE       # rad per joint: the lead band (arm) and 0.1 rad (jaw)
+    img_hist: bool = False             # + the previous decision's images of both cameras through the same encoders
+                                       #   (the current images at an episode start)
     encoder: str = "resnet18"
     stages: int = 3
     keypoints: int = 32
@@ -815,10 +875,13 @@ class ViralConfig:
         bad = sorted(set(d) - known - {"note", "notes"})
         if bad:
             raise ValueError(f"unknown viral config keys {bad}")
-        for k in ("cameras", "hidden", "lag_range"):
+        for k in ("cameras", "hidden", "lag_range", "cmd_scale"):
             if k in d:
                 d[k] = tuple(d[k])
-        return ViralConfig(**{k: v for k, v in d.items() if k in known})
+        cfg = ViralConfig(**{k: v for k, v in d.items() if k in known})
+        if len(cfg.cmd_scale) != 6 or min(float(v) for v in cfg.cmd_scale) <= 0:
+            raise ValueError(f"cmd_scale {cfg.cmd_scale}: 6 positive values (rad)")
+        return cfg
 
     @property
     def lag_max(self):
@@ -826,8 +889,10 @@ class ViralConfig:
 
     @property
     def robot_dim(self):
-        """Length of the robot input vector: [q, qd] now + ``hist`` decisions before (12 each) + the last command."""
-        return 12 * (1 + int(self.hist)) + 12 * int(bool(getattr(self, "lastcmd", False)))
+        """Length of the robot input vector: [q, qd] now + ``hist`` decisions before (12 each), then the cmd input
+        (``cmd_in``: n_exec x 6), then the last command (``lastcmd``: 12)."""
+        return 12 * (1 + int(self.hist)) + (int(self.n_exec) * 6 if getattr(self, "cmd_in", False) else 0) + \
+            12 * int(bool(getattr(self, "lastcmd", False)))
 
 
 STAT_KEYS = ("robot_mean", "robot_std", "tgt_mean", "tgt_std", "aux_mean", "aux_std")
@@ -860,6 +925,23 @@ def lastcmd_zeros(B, device):
     return torch.zeros(int(B), 12, dtype=torch.float64, device=device)
 
 
+NEW_INPUT_KEYS = ("cmd_in", "cmd_scale", "img_hist")      # left out of saved configs while off (``cfg_dict``)
+ARCH_KEYS = ("hist", "cmd_in", "img_hist")                 # change the head's input: ``expand_student``
+
+
+def cfg_dict(cfg: ViralConfig) -> dict:
+    """The config as saved in checkpoints / meta files: ``asdict`` without the studentlab input options while they are
+    off (so a student without them stays readable by code that predates them); with any of them on, all are saved.
+    The same for the last-command input (``lastcmd``): no key while it is off."""
+    d = asdict(cfg)
+    if not cfg.cmd_in and not cfg.img_hist and tuple(cfg.cmd_scale) == CMD_SCALE:
+        for k in NEW_INPUT_KEYS:
+            d.pop(k, None)
+    if not d.get("lastcmd"):
+        d.pop("lastcmd", None)
+    return d
+
+
 class ViralNet(nn.Module):
     def __init__(self, cfg: ViralConfig, stats, pretrained=True):
         super().__init__()
@@ -868,7 +950,12 @@ class ViralNet(nn.Module):
         pc = PerStepConfig(encoder=cfg.encoder, stages=cfg.stages, keypoints=cfg.keypoints, pool_dim=cfg.pool_dim)
         self.enc = nn.ModuleList([Encoder(pc, pretrained) for _ in cfg.cameras])
         fd = sum(e.out_dim for e in self.enc)
-        layers, k = [], fd + 12 * (1 + int(cfg.hist))
+        self.fd = fd
+        self.n_cmd = int(cfg.n_exec) * 6 if getattr(cfg, "cmd_in", False) else 0
+        if self.n_cmd:
+            self.register_buffer("cmd_s", torch.tensor(cfg.cmd_scale, dtype=torch.float32).repeat(int(cfg.n_exec)),
+                                 persistent=False)
+        layers, k = [], fd + 12 * (1 + int(cfg.hist)) + self.n_cmd + (fd if getattr(cfg, "img_hist", False) else 0)
         for h in cfg.hidden:
             layers += [nn.Linear(k, h), nn.ELU()]
             k = h
@@ -891,9 +978,17 @@ class ViralNet(nn.Module):
         return (lc.float() / self.lastcmd_scale).clamp(-10, 10)
 
     def robot(self, robot, qd_scale=None):
-        """[B, 12 (1 + hist)] = [q, qd] now, then the previous decisions (newest first) -> normalised (+ qdot noise in
-        training on every qdot block; ``qd_scale`` [B]: per-sample factor on that noise, None = 1)."""
+        """[B, 12 (1 + hist) (+ 30 cmd)] = [q, qd] now, then the previous decisions (newest first), then (``cmd_in``)
+        the previous decision's executed targets - q now ([5, 6] flattened) -> normalised (+ qdot noise in training on
+        every qdot block; ``qd_scale`` [B]: per-sample factor on that noise, None = 1; the cmd part: / cmd_scale)."""
         H = 1 + int(self.cfg.hist)
+        nc = getattr(self, "n_cmd", 0)
+        if nc:
+            cmd = (robot[:, 12 * H:12 * H + nc] / self.cmd_s).clamp(-10, 10)
+            return torch.cat((ViralNet._robot(self, robot[:, :12 * H].contiguous(), H, qd_scale), cmd), -1)
+        return ViralNet._robot(self, robot, H, qd_scale)
+
+    def _robot(self, robot, H, qd_scale):
         if getattr(self.cfg, "qd_input_zero", False):
             robot = robot.view(-1, H, 12)
             robot = torch.cat((robot[..., :6], torch.zeros_like(robot[..., 6:])), -1)
@@ -905,23 +1000,58 @@ class ViralNet(nn.Module):
             r = torch.cat((r[..., :6], r[..., 6:] + n), -1)
         return r.reshape(-1, 12 * H)
 
-    def forward(self, images, robot, qd_scale=None):
-        f = self.features(images)
-        if not self.lastcmd:
-            return self.head(torch.cat((f, self.robot(robot, qd_scale).to(f.dtype)), -1).float()).view(
-                -1, self.cfg.chunk, 6), f
-        # lastcmd: robot = [q, qd, history (12 (1 + hist)), last command (12)]; the first layer's output + the
-        # last-command term (exactly + 0 while its weights are zero: the student it was expanded from, bit for bit)
-        n = 12 * (1 + int(self.cfg.hist))
+    def _split_lastcmd(self, robot):
+        """lastcmd students: robot [B, robot_dim] -> (the robot vector without the last command: [q, qd, history,
+        (cmd)], the raw last command [B, 12] = the last 12 values)."""
+        n = 12 * (1 + int(self.cfg.hist)) + int(getattr(self, "n_cmd", 0))
         if robot.shape[-1] != n + 12:
             raise ValueError(f"lastcmd student: robot input of {robot.shape[-1]} values, needs {n + 12}")
-        x = torch.cat((f, self.robot(robot[:, :n].contiguous(), qd_scale).to(f.dtype)), -1).float()
-        h = self.head[0](x)
-        h = h + self.lastcmd_in(self.lastcmd_norm(robot[:, n:n + 12])).to(h.dtype)
-        return self.head[1:](h).view(-1, self.cfg.chunk, 6), f
+        return robot[:, :n].contiguous(), robot[:, n:n + 12]
 
-    def loss(self, images, robot, tgt_n, valid, aux_n=None, qd_scale=None):
-        p, f = self(images, robot, qd_scale)
+    def _head(self, x, lc=None):
+        """The head on its input x [B, k] float32 -> [B, chunk, 6]; lastcmd: the first layer's output + the
+        last-command term of the raw last command ``lc`` (exactly + 0 while its weights are zero: the student it was
+        expanded from, bit for bit)."""
+        if not self.lastcmd:
+            return self.head(x).view(-1, self.cfg.chunk, 6)
+        h = self.head[0](x)
+        h = h + self.lastcmd_in(self.lastcmd_norm(lc)).to(h.dtype)
+        return self.head[1:](h).view(-1, self.cfg.chunk, 6)
+
+    def forward(self, images, robot, qd_scale=None, prev=None):
+        """``prev`` (``img_hist``): the previous decision's images [B, C, 3, H, W] (None: the current ones, as at an
+        episode start); both through the same encoders, the previous features appended to the head input.
+        ``robot`` = [q, qd, history (12 (1 + hist)), (cmd_in: n_exec x 6), (lastcmd: 12)] (``cfg.robot_dim``)."""
+        lc = None
+        if self.lastcmd:
+            robot, lc = self._split_lastcmd(robot)
+        if getattr(self.cfg, "img_hist", False):
+            B = images.shape[0]
+            if prev is None:
+                f = self.features(images)
+                fp = f
+            else:
+                both = self.features(torch.cat((images, prev.to(images)), 0))
+                f, fp = both[:B], both[B:]
+            x = torch.cat((f, self.robot(robot, qd_scale).to(f.dtype), fp), -1)
+            return self._head(x.float(), lc), f
+        f = self.features(images)
+        return self._head(torch.cat((f, self.robot(robot, qd_scale).to(f.dtype)), -1).float(), lc), f
+
+    def head_from_features(self, f, robot, fp=None):
+        """The normalised chunk [B, chunk, 6] from the encoder features ``f`` [B, fd] (``img_hist``: + ``fp``, the
+        previous decision's features; None = ``f``, as at an episode start) = ``forward`` without its encoder pass
+        (the robot caches the previous query's features: ``hw_lib.StudentPolicy``)."""
+        lc = None
+        if self.lastcmd:
+            robot, lc = self._split_lastcmd(robot)
+        parts = [f, self.robot(robot).to(f.dtype)]
+        if getattr(self.cfg, "img_hist", False):
+            parts.append(f if fp is None else fp.to(f.dtype))
+        return self._head(torch.cat(parts, -1).float(), lc)
+
+    def loss(self, images, robot, tgt_n, valid, aux_n=None, qd_scale=None, prev=None):
+        p, f = self(images, robot, qd_scale, prev)
         e = (p.float() - tgt_n).abs() * valid[..., None]
         l_act = e.sum() / (valid.sum() * 6).clamp_min(1)
         info = {"l_act": float(l_act.detach())}
@@ -934,8 +1064,8 @@ class ViralNet(nn.Module):
         return loss, info
 
     @torch.no_grad()
-    def predict(self, images, robot):
-        return self(images, robot)[0].float()
+    def predict(self, images, robot, prev=None):
+        return self(images, robot, prev=prev)[0].float()
 
     @torch.no_grad()
     def predict_aux(self, images):
@@ -945,23 +1075,49 @@ class ViralNet(nn.Module):
         return [p for e in self.enc if e.is_backbone for p in e.trunk.parameters() if p.requires_grad]
 
 
-def expand_hist(st: ViralNet, hist: int, device="cuda"):
-    """A student with ``hist`` decisions of robot history from one without (or with fewer): the same weights, zero
-    weights on the new history inputs of the head's first layer (so it starts as the given student)."""
+def head_layout(cfg: ViralConfig, fd: int) -> dict:
+    """Column ranges of the head's first layer: features now, robot [q, qd] (now + history), cmd, previous features."""
+    out, k = {}, 0
+    for name, n in (("feat", fd), ("robot", 12 * (1 + int(cfg.hist))),
+                    ("cmd", int(cfg.n_exec) * 6 if cfg.cmd_in else 0), ("feat_prev", fd if cfg.img_hist else 0)):
+        out[name] = (k, k + n)
+        k += n
+    return out
+
+
+def expand_student(st: ViralNet, hist=None, cmd_in=None, img_hist=None, device="cuda", cmd_scale=None):
+    """A student with more inputs (robot history ``hist``, the command input ``cmd_in``, the image history
+    ``img_hist``; None = keep) from the given one: the same weights, ZERO weights on the new inputs' columns of the
+    head's first layer, so the new student gives the same chunk as the given one on the same inputs (whatever the new
+    inputs are). Inputs cannot be removed. ``cmd_scale``: the cmd input scale of a NEW cmd input (default the
+    config's)."""
     from dataclasses import replace as _rep
-    old = int(st.cfg.hist)
-    if hist == old:
+    c0 = st.cfg
+    h1 = int(c0.hist) if hist is None else int(hist)
+    m1 = bool(c0.cmd_in) if cmd_in is None else bool(cmd_in)
+    i1 = bool(c0.img_hist) if img_hist is None else bool(img_hist)
+    if h1 < int(c0.hist) or (c0.cmd_in and not m1) or (c0.img_hist and not i1):
+        raise ValueError(f"cannot remove inputs: hist {c0.hist} -> {h1}, cmd_in {c0.cmd_in} -> {m1}, "
+                         f"img_hist {c0.img_hist} -> {i1}")
+    if cmd_scale is not None and c0.cmd_in and tuple(cmd_scale) != tuple(c0.cmd_scale):
+        raise ValueError("cmd_scale of an existing cmd input cannot change")
+    if (h1, m1, i1) == (int(c0.hist), bool(c0.cmd_in), bool(c0.img_hist)):
         return st
-    if hist < old:
-        raise ValueError("cannot shrink the history")
-    cfg = _rep(st.cfg, hist=int(hist))
+    kw = dict(hist=h1, cmd_in=m1, img_hist=i1)
+    if cmd_scale is not None:
+        kw["cmd_scale"] = tuple(float(v) for v in cmd_scale)
+    cfg = _rep(c0, **kw)
     new = ViralNet(cfg, {k: getattr(st, k) for k in STAT_KEYS}, pretrained=False).to(device)
     sd = st.state_dict()
     nd = new.state_dict()
+    lo, ln = head_layout(c0, st.fd), head_layout(cfg, new.fd)
     for k, v in sd.items():
         if k == "head.0.weight":
             w = torch.zeros_like(nd[k])
-            w[:, : v.shape[1]] = v
+            for seg, (a, b) in lo.items():
+                if b > a:
+                    a1 = ln[seg][0]
+                    w[:, a1:a1 + (b - a)] = v[:, a:b]
             nd[k] = w
         else:
             nd[k] = v
@@ -983,11 +1139,18 @@ def expand_lastcmd(st: ViralNet, device="cuda"):
     return new.train(st.training)
 
 
+def expand_hist(st: ViralNet, hist: int, device="cuda"):
+    """A student with ``hist`` decisions of robot history from one without (or with fewer): the same weights, zero
+    weights on the new history inputs of the head's first layer (so it starts as the given student)."""
+    if hist < int(st.cfg.hist):
+        raise ValueError("cannot shrink the history")
+    return expand_student(st, hist=hist, device=device)
+
+
 def save_student(st, path, **extra):
-    cfg = asdict(st.cfg)
-    if not cfg.get("lastcmd"):          # off: the old checkpoint layout (older code, e.g. a robot bundle, can load it)
-        cfg.pop("lastcmd", None)
-    torch.save(dict(cfg=cfg, state_dict=st.state_dict(), stats={k: getattr(st, k).cpu() for k in STAT_KEYS},
+    # cfg_dict: no lastcmd / cmd_in / cmd_scale / img_hist keys while they are off (the old checkpoint layout: older
+    # code, e.g. a robot bundle, can load it)
+    torch.save(dict(cfg=cfg_dict(st.cfg), state_dict=st.state_dict(), stats={k: getattr(st, k).cpu() for k in STAT_KEYS},
                     **extra), path)
 
 
@@ -1182,6 +1345,8 @@ class StudentSet:
         lag_parts, self.lag_exact = [], []
         for fi, p in enumerate(paths):
             z = np.load(Path(p).expanduser())
+            if "goal_jumps" in z.files and np.asarray(z["goal_jumps"]).any():
+                raise ValueError(f"{p}: episodes with goal jumps (StudentSet reads one goal per episode)")
             E = len(z["length"])
             if lag > 0:
                 if "row_lag" in z.files and z["row_lag"].shape[1] >= lag:
@@ -1313,6 +1478,8 @@ def train(data: StudentSet, views: DRViews, cfg: ViralConfig, out_dir, max_steps
     learning_curve.csv, last.pt}."""
     if getattr(cfg, "lastcmd", False):
         raise NotImplementedError("ViralConfig.lastcmd: the online loop only (round files have no executed targets)")
+    if cfg.cmd_in or cfg.img_hist:
+        raise ValueError("cmd_in / img_hist: the online loop only (round files have no executed targets or image links)")
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     cuda = torch.device(device).type == "cuda"
@@ -1335,7 +1502,7 @@ def train(data: StudentSet, views: DRViews, cfg: ViralConfig, out_dir, max_steps
     base = [g["lr"] for g in opt.param_groups]
     vgen = torch.Generator(device=device).manual_seed(cfg.seed + 1)
     vrows = data.sample(min(val_n, len(data.val_rows)), vgen, "val") if len(data.val_rows) else None
-    meta = dict(cfg=asdict(cfg), files=data.paths, n_eps=data.n_eps, rows=data.n_rows, train_rows=len(data.train_rows),
+    meta = dict(cfg=cfg_dict(cfg), files=data.paths, n_eps=data.n_eps, rows=data.n_rows, train_rows=len(data.train_rows),
                 init_from=str(init_from or ""), **(extra_meta or {}))
     (out / "meta.json").write_text(json.dumps(meta, indent=1, default=str))
     f = open(out / "learning_curve.csv", "w", newline="")
@@ -1447,13 +1614,21 @@ class Actor:
     second decision raises); 0 = off. ``qd_log``: that input per decision ([B, 6] float32 on the CPU; evaluation rows
     ``row_qd_input``).
 
-    Last-command input (``student.cfg.lastcmd``): set ``env`` (the ``JointVecEnv`` that ``run_tasks`` steps) before the
-    episodes; the first decision after ``reset`` gets 0, every later one ``lastcmd_raw`` of ``env.u_exe`` (the targets
-    of the decision before, after the action layer); a decision without exactly one ``env.step`` since the last one
-    raises."""
+    Last-command input (``student.cfg.lastcmd``): set ``env`` (``bind(env)``: the ``JointVecEnv`` that ``run_tasks``
+    steps) before the episodes; the first decision after ``reset`` gets 0, every later one ``lastcmd_raw`` of
+    ``env.u_exe`` (the targets of the decision before, after the action layer); a decision without exactly one
+    ``env.step`` since the last one raises.
+
+    Studentlab inputs: ``cfg.cmd_in`` needs the env (``bind(env)``: its ``u_exe``, the targets the action layer
+    executed in the last decision); ``cfg.img_hist`` keeps the last decision's rendered images. Both start from zero /
+    the current images at the first call after ``reset``. ``light_redraw_p`` < 1 (randomised visuals): per decision
+    the probability of a new per-call render state (random light and intrinsics, ``DRViews.render(keep=)``), else the
+    last one stays (the robot's frames share light and intrinsics); an image-history student gets the current images
+    as its previous ones when the state changed (as ``OnlineDAgger``). 1 = a new draw every decision (the old
+    behaviour)."""
 
     def __init__(self, student: ViralNet, views: DRViews, randomise=False, jaw_lead=None, device="cuda", lag=None,
-                 lag_range=None, seed=0, qd_window=0):
+                 lag_range=None, seed=0, qd_window=0, light_redraw_p=1.0):
         self.st, self.views, self.dev = student, views, torch.device(device)
         self.randomise = bool(randomise)
         self.jaw_lead = student.cfg.jaw_lead if jaw_lead is None else int(jaw_lead)
@@ -1471,12 +1646,28 @@ class Actor:
         self.hist = None
         self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 4243)
         self.q_offset = None    # [6] rad: robot input q + q_offset and targets in that frame (JointVecEnv.set_table)
+        self.env = None         # cmd_in / lastcmd: the env whose u_exe holds the last decision's executed targets
+                                # (``bind``)
         self.lastcmd = bool(getattr(student.cfg, "lastcmd", False))
-        self.env = None         # lastcmd: the env stepped by the caller (its u_exe)
         self.lc_dec = None      # lastcmd: env.decisions at the last decision (None: an episode start)
+        self.n_dec = 0          # decisions since ``reset``
+        self.prev_rgb = None    # img_hist: the last decision's rendered images
+        self.light_redraw_p = float(light_redraw_p)
+        if not 0.0 <= self.light_redraw_p <= 1.0:
+            raise ValueError(f"light_redraw_p {light_redraw_p}: a probability in [0, 1]")
+        self.redraw_gen = torch.Generator().manual_seed(int(seed) + 4249) if self.light_redraw_p < 1.0 else None
+        self.call_id = None     # the views' per-call state id at the last decision
+        self.state_changes = 0  # decisions (after the first) whose per-call render state differs from the last one
+
+    def bind(self, env):
+        self.env = env
+        return self
 
     def reset(self, B):
         self.dr = self.views.draw(B) if self.randomise else None
+        self.n_dec = 0
+        self.prev_rgb = None
+        self.call_id = None
         self.rhist = None
         self.qd_hist = None
         self.qd_log = []
@@ -1513,7 +1704,15 @@ class Actor:
                 raise RuntimeError("image lag: the 20 ms states are missing (run the episodes inside step_tap(env, "
                                    "actor.push))")
             iq, icp, icq = self.hist.get(self.k)
-        rgb = self.views.render(iq, icp, icq, goal_pose.to(self.dev, torch.float32), dr=self.dr)
+        kw = {}
+        if self.redraw_gen is not None and self.dr is not None and self.n_dec > 0 and \
+                bool(torch.rand(1, generator=self.redraw_gen) >= self.light_redraw_p):
+            kw["keep"] = True                             # the last decision's random light / intrinsics stay
+        rgb = self.views.render(iq, icp, icq, goal_pose.to(self.dev, torch.float32), dr=self.dr, **kw)
+        cid = getattr(self.views, "call_id", None)
+        changed = cid is not None and self.call_id is not None and cid != self.call_id
+        self.call_id = cid
+        self.state_changes += int(changed)
         img = to_input(rgb, fx=self.views.fx)
         if self.dev.type == "cuda":
             torch.cuda.synchronize()
@@ -1540,12 +1739,30 @@ class Actor:
             now = robot
             robot = torch.cat((now, self.rhist.reshape(len(now), -1)), -1)
             self.rhist = torch.cat((now[:, None, :], self.rhist[:, :-1]), 1)
-        if self.lastcmd:                # the student's last executed command (0 at the episode start)
+        if getattr(self.st.cfg, "cmd_in", False):      # the last decision's executed targets - the measured q now
+            if self.env is None:
+                raise RuntimeError("cmd_in: bind the env (Actor.bind(env)) for its executed targets")
+            u = getattr(self.env, "u_exe", None)
+            qm = ws.q.to(self.dev, torch.float32).nan_to_num()
+            if self.n_dec == 0 or u is None:
+                cmd = torch.zeros(len(q), int(self.st.cfg.n_exec) * 6, device=self.dev)
+            else:
+                cmd = (u.to(self.dev, torch.float32) - qm[:, None, :]).nan_to_num().reshape(len(q), -1)
+            robot = torch.cat((robot, cmd), -1)
+        if self.lastcmd:                # the student's last executed command (0 at the episode start; after cmd)
             robot = torch.cat((robot, self.lastcmd_input(ws).to(robot)), -1)
+        prev = None
+        if getattr(self.st.cfg, "img_hist", False):    # the last decision's images (the current ones at the first
+            own = self.prev_rgb is None or changed      # call and after a change of the per-call render state)
+            prev = img if own else to_input(self.prev_rgb, fx=self.views.fx)
+            self.prev_rgb = rgb
         out = []
         for s in range(0, img.shape[0], 256):
             with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=self.st.cfg.amp):
-                out.append(denormalise(self.st, self.st.predict(img[s:s + 256], robot[s:s + 256])))
+                p_ = self.st.predict(img[s:s + 256], robot[s:s + 256]) if prev is None else \
+                    self.st.predict(img[s:s + 256], robot[s:s + 256], prev[s:s + 256])
+                out.append(denormalise(self.st, p_))
+        self.n_dec += 1
         delta = torch.cat(out)
         if self.dev.type == "cuda":
             torch.cuda.synchronize()
@@ -1563,7 +1780,8 @@ class Actor:
         """[B, 12] float64 raw last-command input of this decision (``lastcmd_raw``; class docstring)."""
         e = self.env
         if e is None:
-            raise RuntimeError("lastcmd student: set actor.env = the JointVecEnv that runs the episodes")
+            raise RuntimeError("lastcmd student: set actor.env (Actor.bind(env)) = the JointVecEnv that runs the "
+                               "episodes")
         B = ws.q.shape[0]
         if self.lc_dec is None:
             out = lastcmd_zeros(B, self.dev)
@@ -1644,6 +1862,18 @@ class OnlineConfig:
     # the student must have the last-command input (``ViralConfig.lastcmd``, e.g. --config viral_r2s_v1_lastcmd.json):
     # a guard against a launch with the wrong student config (the input itself follows the student's config)
     require_lastcmd: bool = False
+    # studentlab (2026-10-22): goal jumps in the online env (``JE.GoalJumpConfig`` dict; {} = off): the goal moves
+    # while the cube is held near it, so the cube is past (or before) the new goal; the rendered goal, the JT
+    # observation and the aux targets read the moved goal from the next decision on; the sample of the decision
+    # before a jump gets no second-half label (``valid2`` False: its images showed the old goal)
+    goal_jump: dict = field(default_factory=dict)
+    # studentlab review (2026-10-23): per decision the probability of a NEW per-call render state (the light choice
+    # ``default_light_p``, the random lights and the random intrinsics; one state for all worlds of a call); else the
+    # last decision's state stays (``DRViews.render(keep=)``). 1 = a new draw every decision (the old behaviour). For
+    # the image history (``ViralConfig.img_hist``): the robot's consecutive frames share light and intrinsics, so a
+    # pair of images should as well; when the state changes, the decision's previous images are its current ones
+    # (acting) and its buffer link is cut (training), as at an episode start. Also used by the in-run evaluation.
+    light_redraw_p: float = 1.0
 
     @staticmethod
     def from_dict(d):
@@ -1656,17 +1886,31 @@ class OnlineConfig:
             d["lag_range"] = tuple(int(v) for v in d["lag_range"])
             if len(d["lag_range"]) != 2 or not 0 <= d["lag_range"][0] <= d["lag_range"][1]:
                 raise ValueError(f"online lag_range {d['lag_range']}: (lo, hi) control steps, 0 <= lo <= hi")
+        if d.get("goal_jump"):
+            JE.goal_jump_config(d["goal_jump"])                                # validate now
+        if "light_redraw_p" in d and not 0.0 <= float(d["light_redraw_p"]) <= 1.0:
+            raise ValueError(f"light_redraw_p {d['light_redraw_p']}: a probability in [0, 1]")
         return OnlineConfig(**{k: v for k, v in d.items() if k in known})
 
 
 class ReplayBuffer:
     """Ring buffer of student samples on one device: rgb uint8 [C, cams, H, W, 3], q, qd, labels of this decision
     and of the next one (absolute targets [5, 6] each; ``valid2`` = the next decision is in the same episode), aux
-    targets, and whether per-image colour augmentation applies (``aug``: not for nominal-slot samples)."""
+    targets, and whether per-image colour augmentation applies (``aug``: not for nominal-slot samples).
 
-    def __init__(self, cap, cams, res, device, robot_dim=12):
+    ``prev_link`` (image history, ``ViralConfig.img_hist``): per sample the slot of the same world's previous-decision
+    sample (``prev``; -1 = none: an episode start) and that sample's id (``prev_sid``); every sample gets a running id
+    (``sid``). ``prev_valid(i)``: the previous sample exists (same episode) and its slot was not overwritten since."""
+
+    def __init__(self, cap, cams, res, device, robot_dim=12, prev_link=False):
         f = dict(device=device)
         self.cap, self.n, self.ptr = int(cap), 0, 0
+        self.sid = self.prev = self.prev_sid = None
+        if prev_link:
+            self.sid = torch.full((self.cap,), -1, dtype=torch.long, **f)
+            self.prev = torch.full((self.cap,), -1, dtype=torch.long, **f)
+            self.prev_sid = torch.full((self.cap,), -1, dtype=torch.long, **f)
+            self.count = 0
         self.rgb = torch.zeros(self.cap, cams, res, res, 3, dtype=torch.uint8, **f)
         self.q = torch.zeros(self.cap, 6, **f)
         self.robot = torch.zeros(self.cap, robot_dim, **f)
@@ -1676,18 +1920,38 @@ class ReplayBuffer:
         self.aux = torch.zeros(self.cap, AUX_DIM, **f)
         self.aug = torch.zeros(self.cap, dtype=torch.bool, **f)
 
-    def add(self, rgb, q, robot, lab, aux, aug):
+    def add(self, rgb, q, robot, lab, aux, aug, prev=None):
+        """-> the slots [n]. ``prev`` [n] long (``prev_link``): slots of the same worlds' previous samples (-1: none)."""
         n = rgb.shape[0]
         idx = (self.ptr + torch.arange(n, device=rgb.device)) % self.cap
+        if self.sid is not None:          # read the previous samples' ids BEFORE this write may overwrite them
+            p = torch.full((n,), -1, dtype=torch.long, device=rgb.device) if prev is None else \
+                prev.to(rgb.device, torch.long)
+            psid = torch.where(p >= 0, self.sid[p.clamp_min(0)], torch.full_like(p, -1))
         self.rgb[idx], self.q[idx], self.robot[idx], self.lab1[idx] = rgb, q.float(), robot.float(), lab.float()
         self.valid2[idx] = False
         self.aux[idx], self.aug[idx] = aux.float(), aug
+        if self.sid is not None:
+            self.sid[idx] = self.count + torch.arange(n, device=rgb.device)
+            self.count += n
+            self.prev[idx], self.prev_sid[idx] = p, psid
         self.ptr = int((self.ptr + n) % self.cap)
         self.n = min(self.cap, self.n + n)
         return idx
 
     def sample(self, b, gen=None):
         return torch.randint(self.n, (int(b),), device=self.rgb.device, generator=gen)
+
+    def prev_valid(self, i):
+        """[len(i)] bool: sample i has its world's previous-decision sample in the buffer (same episode, not
+        overwritten)."""
+        p = self.prev[i]
+        return (self.prev_sid[i] >= 0) & (self.sid[p.clamp_min(0)] == self.prev_sid[i])
+
+    def prev_rgb(self, i):
+        """The previous-decision images of samples i (their own images where ``prev_valid`` is False)."""
+        ok = self.prev_valid(i)
+        return torch.where(ok[:, None, None, None, None], self.rgb[self.prev[i].clamp_min(0)], self.rgb[i]), ok
 
 
 class OnlineDAgger:
@@ -1700,15 +1964,16 @@ class OnlineDAgger:
     in the acting input and the buffer's robot vector (``ViralConfig.robot_dim``)."""
 
     def __init__(self, st: ViralNet, jt, tasks, nrd_ckpt, views: DRViews, ocfg: OnlineConfig, device="cuda", seed=0,
-                 log=log_default):
+                 log=log_default, world="nrd"):
+        """``world``: the online env's world (``nrd``; tests: ``kin``)."""
         if ocfg.require_lastcmd and not getattr(st.cfg, "lastcmd", False):
             raise ValueError("online config require_lastcmd: the student has no last-command input "
                              "(ViralConfig.lastcmd; --config viral_r2s_v1_lastcmd.json)")
         self.st, self.jt, self.views, self.o, self.dev, self.log = st, jt, views, ocfg, torch.device(device), log
         N = int(ocfg.envs)
-        cfg = JE.JointEnvConfig(world="nrd", num_envs=N, device=device, ckpts=[str(nrd_ckpt)], auto_reset=True,
+        cfg = JE.JointEnvConfig(world=world, num_envs=N, device=device, ckpts=[str(nrd_ckpt)], auto_reset=True,
                                 stagger=True, starts="", seed=seed, horizon=int(ocfg.horizon), dyn=ocfg.dyn or None,
-                                pause=ocfg.pause or None,
+                                pause=ocfg.pause or None, goal_jump=ocfg.goal_jump or None,
                                 **JE.hold_cap_kw(ocfg.hold_cap_s, ocfg.hold_obs_s))
         self.env = JE.JointVecEnv(cfg, jt.codec)
         f64 = dict(dtype=torch.float64, device=self.dev)
@@ -1726,11 +1991,23 @@ class OnlineDAgger:
             self.env.dyn.set_eligible(~self.teacher)
         self.nominal = torch.rand(N, device=self.dev, generator=self.gen) < ocfg.nominal_share
         self.H = int(st.cfg.hist)
-        self.LC = bool(getattr(st.cfg, "lastcmd", False))
+        self.n_cmd = int(st.cfg.n_exec) * 6 if getattr(st.cfg, "cmd_in", False) else 0     # cmd input (studentlab)
+        self.img_hist = bool(getattr(st.cfg, "img_hist", False))                       # image history (studentlab)
+        self.LC = bool(getattr(st.cfg, "lastcmd", False))                              # last-command input (real2sim)
         self.lc_fresh = torch.ones(N, dtype=torch.bool, device=self.dev)    # lastcmd: no command yet in the episode
-        self.buf = ReplayBuffer(ocfg.buffer, len(st.cfg.cameras), st.cfg.res, self.dev, st.cfg.robot_dim)
+        # robot vector [q, qd, history, (cmd), (lastcmd)] = 12 (1 + H) + n_cmd + 12 LC (ViralConfig.robot_dim)
+        self.buf = ReplayBuffer(ocfg.buffer, len(st.cfg.cameras), st.cfg.res, self.dev, st.cfg.robot_dim,
+                                prev_link=self.img_hist)
         self.rhist = torch.zeros(N, max(self.H, 1), 12, device=self.dev)
-        self.fresh = torch.ones(N, dtype=torch.bool, device=self.dev)
+        self.fresh = torch.ones(N, dtype=torch.bool, device=self.dev)            # the next decision starts an episode
+        self.prev_rgb = None                                                     # img_hist: the last decision's images
+        self.last = {}                                                           # the last decision's inputs (tests)
+        self.light_prev = None                                                   # light_redraw_p < 1: the last light
+        self.redraw_gen = torch.Generator().manual_seed(int(seed) + 919) if float(ocfg.light_redraw_p) < 1.0 else None
+        self.call_id = None                                                      # the views' per-call state id
+        if self.img_hist and self.redraw_gen is None and getattr(views, "call_id", None) is not None:
+            log("NOTE: img_hist with light_redraw_p 1: a new light / intrinsics draw at most decisions, so most image "
+                "pairs are cut (previous images = current ones); light_redraw_p 0.1 keeps ~91 % of them")
         self.kmax = int(st.cfg.lag_max)
         self.lag_hist = LagHistory(N, self.kmax, self.dev) if self.kmax > 0 else None
         lo, hi = (int(v) for v in st.cfg.lag_range)
@@ -1764,6 +2041,10 @@ class OnlineDAgger:
         self.it = 0
         self.samples = 0
         self.stats = dict(ep_student=0, len_student=0, ep_teacher=0, len_teacher=0)
+        if self.env.goal_jump is not None:      # episodes with >= 1 goal jump (and their lenient successes)
+            self.stats.update(ep_jump_student=0, len_jump_student=0, ep_jump_teacher=0, len_jump_teacher=0)
+        if self.img_hist:                       # in-episode image pairs, and those with the same per-call render state
+            self.stats.update(img_pairs=0, img_pairs_same=0)
 
     def _lag_reset(self, idx):
         """Episode start of worlds ``idx`` (the env already holds their start states): lag draw, history = start."""
@@ -1826,6 +2107,11 @@ class OnlineDAgger:
             out.update(self.env.pause.summary())
         if self.qd_hist is not None:
             out["qd_robot"] = round(float(self.qd_rob.float().mean()), 3)
+        if self.env.goal_jump is not None:
+            out.update(self.env.goal_jump.summary())
+        if self.img_hist:       # in-episode image pairs since the last log row: the share with the same light etc.
+            n = self.stats.get("img_pairs", 0)
+            out["img_pair_same"] = round(self.stats.get("img_pairs_same", 0) / n, 4) if n else float("nan")
         return out
 
     def _draw(self, idx):
@@ -1886,38 +2172,65 @@ class OnlineDAgger:
         T["jt"] = time.time() - t0
         t1 = time.time()
         light = bool(torch.rand(1, device=self.dev, generator=self.gen) >= o.default_light_p)
+        kw = {}
+        if self.redraw_gen is not None:   # light_redraw_p < 1: the last decision's per-call state stays unless redrawn
+            if self.light_prev is not None and bool(torch.rand(1, generator=self.redraw_gen) >= o.light_redraw_p):
+                light, kw = self.light_prev, dict(keep=True)
+            self.light_prev = light
         icp = cp
         if self.lag_hist is not None:                     # the images lag; q, qd, the labels stay current
             iq, icp, icq = self.lag_hist.get(self.lagk)
-            rgb = self.views.render(iq, icp, icq, gp, dr=self.dr, light=light)
+            rgb = self.views.render(iq, icp, icq, gp, dr=self.dr, light=light, **kw)
         else:
-            rgb = self.views.render(qf, cp, cq, gp, dr=self.dr, light=light)
+            rgb = self.views.render(qf, cp, cq, gp, dr=self.dr, light=light, **kw)
+        cid = getattr(self.views, "call_id", None)
+        same_call = cid is None or self.call_id is None or cid == self.call_id     # the last decision's light etc.
+        self.call_id = cid
         torch.cuda.synchronize() if self.dev.type == "cuda" else None
         T["render"] = time.time() - t1
         t2 = time.time()
         stud = ~self.teacher if self.it >= o.warm_teacher_only else torch.zeros_like(self.teacher)
         qd = self.qd_input(ws.qd.float().nan_to_num())                         # robot-like qdot in the qd_rob worlds
         now = torch.cat((qf + self.qb if self.qb_h is not None else qf, qd), -1)   # [N, 12] (q input offset)
+        fr = self.fresh
         if self.H:
-            fr = self.fresh
             self.rhist[fr] = now[fr][:, None, :].expand(-1, self.H, -1)
             robot_all = torch.cat((now, self.rhist.reshape(len(now), -1)), -1)
         else:
             robot_all = now
-        if self.LC:                     # the last executed command (every slot; 0 at the start, non-finite worlds)
+        if self.n_cmd:      # the last decision's executed targets (student or JT) - the measured q now; 0 at a start
+            if env.u_exe is None:
+                cmd = torch.zeros(len(now), self.n_cmd, device=self.dev)
+            else:
+                cmd = (env.u_exe.to(self.dev, torch.float32) - qf[:, None, :]).nan_to_num().reshape(len(now), -1)
+                cmd = torch.where(fr[:, None], torch.zeros_like(cmd), cmd)
+            robot_all = torch.cat((robot_all, cmd), -1)
+        if self.LC:                     # the last executed command (every slot; 0 at the start, non-finite worlds;
+                                        # after cmd)
             lc = torch.where(ok[:, None], self.lastcmd_input(q), torch.zeros(1, 12, dtype=torch.float64,
                                                                               device=self.dev))
             robot_all = torch.cat((robot_all, lc.to(robot_all)), -1)
             self.lc_fresh = torch.zeros_like(self.lc_fresh)
+        prgb = None
+        if self.img_hist:   # the last decision's images of the same episode (an episode start, or a new per-call render
+            own = fr if same_call else torch.ones_like(fr)                         # state: the current ones)
+            prgb = rgb if self.prev_rgb is None else torch.where(own[:, None, None, None, None], rgb, self.prev_rgb)
+            if self.prev_rgb is not None:
+                self.stats["img_pairs"] += int((~fr).sum())
+                self.stats["img_pairs_same"] += int((~fr).sum()) if same_call else 0
+        self.last = dict(robot=robot_all, fresh=fr.clone(), prev_rgb=prgb, rgb=rgb, goal_pose=gp, aux_cp=icp)
         if bool(stud.any()):
             si = stud.nonzero().flatten()
             st.eval()
             img = to_input(rgb[si], fx=self.views.fx)
+            pimg = to_input(prgb[si], fx=self.views.fx) if prgb is not None else None
             robot = robot_all[si]
             out = []
             for s in range(0, len(si), 256):
                 with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=st.cfg.amp):
-                    out.append(denormalise(st, st.predict(img[s:s + 256], robot[s:s + 256])))
+                    p_ = st.predict(img[s:s + 256], robot[s:s + 256]) if pimg is None else \
+                        st.predict(img[s:s + 256], robot[s:s + 256], pimg[s:s + 256])
+                    out.append(denormalise(st, p_))
             st.train()
             u = qf[si][:, None, :] + torch.cat(out)
             K, n = u.shape[1], st.cfg.n_exec
@@ -1929,15 +2242,22 @@ class OnlineDAgger:
         live = ok
         pv = self.prev_slot
         has = (pv >= 0) & live
+        if env.goal_jump is not None:     # the goal moved since the previous sample: no second-half label for it
+            has = has & ~env.goal_jump.just
         if bool(has.any()):
             self.buf.lab2[pv[has]] = lab[has].float()
             self.buf.valid2[pv[has]] = True
         idx = live.nonzero().flatten()
         aux = aux_targets(gp[idx], icp[idx])
-        slots = self.buf.add(rgb[idx], qf[idx], robot_all[idx], lab[idx], aux, ~self.nominal[idx])
+        plink = None
+        if self.img_hist:     # the link to the previous sample (cut when the per-call render state changed)
+            plink = pv[idx] if same_call else torch.full_like(pv[idx], -1)
+        slots = self.buf.add(rgb[idx], qf[idx], robot_all[idx], lab[idx], aux, ~self.nominal[idx], prev=plink)
         if self.H:
             self.rhist = torch.cat((now[:, None, :], self.rhist[:, :-1]), 1)
-            self.fresh = torch.zeros_like(self.fresh)
+        self.fresh = torch.zeros_like(self.fresh)
+        if self.img_hist:
+            self.prev_rgb = rgb
         self.prev_slot = torch.full_like(self.prev_slot, -1)
         self.prev_slot[idx] = slots
         self.samples += len(idx)
@@ -1957,6 +2277,12 @@ class OnlineDAgger:
             self.stats["len_teacher"] += int((le & ts).sum())
             self.stats["ep_student"] += int((~ts).sum())
             self.stats["len_student"] += int((le & ~ts).sum())
+            if "goal_jumps" in ep:
+                jm = ep["goal_jumps"][di] > 0
+                self.stats["ep_jump_teacher"] += int((jm & ts).sum())
+                self.stats["len_jump_teacher"] += int((jm & le & ts).sum())
+                self.stats["ep_jump_student"] += int((jm & ~ts).sum())
+                self.stats["len_jump_student"] += int((jm & le & ~ts).sum())
             self._draw(di)
             self._lag_reset(di)
             self._bias_reset(di)
@@ -1980,8 +2306,19 @@ class OnlineDAgger:
             rgb = self.buf.rgb[i]
             aug = self.buf.aug[i]
             fx = self.views.fx
+            if self.img_hist:         # the previous images get the SAME per-image augmentation draws as the current
+                gs = self.gen.get_state()
             img = to_input(rgb, self.drc, self.gen, fx=fx)
             img = torch.where(aug[:, None, None, None, None], img, to_input(rgb, fx=fx, fx_random=False))
+            pimg = None
+            if self.img_hist:
+                ge = self.gen.get_state()
+                prgb, pok = self.buf.prev_rgb(i)
+                info_sum["prev_ok"] = info_sum.get("prev_ok", 0.0) + float(pok.float().mean())
+                self.gen.set_state(gs)
+                pimg = to_input(prgb, self.drc, self.gen, fx=fx)
+                pimg = torch.where(aug[:, None, None, None, None], pimg, to_input(prgb, fx=fx, fx_random=False))
+                self.gen.set_state(ge)
             q = self.buf.q[i]
             tgt = torch.cat((self.buf.lab1[i], self.buf.lab2[i]), 1)[:, :st.cfg.chunk] - q[:, None, :]
             valid = torch.cat((torch.ones(len(i), JE.STEPS, dtype=torch.bool, device=self.dev),
@@ -1996,7 +2333,7 @@ class OnlineDAgger:
             aux_n = (self.buf.aux[i] - st.aux_mean) / st.aux_std
             qs = self.qd_noise_scale(len(i))
             with torch.autocast(self.dev.type, dtype=torch.bfloat16, enabled=st.cfg.amp):
-                loss, info = st.loss(img, robot, normalise(st, tgt), valid, aux_n, qd_scale=qs)
+                loss, info = st.loss(img, robot, normalise(st, tgt), valid, aux_n, qd_scale=qs, prev=pimg)
             self.opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(st.parameters(), st.cfg.grad_clip)
