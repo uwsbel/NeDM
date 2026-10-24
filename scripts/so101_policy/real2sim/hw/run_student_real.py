@@ -1167,8 +1167,9 @@ def main(argv=None):
                     "--table-plane below the calibrated plane (not --q-offset-deg in plane mode)")
     ap.add_argument("--table-z", type=float, default=0.0, help="flat floor: real table top z in the arm base frame (m)")
     ap.add_argument("--table-plane", default="", help="plane floor: 'calib' (calib_v1 scene.table_plane, the measured "
-                    "real table) or c0,c1,c2 (m; z = c0 + c1 x + c2 y); the action-layer floor and the guard's floor "
-                    "checks then measure above that plane (--floor-mode)")
+                    "real table) or c0,c1,c2 (m; z = c0 + c1 x + c2 y; a value that starts with '-' needs the = form: "
+                    "--table-plane=-0.0047,-0.0364,0.0184); the action-layer floor and the guard's floor checks then "
+                    "measure above that plane (--floor-mode)")
     ap.add_argument("--guard", default="", help="GuardConfig overrides as JSON")
     ap.add_argument("--thumb-res", type=int, default=112, help="logged student input images (px; 0 = full)")
     ap.add_argument("--out", default="", help="output folder (default ~/so101_r2s_claude/hw/<mode>_<time>)")

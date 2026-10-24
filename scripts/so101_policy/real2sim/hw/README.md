@@ -46,8 +46,8 @@ script reads the mode from the checkpoint (`v8_online.table_bias` present with p
 Plane mode measures the floor stops above the plane, so the flat eval stops (-15 / -20 mm) on top of the plane would
 put them 15-20 mm into the mat (double lowering): live refuses plane-mode stops deeper than 5 mm (command) / 8 mm
 (measured). Live also refuses, in plane mode: a `--table-plane c0,c1,c2` that is more than 1 mm below the calibrated
-plane anywhere on r 0.15-0.27 m, +-90 deg (`--allow-floor-mismatch` overrides), and any `--q-offset-deg` (no
-override). The mat plane is measured in the plain calib_v1 joint frame; the table-tilt correction `live-tilt` /
+plane anywhere on r 0.15-0.27 m, +-90 deg (`--allow-floor-mismatch` overrides; write a negative c0 with the = form,
+`--table-plane=-0.0047,-0.0364,0.0184`), and any `--q-offset-deg` (no override). The mat plane is measured in the plain calib_v1 joint frame; the table-tilt correction `live-tilt` /
 `--q-offset-deg 0,-2.086,0,0,0` turns the arm frame against it, so the floor and the floor checks see the gripper
 3.7-10 mm too high and the floor goes 2-8.5 mm into the mat. **live-tilt and `--q-offset-deg` are for flat students
 only**; `robot_test.sh live-tilt` refuses a plane bundle. The plane floor is not used for the flat students: they were trained with the floor at sim z 0, and
