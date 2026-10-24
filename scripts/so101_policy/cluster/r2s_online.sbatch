@@ -11,7 +11,8 @@
 #   may name a teacher checkpoint that its dependency writes)
 #   Round v8 student variants (C_T ... S_TVLH): configs/so101_policy/vision/viral_r2s_v8_variants.json gives per
 #   variant R2S_SCENE (scene.amd), STUDENT_CFG, ONLINE_CFG and INIT (init.amd); REPO=<another synced copy> runs that
-#   copy's code (r2s_env.sh, always sourced from $R2S/repo, keeps a given REPO: REPO=${REPO:-$R2S/repo})
+#   copy's code and sources that copy's r2s_env.sh (REPO unset: $R2S/repo, as before), e.g.
+#   sbatch --export=ALL,REPO=$R2S/repo_v8,... $R2S/repo_v8/scripts/so101_policy/cluster/r2s_online.sbatch
 #SBATCH -J r2s-online
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x
@@ -19,7 +20,7 @@
 #SBATCH -t 03:45:00
 #SBATCH -o /work1/dannegrut/harry/so101_r2s_claude/logs/%x_%j.out
 set -uo pipefail
-set +u; source /work1/dannegrut/harry/so101_r2s_claude/repo/scripts/so101_policy/cluster/r2s_env.sh; set -u
+set +u; source "${REPO:-/work1/dannegrut/harry/so101_r2s_claude/repo}/scripts/so101_policy/cluster/r2s_env.sh"; set -u
 cd "$REPO"
 INIT=${INIT:-$R2S/runs/v1_start_s0/r2/last.pt}
 RUN=${RUN:-$R2S/runs/v1_online_s16}
