@@ -46,6 +46,12 @@ Real2sim (``~/so101_r2s_claude/docs/integrate.md``; all OFF by default, old conf
   (training: ``lag_range``). ``LagHistory`` keeps the states, ``step_tap`` feeds it from any ``JointVecEnv.step``
   caller (``joint_teacher.run_tasks``); round files record the states (``row_lag``, ``lag_rows``; a lag above
   ``LAG_REC`` reaches into the decisions before).
+- Image latency v8 (``OnlineConfig.img_lag`` -> ``ImgLagConfig``, 2026-10-23, off by default; measurement
+  ~/so101_r2s_claude/v8/latency/: scripts/lag_fit.py, lag_dist.py -> lag_fit.json, lag_boot.json, lag_dist.json; the
+  robot's images are 28-62 ms older than its joint reading, new every query, independent per camera): in the online
+  loop a lag in ms per world (or per camera: one render call each), drawn at the episode start and again per decision
+  with ``redraw_p``, the images rendered from the state interpolated between the 20 ms states and the goal of then
+  (``LagHistory(goal=True).at``); replaces the integer lag in that loop.
 Studentlab (2026-10-22, ~/so101_studentlab_claude/trials/BUILD.md; all OFF by default, old configs, checkpoints and
 results bit for bit unchanged): ``ViralConfig.cmd_in`` (the previous decision's 5 executed targets - the measured q
 now, / ``cmd_scale``, appended to the robot vector), ``ViralConfig.img_hist`` (the previous decision's images through
@@ -1278,18 +1284,30 @@ def _sane(q, cp, cq, dev):
 
 class LagHistory:
     """Per world the states of the last ``kmax`` control steps (index 0 = now): ``fill`` at an episode start (the arm
-    at rest: every entry = the start state), ``push`` after every 20 ms step, ``get(k)`` [B] -> (q, cube pos, quat)."""
+    at rest: every entry = the start state), ``push`` after every 20 ms step, ``get(k)`` [B] -> (q, cube pos, quat).
 
-    def __init__(self, B, kmax, device):
+    ``goal`` (``ImgLagConfig``, real2sim v8): also the goal pose [x, y, yaw] of every entry (``fill`` / ``push`` then
+    need it), and ``at(lag, goal_now)``: the state a real-valued ``lag`` back (interpolated) with the goal of then."""
+
+    def __init__(self, B, kmax, device, goal=False):
         self.x = torch.zeros(B, int(kmax) + 1, 13, device=device)
+        self.g = torch.zeros(B, int(kmax) + 1, 3, device=device) if goal else None
         self.ready = False
 
-    def fill(self, idx, q, cp, cq):
+    def fill(self, idx, q, cp, cq, goal=None):
         self.x[idx] = _state13(q, cp, cq).to(self.x)[:, None].expand(-1, self.x.shape[1], -1)
+        if self.g is not None:
+            if goal is None:
+                raise ValueError("LagHistory(goal=True).fill: the goal pose is required")
+            self.g[idx] = goal.to(self.g)[:, None].expand(-1, self.g.shape[1], -1)
         self.ready = True
 
-    def push(self, q, cp, cq):
+    def push(self, q, cp, cq, goal=None):
         self.x = torch.cat((_state13(q, cp, cq).to(self.x)[:, None], self.x[:, :-1]), 1)
+        if self.g is not None:
+            if goal is None:
+                raise ValueError("LagHistory(goal=True).push: the goal pose is required")
+            self.g = torch.cat((goal.to(self.g)[:, None], self.g[:, :-1]), 1)
 
     def newest(self):
         return self.x[:, 0]
@@ -1297,6 +1315,93 @@ class LagHistory:
     def get(self, k):
         x = self.x[torch.arange(len(self.x), device=self.x.device), k.to(self.x.device).long()]
         return x[:, :6], x[:, 6:9], x[:, 9:13]
+
+    def at(self, lag, goal_now):
+        """``lag`` [B] float control steps (0 <= lag <= kmax; above kmax - 1 only whole steps): the state ``lag``
+        steps before now, linear between the two neighbouring 20 ms states (q, cube position; cube quaternion nlerp
+        on the same hemisphere); a whole step = that entry exactly. The goal (``goal=True``): ``goal_now`` [B, 3] at
+        lag 0, else the goal of entry floor(lag) (the goal moves only at a decision boundary, after that decision's
+        last push: an image from before the boundary shows the old goal). -> (q, cube pos, cube quat, goal) float32."""
+        if self.g is None:
+            raise ValueError("LagHistory.at needs goal=True")
+        B, dev = len(self.x), self.x.device
+        lag = lag.to(dev, torch.float32).clamp(0.0, float(self.x.shape[1] - 1))
+        k0 = lag.floor().long()
+        a = lag - k0.to(lag)
+        k1 = (k0 + 1).clamp_max(self.x.shape[1] - 1)
+        ar = torch.arange(B, device=dev)
+        s0, s1 = self.x[ar, k0], self.x[ar, k1]
+        w = a[:, None]
+        q = torch.lerp(s0[:, :6], s1[:, :6], w)
+        cp = torch.lerp(s0[:, 6:9], s1[:, 6:9], w)
+        q1 = torch.where(((s0[:, 9:13] * s1[:, 9:13]).sum(-1, keepdim=True) < 0), -s1[:, 9:13], s1[:, 9:13])
+        cq = torch.lerp(s0[:, 9:13], q1, w)
+        cq = cq / cq.norm(dim=-1, keepdim=True).clamp_min(1e-12)
+        whole = (a == 0)[:, None]
+        q, cp, cq = (torch.where(whole, s0[:, sl], v) for sl, v in ((slice(0, 6), q), (slice(6, 9), cp),
+                                                                     (slice(9, 13), cq)))
+        g = torch.where((lag == 0)[:, None], goal_now.to(self.g), self.g[ar, k0])
+        return q, cp, cq, g
+
+
+@dataclass
+class ImgLagConfig:
+    """Image latency of the online loop (``OnlineConfig.img_lag``; real2sim v8, 2026-10-23; measurement and method:
+    ~/so101_r2s_claude/v8/latency/: scripts/lag_fit.py, lag_dist.py -> lag_fit.json, lag_boot.json, lag_dist.json).
+    On the robot the images of a query are older than its joint reading by the camera pipeline latency before
+    LeRobot's frame time stamp (26.5 ms, 95 % CI 25-28, fitted on 47,691 consecutive query pairs of 173 robot
+    episodes: thumbnail change vs joint motion between the capture times) + the frame age (uniform 0-33 ms, 30 fps):
+    28-62 ms (p1-p99), mean 44 ms = 2.2 control steps; the two cameras' ages are uncorrelated (r -0.13) and change
+    from query to query (lag-1 autocorrelation 0.15). The calibration's 42-48 ms (teleop recordings,
+    ``time_offset_frames``) is the same latency + the mean age of the recording loop.
+
+    Per world (per camera with ``per_camera``) a lag U(lo_ms, hi_ms) is drawn at every episode start and drawn again at
+    each decision with probability ``redraw_p`` (0 = once per episode); the student's images show the world ``lag /
+    20 ms`` control steps before the decision (``LagHistory.at``: interpolated between the 20 ms states, the goal as it
+    was then), ``quantize``: whole steps only (the lag rounded). q, qdot and the labels stay current; the aux targets
+    follow the image state (first camera). ``per_camera``: one render call per camera (the later calls keep the first
+    call's light and intrinsics: ``DRViews.render(keep=True)``), so the render time grows with the cameras. A goal
+    jump (``OnlineConfig.goal_jump``) that the lagged images do not show yet: no buffer sample that decision (its label
+    is for the new goal). Replaces the student's integer lag (``ViralConfig.lag`` / ``lag_range``) in the online loop;
+    the evaluation keeps ``ViralConfig.lag``."""
+    lo_ms: float = 0.0
+    hi_ms: float = 0.0
+    redraw_p: float = 1.0
+    per_camera: bool = False
+    quantize: bool = False
+
+    MAX_MS = 400.0
+
+    @staticmethod
+    def from_dict(d):
+        d = dict(d or {})
+        known = set(ImgLagConfig.__dataclass_fields__)
+        bad = sorted(set(d) - known - {"note"})
+        if bad:
+            raise ValueError(f"unknown img_lag keys {bad}")
+        c = ImgLagConfig(**{k: v for k, v in d.items() if k in known})
+        c.lo_ms, c.hi_ms, c.redraw_p = float(c.lo_ms), float(c.hi_ms), float(c.redraw_p)
+        c.per_camera, c.quantize = bool(c.per_camera), bool(c.quantize)
+        if not 0.0 <= c.lo_ms <= c.hi_ms <= ImgLagConfig.MAX_MS:
+            raise ValueError(f"img_lag lo_ms {c.lo_ms}, hi_ms {c.hi_ms}: 0 <= lo <= hi <= {ImgLagConfig.MAX_MS} ms")
+        if not 0.0 <= c.redraw_p <= 1.0:
+            raise ValueError(f"img_lag redraw_p {c.redraw_p}: a probability in [0, 1]")
+        return c
+
+    @property
+    def step_ms(self):
+        return 1000.0 * JE.CONTROL_DT
+
+    @property
+    def kmax(self):
+        """History entries needed: floor(hi / 20 ms) + 1 (the interpolation's older neighbour)."""
+        return int(math.floor(self.hi_ms / self.step_ms + 1e-9)) + 1
+
+    def draw(self, n, cams, gen, device):
+        """[n, cams] float32 lags in control steps."""
+        u = torch.rand(n, cams, device=device, generator=gen)
+        x = (self.lo_ms + (self.hi_ms - self.lo_ms) * u) / self.step_ms
+        return torch.round(x) if self.quantize else x
 
 
 # ---- real2sim: robot-like qdot ---------------------------------------------------------------------------------------
@@ -1878,6 +1983,10 @@ class OnlineConfig:
     # pair of images should as well; when the state changes, the decision's previous images are its current ones
     # (acting) and its buffer link is cut (training), as at an episode start. Also used by the in-run evaluation.
     light_redraw_p: float = 1.0
+    # real2sim v8 (2026-10-23): the robot's image latency (``ImgLagConfig`` dict: lo_ms, hi_ms, redraw_p, per_camera,
+    # quantize; {} = off, the student's integer lag as before): a lag in ms per world (and camera), drawn again per
+    # decision, the images rendered from the interpolated past state and goal; replaces lag_range in this run
+    img_lag: dict = field(default_factory=dict)
 
     @staticmethod
     def from_dict(d):
@@ -1886,6 +1995,10 @@ class OnlineConfig:
         bad = sorted(set(d) - known - {"note"})
         if bad:
             raise ValueError(f"unknown online config keys {bad}")
+        if d.get("img_lag"):
+            ImgLagConfig.from_dict(d["img_lag"])                               # validate now
+            if d.get("lag_range"):
+                raise ValueError("online config: img_lag replaces lag_range in the online loop; set only one")
         if d.get("lag_range"):
             d["lag_range"] = tuple(int(v) for v in d["lag_range"])
             if len(d["lag_range"]) != 2 or not 0 <= d["lag_range"][0] <= d["lag_range"][1]:
@@ -1979,7 +2092,10 @@ class OnlineDAgger:
     (``OnlineConfig.dyn``: the env's ``RobotDyn``) and robot-like qdot inputs (``qd_robot_p``: per-world tick history of
     the 20 ms states, same hook) are drawn per world per episode as well. Last-command input (``st.cfg.lastcmd``): every
     world's (student and teacher slots) ``lastcmd_raw`` of the env's ``u_exe``, 0 at its episode start (``lc_fresh``),
-    in the acting input and the buffer's robot vector (``ViralConfig.robot_dim``)."""
+    in the acting input and the buffer's robot vector (``ViralConfig.robot_dim``). Image latency
+    (``OnlineConfig.img_lag``, ``ImgLagConfig``; real2sim v8): instead of the student's integer lag, a lag in ms per
+    world (and camera), drawn at the episode start and again per decision (``redraw_p``), the images rendered from the
+    interpolated past state and goal (``LagHistory.at``; ``lag_x`` [N, 1 or C] control steps)."""
 
     def __init__(self, st: ViralNet, jt, tasks, nrd_ckpt, views: DRViews, ocfg: OnlineConfig, device="cuda", seed=0,
                  log=log_default, world="nrd"):
@@ -2032,6 +2148,16 @@ class OnlineDAgger:
         self.lag_lo, self.lag_hi = (lo, hi) if hi > 0 else (int(st.cfg.lag), int(st.cfg.lag))
         self.lagk = torch.zeros(N, dtype=torch.long, device=self.dev)
         self.lag_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 77)
+        self.il = ImgLagConfig.from_dict(ocfg.img_lag) if ocfg.img_lag else None     # real2sim v8 image latency
+        self.lag_x = None                                  # [N, 1 or C] float control steps (img_lag)
+        self.stale = 0                                     # img_lag + goal jumps: decisions left out (old goal shown)
+        if self.il is not None:
+            self.kmax = self.il.kmax
+            self.lag_hist = LagHistory(N, self.kmax, self.dev, goal=True)
+            self.lag_x = torch.zeros(N, len(st.cfg.cameras) if self.il.per_camera else 1, device=self.dev)
+            self.il_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 177)
+            log(f"image lag: img_lag {asdict(self.il)} (history {self.kmax} steps) replaces the student's lag "
+                f"{st.cfg.lag} / lag_range {list(st.cfg.lag_range)} in the online loop")
         self.qb = torch.zeros(N, 6, device=self.dev)       # per-world offset of the student's q input (rad)
         self.qb_h = None
         if ocfg.q_bias_p > 0 and ocfg.q_bias_deg:
@@ -2070,9 +2196,48 @@ class OnlineDAgger:
             return
         ws = self.env.ws
         q, cp, cq = _sane(ws.q[idx], ws.cube_pos[idx], ws.cube_quat[idx], self.dev)
+        if self.il is not None:            # img_lag: history = start state and goal, a new lag per world (camera)
+            self.lag_hist.fill(idx, q, cp, cq, self._goal_pose()[idx])
+            self.lag_x[idx] = self.il.draw(len(idx), self.lag_x.shape[1], self.il_gen, self.dev)
+            return
         self.lag_hist.fill(idx, q, cp, cq)
         self.lagk[idx] = torch.randint(self.lag_lo, self.lag_hi + 1, (len(idx),), device=self.dev,
                                        generator=self.lag_gen)
+
+    def _goal_pose(self, task=None):
+        """[N, 3] float32 goal pose (x, y, yaw) of every world (as rendered)."""
+        task = self.env.task if task is None else task
+        return torch.cat((task.goal_xy, task.goal_yaw[:, None]), -1).float()
+
+    def _lag_redraw(self):
+        """img_lag, decision start: every world (camera) draws a new lag with probability redraw_p (the same random
+        numbers are used whatever the share is)."""
+        il = self.il
+        if il is None or il.redraw_p <= 0.0:
+            return
+        N, C = self.lag_x.shape
+        m = torch.rand(N, device=self.dev, generator=self.il_gen) < il.redraw_p
+        self.lag_x = torch.where(m[:, None], il.draw(N, C, self.il_gen, self.dev), self.lag_x)
+
+    def _render_lagged(self, gp, light, kw):
+        """img_lag: the images of every world from its state ``lag_x`` steps back (``LagHistory.at``) -> (rgb, cube
+        position and goal pose of the (first camera's) image state, [N] bool: every camera shows the current goal).
+        ``per_camera``: one render call per camera; the later calls keep the first call's light and intrinsics."""
+        if self.lag_x.shape[1] == 1:
+            iq, icp, icq, igp = self.lag_hist.at(self.lag_x[:, 0], gp)
+            rgb = self.views.render(iq, icp, icq, igp, dr=self.dr, light=light, **kw)
+            return rgb, icp, igp, (igp == gp).all(-1)
+        outs, icp, igp, cur = [], None, None, None
+        for c in range(self.lag_x.shape[1]):
+            iq, cp_c, icq, gp_c = self.lag_hist.at(self.lag_x[:, c], gp)
+            r = self.views.render(iq, cp_c, icq, gp_c, dr=self.dr, light=light, **(kw if c == 0 else dict(keep=True)))
+            outs.append(r[:, c].clone())
+            same = (gp_c == gp).all(-1)
+            if c == 0:
+                icp, igp, cur = cp_c, gp_c, same
+            else:
+                cur = cur & same
+        return torch.stack(outs, 1), icp, igp, cur
 
     def _bias_reset(self, idx):
         """Episode start of worlds ``idx``: draw the offset of the student's q input (``OnlineConfig.q_bias_*``)."""
@@ -2107,6 +2272,9 @@ class OnlineDAgger:
         return lastcmd_raw(u[:, -1], u[:, -2], q, self.lc_fresh)
 
     def _lag_hook(self, e, j):
+        if self.il is not None:            # img_lag: the goal of every 20 ms state as well
+            self.lag_hist.push(*_sane(e.ws.q, e.ws.cube_pos, e.ws.cube_quat, self.dev), goal=self._goal_pose(e.task))
+            return
         self.lag_hist.push(*_sane(e.ws.q, e.ws.cube_pos, e.ws.cube_quat, self.dev))
 
     def _step_hook(self, e, j):
@@ -2130,6 +2298,11 @@ class OnlineDAgger:
         if self.img_hist:       # in-episode image pairs since the last log row: the share with the same light etc.
             n = self.stats.get("img_pairs", 0)
             out["img_pair_same"] = round(self.stats.get("img_pairs_same", 0) / n, 4) if n else float("nan")
+        if self.il is not None:     # the image lags of this decision (ms) and the samples left out since the last row
+            ms = self.lag_x.double() * self.il.step_ms
+            out.update(img_lag_ms=round(float(ms.mean()), 2), img_lag_ms_max=round(float(ms.max()), 2),
+                       img_lag_stale=int(self.stale))
+            self.stale = 0
         return out
 
     def _draw(self, idx):
@@ -2191,8 +2364,11 @@ class OnlineDAgger:
             if self.light_prev is not None and bool(torch.rand(1, generator=self.redraw_gen) >= o.light_redraw_p):
                 light, kw = self.light_prev, dict(keep=True)
             self.light_prev = light
-        icp = cp
-        if self.lag_hist is not None:                     # the images lag; q, qd, the labels stay current
+        icp, igp, cur_goal = cp, gp, None
+        if self.il is not None:                           # img_lag: per decision lags in ms, interpolated states
+            self._lag_redraw()
+            rgb, icp, igp, cur_goal = self._render_lagged(gp, light, kw)
+        elif self.lag_hist is not None:                   # the images lag; q, qd, the labels stay current
             iq, icp, icq = self.lag_hist.get(self.lagk)
             rgb = self.views.render(iq, icp, icq, gp, dr=self.dr, light=light, **kw)
         else:
@@ -2233,6 +2409,8 @@ class OnlineDAgger:
                 self.stats["img_pairs"] += int((~fr).sum())
                 self.stats["img_pairs_same"] += int((~fr).sum()) if same_call else 0
         self.last = dict(robot=robot_all, fresh=fr.clone(), prev_rgb=prgb, rgb=rgb, goal_pose=gp, aux_cp=icp)
+        if self.il is not None:
+            self.last.update(img_lag=self.lag_x.clone(), img_goal=igp, cur_goal=cur_goal)
         if bool(stud.any()):
             si = stud.nonzero().flatten()
             st.eval()
@@ -2261,8 +2439,11 @@ class OnlineDAgger:
         if bool(has.any()):
             self.buf.lab2[pv[has]] = lab[has].float()
             self.buf.valid2[pv[has]] = True
+        if cur_goal is not None and not bool(cur_goal.all()):   # img_lag: the images still show the goal before a
+            live = live & cur_goal                              # jump, the label is for the new one: no sample
+            self.stale += int((ok & ~cur_goal).sum())
         idx = live.nonzero().flatten()
-        aux = aux_targets(gp[idx], icp[idx])
+        aux = aux_targets(igp[idx], icp[idx])
         plink = None
         if self.img_hist:     # the link to the previous sample (cut when the per-call render state changed)
             plink = pv[idx] if same_call else torch.full_like(pv[idx], -1)

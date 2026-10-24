@@ -1,0 +1,31 @@
+{
+ "note": "Round v8 S_lat = viral_r2s_online_v1.json (the s28 recipe) + the image latency + a queued command delay 0-2 steps in 80 % of the student worlds (dyn: the delay only, every other stage neutral: gain 1, no lag, sag, noise or integral correction; dyn_student_only: the JT-driven slots stay nominal). Use with --config viral_r2s_v1.json, init runs/v2_online_s18/ckpt/it_03000.pt as s28. Real2sim v8 image latency (2026-10-23, ~/so101_r2s_claude/v8/latency/ (scripts/lag_fit.py, lag_dist.py; lag_fit.json, lag_boot.json, lag_dist.json)): on the robot the images of a query are older than its joint reading by the camera pipeline latency (26.5 ms, 95 % CI 25-28, fitted on 47,691 query pairs of 173 robot episodes) + the frame age (uniform 0-33 ms, 30 fps) = 28-62 ms (p1-p99), mean 44 ms = 2.2 control steps, new at every query (lag-1 autocorrelation 0.15), the two cameras independent (r -0.13). img_lag: per world a lag U(20, 70) ms (1-3.5 steps; covers p1-p99 with margin, mean 45 ms), drawn again at every decision (redraw_p 1), the images rendered from the state interpolated between the 20 ms states (q, cube, goal); both cameras share the lag (per_camera false: per_camera true costs one more render call per decision). It replaces the student config's integer lag_range in this run (the evaluation keeps the student's lag 2 = 40 ms). Command delay: the robot-dynamics stage's queued delay U{0, 1, 2} steps per episode (delay_mode queue: every target d steps late, none dropped; robot: the first new target is written ~42 ms after the joint read). Base note (online v1): real2sim online loop v1 (2026-10-21): build9's viral_online_v1 (the o16 / o17 loop: 1,024 NRD worlds, slots 0-511 JT-driven, half of them with 1 x std noise, 20 % nominal-visual slots, the scene light in 25 % of the decisions, 100,000-sample GPU buffer, 8 steps of 128 per decision, constant lr 1e-4 / 5e-5) for 3,000 decisions (o16 was cancelled after 3,000 of 6,000; constant lr, so the same schedule). Use with --config viral_r2s_v1.json (jaw lead 0).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 2,
+  "delay_mode": "queue"
+ },
+ "dyn_student_only": true,
+ "img_lag": {
+  "lo_ms": 20.0,
+  "hi_ms": 70.0,
+  "redraw_p": 1.0,
+  "per_camera": false,
+  "quantize": false
+ }
+}
