@@ -562,8 +562,9 @@ def cmd_online(a):
             f.flush()
             log(json.dumps(row))
         if (ocfg.save_every > 0 and it % ocfg.save_every == 0) or it == ocfg.iterations:
-            VI.save_student(st, out / "ckpt" / f"it_{it:05d}.pt", it=it, samples=od.samples)
-            VI.save_student(st, out / "last.pt", it=it, samples=od.samples)
+            rec = od.ckpt_record()      # v8: the image lag / table options trained with ({} when off)
+            VI.save_student(st, out / "ckpt" / f"it_{it:05d}.pt", it=it, samples=od.samples, **rec)
+            VI.save_student(st, out / "last.pt", it=it, samples=od.samples, **rec)
         if ocfg.eval_every > 0 and (it % ocfg.eval_every == 0 or it == ocfg.iterations):   # eval_every 0: none
             st.eval()
             for (pre, ev), rnd in [(e_, r_) for e_ in evs for r_ in ([False, True] if a.eval_randomise else [False])]:
