@@ -1,0 +1,10 @@
+{
+ "starts": "/work1/dannegrut/harry/so101_r2s_claude/data/bank_pp_split0.npz",
+ "horizon": 1500,
+ "task": {
+  "hold_cap_s": 20.0
+ },
+ "hold_obs_s": 3.5,
+ "roll_hi_deg": 100.0,
+ "note": "real2sim round v8 (2026-10-23), wrist-roll cap: the real wrist roll ends at +101.2 sim deg (calibrated motor range +-180 real deg minus the guard's 3 deg margin, real = sim + 75.8 deg; the robot guard clamps there), the sim target range goes to 159.9 deg; on the robot 9 of 115 student episodes stopped at the limit (4 of 11 carries across the base). roll_hi_deg 100 (1.2 deg margin) caps every wrist-roll target of the env (JointEnvConfig.roll_hi_deg: action layer, world target, start-bank rows above it dropped); the teacher's observation is unchanged. PPO fine-tune from jt_h110 in NOMINAL NRD worlds (no robot dynamics stage, so jt_h110's nominal behaviour is kept) with the start bank and the 30 s episodes of teacher_dyn_v7.json (hold cap 20 s, observation scale 3.5 s = the online env); joint_ppo_v3_kl02.json, about 200-300 iterations (r2s_teacher_ppo.sbatch, ENVCFG = this file). jt_h110 before the fine-tune (NRD, nominal, ~/so101_r2s_claude/roll_cap/jt_roll_count_100.json): a roll command above 100 deg in 10.6 % of the episodes from this start bank (lenient 98.4 -> 96.8 % with the cap) and in 23.5 % from HOME45 starts (97.6 -> 89.6 %; the failures are time-outs: 140 of 241 go above it first before the lift = grasp alignment, 101 in the carry). Log: 'roll over cap' = share of the episodes whose command went above the cap (the executed target never does). Gate: eval --roll-hi-deg 100 (NRD and MuJoCo, nominal and HOME45 sets): lenient back near the uncapped jt_h110 and roll_cmd_over near 0."
+}

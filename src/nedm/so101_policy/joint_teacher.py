@@ -256,10 +256,14 @@ class JointPPO(P.PPO):
         env = self.env
         step0 = env.step
         acc = torch.zeros((), dtype=torch.float64, device=self.dev)
+        cap = env.roll_cap() if getattr(env, "roll_hi", None) is not None else None
+        acc_r = torch.zeros((), dtype=torch.float64, device=self.dev)
 
         def step(a):
             out = step0(a)
             acc.add_((out[3]["episode"]["lenient"] & out[2]).sum())
+            if cap is not None:          # the roll cap: finished episodes whose command went above it
+                acc_r.add_(((out[3]["episode"]["roll_cmd_max"] > cap + 1e-9) & out[2]).sum())
             return out
 
         env.step = step
@@ -268,6 +272,7 @@ class JointPPO(P.PPO):
         finally:
             env.step = step0
         self._last_len = float(acc)
+        self._last_roll = float(acc_r) if cap is not None else None
         return st
 
     def update(self):
@@ -343,6 +348,8 @@ class JointPPO(P.PPO):
         row = super().iterate()
         n = row.get("episodes", 0.0)
         row["lenient"] = float(self._last_len) / n if n else math.nan
+        if getattr(self, "_last_roll", None) is not None:   # roll cap: share of the episodes that commanded above it
+            row["roll_cmd_over"] = self._last_roll / n if n else math.nan
         return row
 
 
@@ -362,17 +369,19 @@ EP_OUT = ("end", "success", "success10", "lifted", "end_xy", "end_yaw", "ret", "
 
 
 def make_env(world, B, codec, device="cuda", nrd_ckpt=None, workers=0, mj_python=None, horizon=400, members="split",
-             lead_clamp=True, floor_guard=True, hold_cap_s=None, hold_obs_s=0.0, dyn=None, goal_jump=None):
+             lead_clamp=True, floor_guard=True, hold_cap_s=None, hold_obs_s=0.0, dyn=None, goal_jump=None,
+             roll_hi_deg=None):
     """Fixed-task env (evaluation, round collection). ``hold_cap_s`` / ``hold_obs_s``: ``JE.hold_cap_kw`` (None / 0 =
     the task defaults). ``dyn``: robot dynamics (``JE.RobotDynConfig`` or its dict); None = the process-wide
     evaluation setting of ``$NEDM_SO101_DYN`` (unset = off), False = off. ``goal_jump``: ``JE.GoalJumpConfig`` (or
-    its dict; None = off): goal jumps during the episodes (the evaluation-only goal shift)."""
+    its dict; None = off): goal jumps during the episodes (the evaluation-only goal shift). ``roll_hi_deg``: the
+    wrist-roll target cap (sim deg, ``JE.JointEnvConfig.roll_hi_deg``); None = off."""
     ck = [str(Path(c).expanduser()) for c in ([nrd_ckpt] if isinstance(nrd_ckpt, (str, Path)) else (nrd_ckpt or []))]
     dyn = JE.dyn_from_env() if dyn is None else JE.dyn_config(dyn)
     cfg = JE.JointEnvConfig(world=world, num_envs=B, device=device, ckpts=ck, members=members, auto_reset=False,
                             stagger=False, starts="", horizon=int(horizon), mj_workers=workers, mj_python=mj_python,
                             lead_clamp=lead_clamp, floor_guard=floor_guard, dyn=dyn, goal_jump=goal_jump,
-                            **JE.hold_cap_kw(hold_cap_s, hold_obs_s))
+                            roll_hi_deg=roll_hi_deg, **JE.hold_cap_kw(hold_cap_s, hold_obs_s))
     return JE.JointVecEnv(cfg, codec)
 
 
@@ -438,6 +447,8 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
         if teacher is not None:
             a = teacher.act(obs).to(dev, torch.float64)
             lab = env.codec.targets(a, ws.q.to(torch.float64))
+            if getattr(env, "roll_hi", None) is not None:      # the roll cap: the label's wrist roll capped as well
+                lab = env.cap_roll(lab)
             if bool((nz > 0).any()):
                 eps = hash_normal(hseed, k, JE.ACT_DIM).to(a)
                 a = a + (nz[:, None] * std[None]) * eps
@@ -476,6 +487,9 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
     out["student_s"] = np.float64(t_student)
     if env.cfg.world == "mujoco":
         out["mj_reason"] = env.world.end_reason.clone().numpy().astype(np.int16)
+    if getattr(env, "roll_hi", None) is not None:      # the roll cap (per-episode roll_cmd_max / roll_q_max: rad)
+        out["roll_hi_deg"] = np.float64(env.cfg.roll_hi_deg)
+        out["roll_cap_rad"] = np.float64(env.thi[JE.ROLL])
     if gj is not None:
         out["goal_jumps"] = gj.n.cpu().numpy().astype(np.int16)
         out["goal_xy_final"] = env.task.goal_xy.float().cpu().numpy()
@@ -513,4 +527,17 @@ def summarize(r):
                lifted=float(np.mean(r["lifted"])), causes_not_lenient=causes)
     if s.any():
         out["end_xy_mm_p50_strict"] = float(np.median(np.asarray(r["end_xy"])[s]) * 1e3)
+    if "roll_cmd_max" in r and "roll_cap_rad" in r:     # the roll cap: episodes that pushed above / reached it
+        out.update(roll_summary(r["roll_cmd_max"], r["roll_q_max"], float(r["roll_cap_rad"])))
     return out
+
+
+def roll_summary(cmd_max, q_max, cap):
+    """Per-episode largest commanded / measured wrist roll (rad) and the cap (rad) -> shares of the episodes whose
+    command went above the cap (``roll_cmd_over``) and whose measured roll came within ``JE.ROLL_NEAR_DEG`` of it
+    (``roll_q_at_cap``), and the largest command (deg)."""
+    c, q = np.asarray(cmd_max, np.float64), np.asarray(q_max, np.float64)
+    n = max(len(c), 1)
+    return dict(roll_cmd_over=float((c > cap + 1e-9).sum() / n),
+                roll_q_at_cap=float((q >= cap - math.radians(JE.ROLL_NEAR_DEG)).sum() / n),
+                roll_cmd_max_deg=float(np.degrees(c.max())) if len(c) else float("nan"))

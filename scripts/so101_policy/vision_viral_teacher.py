@@ -113,9 +113,11 @@ def cmd_eval(a):
     B = len(t["seeds"])
     env = JT.make_env(a.world, B, jt.codec, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                       lead_clamp=not a.no_lead, floor_guard=not a.no_floor, hold_cap_s=a.hold_cap_s,
-                      hold_obs_s=a.hold_obs_s)
+                      hold_obs_s=a.hold_obs_s, roll_hi_deg=a.roll_hi_deg)
     if env.dyn is not None:       # $NEDM_SO101_DYN (joint_teacher.make_env)
         log(f"robot dynamics ({a.world}, {B} worlds): {json.dumps(env.dyn_info()['cfg'])}")
+    if env.roll_hi is not None:   # the wrist-roll cap (--roll-hi-deg)
+        log(f"roll cap: {json.dumps(env.roll_info())}")
     from nedm.so101_policy import table as TB
     plane, floor, _, moved = TB.from_cli(a)
     if moved:      # evaluation only: a lowered / tilted table (table.py)
@@ -172,6 +174,8 @@ def cmd_ppo(a):
     cfg = JE.JointEnvConfig.from_dict({**dict(world="nrd", num_envs=a.envs, device=a.device, seed=a.seed,
                                               ckpts=[x(a.nrd_ckpt)]), **env_over})
     env = JE.JointVecEnv(cfg, codec)
+    if env.roll_hi is not None:   # the wrist-roll cap of the env config (roll_hi_deg): also in the dev evaluations
+        log(f"roll cap: {json.dumps(env.roll_info())}")
     tc = JT.ppo_train_cfg(json.loads(Path(a.train_config).read_text()) if a.train_config else None)
     tc["seed"] = a.seed
     pk = dict(init["policy_kwargs"])
@@ -203,17 +207,22 @@ def cmd_ppo(a):
             jt_path = out / "ckpt" / f"model_{algo.iteration:05d}.pt"
             algo.save(jt_path)
             jt = JE.JointTeacher(jt_path, a.device)
-            ev = JT.make_env("nrd", len(dev_t["seeds"]), jt.codec, a.device, x(a.nrd_ckpt))
+            ev = JT.make_env("nrd", len(dev_t["seeds"]), jt.codec, a.device, x(a.nrd_ckpt),
+                             roll_hi_deg=cfg.roll_hi_deg)
             r = JT.run_tasks(ev, dev_t, jt)
             ev.close()
             s = JT.summarize(r)
             row["dev_nrd_lenient"], row["dev_nrd_strict"] = s["lenient"], s["strict"]
+            if "roll_cmd_over" in s:
+                row["dev_nrd_roll_cmd_over"] = s["roll_cmd_over"]
         curve.write(row)
         log(f"it {algo.iteration}: succ {row['success']:.3f} len {row['lenient']:.3f} lifted {row['lifted']:.3f} "
             f"kl {row['kl']:.4f} lr {row['lr']:.2e} vloss {row['value_loss']:.4f} std {row['std_move']:.3f}/"
             f"{row['std_trigger']:.3f} {row['world_steps_per_s']:.0f} st/s"
+            + (f" | roll over cap {row['roll_cmd_over']:.3f}" if "roll_cmd_over" in row else "")
             + (f" | dev nrd len {row['dev_nrd_lenient']:.2f} strict {row['dev_nrd_strict']:.2f}"
-               if "dev_nrd_lenient" in row else ""))
+               if "dev_nrd_lenient" in row else "")
+            + (f" roll over {row['dev_nrd_roll_cmd_over']:.2f}" if "dev_nrd_roll_cmd_over" in row else ""))
         if algo.iteration % a.save_every == 0 or algo.iteration == a.iterations:
             algo.save(out / "ckpt" / f"model_{algo.iteration:05d}.pt")
             algo.save(out / "ckpt" / "last.pt")
@@ -288,6 +297,8 @@ def main(argv=None):
     q.add_argument("--hold-cap-s", type=float, default=None, help="the hold_cap rule (s held in the air; default 3.5)")
     q.add_argument("--hold-obs-s", type=float, default=0.0,
                    help="held-time scale of the JT observation (s; 0: the task's, 3.5 with another --hold-cap-s)")
+    q.add_argument("--roll-hi-deg", type=float, default=None,
+                   help="the wrist-roll target cap (sim deg; the real roll ends at 101.2); default off")
     q.add_argument("--out", default="")
     from nedm.so101_policy import table as TB
     TB.add_cli(q)

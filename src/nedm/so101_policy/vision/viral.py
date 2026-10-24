@@ -1878,6 +1878,10 @@ class OnlineConfig:
     # pair of images should as well; when the state changes, the decision's previous images are its current ones
     # (acting) and its buffer link is cut (training), as at an episode start. Also used by the in-run evaluation.
     light_redraw_p: float = 1.0
+    # real2sim (2026-10-23): the wrist-roll target cap of the online env (sim deg; ``JE.JointEnvConfig.roll_hi_deg``,
+    # the real roll ends at +101.2 sim deg); the JT's labels get the same cap, task rows whose start roll is above it
+    # are dropped from the pool, and the in-run evaluations use it too. None = off
+    roll_hi_deg: float | None = None
 
     @staticmethod
     def from_dict(d):
@@ -1894,6 +1898,8 @@ class OnlineConfig:
             JE.goal_jump_config(d["goal_jump"])                                # validate now
         if "light_redraw_p" in d and not 0.0 <= float(d["light_redraw_p"]) <= 1.0:
             raise ValueError(f"light_redraw_p {d['light_redraw_p']}: a probability in [0, 1]")
+        if d.get("roll_hi_deg") is not None:
+            d["roll_hi_deg"] = JE.roll_hi_config(d["roll_hi_deg"])          # validate now
         return OnlineConfig(**{k: v for k, v in d.items() if k in known})
 
 
@@ -1979,7 +1985,9 @@ class OnlineDAgger:
     (``OnlineConfig.dyn``: the env's ``RobotDyn``) and robot-like qdot inputs (``qd_robot_p``: per-world tick history of
     the 20 ms states, same hook) are drawn per world per episode as well. Last-command input (``st.cfg.lastcmd``): every
     world's (student and teacher slots) ``lastcmd_raw`` of the env's ``u_exe``, 0 at its episode start (``lc_fresh``),
-    in the acting input and the buffer's robot vector (``ViralConfig.robot_dim``)."""
+    in the acting input and the buffer's robot vector (``ViralConfig.robot_dim``). Wrist-roll cap
+    (``OnlineConfig.roll_hi_deg``): the env caps every executed target, the JT's labels are capped the same way (the
+    student never learns a roll above the cap), task rows that start above it leave the pool."""
 
     def __init__(self, st: ViralNet, jt, tasks, nrd_ckpt, views: DRViews, ocfg: OnlineConfig, device="cuda", seed=0,
                  log=log_default, world="nrd"):
@@ -1992,7 +2000,7 @@ class OnlineDAgger:
         cfg = JE.JointEnvConfig(world=world, num_envs=N, device=device, ckpts=[str(nrd_ckpt)], auto_reset=True,
                                 stagger=True, starts="", seed=seed, horizon=int(ocfg.horizon), dyn=ocfg.dyn or None,
                                 pause=ocfg.pause or None, goal_jump=ocfg.goal_jump or None,
-                                **JE.hold_cap_kw(ocfg.hold_cap_s, ocfg.hold_obs_s))
+                                roll_hi_deg=ocfg.roll_hi_deg, **JE.hold_cap_kw(ocfg.hold_cap_s, ocfg.hold_obs_s))
         self.env = JE.JointVecEnv(cfg, jt.codec)
         f64 = dict(dtype=torch.float64, device=self.dev)
         self.env.bank = {k: torch.as_tensor(tasks[f"state_{k}"], **f64) for k in
@@ -2000,6 +2008,14 @@ class OnlineDAgger:
         nt = len(tasks["seeds"])
         self.env.pool = dict(i=torch.arange(nt, device=self.dev), goal_xy=torch.as_tensor(tasks["goal_xy"], **f64),
                              goal_yaw=torch.as_tensor(tasks["goal_yaw"], **f64))
+        self.roll_cap = self.env.roll_cap()       # the wrist-roll cap (rad; None = off): labels, pool, statistics
+        if self.roll_cap is not None:             # no start above the cap (no row: the pool and its draws stay)
+            keep = ~(self.env.bank["q"][:, JE.ROLL] > self.roll_cap)
+            if not bool(keep.all()):
+                ki = keep.nonzero().flatten()
+                self.env.pool = {k: v[ki] for k, v in self.env.pool.items()}
+            log(f"roll cap {ocfg.roll_hi_deg:g} deg: {int((~keep).sum())} of {nt} training tasks start above it "
+                f"(dropped); labels capped")
         self.gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 5)
         nt_ = int(round(ocfg.teacher_share * N))
         slot = torch.arange(N, device=self.dev)
@@ -2063,6 +2079,8 @@ class OnlineDAgger:
             self.stats.update(ep_jump_student=0, len_jump_student=0, ep_jump_teacher=0, len_jump_teacher=0)
         if self.img_hist:                       # in-episode image pairs, and those with the same per-call render state
             self.stats.update(img_pairs=0, img_pairs_same=0)
+        if self.roll_cap is not None:           # episodes whose commanded wrist roll went above the cap
+            self.stats.update(roll_over_student=0, roll_over_teacher=0)
 
     def _lag_reset(self, idx):
         """Episode start of worlds ``idx`` (the env already holds their start states): lag draw, history = start."""
@@ -2173,6 +2191,8 @@ class OnlineDAgger:
             obs[:, 6:12] = torch.where(m[:, None], v, obs[:, 6:12])                        # obs layout: q, qd, ...
         a = self.jt.act(obs).to(torch.float64)
         lab = env.codec.targets(a, q)                                              # [N, 5, 6] the label
+        if self.roll_cap is not None:                                              # the roll cap: capped labels
+            lab = env.cap_roll(lab)
         noise = (self.noisy.double()[:, None] * o.noise) * self.jt.std.to(a)[None] * \
             torch.randn(a.shape, device=self.dev, generator=self.gen, dtype=a.dtype)
         tg = env.codec.targets(a + noise, q)
@@ -2291,6 +2311,10 @@ class OnlineDAgger:
             self.stats["len_teacher"] += int((le & ts).sum())
             self.stats["ep_student"] += int((~ts).sum())
             self.stats["len_student"] += int((le & ~ts).sum())
+            if "roll_cmd_max" in ep:
+                ro = ep["roll_cmd_max"][di] > self.roll_cap + 1e-9
+                self.stats["roll_over_teacher"] += int((ro & ts).sum())
+                self.stats["roll_over_student"] += int((ro & ~ts).sum())
             if "goal_jumps" in ep:
                 jm = ep["goal_jumps"][di] > 0
                 self.stats["ep_jump_teacher"] += int((jm & ts).sum())

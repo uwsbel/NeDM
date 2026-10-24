@@ -40,6 +40,18 @@ Goal jumps (studentlab, OFF by default: ``JointEnvConfig.goal_jump`` None): ``Go
 step while the cube is held and lifted near it, so the cube ends past (or before) the new goal (``GoalJumpConfig``);
 the observation rows of those worlds are recomputed, so the next decision's teacher input, task rules and renders all
 use the moved goal.
+
+Wrist-roll cap (real2sim 2026-10-23, OFF by default: ``JointEnvConfig.roll_hi_deg`` None): the real wrist roll cannot go
+above +101.2 sim deg (the motor's calibrated range ends at +-180 real deg, real = sim + 75.8 deg; the robot guard
+clamps the roll command there), the sim target range goes to ``kin.THI[4]`` = 159.9 deg. With ``roll_hi_deg`` set
+(sim deg) the action layer's range is min(THI, cap) for the wrist roll (``safety``: the executed targets ``u_exe``,
+as the guard's ``prev``; the robot dynamics stage's actuator range), and the target sent to the world is capped once
+more after every stage (``cap_roll``; the world's own clamps ``kin.TLO`` .. ``THI`` in the NRD / MuJoCo worlds are
+wider). With a joint offset (``set_table(q_offset=...)``, evaluation only) the cap is in the policy's joint frame, as
+the guard's. The teacher's observation does not change (it reads the measured q). Start-bank rows whose wrist roll is
+above the cap are dropped (``drop_high_roll``); fixed tasks with such a start warn. Per episode the env records
+``roll_cmd_max`` (the largest commanded wrist roll, before the action layer, policy frame) and ``roll_q_max`` (the
+largest measured one) in ``extras["episode"]`` (rad).
 """
 from __future__ import annotations
 
@@ -455,6 +467,37 @@ def goal_jump_config(v) -> GoalJumpConfig | None:
     if bad:
         raise ValueError(f"unknown goal jump keys {bad}")
     return GoalJumpConfig(**d)
+
+
+# ---- the wrist-roll cap (real2sim; off by default) -----------------------------------------------------------------
+ROLL = 4                                   # wrist_roll joint index
+ROLL_NEAR_DEG = 0.5                        # summaries: a measured roll this close to the cap counts as "at the cap"
+
+
+def roll_hi_config(v) -> float | None:
+    """None -> None (off); a number (sim deg) -> float. Raises ValueError if not finite or at / below the target
+    range's lower end (``kin.TLO[4]``)."""
+    import numbers
+    from nedm.so101_policy.kin import TLO
+    if v is None:
+        return None
+    if not isinstance(v, numbers.Real) or isinstance(v, bool) or not math.isfinite(float(v)):
+        raise ValueError(f"roll_hi_deg {v!r}: a finite number (sim deg) or None")
+    if math.radians(float(v)) <= TLO[ROLL]:
+        raise ValueError(f"roll_hi_deg {v}: must be above the wrist roll's lower target limit "
+                         f"{math.degrees(TLO[ROLL]):.1f} deg")
+    return float(v)
+
+
+def drop_high_roll(bank: dict, hi: float):
+    """Start bank (dict of [N, ...] tensors with "q") -> (the rows whose wrist roll q[:, 4] <= hi, rows dropped). No row
+    above: the same dict (its draws do not change)."""
+    keep = ~(bank["q"][:, ROLL] > hi)
+    n = int((~keep).sum())
+    if n == 0:
+        return bank, 0
+    idx = keep.nonzero().flatten()
+    return {k: v[idx] for k, v in bank.items()}, n
 
 
 def in_workspace(xy, margin=0.0):
@@ -1026,11 +1069,13 @@ class JointEnvConfig:
     hold_obs_s: float = 0.0                           # held-time scale (s) of the JT observation; 0 = task hold_cap_s
                                                       # (``hold_cap_kw`` keeps the old envs' 3.5 s with a new cap)
     goal_jump: object = None                          # GoalJumpConfig (or its dict): goal jumps; None = off
+    roll_hi_deg: object = None                        # wrist-roll target cap (sim deg; module docstring); None = off
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
         self.pause = pause_config(self.pause)
         self.goal_jump = goal_jump_config(self.goal_jump)
+        self.roll_hi_deg = roll_hi_config(self.roll_hi_deg)
 
     @staticmethod
     def from_dict(d):
@@ -1049,6 +1094,8 @@ class JointEnvConfig:
             d["dyn"] = self.dyn.to_dict()     # no "servo" key while it is off (``RobotDynConfig.to_dict``)
         if d.get("goal_jump") is None:    # off: the old record (readable by code without goal jumps)
             d.pop("goal_jump", None)
+        if d.get("roll_hi_deg") is None:  # off: the old record (readable by code without the roll cap)
+            d.pop("roll_hi_deg", None)
         return d
 
 
@@ -1086,12 +1133,20 @@ class JointVecEnv:
             codec = load_codec(cfg.codec)
         self.codec = codec.to(dev)
         self.tlo, self.thi = self.kin.tlo.to(dev), self.kin.thi.to(dev)
+        # wrist-roll cap (module docstring; None = off): the action layer's range min(THI, cap) for the wrist roll
+        self.roll_hi = None if cfg.roll_hi_deg is None else math.radians(float(cfg.roll_hi_deg))
+        if self.roll_hi is not None:
+            self.thi = self.thi.clone()                                  # kin.thi may be shared: never in place
+            self.thi[ROLL] = min(float(self.thi[ROLL]), self.roll_hi)
         self.lead = torch.tensor(LEAD, dtype=torch.float64, device=dev) if cfg.lead_clamp else None
         self.gen = torch.Generator(dev).manual_seed(int(cfg.seed))
         if share is not None:
             self.bank = share.bank
         else:
             self.bank = VE.load_starts(cfg.starts, cfg.start_split, dev) if cfg.starts and cfg.world != "mujoco" else None
+        self.roll_dropped = 0             # roll cap: start-bank rows dropped (wrist roll above the cap)
+        if self.roll_hi is not None and self.bank is not None:
+            self.bank, self.roll_dropped = drop_high_roll(self.bank, float(self.thi[ROLL]))
         self.pool = None
         f, li = dict(dtype=torch.float64, device=dev), dict(dtype=torch.long, device=dev)
         self.ep_count = torch.zeros(B, **li)
@@ -1121,6 +1176,32 @@ class JointVecEnv:
         if cfg.hold_obs_s and float(cfg.hold_obs_s) != self.tcfg.hold_cap_s:
             from dataclasses import replace
             self.obs_tcfg = replace(self.tcfg, hold_cap_s=float(cfg.hold_obs_s))
+        if self.roll_hi is not None:      # per episode: the largest commanded / measured wrist roll (policy frame)
+            self.roll_cmd_max = torch.full((B,), -math.inf, **f)
+            self.roll_q_max = torch.full((B,), -math.inf, **f)
+
+    # ---- the wrist-roll cap (module docstring) ------------------------------------------------------------------
+    def roll_cap(self) -> float | None:
+        """The wrist-roll cap of the target sent to the world (rad, world frame: the action layer's cap minus the joint
+        offset of ``set_table``), None = off."""
+        if self.roll_hi is None:
+            return None
+        hi = float(self.thi[ROLL])
+        return hi if self.q_offset is None else hi - float(self.q_offset[ROLL])
+
+    def cap_roll(self, u):
+        """Targets [..., 6] (world frame) -> a new tensor with the wrist roll <= ``roll_cap()``; off: ``u`` itself."""
+        c = self.roll_cap()
+        if c is None:
+            return u
+        return torch.cat((u[..., :ROLL], u[..., ROLL:ROLL + 1].clamp(max=c), u[..., ROLL + 1:]), -1)
+
+    def roll_info(self) -> dict | None:
+        """The cap for output files (None = off): sim deg, the action layer's cap (rad), start-bank rows dropped."""
+        if self.roll_hi is None:
+            return None
+        return dict(roll_hi_deg=float(self.cfg.roll_hi_deg), cap_rad=float(self.thi[ROLL]),
+                    bank_dropped=int(self.roll_dropped))
 
     def resolved(self) -> dict:
         return dict(env=self.cfg.to_dict(), task=asdict(self.tcfg), codec={k: v.tolist() for k, v in
@@ -1205,6 +1286,10 @@ class JointVecEnv:
             self.pause.reset(idx)
         if self.goal_jump is not None:    # goal jumps: per-episode draw, carry direction start cube -> goal
             self.goal_jump.reset(idx, self.ws.cube_pos[idx, :2], goal_xy)
+        if self.roll_hi is not None:      # roll cap records: the measured start roll (policy frame), no command yet
+            r0 = self.ws.q[idx, ROLL].to(torch.float64) + (0.0 if self.q_offset is None else self.q_offset[ROLL])
+            self.roll_q_max[idx] = r0.nan_to_num(-math.inf)
+            self.roll_cmd_max[idx] = -math.inf
 
     def _pool_reset(self, idx):
         from nedm.so101_policy.vec_env import start_rows
@@ -1246,6 +1331,13 @@ class JointVecEnv:
             sd = torch.as_tensor(seeds).reshape(-1)
             self.goal_jump.reseed(int(self.cfg.seed) * 1_000_033 + 7927 * (int(sd[0]) if len(sd) else 0) + len(sd)
                                   + 0x6A1)
+        if self.roll_hi is not None:      # a start above the cap: the first targets pull the roll down to it
+            r0 = st.q[:, ROLL].to(torch.float64) + (0.0 if self.q_offset is None else self.q_offset[ROLL])
+            n_hi = int((r0 > float(self.thi[ROLL]) + 1e-9).sum())
+            if n_hi:
+                import warnings
+                warnings.warn(f"roll cap {self.cfg.roll_hi_deg:g} deg: {n_hi} of {len(r0)} task starts have the wrist "
+                              f"roll above it (max {math.degrees(float(r0.max())):.1f} deg)", stacklevel=2)
         self._reset_rows(idx, st, torch.as_tensor(goal_xy, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(goal_yaw, dtype=torch.float64, device=self.dev),
                          torch.as_tensor(seeds, dtype=torch.long, device=self.dev), mj_start)
@@ -1298,7 +1390,11 @@ class JointVecEnv:
             dyn.begin()
         if self.pause is not None:
             self.pause.begin(task, self.ws.q)
+        rc = self.roll_hi is not None     # the wrist-roll cap (off: the old path, bit for bit)
         for j in range(STEPS):
+            if rc:                        # the commanded roll before the action layer (policy frame), live worlds
+                self.roll_cmd_max = torch.where(task.tr.end == 0, torch.fmax(self.roll_cmd_max, u5[:, j, ROLL]),
+                                                self.roll_cmd_max)
             if self.q_offset is None:
                 u = safety(u5[:, j], self.ws.q.to(torch.float64), self.tlo, self.thi, self.lead, self.kin, fl,
                            self.floor_plane)
@@ -1306,7 +1402,9 @@ class JointVecEnv:
                 qo = self.q_offset
                 u = safety(u5[:, j], self.ws.q.to(torch.float64) + qo, self.tlo, self.thi, self.lead, self.kin, fl,
                            self.floor_plane) - qo
-            ex.append(u)                  # u_exe: the action layer's targets (before the robot dynamics / servo scale)
+            if rc:                        # the cap after the floor guard too (it pulls a target toward a measured roll
+                u = self.cap_roll(u)      # above the cap), as the guard's range clamp after its action layer
+            ex.append(u)                # u_exe: the action layer's targets (before the robot dynamics / servo scale)
             if dyn is not None:           # the robot's timing and servo (RobotDyn), perturbed worlds only; the held
                 u = dyn.apply(j, ex, u, self.ws.q, self.tlo, self.thi, self.ws.qd,       # flag: the servo's cube / jaw
                               None if task.F is None else task.F["held"])
@@ -1316,8 +1414,14 @@ class JointVecEnv:
                 u[:, :5] = qn[:, :5] + EVAL_KP_SCALE * (u[:, :5] - qn[:, :5])
             if self.pause is not None:    # the robot's hold state (training only): frozen arm in paused worlds
                 u = self.pause.apply(u)
+            if rc:                        # the cap on the target sent to the world, after every stage
+                u = self.cap_roll(u)
+                lv = task.tr.end == 0
             ws = self.world.step(u)
             self.ws = ws if self.cfg.world != "mujoco" else ws.to(self.dev)
+            if rc:                        # the measured roll after the step (policy frame)
+                rq = self.ws.q[:, ROLL].to(torch.float64) + (0.0 if self.q_offset is None else self.q_offset[ROLL])
+                self.roll_q_max = torch.where(lv, torch.fmax(self.roll_q_max, rq), self.roll_q_max)
             r, _, _, info = task.step(self.ws, None, None)
             rew += r
             if step_hook is not None:
@@ -1336,6 +1440,8 @@ class JointVecEnv:
                   lenient=task.lenient.clone(), lenient_t=task.lenient_t.clone())
         if self.goal_jump is not None:    # jumps of the episode (final for the worlds that ended in this step)
             ep["goal_jumps"] = self.goal_jump.n.clone()
+        if rc:                            # the largest commanded / measured wrist roll of the episode so far (rad)
+            ep["roll_cmd_max"], ep["roll_q_max"] = self.roll_cmd_max.clone(), self.roll_q_max.clone()
         obs = self._observe(task.F)
         if self.goal_jump is not None:    # after the outcome record: the next decision sees the moved goals
             gj = self.goal_jump.apply(task, task.tr.end == 0)

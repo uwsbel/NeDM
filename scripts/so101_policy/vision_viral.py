@@ -43,6 +43,13 @@ config adds inputs (``hist``, ``cmd_in``, ``img_hist``: ``viral.expand_student``
 summary adds ``goal_shift`` with the shifted / unshifted episodes). The online config's ``light_redraw_p`` (< 1: the
 per-call light and intrinsics stay for several decisions; the image-history arm A4) also applies to the in-run
 evaluations; ``eval --light-redraw-p P`` is the same for a standalone evaluation (with ``--randomise``).
+
+Wrist-roll cap (real2sim 2026-10-23, off by default; ``joint_env.JointEnvConfig.roll_hi_deg``): the real wrist roll
+ends at +101.2 sim deg. ``online``: the online config's ``roll_hi_deg`` caps the online env's targets and the JT's
+labels, drops the task rows that start above it, and applies to the in-run evaluations (``--roll-hi-deg`` overrides
+the evaluations only); ``eval`` / ``collect`` / ``run``: ``--roll-hi-deg 100``. The summaries then add
+``roll_cmd_over`` (share of episodes whose commanded roll went above the cap), ``roll_q_at_cap`` and
+``roll_cmd_max_deg``.
 """
 from __future__ import annotations
 
@@ -89,18 +96,21 @@ def subset(t, idx):
 
 class EnvCache:
     def __init__(self, jt, device, nrd, workers, mj_python, horizon, table=None, cli=None, hold_cap_s=None,
-                 goal_jump=None):
+                 goal_jump=None, roll_hi_deg=None):
         self.c, self.jt, self.dev, self.nrd, self.w, self.mp, self.h = {}, jt, device, nrd, workers, mj_python, horizon
         self.table = table        # (plane, floor, q_offset) for JointVecEnv.set_table (evaluation only), None: off
         self.cli = cli            # eval args (``--log-only-extra``), None: off
         self.hold_cap_s = hold_cap_s   # the hold_cap rule (s; ``--hold-cap-s``), None: the task default
         self.goal_jump = goal_jump     # JE.GoalJumpConfig: the evaluation-only goal shift (``--goal-shift``), None: off
+        self.roll_hi_deg = roll_hi_deg  # the wrist-roll target cap (sim deg; ``--roll-hi-deg``), None: off
 
     def get(self, world, B):
         k = (world, B)
         if k not in self.c:
             self.c[k] = JT.make_env(world, B, self.jt.codec, self.dev, self.nrd, self.w, self.mp, self.h,
-                                    hold_cap_s=self.hold_cap_s, goal_jump=self.goal_jump)
+                                    hold_cap_s=self.hold_cap_s, goal_jump=self.goal_jump, roll_hi_deg=self.roll_hi_deg)
+            if self.c[k].roll_hi is not None:
+                log(f"roll cap ({world}, {B} worlds): {json.dumps(self.c[k].roll_info())}")
             if self.c[k].goal_jump is not None:
                 log(f"goal shift ({world}, {B} worlds): {json.dumps(VI.asdict(self.c[k].goal_jump.cfg))}")
             if self.c[k].dyn is not None:      # $NEDM_SO101_DYN (joint_teacher.make_env)
@@ -124,12 +134,15 @@ def robot_rec(env):
     """The env's robot setting for output files (JSON string): the robot dynamics config (``RobotDynConfig``; the
     per-world draws are separate), the hold cap / held-time scale and ``$NEDM_SO101_EVAL_KP_SCALE``; None = all
     defaults (the old env)."""
+    roll = getattr(env, "roll_hi", None) is not None
     if env.dyn is None and env.tcfg.hold_cap_s == JE.T.TaskConfig.hold_cap_s and not env.cfg.hold_obs_s \
-            and JE.EVAL_KP_SCALE == 1.0:
+            and JE.EVAL_KP_SCALE == 1.0 and not roll:
         return None
-    return json.dumps(dict(cfg=VI.asdict(env.dyn.cfg) if env.dyn is not None else None, cols=list(JE.RobotDyn.COLS),
-                           hold_cap_s=env.tcfg.hold_cap_s, hold_obs_s=float(env.cfg.hold_obs_s),
-                           kp_scale=JE.EVAL_KP_SCALE))
+    d = dict(cfg=VI.asdict(env.dyn.cfg) if env.dyn is not None else None, cols=list(JE.RobotDyn.COLS),
+             hold_cap_s=env.tcfg.hold_cap_s, hold_obs_s=float(env.cfg.hold_obs_s), kp_scale=JE.EVAL_KP_SCALE)
+    if roll:                      # the wrist-roll cap (no key while it is off: the old records)
+        d["roll_hi_deg"] = float(env.cfg.roll_hi_deg)
+    return json.dumps(d)
 
 
 @torch.no_grad()
@@ -312,7 +325,8 @@ def cmd_run(a):
     check_seeds(tasks["seeds"])
     evs = eval_sets(a.eval_tasks, a.eval_n)
     guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s,
+                     roll_hi_deg=a.roll_hi_deg)
     views = VI.make_views(cfg, a.render_worlds, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     lag_rec = cfg.lag_max > 0
     rows = [np.arange(0, a.r0_tasks)]
@@ -440,17 +454,25 @@ def cmd_online(a):
     guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
     views = VI.make_views(st.cfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device)
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
+    # the in-run evaluations: the online config's wrist-roll cap (--roll-hi-deg: another one for the evaluations only)
+    eval_roll = a.roll_hi_deg if a.roll_hi_deg is not None else ocfg.roll_hi_deg
+    if eval_roll != ocfg.roll_hi_deg:
+        log(f"NOTE: in-run evaluations with roll cap {eval_roll}, training env {ocfg.roll_hi_deg}")
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s,
+                     roll_hi_deg=eval_roll)
     od = VI.OnlineDAgger(st, jt, tasks, x(a.nrd_ckpt), views, ocfg, a.device, a.seed, log)
     meta = dict(student_cfg=VI.cfg_dict(st.cfg), online=VI.asdict(ocfg), init=str(a.init), jt=jt.info(), argv=sys.argv)
     robot_opts = od.env.dyn is not None or od.qd_hist is not None or od.env.tcfg.horizon != 400 \
-        or od.env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s or od.env.goal_jump is not None
+        or od.env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s or od.env.goal_jump is not None \
+        or od.env.roll_hi is not None
     if robot_opts:              # the resolved online env (robot dynamics, episode length, hold cap)
         meta["online_env"] = dict(horizon=od.env.tcfg.horizon, hold_cap_s=od.env.tcfg.hold_cap_s,
                                   hold_obs_s=od.env.cfg.hold_obs_s,
                                   dyn=VI.asdict(od.env.dyn.cfg) if od.env.dyn is not None else None)
         if od.env.goal_jump is not None:
             meta["online_env"]["goal_jump"] = VI.asdict(od.env.goal_jump.cfg)
+        if od.env.roll_hi is not None:
+            meta["online_env"]["roll_cap"] = dict(od.env.roll_info(), eval_roll_hi_deg=eval_roll)
         log(f"online env: {json.dumps(meta['online_env'])}")
     (out / "meta.json").write_text(json.dumps(meta, indent=1, default=str))
     f = open(out / "curve.csv", "a", newline="")
@@ -485,6 +507,9 @@ def cmd_online(a):
                        ep_teacher=s_["ep_teacher"], len_teacher=round(s_["len_teacher"] / max(s_["ep_teacher"], 1), 3),
                        **{k: s_[k] for k in ("ep_jump_student", "len_jump_student", "ep_jump_teacher",
                                              "len_jump_teacher") if k in s_},
+                       **({} if "roll_over_student" not in s_ else dict(   # roll cap: episodes that commanded above it
+                           roll_over_student=round(s_["roll_over_student"] / max(s_["ep_student"], 1), 4),
+                           roll_over_teacher=round(s_["roll_over_teacher"] / max(s_["ep_teacher"], 1), 4))),
                        **od.log_extra())
             od.stats = {k: 0 for k in s_}
             acc, tacc, n_acc = {}, {}, 0
@@ -528,7 +553,7 @@ def cmd_eval(a):
     gs = JE.GoalJumpConfig.from_spec(a.goal_shift, max_n=1, before_p=0.0) if a.goal_shift else None
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                      table=(plane, floor, qo) if moved else None, cli=a if a.log_only_extra else None,
-                     hold_cap_s=a.hold_cap_s, goal_jump=gs)
+                     hold_cap_s=a.hold_cap_s, goal_jump=gs, roll_hi_deg=a.roll_hi_deg)
     geo = {"table_plane": list(plane)} if plane is not None and not a.no_render_table else None
     if geo:
         log(f"render: {TB.describe(plane)} (scene geometry override, evaluation only)")
@@ -546,7 +571,8 @@ def cmd_collect(a):
     jt = JE.JointTeacher(x(a.jt), a.device)
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     n = len(t["seeds"])
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s,
+                     roll_hi_deg=a.roll_hi_deg)
     rng = np.random.default_rng(a.seed)
     student = None
     src = np.zeros(n, np.int64)
@@ -575,6 +601,9 @@ def main(argv=None):
         q.add_argument("--horizon", type=int, default=400)
         q.add_argument("--hold-cap-s", type=float, default=None,
                        help="evaluation / collection envs: the hold_cap rule (s held in the air; default 3.5)")
+        q.add_argument("--roll-hi-deg", type=float, default=None,
+                       help="evaluation / collection envs: the wrist-roll target cap (sim deg; the real roll ends at "
+                            "101.2); online: the in-run evaluations only (default the online config's roll_hi_deg)")
         q.add_argument("--seed", type=int, default=0)
         q.add_argument("--render-worlds", type=int, default=256)
         q.add_argument("--allow-scene-change", action="store_true",
