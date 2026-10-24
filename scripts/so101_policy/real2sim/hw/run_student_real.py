@@ -338,6 +338,14 @@ def build_common(args):
     dev = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     policy = H.StudentPolicy(args.student, dev, args.cam_map or None, args.jaw_lead, None if args.amp is None else
                              bool(args.amp))
+    switch = None
+    if args.student2:                                  # two students: the first until the cube is held (SwitchPolicy)
+        second = H.StudentPolicy(args.student2, dev, args.cam_map or None, args.jaw_lead, None if args.amp is None else
+                                 bool(args.amp))
+        policy = H.SwitchPolicy(policy, second, n_hold=args.switch_hold_queries, plate_m=args.switch_plate_m,
+                                layer=layer)
+        switch = dict(first=policy.P[0].ckpt, second=second.ckpt, n_hold=policy.n_hold, plate_m=policy.plate_m,
+                      held_jaw_deg=policy.HELD_JAW_DEG, squeeze_deg=policy.SQUEEZE_DEG)
     views = H.view_specs(calib, H.REAL_CAMERAS, policy.res, interp=args.interp)
     # a real2sim student pins the crops it was trained with (cfg.crops, keyed by the student's camera names): use them;
     # a --crop that differs from them is refused unless --allow-crop-change (the images would differ from training)
@@ -368,7 +376,8 @@ def build_common(args):
                                                       n_exec=policy.n_exec, hist=policy.H, cmd_in=policy.cmd_in,
                                                       img_hist=policy.img_hist, lastcmd=policy.lastcmd,
                                                       jaw_lead=policy.jaw_lead,
-                                                      amp=policy.amp), device=dev, cam_map=policy.cam_map,
+                                                      amp=policy.amp), switch=switch, device=dev,
+                cam_map=policy.cam_map,
                 calib=str(args.calib) if calib is not None else None, joint_map=jm.describe(), kin_points=str(kp),
                 table_z=args.table_z, guard=gcfg.__dict__, qdot_window=args.qdot_window, qd_gain=args.qd_gain,
                 views={k: dict(crop_xywh=v.crop_xywh, out_wh=v.out_wh, interp=v.interp, source=v.source)
@@ -382,6 +391,12 @@ def print_setup(info):
         f"{info['student_cfg']['res']} device {info['device']}")
     log(f"joint map: {'PLACEHOLDER ' if jm['placeholder'] else ''}{jm['source']} sign {jm['sign']} offset_rad "
         f"{np.round(jm['offset_rad'], 4).tolist()} gripper_lin {np.round(jm['gripper_lin'], 5).tolist()}")
+    if info.get("switch"):
+        sw = info["switch"]
+        log(f"TWO STUDENTS: {sw['first']} until the cube is held ({sw['n_hold']} queries in a row, jaw "
+            f"{sw['held_jaw_deg'][0]:g}-{sw['held_jaw_deg'][1]:g} deg"
+            + (f", grasp point within {sw['plate_m']:g} m of the plate" if sw["plate_m"] > 0 else "")
+            + f"), then {sw['second']}")
     for k, v in info["views"].items():
         log(f"view {k}: crop {v['crop_xywh']} -> {v['out_wh']} ({v['interp']}, {v['source']})")
     if info.get("qd_gain", 1.0) != 1.0:
@@ -1006,6 +1021,11 @@ def main(argv=None):
                                  allow_abbrev=False)          # robot_test.sh checks the full flag names
     ap.add_argument("mode", choices=("replay", "dry", "live"))
     ap.add_argument("--student", required=True, help="ViralNet checkpoint (vision.viral.save_student)")
+    ap.add_argument("--student2", default="", help="second student: takes over when the cube is held (hw_lib."
+                    "SwitchPolicy); --student does the grasp")
+    ap.add_argument("--switch-hold-queries", type=int, default=5, help="--student2: held at this many queries in a row")
+    ap.add_argument("--switch-plate-m", type=float, default=0.0, help="--student2: also wait until the grasp point is "
+                    "this close (m, xy) to the first student's plate estimate (0 = switch at the hold)")
     ap.add_argument("--calib", default=str(DEFAULT_CALIB_V1), help="calib_v1.json (joint_map, student_view, episodes)")
     ap.add_argument("--kin-points", default="", help="kin_points_v1.npz (default: hw_lib.default_kin_points)")
     ap.add_argument("--device", default="", help="cuda / cpu (default cuda if available)")

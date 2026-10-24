@@ -632,7 +632,80 @@ class StudentPolicy:
         return out
 
 
-# ---- one control step (replay, dry, live) ---------------------------------------------------------------------------
+class SwitchPolicy:
+    """Two plain students in one episode (real2sim 2026-10-23): ``first`` (the grasp student) until the cube is held,
+    then ``second`` (the carry and release student) until ``reset``. Held = at ``n_hold`` queries in a row the measured
+    jaw is 4-14 deg (the real jaw holds the 30 mm cube at 8-9 deg) and the jaw target of the previous decision's last
+    executed step is more than 3 deg below it (the jaw squeezes). With ``plate_m`` > 0 the switch also waits until the
+    grasp point is within ``plate_m`` (xy) of the first student's plate estimate (median of its last 5 queries).
+    Offline check on the 100 logged robot episodes of 10-22/23 (n_hold 5): the rule switched in 60 of 60 grasped
+    episodes, 0.46 s (p50) after the hold start, and in 0 of 40 missed ones. Both students must have the same inputs
+    (cameras, res, chunk, crops, calibration) and no history or command inputs (the second one starts with no state).
+    ``query`` adds ``policy`` (0 first, 1 second) to its output."""
+
+    HELD_JAW_DEG = (4.0, 14.0)
+    SQUEEZE_DEG = 3.0
+
+    def __init__(self, first: StudentPolicy, second: StudentPolicy, n_hold=5, plate_m=0.0, layer=None):
+        for k in ("cams", "res", "n_exec", "chunk", "cam_map"):
+            if getattr(first, k) != getattr(second, k):
+                raise ValueError(f"switch: the students differ in {k}: {getattr(first, k)} / {getattr(second, k)}")
+        for k in ("crops", "calib_sha256"):
+            a, b = getattr(first.cfg, k, None), getattr(second.cfg, k, None)
+            if a != b:
+                raise ValueError(f"switch: the students differ in cfg.{k}: {a} / {b}")
+        for p in (first, second):
+            if p.H or p.cmd_in or p.img_hist or p.lastcmd:
+                raise ValueError(f"switch: {p.ckpt} has a history / command input (not supported)")
+        if int(n_hold) < 1:
+            raise ValueError("switch: n_hold must be 1 or more")
+        if plate_m > 0 and layer is None:
+            raise ValueError("switch: plate_m > 0 needs the action layer (grasp point)")
+        self.P = (first, second)
+        self.n_hold, self.plate_m, self.layer = int(n_hold), float(plate_m), layer
+        self.cams, self.cam_map, self.res = first.cams, first.cam_map, first.res
+        self.n_exec, self.chunk, self.jaw_lead, self.amp = first.n_exec, first.chunk, first.jaw_lead, first.amp
+        self.H, self.cmd_in, self.img_hist, self.lastcmd = 0, False, False, False
+        self.cfg, self.meta = first.cfg, first.meta
+        self.ckpt = f"{first.ckpt} -> {second.ckpt}"
+        self.reset()
+
+    def reset(self):
+        for p in self.P:
+            p.reset()
+        self.active, self.run, self.prev_jaw, self.switch_query, self.n_query = 0, 0, None, None, 0
+        self.plates = []
+
+    def warmup(self, n=3):
+        for p in self.P:
+            p.warmup(n)
+        self.reset()
+
+    def query(self, images, q_sim, qd_sim, **kw):
+        if self.active == 0:
+            jaw = math.degrees(float(q_sim[5]))
+            lo, hi = self.HELD_JAW_DEG
+            held = self.prev_jaw is not None and lo <= jaw <= hi and self.prev_jaw < jaw - self.SQUEEZE_DEG
+            self.run = self.run + 1 if held else 0
+            near = True
+            if self.plate_m > 0:
+                near = False
+                if self.plates:
+                    gp = self.layer.tcp(np.asarray(q_sim, np.float64))
+                    pl = np.median(np.asarray(self.plates[-5:]), 0)
+                    near = math.hypot(gp[0] - pl[0], gp[1] - pl[1]) < self.plate_m
+            if self.run >= self.n_hold and near:
+                self.active, self.switch_query = 1, self.n_query
+        out = self.P[self.active].query(images, q_sim, qd_sim)
+        if self.active == 0:
+            self.plates.append(np.asarray(out["plate_xy"], np.float64))
+        self.prev_jaw = math.degrees(float(out["exec"][-1, ARM]))
+        out["policy"] = self.active
+        self.n_query += 1
+        return out
+
+
+# ---- one control step (replay, dry, live)---------------------------------------------------------------------------
 @dataclass
 class StepOut:
     u_sim: np.ndarray | None
@@ -673,8 +746,8 @@ class Controller:
                                   "query", "ev_step", "ev_lead", "ev_range", "ev_floor", "ev_real_range", "ev_max_rel",
                                   "n_stop", "ms_qdot", "ms_frames", "ms_pre", "ms_model", "ms_guard", "ms_ctrl")}
         self.Q = {k: [] for k in ("t", "step", "chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz",
-                                  "frame_age_ms", "thumbs", "robot", "lastcmd")}  # robot / lastcmd: empty (no
-                                                                                  # key) when not used
+                                  "frame_age_ms", "thumbs", "robot", "lastcmd", "policy")}  # robot / lastcmd /
+                                                                        # policy (SwitchPolicy): empty (no key) when not used
         self.events = {}
 
     def reset(self, q_real=None):
@@ -729,6 +802,8 @@ class Controller:
             if "robot" in r and (getattr(self.p, "H", 0) or getattr(self.p, "cmd_in", False)
                                  or getattr(self.p, "img_hist", False)):
                 Q["robot"].append(np.asarray(r["robot"]))
+            if "policy" in r:
+                Q["policy"].append(int(r["policy"]))
             Q["t"].append(t)
             Q["step"].append(self.k)
             for kk in ("chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz"):

@@ -16,6 +16,8 @@ MODE="${1:-}"
 [ $# -gt 0 ] && shift
 RUN=scripts/so101_policy/real2sim/hw/run_student_real.py
 S=(--student assets/student.pt --calib assets/calib_v1.json)
+# a bundle with assets/student2.pt runs two students: student.pt until the cube is held, then student2.pt
+if [ -f assets/student2.pt ]; then S+=(--student2 assets/student2.pt); fi
 RUNS="${RUNS:-$HOME/so101_hw_runs}"
 DATA_ROOT="${DATA_ROOT:-$HOME/lerobot/data}"
 TILT=(--q-offset-deg 0,-2.086,0,0,0)

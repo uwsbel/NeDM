@@ -4,6 +4,7 @@
 # checkpoint and calib_v1.json. It writes locally only; copying it to the Orin is the user's step (README.md).
 #
 #   scripts/so101_policy/real2sim/hw/make_orin_bundle.sh <student.pt> [out_dir] [calib_v1.json]
+#   STUDENT2=<second.pt> ...   two students: <student.pt> until the cube is held, then <second.pt>
 set -euo pipefail
 HW="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HW/../../../.." && pwd)"
@@ -24,12 +25,16 @@ cp "$HW/hw_lib.py" "$HW/run_student_real.py" "$HW/README.md" "$OUT/scripts/so101
 cp "$HW/robot_test.sh" "$HW/QDGAIN_TEST.md" "$OUT/"                     # the launcher + the qd-gain test plan (bundle root)
 cp "$POINTS" "$OUT/assets/kin_points_v1.npz"
 cp "$CKPT" "$OUT/assets/student.pt"
+if [ -n "${STUDENT2:-}" ]; then          # two students (hw_lib.SwitchPolicy): student.pt grasps, student2.pt after
+  [ -f "$STUDENT2" ] || { echo "second student $STUDENT2 missing"; exit 1; }
+  cp "$STUDENT2" "$OUT/assets/student2.pt"
+fi
 if [ -f "$CALIB" ]; then cp "$CALIB" "$OUT/assets/calib_v1.json"; else echo "NOTE: no $CALIB (live mode will refuse)"; fi
 {
   echo "built $(date -Iseconds) from $ROOT (git $(git -C "$ROOT" rev-parse --short HEAD 2>/dev/null || echo ?)"\
        "$(git -C "$ROOT" status --porcelain -- src/nedm/so101_policy scripts/so101_policy/real2sim/hw 2>/dev/null | wc -l)"\
        "changed files under the copied paths)"
-  echo "student $CKPT"
+  echo "student $CKPT${STUDENT2:+ + student2 $STUDENT2 (takes over when the cube is held)}"   # header: 3 lines
   echo "calib $CALIB"
   (cd "$OUT" && find . -type f ! -name MANIFEST.txt -print0 | sort -z | xargs -0 sha256sum)
 } > "$OUT/MANIFEST.txt"
