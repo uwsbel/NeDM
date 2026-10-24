@@ -18,7 +18,7 @@ the 15 recorded rest poses.
 | `make_orin_bundle.sh` | builds the folder + `.tar.gz` for the Orin (sources, collision points, student, calib_v1.json, `assets/deploy.json`) |
 | `robot_test.sh` | one command for each test on the Orin: check / replay / dry / live / live-tilt / eval (bundle root) |
 | `tests/so101_policy/test_real2sim_hw.py` | 32 unit tests (CPU, about 15 s) |
-| `tests/so101_policy/test_real2sim_hw_deploy.py` | 13 unit tests: anti-windup, floor mode, deploy.json, bundle, HOME, no two-student mode |
+| `tests/so101_policy/test_real2sim_hw_deploy.py` | 15 unit tests: anti-windup (both signs at the range end), floor mode (custom plane, no --q-offset-deg in plane mode), deploy.json, bundle (live-tilt refused in a plane bundle), HOME, no two-student mode |
 
 ## Changes 2026-10-24 (read before the next robot day)
 
@@ -35,17 +35,22 @@ the 15 recorded rest poses.
 The action-layer floor must have the clearance above the real mat that the student was trained with (sysid
 `~/so101_r2s_claude/v8/sysid/sysid_v8.json`, coupling rule). The real mat is 8.3-17.5 mm below the sim table at the
 observed cube and plate positions (calibrated plane z = -4.7 mm - 36.4 x + 18.4 y, mm per m; +-3 mm). The bundle
-script reads the mode from the checkpoint (`v8_online.table_bias` present = plane); live mode refuses another mode
+script reads the mode from the checkpoint (`v8_online.table_bias` present with p > 0 = plane); live mode refuses another mode
 (`--allow-floor-mismatch` overrides). The banner of every run prints the mode and these numbers.
 
-| Student type | Floor mode | Eval settings (`robot_test.sh eval`) | Relative to the real mat at the observed positions |
-|---|---|---|---|
-| Trained on the sim table: C1, s28, roll-cap students | `flat` | `--floor-mode flat --table-z 0 --home 0,-5,-15,92,0,30 --amp 0 --guard '{"cmd_floor_m":-0.015,"hard_floor_m":-0.02,"i_time_s":0.2,"i_max_deg":3.0,"i_antiwindup":true}'` (floors as on 10-22 / 23) | floor +9.8 .. +19.0 mm; command stop -6.7 .. +2.5 mm; measured stop -11.7 .. -2.5 mm |
-| Trained with the v8 table randomisation (checkpoint `v8_online.table_bias`) | `plane` | `--floor-mode plane --table-plane calib --home 0,-5,-15,92,0,30 --amp 0 --guard '{"cmd_floor_m":-0.002,"hard_floor_m":-0.005,"i_time_s":0.2,"i_max_deg":3.0,"i_antiwindup":true}'` | floor +1.5 mm (as in training: 1.5 mm above the true table); command stop -2.0 mm; measured stop -5.0 mm (everywhere on the plane) |
+| Student type | Floor mode | Eval settings (`robot_test.sh eval`) | Relative to the real mat at the observed positions | ... over the task area (r 0.15-0.27 m, +-75 deg) |
+|---|---|---|---|---|
+| Trained on the sim table: C1, s28, roll-cap students | `flat` | `--floor-mode flat --table-z 0 --home 0,-5,-15,92,0,30 --amp 0 --guard '{"cmd_floor_m":-0.015,"hard_floor_m":-0.02,"i_time_s":0.2,"i_max_deg":3.0,"i_antiwindup":true}'` (floors as on 10-22 / 23) | floor +9.8 .. +19.0 mm; command stop -6.7 .. +2.5 mm; measured stop -11.7 .. -2.5 mm | floor +5.3 .. +18.6 mm; command stop -11.2 .. +2.1 mm; measured stop -16.2 .. -2.9 mm (the mat is highest at the far +y edge: 3.85 mm below the sim table) |
+| Trained with the v8 table randomisation (checkpoint `v8_online.table_bias`, p > 0) | `plane` | `--floor-mode plane --table-plane calib --home 0,-5,-15,92,0,30 --amp 0 --guard '{"cmd_floor_m":-0.002,"hard_floor_m":-0.005,"i_time_s":0.2,"i_max_deg":3.0,"i_antiwindup":true}'` | floor +1.5 mm (as in training: 1.5 mm above the true table); command stop -2.0 mm; measured stop -5.0 mm | the same (everywhere on the plane, +-3 mm calibration) |
 
 Plane mode measures the floor stops above the plane, so the flat eval stops (-15 / -20 mm) on top of the plane would
 put them 15-20 mm into the mat (double lowering): live refuses plane-mode stops deeper than 5 mm (command) / 8 mm
-(measured). The plane floor is not used for the flat students: they were trained with the floor at sim z 0, and
+(measured). Live also refuses, in plane mode: a `--table-plane c0,c1,c2` that is more than 1 mm below the calibrated
+plane anywhere on r 0.15-0.27 m, +-90 deg (`--allow-floor-mismatch` overrides), and any `--q-offset-deg` (no
+override). The mat plane is measured in the plain calib_v1 joint frame; the table-tilt correction `live-tilt` /
+`--q-offset-deg 0,-2.086,0,0,0` turns the arm frame against it, so the floor and the floor checks see the gripper
+3.7-10 mm too high and the floor goes 2-8.5 mm into the mat. **live-tilt and `--q-offset-deg` are for flat students
+only**; `robot_test.sh live-tilt` refuses a plane bundle. The plane floor is not used for the flat students: they were trained with the floor at sim z 0, and
 the plane would let them press 8-18 mm lower than in training. With the plane floor and the servo-error integral, a
 student that pushes down on the plate or the mat can reach the command stop (2 mm below the mat); that ends the
 episode ("command floor") and is the intended protection.
@@ -57,8 +62,9 @@ ep 1): the measured roll stayed at 100.69 sim deg (the real stop), the target 10
 101.21 deg (LeRobot range end), and the integral correction grew to +3 deg; the stall check compares the measured q
 with the command without the correction (101.21 - 3 = 98.2 deg): 2.5 deg >= 0.9 x lead band for 25 steps. Now
 (`GuardConfig.i_antiwindup`, default on): on a joint whose target is at / beyond its LeRobot-unit range, or whose
-corrected command would be clipped there, the error is not integrated, and the correction never pushes the command
-past the range. Offline replay of the Guard on the two logged episodes (`~/so101_r2s_claude/v8/deploy/stall_replay.json`):
+corrected command would be clipped there, the error is not integrated; the correction is 0 while the target is at /
+beyond the range (either sign: the command is then the range end, as without the integral) and never pushes the
+command past the range otherwise. Offline replay of the Guard on the two logged episodes (`~/so101_r2s_claude/v8/deploy/stall_replay.json`):
 the old rule reproduces the logged commands exactly and stalls at the logged step; the new rule has no stall, the same
 commands on the other 5 joints at every step, and the roll differs only after the first step at the range end (by up
 to 0.65 / 0.37 deg, the removed wind-up; the integral stays <= 0.67 / 0.52 deg instead of 3.0). All 102 logged
@@ -112,7 +118,7 @@ cd ~/so101_hw_c1
 ./robot_test.sh check        # files, deploy settings, env, port, cameras, calibration (opens no device)
 ./robot_test.sh replay       # a) below
 ./robot_test.sh dry          # b) below, 30 s
-./robot_test.sh live         # c) below, 15 s  (live-tilt = c) + --q-offset-deg 0,-2.086,0,0,0)
+./robot_test.sh live         # c) below, 15 s  (live-tilt = c) + --q-offset-deg 0,-2.086,0,0,0; flat bundles only)
 ./robot_test.sh eval [n] [s] # d) below: n episodes in a row (default 10 x 40 s)
 ```
 
@@ -174,13 +180,15 @@ Luffy replay of a) with the robot student: cube error before the grasp 25.3 / 21
    CPU MuJoCo with this table (held-out tasks, 100 each): the robot student 89 % (normal starts) / 91 % (HOME).
    Optional correction `--q-offset-deg 0,-2.086,0,0,0` (shoulder_lift joint-map offset = the x tilt of the fitted
    table plane; correct only if the arm base is really tilted, not for a shoulder_lift calibration error): 90 / 94 %.
+   Flat students only (`live-tilt`); never with a plane bundle (the floor would go 2-8.5 mm into the mat; refused).
    A flat table 10 mm lower: 96 / 98 %. Level table: 98 / 98 %. If you can, make the table level with the arm base.
    `--table-z` is one flat height: a value below -0.005 lets the gripper reach the table at the high side.
    Students trained with the v8 table randomisation (checkpoint `v8_online.table_bias`; configs
    `configs/so101_policy/vision/viral_r2s_online_v8_*`) learned to go down to the real table: they run in floor mode
    plane (section "Floor modes"; the bundle and `--floor-mode auto` choose it): the floor and the guard's floor
    checks 1.5 mm / -5 mm / -2 mm above the calibrated table plane, never `--table-z 0` (that floor is ~13 mm above the
-   real table at the cubes and holds the descent up) and never the flat eval stops on top of the plane.
+   real table at the cubes and holds the descent up), never the flat eval stops on top of the plane and never
+   `live-tilt` / `--q-offset-deg`.
 5. Workspace clear, you at the robot, one hand near the arm, the other on the keyboard (q / space / Esc / Ctrl+C).
    The student may command up to 0.06 rad per 20 ms step (3 rad/s); the sim teacher's per-step change p99 is
    0.03-0.04 rad.

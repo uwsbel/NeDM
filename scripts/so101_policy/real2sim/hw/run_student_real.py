@@ -27,8 +27,10 @@ Modes
 Floor (``--floor-mode``, default auto = the student's; hw_lib "floor mode"): ``flat`` for students trained on the sim
 table (floor 1.5 mm above sim z = ``--table-z``), ``plane`` for students trained with the v8 table randomisation
 (checkpoint ``v8_online.table_bias``: floor 1.5 mm above the calibrated mat plane, the guard's floor stops relative to
-that plane). Live refuses another mode than the student's and plane-mode floor stops deeper than 5 / 8 mm below the
-plane (double lowering). The banner prints the floor mode and its numbers.
+that plane). Live refuses another mode than the student's, plane-mode floor stops deeper than 5 / 8 mm below the
+plane (double lowering) and a ``--table-plane c0,c1,c2`` more than 1 mm below the calibrated plane
+(``--allow-floor-mismatch`` overrides), and ``--q-offset-deg`` in plane mode (no override: the mat plane is in the
+calib_v1 joint frame, the offset would move the floor into the mat). The banner prints the floor mode and its numbers.
 
 Examples (luffy, from the worktree root)
     ~/miniconda3/envs/so101_vision/bin/python scripts/so101_policy/real2sim/hw/run_student_real.py replay \
@@ -333,11 +335,9 @@ def lerobot_calib_path(args):
 def build_common(args):
     calib = H.load_calib(args.calib)
     jm = H.JointMap.from_calib(calib, str(args.calib))
-    if args.q_offset_deg:                              # extra joint-map offset (sim deg; e.g. the table-tilt correction)
-        qo = np.radians(np.asarray([float(v) for v in args.q_offset_deg.split(",")], np.float64))
-        if qo.shape != (5,):
-            raise SystemExit("--q-offset-deg needs 5 values (pan, lift, elbow, wrist_flex, wrist_roll; sim deg)")
-        jm.offset_rad = jm.offset_rad + qo
+    qo = parse_q_offset(args.q_offset_deg)
+    if qo is not None:                                 # extra joint-map offset (sim deg; e.g. the table-tilt fix)
+        jm.offset_rad = jm.offset_rad + np.radians(qo)
         jm.source = f"{jm.source} + --q-offset-deg {args.q_offset_deg}"
     kp = Path(args.kin_points).expanduser() if args.kin_points else H.default_kin_points()
     gcfg = H.GuardConfig.from_dict(json.loads(args.guard) if args.guard else {})
@@ -390,13 +390,27 @@ def build_common(args):
     return calib, jm, layer, gcfg, policy, views, info
 
 
+def parse_q_offset(spec):
+    """--q-offset-deg "a,b,c,d,e" (sim deg) -> array [5] (deg) or None (empty)."""
+    if not (spec or "").strip():
+        return None
+    try:
+        qo = np.asarray([float(v) for v in str(spec).split(",")], np.float64)
+    except ValueError:
+        qo = np.zeros(0)
+    if qo.shape != (5,) or not np.all(np.isfinite(qo)):
+        raise SystemExit("--q-offset-deg needs 5 values (pan, lift, elbow, wrist_flex, wrist_roll; sim deg)")
+    return qo
+
+
 def floor_setup(args, calib, meta, gcfg):
     """--floor-mode (hw_lib "floor mode"): auto = the student's mode (``H.student_floor_mode``: plane for a v8
     table-trained student, else flat; an explicit --table-plane = plane). plane: the floor above --table-plane (default
     "calib", the calibrated mat plane), --table-z must stay 0; flat: --table-z, no --table-plane. A mode other than the
-    student's or plane-mode floor stops deeper than ``H.PLANE_STOP_MIN_M`` (double lowering): live refuses (unless
-    --allow-floor-mismatch), dry / replay warn. -> dict(mode, student_mode, why, plane, table_plane_spec, problems,
-    lines)."""
+    student's, plane-mode floor stops deeper than ``H.PLANE_STOP_MIN_M`` (double lowering) or a --table-plane c0,c1,c2
+    below the calibrated mat plane (``H.floor_problems``): live refuses (unless --allow-floor-mismatch), dry / replay
+    warn. Plane mode with --q-offset-deg (``H.floor_frame_problems``: the floor in the mat): live refuses with no
+    override, dry / replay warn. -> dict(mode, student_mode, why, plane, table_plane_spec, problems, lines)."""
     st_mode, why = H.student_floor_mode(meta)
     mode = args.floor_mode
     if mode == "auto":
@@ -414,13 +428,26 @@ def floor_setup(args, calib, meta, gcfg):
         if args.table_plane:
             raise SystemExit("--floor-mode flat with --table-plane: give one of them")
         plane = None
-    probs = H.floor_problems(mode, st_mode, gcfg)
+    calib_plane = None
+    if mode == "plane" and spec != "calib":            # a custom plane: checked against the calibrated mat
+        try:
+            calib_plane = H.parse_table_plane("calib", calib)
+        except ValueError:
+            calib_plane = None
+    live = getattr(args, "mode", "") == "live"
+    hard = H.floor_frame_problems(mode, parse_q_offset(getattr(args, "q_offset_deg", "")))
+    if hard:
+        msg = "floor settings: " + "; ".join(hard)
+        if live:
+            raise SystemExit(msg + " (live refused; no override)")
+        log("WARNING: " + msg)
+    probs = H.floor_problems(mode, st_mode, gcfg, spec, plane, calib_plane)
     if probs:
         msg = "floor settings: " + "; ".join(probs)
-        if getattr(args, "mode", "") == "live" and not args.allow_floor_mismatch:
+        if live and not args.allow_floor_mismatch:
             raise SystemExit(msg + " (live refused; --allow-floor-mismatch to override)")
         log("WARNING: " + msg)
-    return dict(mode=mode, student_mode=st_mode, why=why, plane=plane, table_plane_spec=spec, problems=probs,
+    return dict(mode=mode, student_mode=st_mode, why=why, plane=plane, table_plane_spec=spec, problems=hard + probs,
                 lines=H.floor_lines(mode, why, args.table_z, plane, gcfg))
 
 
@@ -1115,7 +1142,8 @@ def main(argv=None):
     ap.add_argument("--cam-map", default="", help="student camera=real camera, e.g. top=external,wrist=wrist")
     ap.add_argument("--crop", default="", help="override crops: external=x,y,w,h;wrist=x,y,w,h")
     ap.add_argument("--q-offset-deg", default="", help="extra joint-map offset, 5 sim deg (pan, lift, elbow, wrist_flex, "
-                    "roll), added to calib offset_rad; e.g. 0,-2.086,0,0,0 = the table-tilt correction (README)")
+                    "roll), added to calib offset_rad; e.g. 0,-2.086,0,0,0 = the table-tilt correction (README); flat "
+                    "floor mode only (live refuses it in plane mode: the floor would move into the mat)")
     ap.add_argument("--allow-calib-change", action="store_true",
                     help="live: accept a --calib whose sha256 differs from the student's pinned calibration")
     ap.add_argument("--allow-crop-change", action="store_true",
@@ -1129,11 +1157,14 @@ def main(argv=None):
     ap.add_argument("--floor-mode", default="auto", choices=("auto", "flat", "plane"),
                     help="table floor: flat = above sim z = --table-z (students trained on the sim table: C1, s28, "
                     "roll-cap students); plane = above --table-plane (default calib: the calibrated real mat), for "
-                    "students trained with the v8 table randomisation (checkpoint v8_online.table_bias); auto = the "
-                    "student's (an explicit --table-plane = plane). Live refuses a mode other than the student's and "
-                    "plane-mode floor stops deeper than 5 mm (command) / 8 mm (measured) below the plane")
+                    "students trained with the v8 table randomisation (checkpoint v8_online.table_bias, p > 0); "
+                    "auto = the student's (an explicit --table-plane = plane). Live refuses a mode other than the "
+                    "student's, plane-mode floor stops deeper than 5 mm (command) / 8 mm (measured) below the plane, "
+                    "a --table-plane c0,c1,c2 more than 1 mm below the calibrated plane, and --q-offset-deg in plane "
+                    "mode")
     ap.add_argument("--allow-floor-mismatch", action="store_true",
-                    help="live: accept a floor mode other than the student's, or deep plane-mode floor stops")
+                    help="live: accept a floor mode other than the student's, deep plane-mode floor stops or a "
+                    "--table-plane below the calibrated plane (not --q-offset-deg in plane mode)")
     ap.add_argument("--table-z", type=float, default=0.0, help="flat floor: real table top z in the arm base frame (m)")
     ap.add_argument("--table-plane", default="", help="plane floor: 'calib' (calib_v1 scene.table_plane, the measured "
                     "real table) or c0,c1,c2 (m; z = c0 + c1 x + c2 y); the action-layer floor and the guard's floor "

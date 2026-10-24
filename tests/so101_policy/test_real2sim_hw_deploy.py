@@ -152,6 +152,44 @@ class TestAntiWindup(unittest.TestCase):
         self.assertAlmostEqual(float(g2.integ[0]), float(lo - t2[0]), places=12)    # new: just to the range end
         np.testing.assert_allclose(g2.prev[0], t2[0], atol=1e-12)
 
+    def test_mirrored_correction_at_the_range_end(self):
+        """A correction of the other sign when the target reaches the range end (review 2026-10-24): the roll read
+        0.4 deg above its target for 200 steps (integral -3 deg), then the student pushes past the upper end; the pan
+        the same at the lower end (+3 deg). The rule drops the correction at once (command = the range end = prev, as
+        without the integral): no stall. Without the rule the command stays 3 deg inside and prev = the target
+        beyond the range: "stall: ... blocked"."""
+        lo, hi = self.guard(True).real_range_sim()
+        for j, end, sgn in ((4, hi[4], 1.0), (0, lo[0], -1.0)):
+            q = self.q.copy()
+            q[j] = end - sgn * math.radians(0.3)
+            inside, past = q.copy(), q.copy()
+            inside[j] = end - sgn * math.radians(0.7)
+            past[j] = end + sgn * math.radians(2.4)
+            qr = self.jm.sim_to_real(q)
+            res = {}
+            for aw in (False, True):
+                g = self.guard(aw)
+                g.reset(q)
+                stall, prev = None, None
+                for k in range(300):
+                    u, _, _, stop = g.apply(inside if k < 200 else past, q, qr, np.zeros(6))
+                    self.assertEqual(stop, [])
+                    if k == 199:
+                        self.assertAlmostEqual(math.degrees(g.integ[j]), -sgn * 3.0, places=6, msg=(j, aw))
+                    st = g.stall(q, prev)
+                    if st and stall is None:
+                        stall = (k, st[0])
+                    prev = g.prev.copy()
+                res[aw] = (stall, u, g)
+            self.assertIsNotNone(res[False][0], j)                                 # without the rule: a stall
+            self.assertIn(f"{H.JOINTS[j]} blocked", res[False][0][1])
+            self.assertIsNone(res[True][0], (j, res[True][0]))                     # with it: none
+            u, g = res[True][1], res[True][2]
+            self.assertEqual(float(g.integ[j]), 0.0)
+            self.assertAlmostEqual(float(u[j]), float(end), places=9)              # the range end, as without
+            self.assertAlmostEqual(float(g.prev[j]), float(end), places=9)        # the integral
+            self.assertTrue(g.i_aw[j])
+
     def test_inside_the_range_bit_for_bit(self):
         """No joint near its range: the two rules give the same commands and correction."""
         q = np.radians([0.0, -5.0, -15.0, 80.0, 0.0, 30.0])
@@ -178,6 +216,12 @@ class TestFloorMode(unittest.TestCase):
         self.assertEqual(H.student_floor_mode({})[0], "flat")
         self.assertEqual(H.student_floor_mode({"v8_online": {"img_lag": {"lo_ms": 10.0}}})[0], "flat")
         self.assertEqual(H.student_floor_mode({"v8_online": {"table_bias": {"note": "off"}}})[0], "flat")
+        p0 = {"v8_online": {"table_bias": {**V8_REC["v8_online"]["table_bias"], "p": 0.0}}}
+        m, why = H.student_floor_mode(p0)                                    # never a lower table in training
+        self.assertEqual(m, "flat")
+        self.assertIn("p 0", why)
+        dflt = {"v8_online": {"table_bias": {"drop_mm": [0.0, 22.0]}}}       # no p: the TableBiasConfig default 0.7
+        self.assertEqual(H.student_floor_mode(dflt)[0], "plane")
         m, why = H.student_floor_mode(V8_REC)
         self.assertEqual(m, "plane")
         self.assertIn("v8_online.table_bias", why)
@@ -205,9 +249,27 @@ class TestFloorMode(unittest.TestCase):
     def test_banner_numbers(self):
         fl = H.floor_lines("flat", "x", 0.0, None, H.GuardConfig.from_dict(H.eval_guard("flat")))
         self.assertIn("floor +9.8 .. +19.0 mm, command stop -6.7 .. +2.5 mm, measured stop -11.7 .. -2.5 mm", fl[1])
+        self.assertIn("task area r 0.15-0.27 m +-75 deg (mat -17.10 .. -3.85 mm vs sim z 0): floor +5.3 .. +18.6 mm, "
+                      "command stop -11.2 .. +2.1 mm, measured stop -16.2 .. -2.9 mm", fl[2])
         pl = H.floor_lines("plane", "x", 0.0, PLANE, H.GuardConfig.from_dict(H.eval_guard("plane")))
         self.assertIn("floor +1.5 mm, command stop -2.0 mm, measured stop -5.0 mm", pl[1])
         self.assertTrue(fl[0].startswith("FLOOR MODE flat") and pl[0].startswith("FLOOR MODE plane"))
+
+    def test_task_area_and_plane_depth(self):
+        """TASK_MAT_MM = the calibrated plane over the README task area (sysid plane_on_task_annulus_mm)."""
+        from nedm.so101_policy import kin
+        self.assertEqual(H.PAN_AXIS_X, kin.PAN_AXIS_XY[0])
+        rr, aa = np.meshgrid(np.linspace(0.15, 0.27, 121), np.radians(np.linspace(-75.0, 75.0, 1501)))
+        x, y = H.PAN_AXIS_X + rr * np.cos(aa), rr * np.sin(aa)
+        z = (PLANE[0] + PLANE[1] * x + PLANE[2] * y) * 1e3
+        np.testing.assert_allclose([z.min(), z.max()], H.TASK_MAT_MM, atol=0.001)
+        self.assertEqual(H.plane_depth_below(PLANE, PLANE), 0.0)
+        self.assertEqual(H.plane_depth_below((PLANE[0] + 0.003, *PLANE[1:]), PLANE), 0.0)          # higher: ok
+        self.assertAlmostEqual(H.plane_depth_below((PLANE[0] - 0.003, *PLANE[1:]), PLANE), 0.003, places=12)
+        flat0 = (0.0, 0.0, 0.0)                                       # z 0 (the sim table) vs the mat: above it
+        self.assertEqual(H.plane_depth_below(flat0, PLANE), 0.0)
+        dz = H.plane_depth_below((PLANE[0], PLANE[1], PLANE[2] - 0.02), PLANE)     # 20 mm/m less y slope
+        self.assertAlmostEqual(dz, 0.02 * 0.27, places=6)             # deepest at r 0.27 m, +90 deg
 
     def test_print_setup(self):
         """The run's banner: floor lines, the integral with its anti-windup, HOME, then the views and the qd gain."""
@@ -250,6 +312,34 @@ class TestFloorMode(unittest.TestCase):
             self.assertTrue(f["problems"])
             f = R.floor_setup(a(allow_floor_mismatch=True, **kw), calib, meta, G(g))
             self.assertTrue(f["problems"])
+        # a custom --table-plane: checked against the calibrated mat (more than 1 mm below = the floor in the mat)
+        spec = ",".join(repr(v) for v in PLANE)
+        f = R.floor_setup(a(table_plane=spec), calib, V8_REC, G(H.eval_guard("plane")))
+        self.assertEqual((f["mode"], f["plane"], f["table_plane_spec"], f["problems"]), ("plane", PLANE, spec, []))
+        hi = ",".join(repr(v) for v in (PLANE[0] + 0.004, PLANE[1], PLANE[2]))
+        self.assertEqual(R.floor_setup(a(table_plane=hi), calib, V8_REC, G(H.eval_guard("plane")))["problems"], [])
+        low = ",".join(repr(v) for v in (PLANE[0] - 0.002, PLANE[1], PLANE[2]))
+        with self.assertRaises(SystemExit) as cm:
+            R.floor_setup(a(table_plane=low), calib, V8_REC, G(H.eval_guard("plane")))
+        self.assertIn("below the calibrated mat plane", str(cm.exception))
+        self.assertTrue(R.floor_setup(a("dry", table_plane=low), calib, V8_REC, G(H.eval_guard("plane")))["problems"])
+        self.assertTrue(R.floor_setup(a(table_plane=low, allow_floor_mismatch=True), calib, V8_REC,
+                                      G(H.eval_guard("plane")))["problems"])
+        with self.assertRaises(SystemExit):                       # a custom plane and no calibrated plane to check
+            R.floor_setup(a(table_plane=spec), {}, V8_REC, G(H.eval_guard("plane")))
+        # --q-offset-deg (live-tilt) in plane mode: the floor in the mat; live refuses with NO override
+        for qo in ("0,-2.086,0,0,0", "0,0,0.5,0,0", "1,0,0,0,0"):
+            for allow in (False, True):
+                with self.assertRaises(SystemExit, msg=(qo, allow)) as cm:
+                    R.floor_setup(a(q_offset_deg=qo, allow_floor_mismatch=allow), calib, V8_REC,
+                                  G(H.eval_guard("plane")))
+                self.assertIn("no override", str(cm.exception))
+            f = R.floor_setup(a("dry", q_offset_deg=qo), calib, V8_REC, G(H.eval_guard("plane")))
+            self.assertTrue(any("--q-offset-deg" in p for p in f["problems"]))
+        f = R.floor_setup(a(q_offset_deg="0,0,0,0,0"), calib, V8_REC, G(H.eval_guard("plane")))
+        self.assertEqual(f["problems"], [])
+        f = R.floor_setup(a(q_offset_deg="0,-2.086,0,0,0"), calib, {}, G(H.eval_guard("flat")))   # flat: as before
+        self.assertEqual((f["mode"], f["problems"]), ("flat", []))
         with self.assertRaises(SystemExit):
             R.floor_setup(a(floor_mode="plane", table_z=-0.01), calib, V8_REC, H.GuardConfig())
         with self.assertRaises(SystemExit):
@@ -333,6 +423,26 @@ class TestDeployJsonAndBundle(unittest.TestCase):
             d = json.loads((out / "assets" / "deploy.json").read_text())
             self.assertEqual(d["floor_mode"], mode)
             self.assertFalse((out / "assets" / "student2.pt").exists())
+            if mode == "plane":
+                self.live_tilt_refused(out)
+
+    def live_tilt_refused(self, bundle):
+        """robot_test.sh live-tilt in a plane bundle stops before run_student_real.py (a python shim exits 99 if it
+        were started; it never opens a device)."""
+        import shutil
+        if shutil.which("script") is None:
+            self.skipTest("no script(1) for a TTY")
+        b = Path(self.tmp.name) / "shimbin"
+        b.mkdir(exist_ok=True)
+        (b / "python").write_text(f"#!/usr/bin/env bash\ncase \"${{1:-}}\" in *run_student_real.py) echo SHIM_RUN; "
+                                  f"exit 99 ;; esac\nexec {sys.executable} \"$@\"\n")
+        (b / "python").chmod(0o755)
+        env = dict(os.environ, PATH=f"{b}:{os.environ['PATH']}", CONDA_DEFAULT_ENV="lerobot", RUNS=str(b / "runs"))
+        r = subprocess.run(["script", "-qec", "./robot_test.sh live-tilt 4", "/dev/null"], cwd=bundle, env=env,
+                           capture_output=True, text=True, timeout=120)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("live-tilt is for flat students only", r.stdout)
+        self.assertNotIn("SHIM_RUN", r.stdout)
 
 
 if __name__ == "__main__":

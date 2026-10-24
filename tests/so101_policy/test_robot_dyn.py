@@ -342,6 +342,36 @@ class TestIntegral(unittest.TestCase):
             want = 3.0 if tag == "off" else math.degrees(hi) - 101.08
             np.testing.assert_allclose(torch.rad2deg(o[:, 0, 4]).numpy(), 90.0 + want, atol=1e-6)
 
+    def test_antiwindup_mirrored(self):
+        """A correction of the other sign (the joint read beyond its command) when the command reaches the range end:
+        the new rule drops it at once (the command = the range end, as without the integral); the old rule keeps it.
+        World 0: negative integral, then the command at the upper end; world 1: positive integral, the lower end."""
+        hi, lo = math.radians(101.2), math.radians(-100.0)
+        lim = (torch.tensor([-10.0, -10.0, -10.0, -10.0, lo, -10.0], dtype=torch.float64),
+               torch.tensor([10.0, 10.0, 10.0, 10.0, hi, 10.0], dtype=torch.float64))
+        q = torch.zeros(2, 6, dtype=torch.float64)
+        q[0, 4], q[1, 4] = hi - math.radians(0.3), lo + math.radians(0.3)
+        c1 = q.clone()
+        c1[0, 4], c1[1, 4] = hi - math.radians(0.7), lo + math.radians(0.7)    # 0.4 deg inside the measured q
+        c2 = q.clone()
+        c2[0, 4], c2[1, 4] = hi, lo                                            # the layer's target at the range end
+        res = {}
+        for tag in ("off", "on"):
+            d = dyn(2, i_time_s=0.2, i_antiwindup=tag == "on")
+            for _ in range(40):
+                decision(d, c1[:, None].expand(2, 5, 6), q=q, lim=lim)
+            i_before = torch.rad2deg(d.integ[:, 4]).clone()
+            o = decision(d, c2[:, None].expand(2, 5, 6), q=q, lim=lim)
+            res[tag] = (i_before, o, d.integ.clone())
+        for tag in ("off", "on"):                                              # wound up the same way inside
+            np.testing.assert_allclose(res[tag][0].numpy(), [-3.0, 3.0], atol=1e-9)
+        o0, o1 = res["off"][1], res["on"][1]
+        k = np.arange(1, 6) * 0.3 * JE.CONTROL_DT / 0.2                      # old: it integrates the 0.3 deg back
+        np.testing.assert_allclose(torch.rad2deg(o0[:, :, 4] - c2[:, None, 4]).numpy(),
+                                   np.stack((-3.0 + k, 3.0 - k)), atol=1e-9)        # ... slowly: ~3 deg stays
+        np.testing.assert_allclose(o1[:, :, 4].numpy(), c2[:, None, 4].expand(2, 5).numpy(), atol=1e-12)   # new
+        self.assertEqual(float(res["on"][2][:, 4].abs().max()), 0.0)
+
 
 # ---- the env: bit-identical when off, the stage in the step loop -----------------------------------------------------
 def head_step(env, targets):

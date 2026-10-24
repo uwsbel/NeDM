@@ -235,8 +235,9 @@ class RobotDynConfig:
     i_v_min: float = 0.02               #   faster than i_v_min (rad/s); the sent command = command + integ
     i_antiwindup: bool = False          #   the robot guard's anti-windup (hw_lib.Guard, 2026-10-24): no integration on
                                         #   a joint whose command is at its actuator range (tlo .. thi, the roll cap
-                                        #   included) or whose corrected command would pass it, and the correction is
-                                        #   kept within [min(0, tlo - cmd), max(0, thi - cmd)]; False = the old rule
+                                        #   included) or whose corrected command would pass it; the correction is 0
+                                        #   for a command at / beyond the range (either sign), else kept within
+                                        #   [tlo - cmd, thi - cmd]; False = the old rule
     servo: dict = field(default_factory=dict)   # the fitted real servo (``servo_spec`` keys); {} = off
 
     def __post_init__(self):
@@ -941,7 +942,8 @@ class RobotDyn:
                 sat = (c5 >= hi5 - tol) | (c5 <= lo5 + tol) | (w5 >= hi5 - tol) | (w5 <= lo5 + tol)
                 e = torch.where(sat, torch.zeros_like(e), e)
                 new = (self.integ + e * (CONTROL_DT / c.i_time_s)).clamp(-im, im)
-                new = torch.minimum(torch.maximum(new, (lo5 - c5).clamp(max=0.0)), (hi5 - c5).clamp(min=0.0))
+                at = (c5 >= hi5 - tol) | (c5 <= lo5 + tol)      # a command at / beyond the range: no correction
+                new = torch.where(at, torch.zeros_like(new), torch.minimum(torch.maximum(new, lo5 - c5), hi5 - c5))
                 self.integ = torch.where(self.on[:, None], new, self.integ)
             else:
                 self.integ = torch.where(self.on[:, None], (self.integ + e * (CONTROL_DT / c.i_time_s)).clamp(-im, im),

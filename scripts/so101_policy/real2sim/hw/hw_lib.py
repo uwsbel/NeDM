@@ -97,6 +97,14 @@ PLANE_STOP_MIN_M = {"cmd_floor_m": -0.005, "hard_floor_m": -0.008}
 # The calibrated mat plane at the 184 observed cube and plate positions of the robot logs, mm relative to sim z = 0
 # (sysid_v8.json table.json "plane at cubes + plates" min / max): for the banner's flat-mode clearances
 OBSERVED_MAT_MM = (-17.47, -8.31)
+# ... and over the whole task area of the README checklist (cube and plate r 0.15-0.27 m about the pan axis, +-75 deg;
+# sysid_v8.json table_dz_range_m.deployment.plane_on_task_annulus_mm): the mat is highest at the far +y edge
+TASK_R_M, TASK_DEG = (0.15, 0.27), 75.0
+TASK_MAT_MM = (-17.1036, -3.8492)
+PAN_AXIS_X = 0.0388            # m, the vertical pan axis in the world (kin.PAN_AXIS_XY)
+# A --table-plane c0,c1,c2 other than "calib": live refuses it if it is more than this below the calibrated mat plane
+# anywhere on r TASK_R_M, +-PLANE_CHECK_DEG (the floor would be in the mat; m)
+PLANE_CHECK_DEG, PLANE_LOW_TOL_M = 90.0, 0.001
 
 
 def eval_guard(mode):
@@ -108,20 +116,36 @@ def eval_guard(mode):
 
 def student_floor_mode(meta):
     """Checkpoint keys of a student (``StudentPolicy.meta``: everything but the weights) -> (floor mode, why): "plane"
-    if it was trained with the v8 table randomisation (``v8_online.table_bias`` on; ``table_bias.is_on``), else
-    "flat"."""
+    if it was trained with the v8 table randomisation (``v8_online.table_bias`` on, ``table_bias.is_on``, with a
+    probability ``p`` > 0 of a lower / tilted table), else "flat"."""
+    from nedm.so101_policy import table_bias as TBI
     tb = dict(((meta or {}).get("v8_online") or {}).get("table_bias") or {})
-    if set(tb) - {"note"}:
+    p = float(tb.get("p", TBI.TableBiasConfig.p))
+    if TBI.is_on(tb) and p > 0.0:
         return "plane", ("trained with the v8 table randomisation (checkpoint v8_online.table_bias: p {p}, drop {d} mm "
                          "at x {x} m, slope x {sx} / y {sy} mm per m)").format(
             p=tb.get("p"), d=tb.get("drop_mm"), x=tb.get("x_ref_m"), sx=tb.get("slope_x"), sy=tb.get("slope_y"))
+    if TBI.is_on(tb):
+        return "flat", f"trained on the sim table (checkpoint v8_online.table_bias with p {p:g}: never a lower table)"
     return "flat", "trained on the sim table (no v8_online.table_bias in the checkpoint)"
 
 
-def floor_problems(mode, student_mode, gcfg):
+def plane_depth_below(plane, ref, r=TASK_R_M, deg=PLANE_CHECK_DEG):
+    """How far (m, >= 0) the plane ``plane`` (c0, c1, c2) lies below ``ref`` at most on r ``r`` about the pan axis,
+    angle +-``deg`` (0 = nowhere below)."""
+    rr, aa = np.meshgrid(np.linspace(r[0], r[1], 13), np.radians(np.linspace(-deg, deg, 181)))
+    x, y = PAN_AXIS_X + rr * np.cos(aa), rr * np.sin(aa)
+    d = np.asarray(plane, np.float64) - np.asarray(ref, np.float64)
+    return float(max(0.0, -(d[0] + d[1] * x + d[2] * y).min()))
+
+
+def floor_problems(mode, student_mode, gcfg, plane_spec="calib", plane=None, calib_plane=None):
     """Floor settings that do not fit the student -> list of strings (empty = ok): a floor mode other than the
-    student's (``student_floor_mode``), or plane-mode floor stops deeper than ``PLANE_STOP_MIN_M`` (double lowering).
-    run_student_real.py: live refuses them (unless --allow-floor-mismatch), dry / replay warn."""
+    student's (``student_floor_mode``), plane-mode floor stops deeper than ``PLANE_STOP_MIN_M`` (double lowering), or a
+    plane mode ``plane_spec`` other than "calib" whose ``plane`` lies more than ``PLANE_LOW_TOL_M`` below the
+    calibrated mat plane ``calib_plane`` (None: not known, also a problem) on the task area (``plane_depth_below``).
+    run_student_real.py: live refuses them (unless --allow-floor-mismatch), dry / replay warn. The joint-map offset
+    rule is ``floor_frame_problems`` (no override)."""
     bad = []
     if mode != student_mode:
         bad.append(f"floor mode {mode} but the student needs {student_mode}")
@@ -131,7 +155,31 @@ def floor_problems(mode, student_mode, gcfg):
             if v < lim:
                 bad.append(f"guard {k} {v * 1e3:g} mm below the mat plane (plane mode allows down to {lim * 1e3:g} "
                            f"mm: deeper stops = double lowering, the gripper may press the table)")
+        if plane is not None and (plane_spec or "calib") != "calib":
+            if calib_plane is None:
+                bad.append(f"--table-plane {plane_spec}: the calibration has no scene.table_plane to check it against")
+            else:
+                dz = plane_depth_below(plane, calib_plane)
+                if dz > PLANE_LOW_TOL_M:
+                    bad.append(f"--table-plane {plane_spec} is up to {dz * 1e3:.1f} mm below the calibrated mat plane "
+                               f"(r {TASK_R_M[0]}-{TASK_R_M[1]} m, +-{PLANE_CHECK_DEG:g} deg; allowed "
+                               f"{PLANE_LOW_TOL_M * 1e3:g} mm): the floor would be in the mat")
     return bad
+
+
+def floor_frame_problems(mode, q_offset_deg=None):
+    """Plane mode with an extra joint-map offset (run_student_real.py --q-offset-deg, e.g. live-tilt's table-tilt
+    correction 0,-2.086,0,0,0) -> list of strings (empty = ok). The calibrated mat plane is measured in the plain
+    calib_v1 joint frame; an offset turns the arm frame against it, and the floor and the floor checks then see the
+    gripper at a wrong height above the mat (live-tilt: 3.7-10 mm too high at r 0.15-0.27 m, i.e. the floor 2-8.5 mm
+    in the mat). The tilt correction is for flat students only (the plane floor already follows the real table).
+    run_student_real.py: live refuses it with no override, dry / replay warn."""
+    qo = np.zeros(ARM) if q_offset_deg is None else np.asarray(q_offset_deg, np.float64)
+    if mode == "plane" and np.any(qo != 0.0):
+        return [f"--q-offset-deg {','.join(f'{v:g}' for v in qo)} in floor mode plane: the mat plane is in the "
+                "calib_v1 joint frame, an offset moves the floor into the mat (live-tilt / --q-offset-deg are for "
+                "flat students only)"]
+    return []
 
 
 def floor_lines(mode, why, table_z, plane, gcfg):
@@ -147,15 +195,19 @@ def floor_lines(mode, why, table_z, plane, gcfg):
                 f"the plane. Relative to the real mat (everywhere, +-3 mm calibration): floor {f:+.1f} mm, command "
                 f"stop {cmd:+.1f} mm, measured stop {hard:+.1f} mm"]
     z = table_z * 1e3
-    lo, hi = OBSERVED_MAT_MM
 
-    def rng(v):                 # a height relative to sim z = 0 -> relative to the mat at the observed positions
-        a, b = v - hi, v - lo
+    def rng(v, mat):            # a height relative to sim z = 0 -> relative to the mat (mat range vs sim z 0, mm)
+        a, b = v - mat[1], v - mat[0]
         return f"{a:+.1f} .. {b:+.1f} mm"
+    (lo, hi), (tlo, thi) = OBSERVED_MAT_MM, TASK_MAT_MM
     return [f"FLOOR MODE flat: student {why}",
             f"  floor {f:.1f} mm above sim z = table_z {z:+.1f} mm; stops: command {cmd:+.1f} mm, measured {hard:+.1f} "
             f"mm (+ table_z). Relative to the real mat at the observed cube / plate positions ({lo:.1f} .. {hi:.1f} mm "
-            f"vs sim z 0): floor {rng(z + f)}, command stop {rng(z + cmd)}, measured stop {rng(z + hard)}"]
+            f"vs sim z 0): floor {rng(z + f, OBSERVED_MAT_MM)}, command stop {rng(z + cmd, OBSERVED_MAT_MM)}, measured "
+            f"stop {rng(z + hard, OBSERVED_MAT_MM)}",
+            f"  task area r {TASK_R_M[0]}-{TASK_R_M[1]} m +-{TASK_DEG:g} deg (mat {tlo:.2f} .. {thi:.2f} mm vs sim z "
+            f"0): floor {rng(z + f, TASK_MAT_MM)}, command stop {rng(z + cmd, TASK_MAT_MM)}, measured stop "
+            f"{rng(z + hard, TASK_MAT_MM)}"]
 
 
 def load_calib(path):
@@ -480,10 +532,11 @@ class Guard:
     target 100.9-101.1, range end 101.21, the error 0.4 deg < i_e_max_deg so the integral reached +3 deg; the sent
     command stayed clipped at 101.21, ``prev`` = 101.21 - 3 = 98.2 deg, 2.5 deg >= 0.9 x LEAD from the measured roll:
     "stall: wrist_roll blocked" after 25 steps). With the rule, on a joint whose action-layer target or student target
-    is at / beyond its range, or whose corrected command would be clipped there, the error is not integrated, and the
-    correction is limited to [min(0, lo - target), max(0, hi - target)] (it never pushes the command past the range;
-    0 when the target is at / beyond it): the sent command is the same clipped value, ``prev`` = the target. Joints
-    inside their range are not changed. ``i_aw`` [5] bool: the arm joints the rule held in the last ``apply`` (at /
+    is at / beyond its range, or whose corrected command would be clipped there, the error is not integrated; the
+    correction is 0 on a joint whose action-layer target is at / beyond its range (either sign: the sent command is
+    the clipped target and ``prev`` = that command, as without the integral), else limited to [lo - target,
+    hi - target] (it never pushes the command past the range; ``prev`` = the target). Joints inside their range are
+    not changed. ``i_aw`` [5] bool: the arm joints the rule held in the last ``apply`` (at /
     beyond the range; logged per step as ``i_aw``)."""
 
     def __init__(self, cfg: GuardConfig, layer: ActionLayer, jmap: JointMap, limits: RealLimits):
@@ -566,8 +619,9 @@ class Guard:
                              | (c5 <= rlo + tol))
                 e = np.where(self.i_aw, 0.0, e)
             self.integ = np.clip(self.integ + e * (DT / c.i_time_s), -imax, imax)
-            if c.i_antiwindup:             # bleed off: never past the range, 0 for a target at / beyond it
-                self.integ = np.clip(self.integ, np.minimum(0.0, rlo - t5), np.maximum(0.0, rhi - t5))
+            if c.i_antiwindup:             # bleed off: 0 for a target at / beyond the range, else never past it
+                at = (t5 >= rhi - tol) | (t5 <= rlo + tol)
+                self.integ = np.where(at, 0.0, np.clip(self.integ, rlo - t5, rhi - t5))
             u = u.copy()
             u[:ARM] += self.integ
         ur = self.jmap.sim_to_real(u)

@@ -5,7 +5,8 @@
 #   ./robot_test.sh replay                3 recordings, no robot (model time on this computer)
 #   ./robot_test.sh dry [s] [args]        robot + cameras, reads only, no motor writes (default 30 s)
 #   ./robot_test.sh live [s] [args]       MOVES THE ROBOT (default 15 s)
-#   ./robot_test.sh live-tilt [s] [args]  live + the table-tilt correction --q-offset-deg 0,-2.086,0,0,0 (README)
+#   ./robot_test.sh live-tilt [s] [args]  live + the table-tilt correction --q-offset-deg 0,-2.086,0,0,0 (README;
+#                                         flat students only: refused for a floor mode plane bundle)
 #   ./robot_test.sh eval [n] [s] [args]   MOVES THE ROBOT: n episodes in a row (default 10 x 40 s), servo correction
 #
 # [args] go to run_student_real.py as they are. Outputs: ~/so101_hw_runs/<mode>_<time>/ (RUNS overrides).
@@ -23,7 +24,7 @@ DATA_ROOT="${DATA_ROOT:-$HOME/lerobot/data}"
 TILT=(--q-offset-deg 0,-2.086,0,0,0)
 export HF_HUB_OFFLINE=1
 
-usage() { sed -n '2,12p' "$SELF" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,13p' "$SELF" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 # assets/deploy.json (run_student_real.py deploy-json, written by make_orin_bundle.sh from the student checkpoint):
 #   floor_mode  flat  = students trained on the sim table (C1, s28, roll-cap students): floor 1.5 mm above sim z 0,
@@ -152,6 +153,11 @@ EOF
     activate
     files_ok || { echo "bundle files changed or missing (MANIFEST.txt): refusing"; exit 1; }
     load_deploy
+    if [ "$MODE" = live-tilt ] && [ "$FLOOR_MODE" = plane ]; then   # (run_student_real.py refuses it as well)
+      echo "live-tilt is for flat students only: this bundle's floor mode is plane, the floor already follows the" \
+           "calibrated table (the tilt correction would lower it again, into the mat). Use live."
+      exit 1
+    fi
     T=30; [ "$MODE" != dry ] && T=15
     N=1
     if [ "$MODE" = eval ]; then
