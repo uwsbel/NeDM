@@ -2,7 +2,8 @@
 joint-map offset). CPU only. Writes OUT/roll.json.
 
 Per robot step: measured roll q_sim[:, 4], written command u_sim[:, 4], student target u_target[:, 4] (sim deg).
-Per episode: max measured / commanded roll, time near the stop, guard stall on the roll, roll at the hold start.
+Per episode: max measured / commanded roll, time near the stop (seconds from the real step durations np.diff(t), the
+robot step is ~25.5 ms on average), guard stall on the roll, roll at the hold start.
 Teleop: the operator's roll range (sim deg).
 
     PYTHONPATH=<wt>/src ~/miniconda3/envs/so101_vision/bin/python roll.py
@@ -43,11 +44,12 @@ def main():
         U.append(u[np.isfinite(u)])
         T.append(ut)
         stall = "wrist_roll" in str(e.get("end_reason"))
+        dts = np.diff(t, append=t[-1] + 0.02) if len(t) else t     # real step durations (s; mean ~25.5 ms, not 20)
         rows.append(dict(id=e["id"], student=e["student"], stop_deg=stop, lo_sim_deg=(lo + off) if lo is not None else None,
                          home_roll=float(q[0]), roll_max=float(q.max()), roll_min=float(q.min()),
                          cmd_max=float(np.nanmax(u)), target_max=float(ut.max()),
-                         s_within_2deg_of_stop=float((q > stop - 2.0).sum() * 0.02) if stop else None,
-                         s_target_beyond_stop=float((ut > stop).sum() * 0.02) if stop else None,
+                         s_within_2deg_of_stop=float(dts[q > stop - 2.0].sum()) if stop else None,
+                         s_target_beyond_stop=float(dts[ut > stop].sum()) if stop else None,
                          stall=stall, end_reason=e.get("end_reason"), grasp=k is not None,
                          roll_at_hold=float(q[k]) if k is not None else None,
                          roll_max_after_hold=float(q[k:].max()) if k is not None else None))

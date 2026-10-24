@@ -8,7 +8,14 @@ measured q at every query), one-step RMS; for the 12 fit episodes and for the 10
 session. Also a small grid around the evaluation setting (delay, lag, dead band, gravity compliance scales) on the
 new episodes: does the optimum move?
 
-    PYTHONPATH=<wt>/src ~/miniconda3/envs/so101_vision/bin/python servo_check.py
+Outliers: the new episodes whose free-run shoulder_lift RMS (fitted setting) exceeds OUTLIER_LIFT_DEG are listed with
+their wrist / external views at the queries of the largest shoulder_lift error (img/servo_outlier_views.jpg) and the
+same metrics are repeated without them. Per-episode values: servo_per_episode.json.
+
+The MuJoCo model (gravity torques): --xml, else $SO101_XML, else the repo's pinned vendor copy
+(nedm.render.so101.vendor_xml: contact_nrd/so101_grasp/vendor, fetched by contact_nrd/so101_grasp/fetch_sources.py).
+
+    PYTHONPATH=<wt>/src ~/miniconda3/envs/so101_vision/bin/python servo_check.py [--xml <so101.xml>]
 """
 from __future__ import annotations
 
@@ -21,8 +28,8 @@ import torch
 import servo_sim as SS
 import sysid_lib as L
 
-XML = ("/home/harry/.t3/worktrees/NeDM-push-ppo/t3-dded53d1/contact_nrd/so101_grasp/vendor/mujoco_menagerie/"
-       "robotstudio_so101/so101.xml")          # read only (gitignored vendor file)
+XML = None                                     # set in main (resolve_xml)
+OUTLIER_LIFT_DEG = 1.0                         # free-run shoulder_lift RMS above this = outlier episode (deg)
 GRASP_POINT = np.array([0.0105, 0.0, -0.092])
 FIT_EPISODES = {"live_20261022_144731", "live_20261022_152157", "live_20261022_152431"} | \
     {f"eval_20261022_151223/ep_0{i}" for i in range(1, 7)} | {f"eval_20261022_153448/ep_0{i}" for i in range(1, 4)}
@@ -38,6 +45,19 @@ PROP = dict(                                   # eval_final.py "proposed" = Robo
     vmax_rad_s=[3.0, 2.3, 3.0, 3.0, 1.0, 2.2],
     cube_mass_kg=0.03)
 LIM = np.array([1.91986, 1.74533, 1.69, 1.65806, 2.84121, 1.74533])
+
+
+def resolve_xml(arg=None):
+    """--xml, else $SO101_XML, else the repo's pinned vendor copy (read only)."""
+    import os
+    from pathlib import Path
+    for c in (arg, os.environ.get("SO101_XML")):
+        if c:
+            if not Path(c).exists():
+                raise FileNotFoundError(c)
+            return str(c)
+    from nedm.render.so101 import vendor_xml
+    return str(vendor_xml())
 
 
 def gravity(q):
@@ -155,7 +175,58 @@ def pooled_c(r, n, idx):
     return np.sqrt((r ** 2 * n).sum(0) / np.maximum(n.sum(0), 1))
 
 
+def outlier_views(ids, E_by_id, path, n_per_ep=2):
+    """Wrist + external query thumbs of each outlier episode at the queries with the largest shoulder_lift
+    |command - measured| -> one jpg."""
+    import cv2
+    eps = {e["id"]: e for e in L.list_episodes()}
+    tiles = []
+    for i in ids:
+        d = L.load(eps[i])
+        E = E_by_id[i]
+        err = np.degrees(np.abs(E["u"][:, 1] - E["q"][:, 1]))
+        steps = d["qry_step"].astype(int)
+        order = []
+        for j in np.argsort(-err[np.clip(steps, 0, len(err) - 1)]):      # largest errors, >= 10 queries apart
+            if all(abs(int(j) - k) >= 10 for k in order):
+                order.append(int(j))
+            if len(order) == n_per_ep:
+                break
+        for j in sorted(order):
+            row = np.concatenate([cv2.resize(d["qry_thumbs"][j, c], (224, 224), interpolation=cv2.INTER_NEAREST)
+                                  for c in (0, 1)], 1).copy()
+            cv2.putText(row, f"{i[-24:]} t{E['t'][steps[j]]:.0f}s lift err {err[steps[j]]:.1f}", (3, 12),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.35, (255, 0, 255), 1)
+            tiles.append(row)
+    if tiles:
+        (path.parent).mkdir(parents=True, exist_ok=True)
+        cv2.imwrite(str(path), cv2.cvtColor(np.concatenate(tiles, 0), cv2.COLOR_RGB2BGR))
+
+
+def per_episode_rows(Es, R, names):
+    """Per-episode record (fitted setting): RMS per joint (free / decision), max |integral correction| per arm joint,
+    the guard's i_max, the lowest measured gripper point minus the calibrated plane (episode minimum, mm)."""
+    eps = {e["id"]: e for e in L.list_episodes()}
+    rows = []
+    for k, E in enumerate(Es):
+        d = L.load(eps[E["name"]])
+        meta = json.loads(str(d["meta"])) if "meta" in d.files else {}
+        g = meta.get("setup", {}).get("guard", {}) if isinstance(meta, dict) else {}
+        ic = np.degrees(np.abs(d["i_corr"])).max(0).tolist() if "i_corr" in d.files else None
+        P, _ = L.fk(E["q"])
+        low = L.lowest(E["q"])
+        rows.append(dict(id=E["name"], fit=E["name"] in FIT_EPISODES, i_max_deg=g.get("i_max_deg"),
+                         i_corr_max_deg=ic, low_minus_plane_min_mm=float(((low - L.table_z_at(P[:, :2])) * 1e3).min()),
+                         free_rms_deg=R["free"][0][k, 0].tolist(), decision_rms_deg=R["decision"][0][k, 0].tolist()))
+    return rows
+
+
 def main():
+    import argparse
+    global XML
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--xml", default=None, help="so101.xml (MuJoCo, gravity torques); default $SO101_XML or the repo vendor copy")
+    XML = resolve_xml(ap.parse_args().xml)
     torch.set_num_threads(1)            # tiny tensors: one thread is ~10x faster than 16
     eps = L.list_episodes()
     Es, G = [], {}
@@ -187,20 +258,28 @@ def main():
         print(label, json.dumps(L.r3({k: v for k, v in res[label].items() if not k.startswith("per_session")}, 3)),
               flush=True)
     out["rms_deg"] = res
-    # contact check: the 4 new episodes with the largest shoulder_lift error (free run 1.7-3.1 deg) are open-jaw hovers
-    # with the fixed jaw tip on the cube (wrist view, img/servo_outlier_views.jpg): the arm stays 2-3.6 deg from its
-    # command with the integral correction at its 3 deg cap. Same metrics with a stricter contact mask (|u - q| > 2 deg
-    # while still >= 6 reads; the fit used 4 deg) and without those 4 episodes.
+    # outliers (rule: new episodes with free-run shoulder_lift RMS > OUTLIER_LIFT_DEG, fitted setting). On 10-23 these
+    # were open-jaw hovers with the fixed jaw tip on the cube (img/servo_outlier_views.jpg, looked at by eye): the arm
+    # stays 2-3.6 deg from its command with the integral correction at its 3 deg cap. Same metrics with a stricter
+    # contact mask (|u - q| > 2 deg while still >= 6 reads; the fit used 4 deg) and without the outliers.
+    R0 = batched(Es, G, to_P(PROP), ("free", "decision"))
+    rows = per_episode_rows(Es, R0, names)
+    (L.OUT / "servo_per_episode.json").write_text(json.dumps(L.r3(rows, 4), indent=1))
+    contact = {names[i] for i in new_idx if R0["free"][0][i, 0, 1] > OUTLIER_LIFT_DEG}
+    lift_sorted = np.sort(R0["free"][0][new_idx, 0, 1])[::-1]
+    outlier_views(sorted(contact), {E["name"]: E for E in Es}, L.OUT / "img" / "servo_outlier_views.jpg")
+    print(f"outliers (free shoulder_lift > {OUTLIER_LIFT_DEG} deg): {sorted(contact)}; top free lift RMS "
+          f"{np.round(lift_sorted[:6], 2).tolist()}", flush=True)
     global blocked
     b4 = blocked
     blocked = lambda E: b4(E, thr_deg=2.0)
     R = batched(Es, G, to_P(PROP), ("free", "decision"))
     blocked = b4
-    contact = {"eval_20261022_213129/ep_03", "so101_hw_bgfix_jump/eval_20261023_132626/ep_03", "eval_20261023_141614/ep_02",
-               "eval_20261023_142949/ep_06"}
     new_nc = [i for i in new_idx if names[i] not in contact]
     out["rms_deg_contact_mask_2deg"] = dict(
         note="fitted setting, contact mask 2 deg (fit: 4 deg)", contact_episodes=sorted(contact),
+        outlier_rule=f"new episodes with free-run shoulder_lift RMS > {OUTLIER_LIFT_DEG} deg (fitted setting)",
+        free_lift_rms_top6_new=lift_sorted[:6].tolist(),
         new_eps={m: pooled_c(R[m][0], R[m][1], new_idx)[0].tolist() for m in R},
         new_eps_without_contact_eps={m: pooled_c(R[m][0], R[m][1], new_nc)[0].tolist() for m in R},
         fit_eps={m: pooled_c(R[m][0], R[m][1], fit_idx)[0].tolist() for m in R}, n_new_without=len(new_nc))

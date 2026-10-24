@@ -1,5 +1,6 @@
 """(4) Image appearance per session and the external camera pose drift. CPU only. Writes OUT/appearance.json and
-OUT/img/first_frames_ext.jpg / first_frames_wrist.jpg.
+OUT/img/first_frames_external.jpg / first_frames_wrist.jpg / ext_ref_teleop_late.jpg (a teleop first frame, the
+reference session and the last session, the student's external crop box drawn).
 
 A. Student thumbs (112 px, both cameras, every query of every robot episode): mean gray, mean sRGB, contrast (gray
    std), share of clipped pixels (>= 250), "equivalent linear brightness" = mean of srgb_inv(y ** (1 / g_nom)) with the
@@ -297,6 +298,16 @@ def main():
               f"{np.round(r['rot_vs_teleop_deg'], 3)} |{r['rot_vs_teleop_norm_deg']:.3f}|, resid {r['resid_px_p50']:.2f} px, "
               f"crop shift {np.round(r['crop_centre_shift_px'], 2)}", flush=True)
     out["ext_pose_per_session"] = EP
+    # picture: teleop (calibration) frame | reference session | last session, external crop box in red
+    x0, y0, w0, h0 = L.EXT_CROP
+    pics = []
+    for lab, im in (("teleop", tele[0]), (REF_SESSION, ref), (ses[-1].name, np.load(ses[-1] / "first_frames.npz")["external"])):
+        im = im.copy()
+        cv2.rectangle(im, (x0, y0), (x0 + w0, y0 + h0), (255, 0, 0), 2)
+        im = cv2.resize(im, (480, 360), interpolation=cv2.INTER_AREA)
+        cv2.putText(im, lab, (5, 18), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
+        pics.append(im)
+    cv2.imwrite(str(L.OUT / "img" / "ext_ref_teleop_late.jpg"), cv2.cvtColor(np.concatenate(pics, 1), cv2.COLOR_RGB2BGR))
     nv = np.array([v["rot_vs_teleop_norm_deg"] for v in EP.values()])
     cs = np.array([np.hypot(*v["crop_centre_shift_px"]) for v in EP.values()])
     out["ext_pose_summary"] = dict(rot_vs_teleop_norm_deg=L.pct(nv, (5, 50, 95)),

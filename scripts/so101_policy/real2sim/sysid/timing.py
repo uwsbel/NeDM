@@ -36,6 +36,7 @@ def main():
     dt_all, dt_q, dt_nq, dt_after_q = [], [], [], []
     qry_dt, rates, overruns, late, per_ep = [], [], [], [], []
     cmd_delay_q, cmd_delay_nq = [], []
+    tw_after_read, tw_hold = [], []          # per chunk: write time of targets 0 .. 4 (+ the next chunk's 0) after the read
     ms_model = []
     by_session = {}
     for e in eps:
@@ -62,6 +63,14 @@ def main():
         cd = mc + 0.5 * mr
         cmd_delay_q.append(cd[qmask])
         cmd_delay_nq.append(cd[~qmask])
+        # chunk timeline: read of the query step s at t[s] + mr[s] / 2, goal write of step s + k at t[s + k] + mr + ms_ctrl
+        tw_ = t + (mr + mc) * 1e-3
+        tr_ = t + 0.5 * mr * 1e-3
+        for s0 in steps:
+            if s0 + 5 < N and np.isfinite(tw_[s0:s0 + 6]).all():
+                w = (tw_[s0:s0 + 6] - tr_[s0]) * 1e3
+                tw_after_read.append(w)
+                tw_hold.append(np.diff(w))
         qt = d["qry_t"]
         qry_dt.append(np.diff(qt) * 1e3)
         T = t[-1] - t[0]
@@ -113,6 +122,16 @@ def main():
         model_ms=L.pct(cat(ms_model), (5, 50, 95, 99)),
         cmd_delay_ms_query_steps=L.pct(cat(cmd_delay_q), (5, 50, 95)),
         cmd_delay_ms_other_steps=L.pct(cat(cmd_delay_nq), (5, 50, 95)),
+        chunk_period_steps=dict(
+            note="chunk period / 20 ms (sim decision = 5 steps)", pct=L.pct(cat(qry_dt) / STEP_MS, (5, 25, 50, 75, 95)),
+            rounded_frac={str(k): float(np.mean(np.round(cat(qry_dt) / STEP_MS) == k)) for k in range(4, 11)},
+            rounded_frac_ge_11=float(np.mean(np.round(cat(qry_dt) / STEP_MS) >= 11))),
+        target_timeline_ms=dict(
+            note="per chunk: goal write of targets 0 .. 4 and of the next chunk's target 0 after the joint read of the "
+                 "query (write_after_read, p50 / p5 / p95 for each index), and how long each of targets 0 .. 4 is the "
+                 "newest written goal (hold, ms)",
+            write_after_read={str(k): L.pct(np.array(tw_after_read)[:, k], (5, 50, 95)) for k in range(6)},
+            hold={str(k): L.pct(np.array(tw_hold)[:, k], (5, 50, 95)) for k in range(5)}, n_chunks=len(tw_after_read)),
         period_hist_ms=dict(edges=[0, 15, 18, 19, 19.5, 20.5, 21, 22, 25, 30, 40, 45, 50, 60, 100, 1000],
                             counts=np.histogram(DT, bins=[0, 15, 18, 19, 19.5, 20.5, 21, 22, 25, 30, 40, 45, 50, 60, 100,
                                                            1000])[0].tolist()))

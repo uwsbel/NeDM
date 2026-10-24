@@ -4,11 +4,14 @@ Evidence (sim frame = arm base frame of the calibrated joint map, sim table top 
   A. Robot holds (every robot episode with a logged hold: measured jaw 5-14 deg with the command > 3 deg below it,
      > 1 s; the episodes.py rule of the grasp tally). At the hold start (median of the first 10 steps):
      grasp point z (FK), lowest gripper point z (measured pose), cube centre = grasp point + R XG (sim median cube
-     centre in the grasp frame). These are bounds, not measurements: the action-layer floor keeps the COMMANDED
-     lowest gripper point >= 1.5 mm + table_z, so the jaw can only reach the cube's upper part if the mat is lower.
-  B. Image height of the resting cube (robot): the green blob of the external 112 px thumbs before the close (fully
-     visible frames), the calibrated camera ray through its centroid, the point of the ray above the FK cube xy at the
-     hold -> cube centroid height -> mat top = height - 15 mm.
+     centre in the grasp frame). These are bounds, not measurements: the action-layer floor holds the COMMANDED
+     lowest gripper point at >= 1.5 mm + table_z unless the measured pose is already lower, so with a lower mat the
+     jaw mostly reaches only the cube's upper part.
+  B. Image height of the resting cube (robot; a consistency check of the median only, not independent: the external
+     camera pose was fitted together with the plane, with the cube centre assumed at plane + 15 mm): the green blob of
+     the external 112 px thumbs before the close (fully visible frames), the calibrated camera ray through its
+     centroid, the point of the ray above the FK cube xy at the hold -> cube centroid height -> mat top = height -
+     15 mm.
   C. Teleop recordings (no floor rule; 15 episodes): lowest gripper point near the grasp frame of each calib episode
      (the operator's jaw near / on the mat) and at the release; the calib's cube rest / end positions.
 Plane fits z = c0 + c1 x + c2 y (least squares + residual) for each evidence set; comparison with
@@ -139,6 +142,7 @@ def plane_fit(xy, z, w=None):
 
 
 STEP_DEV = []          # per robot step: measured lowest gripper point minus the calibrated plane (mm)
+NEAR_EPS = []          # robot episodes with steps within +-3 mm of the plane (where the gripper reached the mat)
 TEL_DEV = []           # per teleop frame: same
 
 
@@ -167,7 +171,15 @@ def robot_holds():
             low_cmd[okc] = L.lowest(ul[okc])
         floor_z = FLOOR + e["table_z"]
         pl = L.table_z_at(P[:, :2])
-        STEP_DEV.append((low - pl) * 1e3)
+        dev = (low - pl) * 1e3
+        STEP_DEV.append(dev)
+        near = np.abs(dev) < 3.0
+        if near.any():          # steps with the measured lowest gripper point within +-3 mm of the plane (mat contact)
+            k = np.flatnonzero(near)
+            NEAR_EPS.append(dict(id=e["id"], table_z=e["table_z"], n_steps=int(near.sum()),
+                                 x=L.pct(P[k, 0], (50,)), y=L.pct(P[k, 1], (50,)),
+                                 dev_mm=L.pct(dev[k], (50,)), plane_mm=float(np.median(pl[k]) * 1e3),
+                                 low_cmd_min_mm=float(np.nanmin(low_cmd) * 1e3) if okc.any() else None))
         pxy = plate_xy(d["qry_thumbs"])
         allrows.append(dict(id=e["id"], student=e["student"], table_z=e["table_z"], low_min_mm=float(low.min() * 1e3),
                             plate_x=float(pxy[0]) if pxy is not None else np.nan,
@@ -314,6 +326,24 @@ def main():
     res["floor_edge"] = dict(note="measured lowest gripper point minus the calibrated plane, every step / frame (mm): "
                              "a physical floor at the plane gives a hard lower edge near 0", robot=edge(sd),
                              teleop=edge(td))
+    xs = np.array([r["x"]["p50"] for r in NEAR_EPS])
+    res["floor_edge"]["robot_near_plane"] = dict(
+        note="the robot steps within +-3 mm of the plane come from these episodes only (one position each): the "
+             "contact evidence is local (x range below), not a check of the whole plane",
+        n_episodes=len(NEAR_EPS), n_steps=int(sum(r["n_steps"] for r in NEAR_EPS)),
+        x_range_m=[float(xs.min()), float(xs.max())] if len(xs) else None,
+        dev_p50_mm_range=[float(min(r["dev_mm"]["p50"] for r in NEAR_EPS)),
+                          float(max(r["dev_mm"]["p50"] for r in NEAR_EPS))] if NEAR_EPS else None,
+        episodes=NEAR_EPS)
+    # the floor rule gives way: the commanded lowest point may go below FLOOR + table_z when the measured pose is lower
+    lc = np.array([np.nan if r["low_cmd_min_mm"] is None else r["low_cmd_min_mm"] - r["floor_mm"] for r in allrows])
+    res["floor_override"] = dict(
+        note="lowest COMMANDED gripper point (after the action layer) minus the floor FLOOR + table_z, episode minimum "
+             "(mm): the floor holds the command at the floor unless the measured pose is already lower (then the "
+             "measured lowest point is the limit; the guard stops below table_z + cmd_floor_m)",
+        min_minus_floor_mm=L.pct(lc, (5, 50, 95)), n_below_floor_minus_2mm=int(np.nansum(lc < -2.0)),
+        n_below_floor_minus_5mm=int(np.nansum(lc < -5.0)), n_episodes=int(np.isfinite(lc).sum()),
+        cmd_floor_m=sorted({e.get("cmd_floor_m") for e in L.list_episodes() if e.get("cmd_floor_m") is not None}))
     pz = np.array([r["plane_z"] for r in rows]) * 1e3
     res["plane_at_holds_mm"] = L.pct(pz)
     res["held_cube_offset_mm"] = dict(
@@ -348,7 +378,13 @@ def main():
     print("calib", res["calib_plane"])
     for k, v in res["holds"].items():
         print(f"hold {k:34s} p50 {v.get('p50', np.nan):+8.2f} p5 {v.get('p5', np.nan):+8.2f} p95 {v.get('p95', np.nan):+8.2f} n {v.get('n')}")
-    print("floor edge", json.dumps(L.r3(res["floor_edge"], 2)))
+    print("floor edge", json.dumps(L.r3({k: v for k, v in res["floor_edge"].items() if k != "robot_near_plane"}, 2)))
+    print("near plane", json.dumps(L.r3({k: v for k, v in res["floor_edge"]["robot_near_plane"].items()
+                                          if k != "episodes"}, 3)))
+    for r in res["floor_edge"]["robot_near_plane"]["episodes"]:
+        print(f"   {r['id']:48s} n {r['n_steps']:4d} x {r['x']['p50']:.3f} y {r['y']['p50']:+.3f} dev {r['dev_mm']['p50']:+.1f} mm "
+              f"plane {r['plane_mm']:+.1f} cmd min {r['low_cmd_min_mm']:+.1f} table_z {r['table_z']}")
+    print("floor override", json.dumps(L.r3(res["floor_override"], 2)))
     print("plane at holds", L.r3(res["plane_at_holds_mm"], 2))
     print("plane at plates", L.r3(res["plane_at_plates_mm"], 2), "plate xy", L.r3(res["plate_xy"], 3))
     print("plane at cubes + plates", L.r3(res["plane_at_cubes_and_plates_mm"], 2))
