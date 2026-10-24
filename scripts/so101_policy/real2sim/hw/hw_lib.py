@@ -47,6 +47,25 @@ HOME_SIM_DEG = (0.0, -5.0, -15.0, 92.0, 45.0, 30.0)
 
 
 # ---- calibration file ---------------------------------------------------------------------------------------------
+def parse_table_plane(spec, calib=None):
+    """``run_student_real.py --table-plane``: "" (off -> None), "calib" (calib_v1 scene.table_plane coef, the measured
+    real table) or "c0,c1,c2" (m, z = c0 + c1 x + c2 y) -> (c0, c1, c2) or None."""
+    spec = (spec or "").strip()
+    if not spec:
+        return None
+    if spec == "calib":
+        try:
+            c = (calib or {})["scene"]["table_plane"]["coef"]
+        except (KeyError, TypeError):
+            raise ValueError("--table-plane calib: the calibration has no scene.table_plane.coef") from None
+    else:
+        c = [float(v) for v in spec.split(",")]
+    c = tuple(float(v) for v in c)
+    if len(c) != 3 or not all(math.isfinite(v) for v in c):
+        raise ValueError(f"--table-plane {spec!r}: 'calib' or c0,c1,c2 (m)")
+    return c
+
+
 def load_calib(path):
     """calib_v1.json (the study's calibration contract) -> dict, or None if the path is empty / missing."""
     if not path:
@@ -244,9 +263,16 @@ class ActionLayer:
     """``joint_env.safety`` for one robot (the action layer of teacher and student): arm targets within ``joint_env.LEAD``
     of the measured q, all targets within the collector's range (kin.TLO .. THI), the table floor (``floor_guard``:
     lowest gripper / moving-jaw point >= ``joint_env.FLOOR`` + table_z unless the measured pose is lower). The kinematics
-    use the saved collision points (no mujoco)."""
+    use the saved collision points (no mujoco).
 
-    def __init__(self, kin_points, table_z=0.0, lead=True, floor=True):
+    ``table_plane`` (c0, c1, c2) (real2sim v8; None = off, the old flat floor bit for bit): the floor follows a tilted
+    table instead: the lowest point's height ABOVE the plane z = c0 + c1 x + c2 y (``kin.lowest_point(plane=)``) >=
+    FLOOR, and the guard's floor checks (``Guard``, ``check_path``) measure above the plane too (``floor_height``). A
+    student trained with the v8 table randomisation (the floor 1.5 mm above the TRUE table in training) deploys with
+    the calibrated plane (``run_student_real.py --table-plane calib``), never with the flat ``table_z`` 0 (~13 mm above
+    the real table at the cubes). Exclusive with ``table_z``."""
+
+    def __init__(self, kin_points, table_z=0.0, lead=True, floor=True, table_plane=None):
         import torch
 
         from nedm.so101_policy import joint_env as JE
@@ -258,6 +284,13 @@ class ActionLayer:
         self.tlo, self.thi = self.kin.tlo.clone(), self.kin.thi.clone()
         self.lead = torch.tensor(JE.LEAD, dtype=torch.float64) if lead else None
         self.table_z = float(table_z)
+        self.plane = None
+        if table_plane is not None:
+            self.plane = tuple(float(c) for c in table_plane)
+            if len(self.plane) != 3 or not all(math.isfinite(c) for c in self.plane):
+                raise ValueError(f"table_plane {table_plane}: (c0, c1, c2), z = c0 + c1 x + c2 y (m)")
+            if self.table_z != 0.0:
+                raise ValueError("table_plane and table_z: give one of them")
         self.floor = JE.FLOOR + self.table_z if floor else None
         self.lowest(np.zeros(6))            # builds the reduced point set now (0.4 s on luffy), not in the first step
 
@@ -266,7 +299,11 @@ class ActionLayer:
         t = self.torch
         u0 = t.as_tensor(np.asarray(u, np.float64))[None]
         q0 = t.as_tensor(np.asarray(q, np.float64))[None]
-        out = self.JE.safety(u0, q0, self.tlo, self.thi, self.lead, self.kin, self.floor)[0].numpy()
+        if self.plane is None:
+            out = self.JE.safety(u0, q0, self.tlo, self.thi, self.lead, self.kin, self.floor)[0].numpy()
+        else:
+            out = self.JE.safety(u0, q0, self.tlo, self.thi, self.lead, self.kin, self.floor,
+                                 floor_plane=self.plane)[0].numpy()
         # attribution of the change (diagnostics only)
         u1 = u0.clone()
         if self.lead is not None:
@@ -282,6 +319,15 @@ class ActionLayer:
         t = self.torch
         qq = t.as_tensor(np.asarray(q, np.float64)).reshape(-1, 6)
         return self.kin.lowest_point(qq, exact=False).numpy().reshape(np.shape(q)[:-1])
+
+    def floor_height(self, q):
+        """(lowest gripper / moving-jaw point, the floor checks' reference): (``lowest(q)`` world z, ``table_z``) with
+        the flat floor (the old checks unchanged), (height above ``table_plane``, 0.0) with a plane floor."""
+        if self.plane is None:
+            return self.lowest(q), self.table_z
+        t = self.torch
+        qq = t.as_tensor(np.asarray(q, np.float64)).reshape(-1, 6)
+        return self.kin.lowest_point(qq, exact=False, plane=self.plane).numpy().reshape(np.shape(q)[:-1]), 0.0
 
     def tcp(self, q):
         """Grasp point (m, world) of sim poses q [..., 6]."""
@@ -300,7 +346,8 @@ class GuardConfig:
     max_rel_real: tuple = (10.0, 10.0, 10.0, 10.0, 10.0, 60.0)    # |command - measured| (LeRobot units)
     range_margin_deg: float = 3.0                                 # inside the LeRobot calibrated range
     measured_range_tol: float = 5.0                               # measured q may be this far outside (deg) before a stop
-    hard_floor_m: float = -0.005       # stop if the MEASURED lowest gripper point is below table_z + this
+    hard_floor_m: float = -0.005       # stop if the MEASURED lowest gripper point is below table_z + this (or this
+                                       # above the layer's table_plane)
     cmd_floor_m: float = -0.002        # stop if the COMMANDED lowest point is below table_z + this (after the layer)
     tcp_x: tuple = (-0.10, 0.45)       # grasp point box (m, world)
     tcp_y: tuple = (-0.42, 0.42)
@@ -366,9 +413,11 @@ class Guard:
         if out.any():
             stop.append("measured range: outside the calibrated range: " + ", ".join(
                 f"{JOINTS[i]} {q_real[i]:.1f}" for i in np.flatnonzero(out)))
-        low = float(self.layer.lowest(q_sim))
-        if low < self.layer.table_z + c.hard_floor_m:
-            stop.append(f"measured floor: lowest gripper point {low * 1e3:.1f} mm, below the hard floor")
+        low, ref = self.layer.floor_height(q_sim)       # (flat floor: lowest(q), table_z as before)
+        low = float(low)
+        if low < ref + c.hard_floor_m:
+            stop.append(f"measured floor: lowest gripper point {low * 1e3:.1f} mm"
+                        + (" above the table plane" if self.layer.plane is not None else "") + ", below the hard floor")
         stop += ["measured " + s for s in self._box(self.layer.tcp(q_sim))]
         return stop
 
@@ -408,9 +457,11 @@ class Guard:
         stop = []
         if not np.all(np.isfinite(ur)):
             stop.append("command: not finite")
-        low = float(self.layer.lowest(u))
-        if low < self.layer.table_z + c.cmd_floor_m and low < float(self.layer.lowest(q_sim)) - 1e-4:
-            stop.append(f"command floor: lowest gripper point {low * 1e3:.1f} mm, below the floor")
+        low, ref = self.layer.floor_height(u)
+        low = float(low)
+        if low < ref + c.cmd_floor_m and low < float(self.layer.floor_height(q_sim)[0]) - 1e-4:
+            stop.append(f"command floor: lowest gripper point {low * 1e3:.1f} mm"
+                        + (" above the table plane" if self.layer.plane is not None else "") + ", below the floor")
         stop += ["command " + s for s in self._box(self.layer.tcp(u))]
         self.prev = u.copy()               # the step limit and the stall check: the command without the correction
         self.prev[:ARM] -= self.integ
@@ -461,8 +512,8 @@ def check_path(path, layer: ActionLayer, jmap: JointMap, limits: RealLimits, cle
         bad.append("path leaves the sim joint range (kin.TLO .. THI)")
     if limits.outside(jmap.sim_to_real(p)).any():
         bad.append("path leaves the LeRobot calibrated range (minus margin)")
-    low = layer.lowest(p)
-    ref = min(layer.table_z + clearance, float(layer.lowest(ends).min()))
+    low, z0 = layer.floor_height(p)                 # (flat floor: lowest(p), table_z as before; plane: above it)
+    ref = min(z0 + clearance, float(layer.floor_height(ends)[0].min()))
     if float(low.min()) < ref - 1e-3:
         k = int(low.argmin())
         bad.append(f"path waypoint {k} lowest gripper point {low[k] * 1e3:.1f} mm < {ref * 1e3:.1f} mm")

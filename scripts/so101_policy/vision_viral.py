@@ -52,6 +52,14 @@ must have been trained with that cap or a lower one (its checkpoint's env record
 ``--allow-uncapped-jt`` accepts it). ``eval`` / ``collect`` / ``run``: ``--roll-hi-deg 98``. The summaries then add
 ``roll_cmd_over`` (share of episodes whose commanded roll went above the cap), ``roll_q_at_cap`` and
 ``roll_cmd_max_deg``.
+Table randomisation (real2sim v8, off by default; ``nedm.so101_policy.table_bias``): the online config's
+``table_bias`` puts a per-world table plane under the student's joint reading (q, qdot, cmd inputs, labels and applied
+targets in that frame), ``table_render`` draws the training images consistently (the arm at the reading, the world
+on the plane), ``plate_mm`` randomises the goal plate thickness of the TRAINING views only
+(``viral.online_views_cfg``; the evaluation views and the saved student config keep the scene's plate); configs
+``viral_r2s_online_v8_C_table.json`` / ``viral_r2s_online_v8_S_table.json``. The gate (pass rule in its docstring) is
+``scripts/so101_policy/real2sim/lowtable_gate.py`` (``eval --table-plane`` / ``--floor table``: the physical table
+moved in CPU MuJoCo); robot deploy with ``run_student_real.py --table-plane calib``.
 """
 from __future__ import annotations
 
@@ -481,7 +489,11 @@ def cmd_online(a):
     check_seeds(tasks["seeds"])
     evs = eval_sets(a.eval_tasks, a.eval_n)
     guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
-    views = VI.make_views(st.cfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
+    vcfg = VI.online_views_cfg(st.cfg, ocfg)       # training views: + the online config's plate thickness (v8)
+    if vcfg is not st.cfg:
+        log(f"training views: RealDR plate_thickness {vcfg.real_dr['plate_thickness']} m (online config plate_mm; "
+            "the evaluation views and the student's config keep the scene's plate)")
+    views = VI.make_views(vcfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device)
     # the in-run evaluations: the online config's wrist-roll cap (--roll-hi-deg: another one for the evaluations only)
     eval_roll = a.roll_hi_deg if a.roll_hi_deg is not None else ocfg.roll_hi_deg
