@@ -492,13 +492,16 @@ class SO101Scene:
             groups["board"].append(len(bodies))
             bodies.append(MeshBody("camera_board", vertices=board[0], faces=board[1], color=real.color("board")))
             mesh_body.append(self.kin.bodies.index(wrist_cal["parent"]))
+        fixed_parts = []
         for part in real.parts:
-            if part["body"] not in self.kin.bodies or part["body"] not in moving:
-                raise ValueError(f"part {part.get('name')!r}: body {part['body']!r} is not a moving MJCF body")
-            v, f = polygon_prism(part["polygon"], part["offset"])
+            if part["body"] not in self.kin.bodies:
+                raise ValueError(f"part {part.get('name')!r}: body {part['body']!r} is not an MJCF body")
+            if part["body"] not in moving:          # on a fixed body (the base): drawn with the base meshes below
+                fixed_parts.append(part)
+                continue
+            mesh = self._part_mesh(part, real)
             groups[part.get("group", "board")].append(len(bodies))
-            bodies.append(MeshBody(part.get("name", "part"), vertices=v, faces=f,
-                                   color=real.color(part.get("group", "board"))))
+            bodies.append(mesh)
             mesh_body.append(self.kin.bodies.index(part["body"]))
         self.mesh_body = torch.tensor(mesh_body, device=self.device)
         self.cube_half = 0.5 * float(cfg["cube"]["size_m"])
@@ -525,6 +528,12 @@ class SO101Scene:
                 groups[part].append(len(bodies))
                 bodies.append(replace(mesh, color=real.color(part)))
                 fixed.append(torch.cat([bpos[0, i], xyzw(bquat[0, i])]))
+        for part in fixed_parts:                    # parts on fixed bodies (scene v4: the table clamp at the base)
+            i = self.kin.bodies.index(part["body"])
+            mesh = self._part_mesh(part, real)
+            groups[part.get("group", "board")].append(len(bodies))
+            bodies.append(mesh)
+            fixed.append(torch.cat([bpos[0, i], xyzw(bquat[0, i])]))
         self.env_groups, self.env_names = [], []
         for g, name, mesh, pose in real.env_meshes():
             groups[g].append(len(bodies))
@@ -572,10 +581,41 @@ class SO101Scene:
         self.plane_o = torch.tensor(o, dtype=torch.float64, device=self.device)
         self.plane_q = torch.tensor(qp, dtype=torch.float64, device=self.device)        # w x y z
 
+    @staticmethod
+    def _part_mesh(part: dict, real: "RealScene") -> MeshBody:
+        """The prism of a ``RealScene.parts`` entry in its body frame, colour ``part["color"]`` or its group's."""
+        v, f = polygon_prism(part["polygon"], part["offset"])
+        group = part.get("group", "board")
+        if group not in REAL_GROUPS:
+            raise ValueError(f"part {part.get('name')!r}: group {group!r} is not one of {REAL_GROUPS}")
+        color = tuple(float(c) for c in part["color"]) if part.get("color") is not None else real.color(group)
+        return MeshBody(part.get("name", "part"), vertices=v, faces=f, color=color)
+
     @property
     def env_pose(self) -> torch.Tensor:
         """Nominal poses [n_env, 7] (x y z qx qy qz qw, float64) of the floor, mat and walls (real scene)."""
         return self.fixed_pose[len(self.fixed_pose) - self.n_env:]
+
+    def base_outline(self) -> tuple[np.ndarray, float]:
+        """The arm base's footprint (real scene): the convex hull (k, 2) (counter-clockwise, world xy) of the visible
+        MJCF base meshes at their welded pose (not the scene's extra parts), and the base's top z. For the base
+        add-on randomisation (:meth:`RealDR.draw`)."""
+        if getattr(self, "_base_outline", None) is None:
+            zero = torch.zeros(1, 6, dtype=torch.float64)
+            bpos, bquat = self.kin(zero)
+            moving, hidden = self._moving_bodies(), set(self.real.hide_bodies or ())
+            pts = []
+            for body, mesh in self.assets.meshes:
+                if body in moving or body in hidden:
+                    continue
+                i = self.kin.bodies.index(body)
+                v = torch.as_tensor(mesh.vertices, dtype=torch.float64)
+                pts.append((bpos[0, i].cpu() + qrot(bquat[0, i].cpu().expand(len(v), 4), v)).numpy())
+            if not pts:
+                raise ValueError("base_outline: the scene has no fixed base meshes")
+            p = np.concatenate(pts)
+            self._base_outline = (convex_hull_2d(p[:, :2]), float(p[:, 2].max()))
+        return self._base_outline
 
     def _real_transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None):
         f64 = dict(device=self.device, dtype=torch.float64)
@@ -683,7 +723,10 @@ class SO101Scene:
 # square plate, an LED strip light on the right).
 REAL_VIEWS = ("external", "wrist", "top", "front")      # external, wrist: calibrated; top, front: the 61 deg pinholes
 REAL_CAMERAS = ("external", "wrist")
-REAL_GROUPS = ("printed", "servo", "cube", "plate", "floor", "mat", "walls", "board", "room", "room_floor", "strip")
+REAL_GROUPS = ("printed", "servo", "cube", "plate", "floor", "mat", "walls", "board", "room", "room_floor", "strip",
+               "addon")
+# "addon": the slots of the base add-on randomisation (RealDR.base_addon, RealScene.addon_slots); empty when it is off,
+# so the group codes of the other groups (bg_dr) and every draw stay as before
 SERVO_MAX_MJCF = 0.3       # so101.xml: the sts3215 servo materials (and the wrist camera board) are rgba 0.1 0.1 0.1
 # The real wrist camera's board (black PCB on a black bracket), drawn behind the calibrated wrist camera in its OpenCV
 # frame (x right, y down = towards the jaws, z forward): a w x h x t board whose front face is ``behind`` m behind the
@@ -735,6 +778,24 @@ def _flip(faces: np.ndarray) -> np.ndarray:
     return faces[:, ::-1].copy()
 
 
+def convex_hull_2d(points) -> np.ndarray:
+    """Convex hull (k, 2) of points (n, 2), counter-clockwise, no repeated end point (Andrew's monotone chain)."""
+    p = np.unique(np.asarray(points, np.float64).reshape(-1, 2), axis=0)
+    if len(p) < 3:
+        return p
+
+    def half(pts):
+        h = []
+        for q in pts:
+            while len(h) >= 2 and ((h[-1][0] - h[-2][0]) * (q[1] - h[-2][1])
+                                   - (h[-1][1] - h[-2][1]) * (q[0] - h[-2][0])) <= 0:
+                h.pop()
+            h.append(q)
+        return h
+    lower, upper = half(p), half(p[::-1])
+    return np.array(lower[:-1] + upper[:-1])
+
+
 def polygon_prism(polygon, offset) -> tuple[np.ndarray, np.ndarray]:
     """Closed prism over a planar convex polygon (k, 3) (ordered) swept by ``offset`` (3,): vertices (2k, 3) float32,
     faces (4k - 4, 3) int32, every face turned outward (away from the centroid)."""
@@ -776,7 +837,10 @@ class RealScene:
     in front of the calibrated wrist camera); ``board``: the real camera board drawn behind the calibrated wrist camera
     (:data:`DEFAULT_BOARD`; None: none). ``plate_thickness``: the goal plate (50 mm square) thickness. ``parts``:
     extra rigid parts on arm bodies, each ``{"name", "body", "group", "polygon": (k, 3) in the body frame, "offset":
-    (3,)}`` (a prism, :func:`polygon_prism`), e.g. the real camera bracket's plate under the wrist camera.
+    (3,)}`` (a prism, :func:`polygon_prism`), e.g. the real camera bracket's plate under the wrist camera; optional
+    ``"color"`` (linear albedo, default the group's colour; the group's randomisation scales it). A part on a FIXED
+    MJCF body (``"body": "base"``; scene v4: the real table clamp at the base) is drawn at that body's welded pose,
+    after the arm base meshes and before the floor (scenes without such parts keep their body order).
     ``floor_turn`` (None: none): ``{"deg": a, "pivot": (x, y)}``, the floor box turned by a about the table normal
     through the pivot (flat-model frame; default pivot: the middle of the floor's -x edge), the measured turn of the
     real table edge (scene v3); it is also the pivot of ``RealDR.floor_turn_deg``. ``wall_end`` (None: none):
@@ -784,6 +848,12 @@ class RealScene:
     ``RealDR.wall_end`` slides along the wall by up to +-s; the main wall then starts s later, the piece is 2 s + 10 mm
     long, 0.5 mm behind the main wall's inner face and 0.5 mm lower (no coincident faces); nominal picture = the wall
     ending at its listed first point.
+    ``addon_slots`` (None: none; not read from the scene file): the hidden bodies that the base add-on randomisation
+    (:attr:`RealDR.base_addon`) places per world, ``{"blocks": [(lx, ly, lz), ...], "cables": [(length, width),
+    ...]}`` and optionally ``"flats"`` / ``"drops"`` (flat cables and their sloped segments, (length, width))
+    (:meth:`RealDR.addon_slots`; ``viral.load_real_setup`` sets it from the merged ``dr``). They are the last env bodies
+    (group ``addon``, names ``addon_block{k}``, ``addon_cable{k}``, ``addon_flat{k}``, ``addon_drop{k}`` in this
+    order), nominally far below the scene.
     Colours (linear albedo, Newton multiplies by the light): ``colors[group]`` for REAL_GROUPS. ``lights``: Newton
     lights (``NewtonBackend.set_lights``), shared by all worlds; ``ambient``: Newton's fixed ambient term; ``sky``:
     8-bit colour of rays that hit nothing. ``tone``: per camera a tone map (``camera_fx``: exposure, wb, black, gamma,
@@ -795,7 +865,7 @@ class RealScene:
     DEFAULT_COLORS = {"printed": (0.92, 0.92, 0.90), "servo": (0.05, 0.05, 0.05), "cube": (0.05, 0.62, 0.22),
                       "plate": (0.85, 0.08, 0.08), "floor": (0.93, 0.93, 0.93), "mat": (0.03, 0.03, 0.03),
                       "walls": (0.93, 0.93, 0.93), "board": (0.03, 0.03, 0.03), "room": (0.04, 0.035, 0.025),
-                      "room_floor": (0.2, 0.18, 0.15), "strip": (1.0, 1.0, 1.0)}
+                      "room_floor": (0.2, 0.18, 0.15), "strip": (1.0, 1.0, 1.0), "addon": (0.5, 0.5, 0.5)}
     # A key light from above (shadows) and dimmed shadowless fills from the sides and from below (the light box's
     # diffuse glow and the floor's bounce: Newton has no inter-reflection and a fixed weak ambient, so without them
     # the white walls come out grey and every face turned from the key light near black). Placeholders, not measured.
@@ -841,6 +911,7 @@ class RealScene:
     dr: dict = field(default_factory=dict)
     image_fx: dict = field(default_factory=dict)
     source: str = ""
+    addon_slots: dict | None = None
 
     # keys of the scene file's "geometry" section that map to fields
     GEOMETRY_KEYS = ("mat_corners_xy", "mat_thickness", "floor_xy", "floor_thickness", "walls", "wall_height",
@@ -1021,6 +1092,17 @@ class RealScene:
                 out.append(("room_floor", "room_floor", MeshBody("room_floor", vertices=v, faces=f,
                                                                  color=self.color("room_floor")),
                             np.r_[c[0], c[1], float(self.room["floor_z"]) - 0.005, 0, 0, 0, 1.0]))
+        if self.addon_slots:                                    # base add-on slots: hidden until RealDR places them
+            hidden = np.array([0.0, 0.0, HIDDEN_Z, 0, 0, 0, 1.0])
+            for kind, dims in (("block", self.addon_slots.get("blocks", ())),
+                               ("cable", self.addon_slots.get("cables", ())),
+                               ("flat", self.addon_slots.get("flats", ())),
+                               ("drop", self.addon_slots.get("drops", ()))):
+                for k, d in enumerate(dims):
+                    half = [d[0] / 2, d[1] / 2, d[2] / 2] if kind == "block" else [d[0] / 2, d[1] / 2, d[1] / 2]
+                    v, f = box_mesh(half)
+                    name = f"addon_{kind}{k}"
+                    out.append(("addon", name, MeshBody(name, vertices=v, faces=f, color=self.color("addon")), hidden))
         return out
 
     def floor_pivot(self) -> np.ndarray:
@@ -1089,7 +1171,16 @@ class RealDR:
     (``RealScene.wall_end``) along its wall; ``bg`` (dict of :class:`nedm.render.bg_dr.BgDR` fields; {} = off): the
     image-space layers of the background (texture, clutter, spots, dark-area profile, floor gradient, low texture,
     mat folds, boundary blur) in linear colour before the tone map; needs a renderer with ``bg_cameras``
-    (:meth:`bg_cameras`) and the output resolution (``draw(..., res=)``)."""
+    (:meth:`bg_cameras`) and the output resolution (``draw(..., res=)``).
+
+    Base add-on randomisation (scene v4 round, 2026-10-23; OFF by default, drawn after everything else, also after
+    ``bg``): ``base_addon`` (dict of :class:`nedm.render.base_addon.BaseAddonDR` fields; {} = off): random blocks and
+    cables at the arm base outline in a share ``p`` of the worlds; needs a scene built with its slot bodies
+    (``RealScene.addon_slots`` = :meth:`addon_slots`; ``viral.load_real_setup`` sets them). Its random numbers come
+    from ``draw(..., addon_generator=)`` when given (``viral.DRViews`` gives its own, seed + 917), else from
+    ``generator`` after every other draw. Only with its own generator do the other draws of a seed stay the same over
+    SEVERAL calls (e.g. the online loop's per-world resets) with the add-ons on or off; with the shared generator only
+    the first call is paired."""
 
     bright: dict = field(default_factory=lambda: {"printed": (0.85, 1.1), "servo": (0.6, 2.0), "cube": (0.75, 1.25),
                                                   "plate": (0.75, 1.25), "floor": (0.8, 1.1), "mat": (0.5, 2.5),
@@ -1115,6 +1206,20 @@ class RealDR:
     floor_xy: float = 0.0
     wall_end: float = 0.0
     bg: dict = field(default_factory=dict)
+    base_addon: dict = field(default_factory=dict)
+
+    @property
+    def addon_on(self) -> bool:
+        """Base add-ons on (``base_addon`` set with a world probability above 0 and at least one block or cable)."""
+        return bool(self.base_addon) and self.addon_dr().on
+
+    def addon_dr(self):
+        from nedm.render.base_addon import BaseAddonDR
+        return BaseAddonDR.from_dict(self.base_addon)
+
+    def addon_slots(self) -> dict | None:
+        """The slot bodies the scene needs for ``base_addon`` (``RealScene.addon_slots``; None when off)."""
+        return self.addon_dr().slots() if self.addon_on else None
 
     @property
     def bg_on(self) -> bool:
@@ -1158,14 +1263,16 @@ class RealDR:
         return torch.device(generator.device) if generator is not None else torch.device("cpu")
 
     def draw(self, scene: "SO101Scene", n: int, generator: torch.Generator | None = None, device=None,
-             res: int | None = None, bg_prior: torch.Tensor | None = None) -> dict:
+             res: int | None = None, bg_prior: torch.Tensor | None = None,
+             addon_generator: torch.Generator | None = None) -> dict:
         """Per-world draws for n worlds: ``colors`` [n, bodies, 3], ``cam_offset`` [n, C, 6] (dpos, drot),
         ``env_pose`` [n, n_env, 7] (x y z qx qy qz qw) and, when the scene has a tone map, ``tone`` [n, C, 9]
         (``camera_fx.TONE_KEYS``), for :meth:`SO101Renderer.render_dr`. Random numbers are drawn on the generator's
         device (CPU without a generator); the results are on ``device`` (default the scene's). With ``bg`` on, also
         the background layers ``bg_*`` (:mod:`nedm.render.bg_dr`) at the output resolution ``res`` (default: the
         student view's output size); ``bg_prior`` [Cb, res, res]: placement weights of their clutter and spots
-        (:meth:`SO101Renderer.bg_prior`; None: uniform)."""
+        (:meth:`SO101Renderer.bg_prior`; None: uniform). ``addon_generator``: the base add-on draws' own generator
+        (None: ``generator``; class docstring)."""
         gdev = self._gen_device(generator)
         dev = torch.device(device or scene.device)
 
@@ -1176,7 +1283,7 @@ class RealDR:
         base = torch.tensor([m.color for m in scene.scene.bodies], dtype=torch.float64, device=dev)
         cols = base.expand(n, *base.shape).clone()
         for g, idx in scene.groups.items():
-            if not idx:
+            if not idx or g == "addon":             # the add-on slots get their colours from base_addon (last draw)
                 continue
             lo, hi = self.bright.get(g, (1.0, 1.0))
             ti = self.tint.get(g, 0.0)
@@ -1234,6 +1341,15 @@ class RealDR:
                     raise ValueError("RealDR.bg: pass the output resolution (draw(..., res=))")
                 res = views[0].out_wh[0]
             out.update(self.bg_dr().draw(n, len(cams), int(res), generator, dev, prior=bg_prior))
+        if self.addon_on:                       # base add-ons: the very last draws (slots of a scene without it: hidden)
+            ua = u
+            if addon_generator is not None:     # their own generator: the main one is not used for them
+                adev = self._gen_device(addon_generator)
+
+                def ua(lo, hi, *shape):
+                    return (lo + (hi - lo) * torch.rand(n, *shape, device=adev, generator=addon_generator,
+                                                        dtype=torch.float64)).to(dev)
+            self.addon_dr().draw(scene, n, ua, dev, out)
         return out
 
     def _floor_draw(self, scene, env, names, u, dev) -> None:
