@@ -64,6 +64,10 @@ before the tone map, on the external camera's floor / walls / mat / dark-area pi
 the renderer with ``bg_cameras`` (segment output), keeps a placement prior (``bg_prior``) and adds the ``bg_*``
 layers to every per-world draw (zeros in ``nominal_draw``), so the online loop's per-world reset and
 ``merge_nominal`` carry them unchanged.
+Scene v4 round (2026-10-23, OFF by default, ~/so101_r2s_claude/v8/scene4): ``RealScene.parts`` may sit on the fixed
+base (scene v4 draws the real table clamp at the base) and ``RealDR.base_addon`` (``nedm.render.base_addon``) puts
+random blocks and cables at the base outline in a share of the worlds; ``load_real_setup`` then adds the slot bodies
+to the scene (``RealScene.addon_slots``), nominal draws keep them hidden.
 
 - Robot timing and servo in the online loop (``OnlineConfig.dyn`` -> ``joint_env.RobotDynConfig``: command delay with
   jitter, weaker arm servo, command lag, gravity sag, command noise; per world per episode), robot-like qdot inputs
@@ -441,6 +445,9 @@ def load_real_setup(cfg: "ViralConfig", geometry_over: dict | None = None) -> Re
                              f"{cfg.res} x {cfg.res} 'area' (what the renderer matches)")
         crops[c] = [int(x) for x in real.crop_box(c, cfg.res)]
     dr = RealDR.from_dict(_merge(getattr(real, "dr", None) or {}, cfg.real_dr or {}))
+    if dr.addon_on:                         # base add-on randomisation (scene v4 round): its slot bodies in the scene
+        from dataclasses import replace as _replace
+        real = _replace(real, addon_slots=dr.addon_slots())
     ifx = getattr(real, "image_fx", None)
     if ifx:
         ifx = {k: v for k, v in ifx.items() if k not in ("note", "notes")}
