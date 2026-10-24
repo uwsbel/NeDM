@@ -2014,6 +2014,7 @@ class OnlineDAgger:
             if not bool(keep.all()):
                 ki = keep.nonzero().flatten()
                 self.env.pool = {k: v[ki] for k, v in self.env.pool.items()}
+            self.env.roll_dropped = int((~keep).sum())     # the record (roll_info: bank_dropped = task rows here)
             log(f"roll cap {ocfg.roll_hi_deg:g} deg: {int((~keep).sum())} of {nt} training tasks start above it "
                 f"(dropped); labels capped")
         self.gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 5)

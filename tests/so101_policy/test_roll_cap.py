@@ -4,8 +4,10 @@ range changes no output either); on = no target sent to the world, executed targ
 cap (action layer, robot dynamics stage with noise and the integral correction, a policy-frame joint offset), start-bank
 rows above the cap dropped, fixed-task starts above it warned, per-episode roll records and summaries; the plumbing
 (``OnlineConfig``, ``joint_teacher.make_env`` / ``run_tasks``, the online loop's labels and pool, the PPO statistic,
-the eval CLI option, the new config files). CPU, a few seconds; the env tests need the kinematic world's files and the
-build9 development tasks, the online test also the JT (skipped without them).
+the eval CLI option, the new config files); round v8 (cap 98): the mixed start bank (``vision_viral_teacher.py
+starts``), the online run's check of the labelling JT's cap, the PPO dev options, multi-batch collect records. CPU, a
+few seconds; the env tests need the kinematic world's files and the build9 development tasks, the online test also the
+JT (skipped without them).
 
     CUDA_VISIBLE_DEVICES= PYTHONPATH=src ~/miniconda3/envs/so101_vision/bin/python -m unittest \
         tests.so101_policy.test_roll_cap -v
@@ -33,6 +35,7 @@ HAVE_KIN = Path(JE.JointEnvConfig().kin_points).expanduser().exists() and \
     Path(JE.JointEnvConfig().geom_path).expanduser().exists() and TASKS.exists()
 HAVE_JT = HAVE_KIN and JT_CK.exists()
 CAP = 60.0                     # deg: binds on the development starts (wrist roll up to 79 deg) within a few decisions
+V8_CAP = 98.0                  # deg: the round v8 configs' cap
 OVER = math.radians(1.5)       # the kinematic world's servo overshoots a step target by up to ~1 deg (measured q)
 torch.set_num_threads(4)
 
@@ -150,16 +153,20 @@ class TestConfig(unittest.TestCase):
         t = json.loads((ROOT / "configs/so101_policy/ppo/r2s/teacher_roll_v8.json").read_text())
         v7 = json.loads((ROOT / "configs/so101_policy/ppo/r2s/teacher_dyn_v7.json").read_text())
         c = JE.JointEnvConfig.from_dict(t)
-        self.assertEqual(c.roll_hi_deg, 100.0)
+        self.assertEqual(c.roll_hi_deg, V8_CAP)
         self.assertIsNone(c.dyn)                                              # nominal NRD worlds
-        self.assertEqual((c.starts, c.horizon), (v7["starts"], v7["horizon"]))
+        self.assertEqual(c.horizon, v7["horizon"])
+        self.assertEqual(Path(c.starts).parent, Path(v7["starts"]).parent)   # $R2S/data
+        self.assertEqual(Path(c.starts).name, "bank_pp_h45mix.npz")         # bank + HOME45 starts (TestStarts)
         self.assertEqual((c.task, c.hold_obs_s), (v7["task"], v7["hold_obs_s"]))   # the online env's hold cap / scale
         p = ROOT / "configs/so101_policy/vision"
         new = json.loads((p / "viral_r2s_online_relabel_roll_v8.json").read_text())
         old = json.loads((p / "viral_r2s_online_relabel_v4.json").read_text())
-        self.assertEqual(VI.OnlineConfig.from_dict(new).roll_hi_deg, 100.0)
+        self.assertEqual(VI.OnlineConfig.from_dict(new).roll_hi_deg, V8_CAP)
         self.assertEqual({k: v for k, v in new.items() if k not in ("note", "roll_hi_deg")},
                          {k: v for k, v in old.items() if k != "note"})
+        # the margin (robot stalls 2026-10-23): the servo reaches ~100.7 deg at the guard's 101.2 clamp; >= 2.5 deg
+        self.assertLessEqual(V8_CAP, 100.69 - 2.5)
 
 
 @unittest.skipUnless(HAVE_KIN, "kinematics files / development tasks missing")
@@ -354,6 +361,7 @@ class TestOnline(unittest.TestCase):
         self.assertLessEqual(float(bank_roll[od.env.pool["i"]].max()), cap)
         self.assertLess(len(od.env.pool["i"]), len(bank_roll))
         self.assertEqual(len(od.env.pool["goal_xy"]), len(od.env.pool["i"]))
+        self.assertEqual(od.env.roll_info()["bank_dropped"], len(bank_roll) - len(od.env.pool["i"]))   # meta record
         sent = []
         w0 = od.env.world.step
         od.env.world.step = lambda u: (sent.append(u.clone()), w0(u))[1]
@@ -371,6 +379,64 @@ class TestOnline(unittest.TestCase):
         self.assertIsNone(off.roll_cap)
         self.assertEqual(len(off.env.pool["i"]), len(off.env.bank["q"]))
         self.assertNotIn("roll_over_student", off.stats)
+
+
+def script(name):
+    spec = importlib.util.spec_from_file_location(f"script_{name[:-3]}", ROOT / "scripts/so101_policy" / name)
+    S = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(S)
+    return S
+
+
+class TestStarts(unittest.TestCase):
+    """``vision_viral_teacher.py starts``: a PPO start bank from banks and training task files."""
+
+    @staticmethod
+    def bank(n, roll, off=0.0):
+        r = np.random.default_rng(n)
+        q = r.normal(size=(n, 6)) * 0.1 + off
+        q[:, ROLL] = np.radians(roll)
+        return dict(q=q, qd=np.zeros((n, 6)), cube_pos=r.normal(size=(n, 3)), cube_quat=np.tile([1.0, 0, 0, 0], (n, 1)),
+                    cube_v=np.zeros((n, 3)), cube_w=np.zeros((n, 3)))
+
+    def tasks(self, n, seed0, dev=False, roll=45.0):
+        b = self.bank(n, roll, off=1.0)
+        t = {f"state_{k}": v for k, v in b.items()}
+        t.update(seeds=np.arange(n, dtype=np.int64) + seed0, goal_xy=np.zeros((n, 2)), goal_yaw=np.zeros(n),
+                 dev=np.array(dev))
+        return t
+
+    def test_mix(self):
+        from nedm.so101_policy.vec_env import load_starts
+        S = script("vision_viral_teacher.py")
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            b = self.bank(10, np.linspace(0, 120, 10))                         # 2 rows above 98 deg
+            np.savez(d / "bank.npz", **b)
+            np.savez(d / "train.npz", **self.tasks(4, 690_000))
+            np.savez(d / "dev.npz", **self.tasks(3, 597_000, dev=True))
+            np.savez(d / "fresh.npz", **self.tasks(3, 690_002))                # shares 2 seeds with train
+            np.savez(d / "reserved.npz", **self.tasks(3, 400_100))
+            out = d / "mix.npz"
+            S.main(["starts", "--inputs", str(d / "bank.npz"), str(d / "train.npz"), "--repeat", "1", "3",
+                    "--roll-hi-deg", "98", "--out", str(out)])
+            f = np.load(out)
+            self.assertNotIn("goal_xy", f.files)
+            self.assertFalse({"seeds", "seed"} & set(f.files))
+            st = load_starts(out)                                               # a training bank
+            self.assertEqual(len(st["q"]), 8 + 12)
+            self.assertLessEqual(float(st["q"][:, ROLL].max()), math.radians(98.0))
+            self.assertEqual(np.bincount(f["src_input"]).tolist(), [8, 12])
+            h = f["src_input"] == 1
+            np.testing.assert_array_equal(f["q"][h], np.concatenate([self.tasks(4, 690_000)["state_q"]] * 3))
+            np.testing.assert_array_equal(f["q"][~h], b["q"][np.radians(np.linspace(0, 120, 10)) <= math.radians(98)])
+            for bad in (["--inputs", str(d / "dev.npz")],                              # a development set
+                        ["--inputs", str(d / "reserved.npz")],                         # reserved seeds
+                        ["--inputs", str(d / "train.npz"), "--exclude", str(d / "fresh.npz")],
+                        ["--inputs", str(d / "bank.npz"), str(d / "train.npz"), "--repeat", "1", "2", "3"]):
+                with self.assertRaises(SystemExit, msg=bad):
+                    S.main(["starts", *bad, "--out", str(d / "bad.npz")])
+            self.assertFalse((d / "bad.npz").exists())
 
 
 class TestCli(unittest.TestCase):
@@ -424,6 +490,55 @@ class TestCli(unittest.TestCase):
         self.assertNotIn("roll_cmd_over", out[None][0])
         self.assertIn("roll_cmd_over", out[CAP][0])
         self.assertLessEqual(float(out[CAP][1][..., ROLL].max()), math.radians(CAP))
+
+    def test_online_teacher_cap_check(self):
+        """An online config with a cap refuses a JT trained without it (or with a higher one) unless allowed; off: no
+        check."""
+        S = script("vision_viral.py")
+        jt = lambda cap: types.SimpleNamespace(path="jt.pt", env_rec=dict(env={} if cap is None else  # noqa: E731
+                                                                            dict(roll_hi_deg=cap)))
+        self.assertIsNone(S.check_jt_roll(jt(None), None))                       # off: anything goes
+        self.assertEqual(S.check_jt_roll(jt(98.0), None), 98.0)
+        self.assertEqual(S.check_jt_roll(jt(98.0), 98.0), 98.0)
+        self.assertEqual(S.check_jt_roll(jt(97.0), 98.0), 97.0)                    # a lower cap is fine
+        for bad in (None, 100.0):
+            with self.assertRaises(SystemExit):
+                S.check_jt_roll(jt(bad), 98.0)
+            self.assertEqual(S.check_jt_roll(jt(bad), 98.0, allow=True), bad)
+        self.assertIsNone(S.jt_roll_cap(types.SimpleNamespace(env_rec={})))
+        self.assertIsNone(S.jt_roll_cap(types.SimpleNamespace(env_rec=dict(env=None))))
+        if JT_CK.exists():                                                         # jt_h110: trained without the cap
+            self.assertIsNone(S.jt_roll_cap(JE.JointTeacher(JT_CK, "cpu")))
+        seen = {}
+        S.cmd_online = lambda a: seen.update(vars(a))
+        base = ["online", "--jt", "x.pt", "--init", "s.pt", "--out", "o", "--tasks", "t.npz", "--eval-tasks", "e.npz"]
+        S.main(base)
+        self.assertFalse(seen["allow_uncapped_jt"])
+        S.main(base + ["--allow-uncapped-jt"])
+        self.assertTrue(seen["allow_uncapped_jt"])
+
+    def test_concat_keeps_the_cap(self):
+        """Collect in several batches: the 0-d cap records stay, so the summary has the roll keys."""
+        S = script("vision_viral.py")
+        part = lambda n: dict(row_ep=np.zeros(2, np.int64), ep_row_start=np.zeros(n, np.int64),   # noqa: E731
+                              end=np.zeros(n), wall_s=np.float64(1.0), roll_hi_deg=np.float64(98.0),
+                              roll_cap_rad=np.float64(math.radians(98.0)), roll_cmd_max=np.zeros(n))
+        out = S.concat([part(2), part(3)])
+        self.assertEqual(float(out["roll_hi_deg"]), 98.0)
+        self.assertEqual(len(out["roll_cmd_max"]), 5)
+        p0 = part(2)
+        del p0["roll_hi_deg"], p0["roll_cap_rad"]
+        self.assertNotIn("roll_hi_deg", S.concat([p0, dict(p0)]))                # off: as before
+
+    def test_ppo_dev_options(self):
+        S = script("vision_viral_teacher.py")
+        seen = {}
+        S.cmd_ppo = lambda a: seen.update(vars(a))
+        S.main(["ppo", "--init", "i.pt", "--out", "o"])
+        self.assertEqual((seen["dev_tasks_extra"], seen["dev_match_env"]), (None, False))   # default: as before
+        S.main(["ppo", "--init", "i.pt", "--out", "o", "--dev-tasks", "a.npz", "--dev-tasks-extra", "b.npz", "c.npz",
+                "--dev-match-env"])
+        self.assertEqual((seen["dev_tasks_extra"], seen["dev_match_env"]), (["b.npz", "c.npz"], True))
 
     def test_teacher_script_option(self):
         spec = importlib.util.spec_from_file_location("vision_viral_teacher_script",

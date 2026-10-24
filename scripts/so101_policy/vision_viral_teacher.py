@@ -19,6 +19,13 @@ stage H: the real robot's HOME pose + ``--home-config`` noise, a start-bank cube
     $PY -P scripts/so101_policy/vision_viral_teacher.py tasks --kind H --n 100 --dev --home-config \
         configs/so101_policy/vision/viral_r2s_home.json --out home_dev100.npz
     $PY -P scripts/so101_policy/vision_viral_teacher.py mix --inputs C.npz H.npz --counts 8192 8192 --out mix.npz
+
+``starts`` = a PPO start bank from start banks and training task files (no goals, no seeds; e.g. the round v8 roll-cap
+fine-tune's bank: bank_pp_split0 once + the HOME45 training starts 3 times, ~50 % HOME45):
+
+    $PY -P scripts/so101_policy/vision_viral_teacher.py starts --inputs bank_pp_split0.npz train_H45_8k.npz \
+        --repeat 1 3 --exclude dev100.npz fresh100.npz home45_dev100.npz home45_fresh100.npz --roll-hi-deg 98 \
+        --out bank_pp_h45mix.npz
 """
 from __future__ import annotations
 
@@ -75,6 +82,61 @@ def cmd_mix(a):
     t["mix_inputs"] = np.array([str(x(p_)) for p_ in a.inputs])
     np.savez(a.out, **t)
     log(f"-> {a.out}: {len(t['seeds'])} tasks, kinds {np.bincount(t['kind']).tolist()} ({t['kind_stage'].tolist()})")
+
+
+def cmd_starts(a):
+    """A PPO start bank (``vec_env.load_starts`` layout: q, qd, cube_pos, cube_quat, cube_v, cube_w; no goals, no seeds)
+    from start banks and TRAINING task files (their ``state_*`` rows): every row of input i ``--repeat[i]`` times, in
+    input order (the env draws rows uniformly, so the repeats set the mix). Refused: a sealed-test path, a bank with a
+    reserved seed, a task file with a reserved seed or ``dev`` set, a task file sharing a seed with an ``--exclude``
+    file (development / fresh sets). Rows above ``--roll-hi-deg`` are dropped (``JE.drop_high_roll``)."""
+    import math
+    from nedm.so101_policy.vec_env import reserved_seed_hits
+    rep = list(a.repeat or [1]) * (len(a.inputs) if len(a.repeat or [1]) == 1 else 1)
+    if len(rep) != len(a.inputs) or min(rep) < 1:
+        raise SystemExit("--repeat: one value (>= 1) or one per input")
+    ex = set()
+    for p_ in a.exclude or []:
+        ex |= set(np.asarray(np.load(x(p_))["seeds"]).tolist())
+    keys = ("q", "qd", "cube_pos", "cube_quat", "cube_v", "cube_w")
+    parts, src, rows = [], [], []
+    for i, (p_, k) in enumerate(zip(a.inputs, rep)):
+        if "test_sealed" in str(p_):
+            raise SystemExit(f"{p_}: the sealed test data must not be used for starts")
+        f = np.load(x(p_))
+        task = "goal_xy" in f.files
+        sd = [np.asarray(f[n]) for n in ("seeds", "seed") if n in f.files]
+        hits = sum(reserved_seed_hits(v) for v in sd)
+        if hits:
+            raise SystemExit(f"{p_}: {hits} reserved (validation / test) seeds")
+        if task:
+            if "dev" in f.files and bool(f["dev"]):
+                raise SystemExit(f"{p_}: a development task set")
+            if not sd:
+                raise SystemExit(f"{p_}: a task file without seeds")
+            ov = ex & set(sd[0].tolist())
+            if ov:
+                raise SystemExit(f"{p_}: {len(ov)} seeds are in the --exclude sets")
+        pre = "state_" if task else ""
+        d = {n: np.asarray(f[pre + n], np.float64) for n in keys}
+        m = len(d["q"])
+        parts.append({n: np.concatenate([v] * k) for n, v in d.items()})
+        src.append(np.full(m * k, i, np.int16))
+        rows.append(np.tile(np.arange(m), k))
+        log(f"{p_}: {m} rows x {k} ({'task file' if task else 'bank'})")
+    out = {n: np.concatenate([q[n] for q in parts]) for n in keys}
+    out["src_input"], out["src_row"] = np.concatenate(src), np.concatenate(rows)
+    if a.roll_hi_deg is not None:
+        t, n_drop = JE.drop_high_roll({n: torch.as_tensor(v) for n, v in out.items()},
+                                      math.radians(JE.roll_hi_config(a.roll_hi_deg)))
+        out = {n: v.numpy() for n, v in t.items()}
+        log(f"roll cap {a.roll_hi_deg:g} deg: {n_drop} rows dropped")
+    out["src_inputs"] = np.array([str(x(p_)) for p_ in a.inputs])
+    out["src_repeat"] = np.asarray(rep, np.int64)
+    np.savez(a.out, **out)
+    sh = np.bincount(out["src_input"], minlength=len(a.inputs)) / len(out["q"])
+    log(f"-> {a.out}: {len(out['q'])} rows, share per input {np.round(sh, 4).tolist()}, wrist roll max "
+        f"{math.degrees(float(out['q'][:, JE.ROLL].max())):.1f} deg")
 
 
 def cmd_expert(a):
@@ -200,21 +262,40 @@ def cmd_ppo(a):
         start = algo.iteration
     curve = P.CurveWriter(out / "learning_curve.csv")
     dev_t = load_tasks(a.dev_tasks) if a.dev_tasks else None
+    # more development sets (--dev-tasks-extra): the same evaluation, in the log and dev_evals.jsonl only
+    dev_x = [(Path(p_).stem, load_tasks(p_)) for p_ in a.dev_tasks_extra or []]
+    if dev_x and dev_t is None:
+        raise SystemExit("--dev-tasks-extra needs --dev-tasks")
+    dev_kw = {}                   # --dev-match-env: the training env's episode length, hold cap and held-time scale
+    if a.dev_match_env:
+        dev_kw = dict(horizon=int(cfg.horizon), hold_cap_s=env.tcfg.hold_cap_s, hold_obs_s=float(cfg.hold_obs_s))
+        log(f"dev evaluations: {json.dumps(dev_kw)} (the training env's)")
     t0 = time.time()
     for it in range(start, a.iterations):
         row = algo.iterate()
+        dev_more = []
         if dev_t is not None and (algo.iteration % a.eval_every == 0 or algo.iteration == a.iterations):
             jt_path = out / "ckpt" / f"model_{algo.iteration:05d}.pt"
             algo.save(jt_path)
             jt = JE.JointTeacher(jt_path, a.device)
-            ev = JT.make_env("nrd", len(dev_t["seeds"]), jt.codec, a.device, x(a.nrd_ckpt),
-                             roll_hi_deg=cfg.roll_hi_deg)
-            r = JT.run_tasks(ev, dev_t, jt)
-            ev.close()
-            s = JT.summarize(r)
-            row["dev_nrd_lenient"], row["dev_nrd_strict"] = s["lenient"], s["strict"]
-            if "roll_cmd_over" in s:
-                row["dev_nrd_roll_cmd_over"] = s["roll_cmd_over"]
+            rec = dict(iteration=algo.iteration, sets={})
+            for k_, (name, tt) in enumerate([(Path(a.dev_tasks).stem, dev_t)] + dev_x):
+                ev = JT.make_env("nrd", len(tt["seeds"]), jt.codec, a.device, x(a.nrd_ckpt),
+                                 roll_hi_deg=cfg.roll_hi_deg, **dev_kw)
+                r = JT.run_tasks(ev, tt, jt)
+                ev.close()
+                s = JT.summarize(r)
+                rec["sets"][name] = s
+                if k_ == 0:       # the first set: the learning curve's dev columns (as before)
+                    row["dev_nrd_lenient"], row["dev_nrd_strict"] = s["lenient"], s["strict"]
+                    if "roll_cmd_over" in s:
+                        row["dev_nrd_roll_cmd_over"] = s["roll_cmd_over"]
+                else:
+                    dev_more.append(f" | {name} len {s['lenient']:.2f} strict {s['strict']:.2f}"
+                                    + (f" roll over {s['roll_cmd_over']:.2f} at cap {s['roll_q_at_cap']:.2f}"
+                                       if "roll_cmd_over" in s else ""))
+            with open(out / "dev_evals.jsonl", "a") as f_:   # every dev set's summary (the CSV keeps its header)
+                f_.write(json.dumps(rec) + "\n")
         curve.write(row)
         log(f"it {algo.iteration}: succ {row['success']:.3f} len {row['lenient']:.3f} lifted {row['lifted']:.3f} "
             f"kl {row['kl']:.4f} lr {row['lr']:.2e} vloss {row['value_loss']:.4f} std {row['std_move']:.3f}/"
@@ -222,7 +303,8 @@ def cmd_ppo(a):
             + (f" | roll over cap {row['roll_cmd_over']:.3f}" if "roll_cmd_over" in row else "")
             + (f" | dev nrd len {row['dev_nrd_lenient']:.2f} strict {row['dev_nrd_strict']:.2f}"
                if "dev_nrd_lenient" in row else "")
-            + (f" roll over {row['dev_nrd_roll_cmd_over']:.2f}" if "dev_nrd_roll_cmd_over" in row else ""))
+            + (f" roll over {row['dev_nrd_roll_cmd_over']:.2f}" if "dev_nrd_roll_cmd_over" in row else "")
+            + "".join(dev_more))
         if algo.iteration % a.save_every == 0 or algo.iteration == a.iterations:
             algo.save(out / "ckpt" / f"model_{algo.iteration:05d}.pt")
             algo.save(out / "ckpt" / "last.pt")
@@ -258,6 +340,14 @@ def main(argv=None):
     q.add_argument("--seed", type=int, default=0)
     q.add_argument("--out", required=True)
     q.set_defaults(fn=cmd_mix)
+
+    q = sub.add_parser("starts")
+    q.add_argument("--inputs", nargs="+", required=True, help="start banks (.npz) and training task files")
+    q.add_argument("--repeat", type=int, nargs="+", default=[1], help="times every row of input i (one or per input)")
+    q.add_argument("--exclude", nargs="*", default=[], help="task files (dev / fresh) no task-file seed may be in")
+    q.add_argument("--roll-hi-deg", type=float, default=None, help="drop rows with the wrist roll above (sim deg)")
+    q.add_argument("--out", required=True)
+    q.set_defaults(fn=cmd_starts)
 
     q = sub.add_parser("expert")
     common(q)
@@ -324,6 +414,11 @@ def main(argv=None):
     q.add_argument("--bc-coef", type=float, default=0.0)
     q.add_argument("--critic-warmup", type=int, default=10)
     q.add_argument("--dev-tasks", default="")
+    q.add_argument("--dev-tasks-extra", nargs="+", default=None,
+                   help="more development sets (same evaluation; the log and dev_evals.jsonl, not the CSV)")
+    q.add_argument("--dev-match-env", action="store_true",
+                   help="dev evaluations with the env config's horizon, hold cap and held-time scale (default: 400 "
+                        "steps and the task defaults)")
     q.add_argument("--eval-every", type=int, default=10)
     q.add_argument("--save-every", type=int, default=10)
     q.add_argument("--resume", default="")

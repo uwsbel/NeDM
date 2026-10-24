@@ -45,9 +45,11 @@ per-call light and intrinsics stay for several decisions; the image-history arm 
 evaluations; ``eval --light-redraw-p P`` is the same for a standalone evaluation (with ``--randomise``).
 
 Wrist-roll cap (real2sim 2026-10-23, off by default; ``joint_env.JointEnvConfig.roll_hi_deg``): the real wrist roll
-ends at +101.2 sim deg. ``online``: the online config's ``roll_hi_deg`` caps the online env's targets and the JT's
-labels, drops the task rows that start above it, and applies to the in-run evaluations (``--roll-hi-deg`` overrides
-the evaluations only); ``eval`` / ``collect`` / ``run``: ``--roll-hi-deg 100``. The summaries then add
+ends at +101.2 sim deg (the guard's clamp; the servo reaches only ~100.7 there, so round v8 uses 98). ``online``: the
+online config's ``roll_hi_deg`` caps the online env's targets and the JT's labels, drops the task rows that start
+above it, and applies to the in-run evaluations (``--roll-hi-deg`` overrides the evaluations only); the labelling JT
+must have been trained with that cap or a lower one (its checkpoint's env record; else the run stops,
+``--allow-uncapped-jt`` accepts it). ``eval`` / ``collect`` / ``run``: ``--roll-hi-deg 98``. The summaries then add
 ``roll_cmd_over`` (share of episodes whose commanded roll went above the cap), ``roll_q_at_cap`` and
 ``roll_cmd_max_deg``.
 """
@@ -197,7 +199,33 @@ def concat(parts):
             out.setdefault(k, []).append(v)
     out = {k: np.concatenate(v) for k, v in out.items()}
     out["wall_s"] = np.float64(sum(float(p["wall_s"]) for p in parts))
+    for k in ("roll_hi_deg", "roll_cap_rad"):   # the roll cap (0-d, one env for every part): the summary's roll keys
+        if k in parts[0]:
+            out[k] = parts[0][k]
     return out
+
+
+def jt_roll_cap(jt):
+    """The wrist-roll cap (sim deg) the JT was trained with (its checkpoint's env record), None = none."""
+    rec = getattr(jt, "env_rec", None) or {}
+    env = rec.get("env") if isinstance(rec, dict) else None
+    v = env.get("roll_hi_deg") if isinstance(env, dict) else None
+    return None if v is None else float(v)
+
+
+def check_jt_roll(jt, roll_hi_deg, allow=False):
+    """Online runs with a wrist-roll cap (sim deg; None = off: no check): the labelling JT must have been trained with
+    that cap or a lower one, else SystemExit (``allow``: a warning). Capped labels of a JT trained without the cap teach
+    the student to sit at the cap and time out (jt_h110 on HOME45: lenient 97.6 -> 89.6 % with a cap of 100).
+    -> the JT's own cap (sim deg, None = none)."""
+    jt_roll = jt_roll_cap(jt)
+    if roll_hi_deg is not None and (jt_roll is None or jt_roll > float(roll_hi_deg) + 1e-9):
+        msg = (f"online roll_hi_deg {float(roll_hi_deg):g}: the JT {getattr(jt, 'path', '?')} was trained with roll "
+               f"cap {jt_roll} (capped labels of a JT trained without the cap teach the student to sit at it)")
+        if not allow:
+            raise SystemExit(msg + "; use a roll-capped fine-tune (r2s_online.sbatch TEACHER_JT) or --allow-uncapped-jt")
+        log("WARNING: " + msg + " (--allow-uncapped-jt)")
+    return jt_roll
 
 
 def evaluate(st, jt, tasks, world, cache, views, randomise=False, jaw_lead=None, record_states=False,
@@ -441,6 +469,7 @@ def cmd_online(a):
         k, v = s_.split("=", 1)
         oc[k] = json.loads(v)
     ocfg = VI.OnlineConfig.from_dict(oc)
+    jt_roll = check_jt_roll(jt, ocfg.roll_hi_deg, a.allow_uncapped_jt)
     if ocfg.lag_range and tuple(ocfg.lag_range) != tuple(st.cfg.lag_range):      # the online config's image lag range
         sets = dict(s_.split("=", 1) for s_ in a.set or [])                       # (wins over --config, not --set)
         if a.config and "lag_range" in sets and tuple(json.loads(sets["lag_range"])) != tuple(ocfg.lag_range):
@@ -472,7 +501,8 @@ def cmd_online(a):
         if od.env.goal_jump is not None:
             meta["online_env"]["goal_jump"] = VI.asdict(od.env.goal_jump.cfg)
         if od.env.roll_hi is not None:
-            meta["online_env"]["roll_cap"] = dict(od.env.roll_info(), eval_roll_hi_deg=eval_roll)
+            meta["online_env"]["roll_cap"] = dict(od.env.roll_info(), eval_roll_hi_deg=eval_roll,
+                                                  jt_roll_hi_deg=jt_roll)
         log(f"online env: {json.dumps(meta['online_env'])}")
     (out / "meta.json").write_text(json.dumps(meta, indent=1, default=str))
     f = open(out / "curve.csv", "a", newline="")
@@ -651,6 +681,8 @@ def main(argv=None):
     q.add_argument("--oset", nargs="*")
     q.add_argument("--eval-randomise", action="store_true")
     q.add_argument("--eval-workers", type=int, default=8)
+    q.add_argument("--allow-uncapped-jt", action="store_true",
+                   help="online config with roll_hi_deg: accept a JT trained without that cap (or a higher one)")
     q.set_defaults(fn=cmd_online)
 
     q = sub.add_parser("eval")
