@@ -110,6 +110,10 @@ Luffy replay of a) with the robot student: cube error before the grasp 25.3 / 21
    table plane; correct only if the arm base is really tilted, not for a shoulder_lift calibration error): 90 / 94 %.
    A flat table 10 mm lower: 96 / 98 %. Level table: 98 / 98 %. If you can, make the table level with the arm base.
    `--table-z` is one flat height: a value below -0.005 lets the gripper reach the table at the high side.
+   Students trained with the v8 table randomisation (`configs/so101_policy/vision/viral_r2s_online_v8_*_table.json`)
+   learned to go down to the real table: run them with `--table-plane calib` (the floor and the guard's floor checks
+   1.5 mm / -5 mm / -2 mm above the calibrated table plane), never with `--table-z 0` (that floor is ~13 mm above the
+   real table at the cubes and holds the descent up).
 5. Workspace clear, you at the robot, one hand near the arm, the other on the keyboard (q / space / Esc / Ctrl+C).
    The student may command up to 0.06 rad per 20 ms step (3 rad/s); the sim teacher's per-step change p99 is
    0.03-0.04 rad.

@@ -22,8 +22,12 @@ joints are the real joints that reach a cube that much lower (``test_table_bias.
 independent top-down IK). Only the three pitch joints change (shoulder_lift, elbow_flex, wrist_flex): their axes are
 parallel and horizontal and the pan axis is vertical, so they move the gripper in the arm's vertical plane and turn
 it only about their common axis; a vertical shift with the same gripper rotation is therefore exact (Gauss-Newton on
-those three joints, ``ITERS`` iterations, residual < 1e-6 m in the workspace for |dz| <= 30 mm). Pan, wrist roll and
-the jaw are unchanged.
+those three joints, ``ITERS`` = 8 iterations). Convergence, measured on 147,001 logged REAL robot states (q_sim of
+``robot_logs`` eval_* / live_*, reach up to 0.33 m, wrist_flex near 92 deg at far reach): with a flat -20 mm plane, 20
+mm at x 0.25 m with slope -40 mm/m, or the calibrated plane, every row is below 2e-16 m after 8 iterations (4: up to
+2 mm, 0.1 % of the rows above 0.5 mm; 6: up to 3e-8 m; the 0.3 rad step guard slows the far-reach rows); with the
+default draws 0.002 % of the rows (a plane HIGHER than the sim table at far x) have no image (residual ~1 mm, true
+reach limit). Pan, wrist roll and the jaw are unchanged.
 
 A SHEAR, not a rigid tilt: horizontal positions are kept, only the height of the world under the gripper changes
 (the plane is evaluated at the grasp point's xy, so the offset follows the gripper over a tilted table). A rigid
@@ -34,24 +38,41 @@ relative to the arm is whatever it is, only its height differs. A 2 deg tilt of 
 Online loop (``viral.OnlineDAgger``): per world per episode with probability ``p`` a plane is drawn
 (``TableBiasConfig``: the drop at ``x_ref_m``, slopes in x and y). Everything the student sees or learns from the
 joints is in the observed frame, exactly (``viral.OnlineDAgger.table_frame``, one batched map per decision): its q
-input Phi(q) (+ the ``q_bias`` draw on top; history = earlier inputs), its qdot input J_Phi(q) qdot (``observe_qd``;
-exactly 0 stays 0), the cmd / last-command inputs Phi(executed targets) - Phi(q); the teacher's labels Phi(label) and
-the buffer's q Phi(q), so the training targets are Phi(label) - Phi(q); the student's chunk is relative to its
-reading, so the applied targets are Phi^-1(Phi(q) + delta) (``to_true``). Images, physics, the action layer, the
-teacher's observation and its executed targets, and the aux targets stay true. One constant offset per decision
-instead (b = Phi(q) - q for the chunk: applied q + delta, labels label - q) is 10-14 % off on a vertical move at a
-14-20 mm drop (the offset changes along the move: ~1.0-1.4 mm on 10 mm, ``test_table_bias``), so the loop maps every
-pose; worlds without a plane are untouched bit for bit (``shift`` returns q itself for dz = 0). Near the reach limit
+input Phi(q) (+ the ``q_bias`` draw on top; history = earlier inputs), its qdot input J_Phi(q) qdot (``observe_qd``,
+analytic; exactly 0 stays 0), the cmd / last-command inputs Phi(executed targets) - Phi(q); the teacher's labels
+Phi(label) and the buffer's q Phi(q), so the training targets are Phi(label) - Phi(q); the student's chunk is relative
+to its reading, so the applied targets are Phi^-1(Phi(q) + delta) (``to_true``). Physics, the action layer, the
+teacher's observation and its executed targets stay true; images and aux targets too unless ``table_render`` (below).
+One constant offset per decision instead (b = Phi(q) - q for the chunk: applied q + delta, labels label - q) is
+10-14 % off on a vertical move at a 14-20 mm drop (the offset changes along the move: ~1.0-1.4 mm on 10 mm,
+``test_table_bias``), so the loop maps every pose; worlds without a plane are untouched bit for bit (``shift``
+returns q itself for dz = 0). Near the reach limit
 (arm almost straight) a pose may have no image: a target the student aims ~15 mm "higher" in the sim world than the
-sim arm can reach at that gripper rotation (online smoke: ~1-2 % of the rows of a decision at times). Those rows
-(residual above ``TOL``) fall back to the decision's constant offset b(q) (labels / executed targets + b, applied
-targets - b, qdot unmapped); the loop logs their share (``tb_bad``).
+sim arm can reach at that gripper rotation (real robot states: 5.3 % of them have no sim preimage under the
+calibrated plane, all at grasp-point reach >= 0.27 m; the training tasks' cubes and goals lie within 0.27 m).
+Training data are exact: a world whose frame-map rows (q, the image state, labels, last executed targets) are not
+all below ``EXACT`` adds no sample this decision (and a non-exact label does not complete the previous one).
+Acting only: rows above ``TOL`` take the decision's constant offset b(q) (labels / executed targets + b, applied
+targets - b); the loop logs the frame-map and applied-target shares separately (``tb_bad_frame``, ``tb_bad_applied``,
+``tb_skip``; ``viral.OnlineDAgger.log_extra``). Online smoke (S family, init s28, 64 worlds, 400 decisions, the
+consistent images): frame map 0 rows above TOL, 0 samples skipped; applied targets 0.35 % above TOL on average (2.6 %
+in the first 50 decisions, where every episode starts together and s28 reaches 0.30-0.32 m out at 7-17 cm height
+with the gripper pointing down; 0-0.13 % later).
 
-Robot: unchanged (the real joints ARE the observed frame; no offset at deploy). Note the robot's action-layer floor
-(``run_student_real.py --table-z``, default 0): it keeps the lowest gripper point 1.5 mm above z = 0 of the ARM frame,
-which is ~h above the real table top; training keeps the floor 1.5 mm above the TRUE table. A student that learned to
-reach the real table needs ``--table-z`` at the real table (about -0.012 m), else that floor holds it up (MuJoCo:
-``vision_viral.py eval --floor table``).
+Images (``OnlineConfig.table_render``, off by default): with the plain option the training renders keep the TRUE
+arm and the sim-height world while the student reads Phi(q), a mismatch that never occurs on the robot (there the
+arm in the image IS the reading) and that tells the drop. ``table_render`` draws the arm at the reading (Phi of the
+image state, also with image lag) and the world on the plane (cube sheared by the plane height under it and tilted
+with the plane; plate, floor, mat, walls, strip, ceiling on the plane as ``RealScene.on_plane``; ``SO101Scene``
+``world_plane``), so the training images are the robot's images of a lower / tilted table; the aux cube target is
+then the drawn cube (z + plane height).
+
+Robot: the real joints ARE the observed frame (no offset at deploy). The robot's action-layer floor must follow the
+real table: training keeps the floor 1.5 mm above the TRUE table, i.e. above the plane in the observed frame; the
+robot's ``run_student_real.py --table-z 0`` (default) keeps the lowest gripper point 1.5 mm above z = 0 of the ARM
+frame, ~13 mm above the real table at the cubes, and holds a lower descent up. Deploy a table-trained student with
+``--table-plane calib`` (``hw_lib.ActionLayer(table_plane=)``: the floor and the guard's floor checks above the
+calibrated plane; MuJoCo: ``vision_viral.py eval --floor table``), never with ``--table-z 0``.
 """
 from __future__ import annotations
 
@@ -61,12 +82,13 @@ from dataclasses import asdict, dataclass
 import torch
 
 PITCH = (1, 2, 3)              # shoulder_lift, elbow_flex, wrist_flex (sim joint order)
-ITERS = 4                      # Gauss-Newton iterations (residual of a 20 mm shift after 1-4: 2, 0.1, 1e-3, 1e-8 mm)
+ITERS = 8                      # Gauss-Newton iterations (module docstring: < 2e-16 m on all real robot states; 4 was
+                               # not enough at far reach: up to 2 mm)
 W_ROT = 0.1                    # m / rad: rotation weight of the fit (the collector's IK weight)
 STEP_MAX = 0.3                 # rad: largest change of a joint in one iteration (a guard near the reach limit)
-QD_DT = 1e-4                   # s: forward-difference step of the qdot reading (``observe_qd``) ...
-QD_STEP = 1e-3                 # rad: ... at most this joint change (a large qdot gets a shorter time step)
-TOL = 5e-4                     # m (+ 0.1 m / rad): a map row above this residual did not converge (``viral`` fallback)
+EXACT = 1e-9                   # m (+ 0.1 m / rad): a map row at or below this residual is exact (training data)
+TOL = 5e-4                     # m (+ 0.1 m / rad): a map row above this residual has no image (acting: ``viral``
+                               # fallback to the decision's constant offset)
 
 
 @dataclass
@@ -193,17 +215,39 @@ def to_true(kin, u_obs, plane):
     return shift(kin, u_obs, -height(torch.as_tensor(plane, dtype=kin.dtype, device=p.device), p[..., :2]))
 
 
-def qd_step(qd):
-    """Per-row time step [B] (s) of the qdot reading's forward difference: QD_DT, shorter where |qd| dt > QD_STEP."""
-    m = qd.abs().amax(-1)
-    return torch.where(m * QD_DT > QD_STEP, QD_STEP / m.clamp_min(1e-300), torch.full_like(m, QD_DT))
+def observe_qd(kin, q, qd, plane, q_obs=None):
+    """The reading's velocity J_Phi(q) qd [B, 6] (rad/s) of true poses q [B, 6] moving at qd [B, 6], analytic (the time
+    derivative of the map's definition, module docstring): Phi keeps pan, roll and the jaw, so their rates stay; the
+    pitch rates d [B, 3] solve (least squares with the map's rotation weight; the system is consistent, so exact where
+    ``q_obs`` = Phi(q) is)
 
+        J_p,pitch(Phi(q)) d = J_p(q) qd + e_z (c1 v_x + c2 v_y) - J_p,other(Phi(q)) qd_other,   v = J_p(q) qd
+        J_r,pitch(Phi(q)) d = J_r(q) qd - J_r,other(Phi(q)) qd_other
 
-def observe_qd(kin, q, qd, plane):
-    """The reading's velocity J_Phi(q) qd [B, 6] (rad/s) of true poses q [B, 6] moving at qd [B, 6] (forward difference
-    over ``qd_step``; the plane under the moving gripper included); qd = 0 gives exactly 0. float64."""
+    (grasp-point velocity plus the plane's slope under the moving gripper; the gripper's angular velocity unchanged).
+    ``q_obs``: Phi(q) if known (else computed). qd = 0 gives exactly 0. float64."""
     q, qd = q.to(kin.dtype), qd.to(kin.dtype)
-    pl = torch.as_tensor(plane, dtype=kin.dtype, device=q.device)
-    h = qd_step(qd)[:, None]
-    a, _ = observe(kin, torch.cat((q, q + qd * h)), torch.cat((pl, pl)))
-    return (a[q.shape[0]:] - a[:q.shape[0]]) / h
+    n = q.shape[0]
+    pl = torch.as_tensor(plane, dtype=kin.dtype, device=q.device).expand(n, 3)
+    if q_obs is None:
+        q_obs = observe(kin, q, pl)[0]
+    jp, jr, _, _ = kin.jacobian(q)
+    jpo, jro, _, _ = kin.jacobian(q_obs.to(kin.dtype))
+    J, O = list(PITCH), [0, 4]                                   # pitch joints, the other arm joints (pan, roll)
+    v = (jp @ qd[:, :5, None])[..., 0]                           # grasp-point velocity [B, 3]
+    w = (jr @ qd[:, :5, None])[..., 0]                           # gripper angular velocity [B, 3]
+    vz = pl[:, 1] * v[:, 0] + pl[:, 2] * v[:, 1]                 # the plane height's rate under the gripper
+    v = v + torch.stack((torch.zeros_like(vz), torch.zeros_like(vz), vz), -1)
+    qo = qd[:, O, None]
+    a = torch.cat((jpo[..., J], W_ROT * jro[..., J]), -2)                                     # [B, 6, 3]
+    rhs = torch.cat((v - (jpo[..., O] @ qo)[..., 0], W_ROT * (w - (jro[..., O] @ qo)[..., 0])), -1)[..., None]
+    at = a.transpose(-1, -2)
+    eye = torch.eye(len(J), dtype=kin.dtype, device=q.device)
+    d = torch.linalg.solve_ex(at @ a + 1e-15 * eye, at @ rhs, check_errors=False)[0][..., 0]
+    out = torch.cat((qd[:, :1], d, qd[:, 4:]), -1)
+    return torch.where((qd == 0).all(-1, keepdim=True), torch.zeros_like(out), out)
+
+
+def is_on(d) -> bool:
+    """``OnlineConfig.table_bias`` dict -> on? (empty or only a ``note``: off)."""
+    return bool(set(dict(d or {})) - {"note"})

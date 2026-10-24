@@ -332,7 +332,9 @@ def build_common(args):
         jm.offset_rad = jm.offset_rad + qo
         jm.source = f"{jm.source} + --q-offset-deg {args.q_offset_deg}"
     kp = Path(args.kin_points).expanduser() if args.kin_points else H.default_kin_points()
-    layer = H.ActionLayer(kp, table_z=args.table_z)
+    plane = H.parse_table_plane(getattr(args, "table_plane", ""), calib)
+    layer = H.ActionLayer(kp, table_z=args.table_z) if plane is None else H.ActionLayer(kp, table_z=args.table_z,
+                                                                                         table_plane=plane)
     gcfg = H.GuardConfig.from_dict(json.loads(args.guard) if args.guard else {})
     import torch
     dev = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
@@ -382,6 +384,8 @@ def build_common(args):
                 table_z=args.table_z, guard=gcfg.__dict__, qdot_window=args.qdot_window, qd_gain=args.qd_gain,
                 views={k: dict(crop_xywh=v.crop_xywh, out_wh=v.out_wh, interp=v.interp, source=v.source)
                        for k, v in views.items()})
+    if plane is not None:
+        info["table_plane"] = list(plane)
     return calib, jm, layer, gcfg, policy, views, info
 
 
@@ -1044,6 +1048,10 @@ def main(argv=None):
     ap.add_argument("--qd-gain", type=float, default=1.0, help="the student's qdot INPUT x this gain (1 = off; real2sim "
                     "2026-10-22: the slow real arm makes the student's steps shrink; robot-like sim 50 %% at 1, 88 %% at 2)")
     ap.add_argument("--table-z", type=float, default=0.0, help="real table top z in the arm base frame (m)")
+    ap.add_argument("--table-plane", default="", help="floor above a tilted table instead of --table-z: 'calib' "
+                    "(calib_v1 scene.table_plane, the measured real table) or c0,c1,c2 (m; z = c0 + c1 x + c2 y); the "
+                    "action-layer floor and the guard's floor checks then measure above that plane. Needed by students "
+                    "trained with the v8 table randomisation (configs viral_r2s_online_v8_*_table.json); empty = off")
     ap.add_argument("--guard", default="", help="GuardConfig overrides as JSON")
     ap.add_argument("--thumb-res", type=int, default=112, help="logged student input images (px; 0 = full)")
     ap.add_argument("--out", default="", help="output folder (default ~/so101_r2s_claude/hw/<mode>_<time>)")

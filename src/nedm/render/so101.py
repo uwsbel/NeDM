@@ -617,7 +617,19 @@ class SO101Scene:
         lift = over * (dz - bottom.clamp_min(0.0)).clamp_min(0.0)
         return g, torch.where(shown & torch.isfinite(lift), lift, 0.0)
 
-    def _real_transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None, plate_dz=None):
+    @staticmethod
+    def plane_frames(plane) -> tuple[torch.Tensor, torch.Tensor]:
+        """Per-world table planes [n, 3] (c0, c1, c2; z = c0 + c1 x + c2 y, float64) -> (origin [n, 3], quaternion
+        [n, 4] w x y z) of the table frame, as :meth:`RealScene.plane_pose` (a flat plane: exactly the identity
+        turn)."""
+        c = torch.as_tensor(plane, dtype=torch.float64)
+        nrm = torch.sqrt(1.0 + c[:, 1] ** 2 + c[:, 2] ** 2)
+        z = torch.zeros_like(nrm)
+        qv = torch.stack([1.0 + 1.0 / nrm, c[:, 2] / nrm, -c[:, 1] / nrm, z], -1)     # z x n, n ~ (-c1, -c2, 1)
+        return torch.stack([z, z, c[:, 0]], -1), qv / qv.norm(dim=-1, keepdim=True)
+
+    def _real_transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None, plate_dz=None,
+                         world_plane=None, cube_held=None):
         f64 = dict(device=self.device, dtype=torch.float64)
         q = torch.as_tensor(q).to(**f64)
         n = q.shape[0]
@@ -631,7 +643,19 @@ class SO101Scene:
             if self.goal_style is None or self.plate_depth is None:
                 raise ValueError("plate_dz needs the goal plate and a renderer built with plate_depth")
             g, lift = self._plate_shift(self.goal_transform(goal_pose, n), cp, cq, plate_dz)
+            if cube_held is not None:       # a cube the jaws hold is drawn at its physics pose (no lift)
+                lift = torch.where(torch.as_tensor(cube_held, device=self.device).reshape(n).bool(), 0.0, lift)
             cp = cp + lift[:, None] * qrot(self.plane_q.expand(n, 4), torch.tensor([0.0, 0.0, 1.0], **f64).expand(n, 3))
+        wp = None
+        if world_plane is not None:         # per-world table plane (v8 table_render): the world drawn on it
+            if self.real.table_plane is not None:
+                raise ValueError("world_plane: the scene has its own table_plane (the physics poses are not flat)")
+            wp = torch.as_tensor(world_plane).to(**f64).reshape(n, 3)
+            wo, wq = self.plane_frames(wp)
+            wo, wq = wo.to(self.device), wq.to(self.device)
+            hz = wp[:, 0] + wp[:, 1] * cp[:, 0] + wp[:, 2] * cp[:, 1]           # the cube: sheared (xy kept, as the
+            cp = cp + torch.stack([torch.zeros_like(hz), torch.zeros_like(hz), hz], -1)  # joint map), tilted
+            cq = qmul(wq, cq)
         cube = torch.cat([cp, xyzw(cq)], -1)
         parts.append(cube[:, None])
         if self.goal_style is not None:
@@ -641,11 +665,22 @@ class SO101Scene:
                 shown = g[:, 2:3] > HIDDEN_Z / 2
                 on = torch.cat([self.plane_o + qrot(qp, g[:, :3]), xyzw(qmul(qp, wxyz(g[:, 3:])))], -1)
                 g = torch.where(shown, on, g)
+            elif wp is not None:                            # ... on the world's plane (as RealScene.on_plane)
+                shown = g[:, 2:3] > HIDDEN_Z / 2
+                on = torch.cat([wo + qrot(wq, g[:, :3]), xyzw(qmul(wq, wxyz(g[:, 3:])))], -1)
+                g = torch.where(shown, on, g)
             parts.append(g[:, None])
         fixed = self.fixed_pose.expand(n, *self.fixed_pose.shape)
         if env_pose is not None:
             e = torch.as_tensor(env_pose).to(**f64).reshape(n, self.n_env, 7)
             fixed = torch.cat([fixed[:, : len(self.fixed_pose) - self.n_env], e], 1)
+        if wp is not None:              # floor, mat, walls, strip, ceiling on the world's plane (not the lab room)
+            k0, m = len(self.fixed_pose) - self.n_env, self.n_env
+            e = fixed[:, k0:]
+            wqe = wq[:, None].expand(n, m, 4)
+            on = torch.cat([wo[:, None] + qrot(wqe, e[..., :3]), xyzw(qmul(wqe, wxyz(e[..., 3:])))], -1)
+            mv = torch.tensor([gr not in ("room", "room_floor") for gr in self.env_groups], device=self.device)
+            fixed = torch.cat([fixed[:, :k0], torch.where(mv[None, :, None], on, e)], 1)
         parts.append(fixed)
         body_q = torch.cat(parts, 1)
         views = []
@@ -670,8 +705,8 @@ class SO101Scene:
     def body_names(self) -> list[str]:
         return self.scene.body_names
 
-    def transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None,
-                   plate_dz=None) -> tuple[torch.Tensor, torch.Tensor]:
+    def transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None, plate_dz=None, world_plane=None,
+                   cube_held=None) -> tuple[torch.Tensor, torch.Tensor]:
         """Body transforms [B, bodies, 7] and camera transforms [B, cameras, 7] (x y z, qx qy qz qw; float32).
 
         q [B, 6] rad; cube_pos [B, 3] m; cube_quat [B, 4] w x y z (normalised here); goal_pose None (hidden),
@@ -679,13 +714,20 @@ class SO101Scene:
         of which x, y and the yaw of the face closest to the table (:func:`flat_yaw`) are used. The marker lies on the
         table top under that point. Rows with a non-finite goal are hidden. ``env_pose`` (real scene only)
         [B, n_env, 7] x y z qx qy qz qw replaces the floor, mat and wall poses (:attr:`env_pose`). ``plate_dz`` (real
-        scene built with ``plate_depth`` only) [B]: per-world plate thickness (:meth:`_plate_shift`)."""
+        scene built with ``plate_depth`` only) [B]: per-world plate thickness (:meth:`_plate_shift`); ``cube_held`` [B]
+        bool: cubes the jaws hold (not lifted by the plate). ``world_plane`` (real scene without its own
+        ``table_plane``) [B, 3]: per-world table plane z = c0 + c1 x + c2 y (v8 consistent table images): the cube
+        (given in the flat model) is sheared by the plane height under it (xy kept) and tilted with the plane; the
+        goal plate, floor, mat, walls, strip and ceiling are put on the plane as :meth:`RealScene.on_plane` does; the
+        arm, its base, the lab room and the cameras stay (the arm frame); the caller draws the arm at the joints it
+        wants (the student's reading)."""
         if self.real is not None:
-            if plate_dz is None:
+            if plate_dz is None and world_plane is None and cube_held is None:
                 return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose)
-            return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose, plate_dz)
-        if env_pose is not None or plate_dz is not None:
-            raise ValueError("env_pose / plate_dz need the real scene")
+            return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose, plate_dz, world_plane,
+                                         cube_held)
+        if env_pose is not None or plate_dz is not None or world_plane is not None or cube_held is not None:
+            raise ValueError("env_pose / plate_dz / world_plane / cube_held need the real scene")
         f64 = dict(device=self.device, dtype=torch.float64)
         q = torch.as_tensor(q).to(**f64)
         n = q.shape[0]
@@ -1148,8 +1190,11 @@ class RealDR:
     VISUAL ONLY (the physics cube still lands on z = 0): draw key ``plate_dz`` [n] = thickness - the scene's
     ``plate_thickness`` (the plate's top above its nominal top; the renderer needs ``plate_depth=``
     :meth:`plate_depth`); a cube over the plate is lifted visually so it never sinks deeper into the plate than in the
-    nominal scene (:meth:`SO101Scene._plate_shift`): a resting or placed cube is drawn on the plate's top, a held cube
-    in the last ``plate_dz`` above the table slides up in the jaws (as a real cube pressed onto the plate)."""
+    nominal scene (:meth:`SO101Scene._plate_shift`): a resting or placed cube is drawn on the plate's top. Pass the
+    held cubes (``render(..., cube_held=)``, the online loop does): a cube the jaws hold is drawn at its physics pose
+    (it sinks into a thicker plate in the last ``plate_dz`` above the table, as in the MuJoCo gate renders); without
+    ``cube_held`` every cube is lifted, and a held cube would slide up inside the closed jaws there, a cue the robot
+    never shows (its cube stops on the plate and the arm stalls)."""
 
     bright: dict = field(default_factory=lambda: {"printed": (0.85, 1.1), "servo": (0.6, 2.0), "cube": (0.75, 1.25),
                                                   "plate": (0.75, 1.25), "floor": (0.8, 1.1), "mat": (0.5, 2.5),
@@ -1615,7 +1660,7 @@ class SO101Renderer:
 
     def render(self, q, cube_pos, cube_quat, goal_pose=None, depth: bool = False, copy: bool = True,
                env_pose=None, cam_offset=None, tone=None, segment: bool = False, hdr: bool = False, bg=None,
-               plate_dz=None):
+               plate_dz=None, world_plane=None, cube_held=None):
         """rgb [B, C, H, W, 3] uint8 (cameras in :attr:`cameras` order), and with ``depth`` also z-depth [B, C, H, W]
         float32 (m along the camera axis, 0 = nothing hit). Inputs as :meth:`SO101Scene.transforms`, any device and
         float dtype, B <= num_worlds. ``copy=False`` returns a view of the renderer's buffer (overwritten by the next
@@ -1628,10 +1673,12 @@ class SO101Renderer:
         the sky colour turned linear). Extra outputs follow rgb (and depth) in the order segment, hdr. ``bg``: the
         background layers (``bg_*`` of :meth:`RealDR.draw`, rows = B) of the ``bg_cameras``, applied to the linear
         colour before the tone map (the ``hdr`` output stays the renderer's own). ``plate_dz`` [B] (renderer built with
-        ``plate_depth``): the per-world plate thickness (:meth:`SO101Scene._plate_shift`)."""
-        if plate_dz is not None:
-            body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose, env_pose=env_pose,
-                                                  plate_dz=plate_dz)
+        ``plate_depth``): the per-world plate thickness (:meth:`SO101Scene._plate_shift`); ``cube_held`` [B]: held
+        cubes (no plate lift); ``world_plane`` [B, 3]: per-world table planes (:meth:`SO101Scene.transforms`)."""
+        if plate_dz is not None or world_plane is not None or cube_held is not None:
+            tkw = {k: v for k, v in dict(plate_dz=plate_dz, world_plane=world_plane, cube_held=cube_held).items()
+                   if v is not None}
+            body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose, env_pose=env_pose, **tkw)
         elif env_pose is None:
             body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose)
         else:

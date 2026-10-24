@@ -20,6 +20,20 @@ renders (``OnlineConfig.plate_mm`` -> ``RealDR.plate_thickness``, ``SO101Scene(p
   plate_mm without plate-randomised views.
 - PlateGeometry (CPU, mujoco), PlateRender / PlateViews / RenderBitIdentity (GPU, the v2 scene): the plate mesh depth,
   shift and the cube's visual lift; renders; the base commit's renders bit for bit with the option off.
+Review fixes (2026-10-24):
+- TableMapFarReach (CPU): 32 logged real robot states at far reach (4 iterations left up to 1 mm) and perturbed /
+  tilted variants converge below 1e-12 m with ITERS 8; the analytic qdot reading = a central difference of Phi.
+- TableOnline (+ lab2 = Phi(next label)), TableOnlineReview (CPU, kin world): forced no-image rows (no training
+  sample, no lab2, acting x + b / u_obs - b, log shares), a note-only table_bias is off, ``table_render`` (the render
+  gets Phi(lagged q), each world's plane and the held flag; the aux cube is the drawn cube).
+- BitIdentity: + the C configs' options (robot dynamics, commanded-speed relabel, lastcmd, lag 1-4), also with the
+  new keys present but off.
+- WorldPlaneGeometry (CPU, mujoco): ``world_plane`` zeros = the old scene; the world on the plane = a scene built on
+  that table_plane (env bodies, plate), the cube sheared and tilted, arm / base / room / cameras unchanged; a held
+  cube is not lifted by the plate.
+- RobotPlaneFloor (CPU, kin points): ``hw_lib.ActionLayer(table_plane=)`` (zero plane = the flat floor, flat plane =
+  table_z, the tilted floor and the guard's floor checks above the plane), ``parse_table_plane``, ``--table-plane``.
+- LowtableGate: the committed gate's pass rule and variants.
 
     CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src ~/miniconda3/envs/so101_vision/bin/python -m unittest \
         tests.so101_policy.test_table_bias -v
@@ -97,7 +111,16 @@ class TableMap(unittest.TestCase):
             with self.assertRaises(ValueError, msg=bad):
                 VI.OnlineConfig.from_dict({"plate_mm": bad})
         o = VI.OnlineConfig.from_dict({"table_bias": {"p": 0.7}, "plate_mm": [1, 5]})
-        self.assertEqual((o.table_bias, o.plate_mm), ({"p": 0.7}, (1.0, 5.0)))
+        self.assertEqual((o.table_bias, o.plate_mm, o.table_render), ({"p": 0.7}, (1.0, 5.0), False))
+        # a dict with only a note is OFF (review: {"note": "off for now"} must not switch the defaults on)
+        self.assertFalse(TB.is_on({}) or TB.is_on(None) or TB.is_on({"note": "off for now"}))
+        self.assertTrue(TB.is_on({"p": 0.7}) and TB.is_on({"note": "x", "drop_mm": [0, 10]}))
+        # table_render needs the planes
+        for bad in ({"table_render": True}, {"table_render": True, "table_bias": {"note": "off"}}):
+            with self.assertRaises(ValueError, msg=bad):
+                VI.OnlineConfig.from_dict(bad)
+        self.assertTrue(VI.OnlineConfig.from_dict({"table_render": True, "table_bias": {"p": 0.5}}).table_render)
+        self.assertFalse(VI.OnlineConfig.from_dict({"table_render": False}).table_render)
 
     def test_planes(self):
         cfg = TB.TableBiasConfig(p=0.7, slope_y=(-20.0, 20.0))
@@ -220,19 +243,23 @@ class TableMap(unittest.TestCase):
         self.assertLess(float((d_obs - d_true).norm(dim=-1).max()), 1e-8)
         approx = (kin.fk(u_obs - (qo - q))[0] - kin.fk(aim)[0]).norm(dim=-1)         # one offset per decision
         self.assertTrue(0.5e-3 < float(approx.median()) < 1.6e-3, float(approx.median()))
-        # qdot reading: J_Phi qd (forward difference) = a central difference of Phi; qd 0 -> exactly 0
+        # qdot reading: J_Phi qd (analytic) = a central difference of Phi; qd 0 -> exactly 0
         qd = (torch.rand(n, 6, generator=torch.Generator().manual_seed(5), dtype=f64) - 0.5) * 2.0
         qd[:5] = 0.0
         v = TB.observe_qd(kin, q, qd, pl)
-        h = 1e-3
+        h = 1e-5
         c = (TB.observe(kin, q + qd * h, pl)[0] - TB.observe(kin, q - qd * h, pl)[0]) / (2 * h)
-        self.assertLess(float((v - c).abs().max()), 1e-3 * float(qd.abs().max()))
+        self.assertLess(float((v - c).abs().max()), 1e-7 * max(1.0, float(qd.abs().max())))
         self.assertEqual(float(v[:5].abs().max()), 0.0)
+        self.assertTrue(torch.equal(v[:, [0, 4, 5]], qd[:, [0, 4, 5]]))                 # pan, roll, jaw rates kept
         self.assertGreater(float((v - qd)[:, 1:4].abs().max()), 0.01)                 # J_Phi is not the identity
-        big = qd[5:6] * 1e6                       # a huge qdot: the difference step shrinks, J_Phi qd stays linear
+        self.assertTrue(torch.equal(v, TB.observe_qd(kin, q, qd, pl, qo)))             # Phi(q) given = computed
+        big = qd[5:6] * 1e6                       # a huge qdot: J_Phi qd stays linear
         vb = TB.observe_qd(kin, q[5:6], big, pl[5:6])
         self.assertTrue(bool(torch.isfinite(vb).all()))
-        self.assertLess(float((vb / 1e6 - v[5:6]).abs().max()), 1e-2 * float(qd[5].abs().max()))
+        self.assertLess(float((vb / 1e6 - v[5:6]).abs().max()), 1e-9 * float(qd[5].abs().max()))
+        z = TB.observe_qd(kin, q, qd, torch.zeros(n, 3, dtype=f64))                    # no plane: J_Phi = I
+        self.assertLess(float((z - qd).abs().max()), 1e-9)
 
     def test_reach_limit_fallback(self):
         """A student target near the reach limit (online smoke, s28 in the NRD: arm almost straight, wrist above the
@@ -246,13 +273,112 @@ class TableMap(unittest.TestCase):
         self.assertGreater(float(res[0]), TB.TOL)
         self.assertLessEqual(float(res[0]), 0.0147 + 1e-12)                       # never worse than no shift
         b = torch.tensor([[0.0, 0.03, 0.08, -0.11, 0.0, 0.0]], dtype=f64)      # the decision's offset b(q)
-        ns = types.SimpleNamespace(tb_kin=kin, tb_plane=pl, tb_note=lambda r: None)
+        ns = types.SimpleNamespace(tb_kin=kin, tb_plane=pl, tb_on=torch.tensor([True]), tb_note=lambda *a, **k: None)
         out = VI.OnlineDAgger.table_applied(ns, u_obs[:, None, :].expand(1, 2, 6), torch.tensor([0]), b)
         self.assertTrue(torch.equal(out[0], (u_obs - b).expand(2, 6)))
         ok = torch.tensor([[0.3, 0.6, 0.8, 0.9, 0.0, 0.2]], dtype=f64)          # a task pose: the exact inverse
-        o2 = VI.OnlineDAgger.table_applied(types.SimpleNamespace(tb_kin=kin, tb_plane=pl, tb_note=lambda r: None),
-                                           ok[:, None, :], torch.tensor([0]), b)
+        o2 = VI.OnlineDAgger.table_applied(ns, ok[:, None, :], torch.tensor([0]), b)
         self.assertLess(float((o2[0, 0] - TB.to_true(kin, ok, pl)[0][0]).abs().max()), 1e-12)
+
+
+# 32 logged REAL robot states (q_sim, sim rad, rounded to 1e-4; robot_logs eval_* / live_* of 2026-10-22/23) at
+# far reach (grasp point 0.29-0.33 m from the pan axis, 3-17 cm high, wrist_flex ~92 deg) where 4 Gauss-Newton
+# iterations left up to 1 mm of residual under the planes below (review of 52a9020da)
+ROBOT_FAR = [
+    (0.477200, 0.521200, -1.214100, 1.612200, 1.347800, 0.696300),
+    (0.098200, 0.670100, -1.002300, 1.606100, -0.487300, 0.706900),
+    (0.529400, 0.452200, -1.108200, 1.606100, 1.258800, 0.706900),
+    (0.679700, 0.452200, -1.091300, 1.609100, 1.238800, 0.706900),
+    (-0.995800, 0.926300, -1.138900, 1.461800, -0.413700, 0.153300),
+    (0.581500, 0.505900, -1.197200, 1.606100, 1.324800, 0.696300),
+    (0.523200, 0.459900, -0.901100, 1.609100, -0.050000, 0.670600),
+    (0.604500, 0.452200, -1.108200, 1.606100, 1.258800, 0.706900),
+    (0.580000, 0.505900, -1.197200, 1.606100, 1.324800, 0.696300),
+    (0.041400, 0.472100, -0.953200, 1.606100, -0.518000, 0.670600),
+    (-0.018400, 0.472100, -0.953200, 1.606100, -0.550200, 0.670600),
+    (0.613700, 0.452200, -1.108200, 1.606100, 1.258800, 0.706900),
+    (0.630600, 0.452200, -1.108200, 1.609100, 1.258800, 0.706900),
+    (0.679700, 0.452200, -1.086700, 1.609100, 1.235800, 0.706900),
+    (0.245500, 0.452200, -1.129700, 1.607600, 1.241900, 0.696300),
+    (0.555400, 0.452200, -1.108200, 1.606100, 1.258800, 0.706900),
+    (0.119700, 0.363200, -0.948600, 1.603000, 1.108400, 0.696300),
+    (0.197900, 0.469100, -0.953200, 1.609100, -0.435100, 0.670600),
+    (-0.273100, 0.472100, -0.894900, 1.604500, -0.729700, 0.670600),
+    (0.458800, 0.452200, -1.111300, 1.606100, 1.284900, 0.706900),
+    (0.426600, 0.438400, -1.097500, 1.606100, 1.274100, 0.706900),
+    (0.153400, 0.670100, -1.040700, 1.606100, -0.458200, 0.706900),
+    (0.066000, 0.331000, -0.879600, 1.603000, 1.060800, 0.696300),
+    (-1.023400, 1.148800, -1.396700, 1.584600, -0.418300, 0.153300),
+    (-1.020300, 1.142700, -1.382800, 1.575400, -0.418300, 0.153300),
+    (0.497100, 0.452200, -1.111300, 1.606100, 1.281800, 0.706900),
+    (-1.014200, 1.110400, -1.341400, 1.563100, -0.418300, 0.153300),
+    (-1.003500, 0.961600, -1.175700, 1.477200, -0.415200, 0.153300),
+    (0.308400, 0.343300, -0.973200, 1.609100, 1.179000, 0.706900),
+    (0.425000, 0.469100, -0.948600, 1.610700, -0.209600, 0.670600),
+    (0.108900, 0.670100, -1.014600, 1.606100, -0.479600, 0.706900),
+    (-0.343700, 0.907900, -1.092900, 1.609100, 1.234200, 0.652400),
+]
+FAR_PLANES = {"flat -20 mm": (-0.020, 0.0, 0.0), "20 mm at x 0.25, -40 mm/m": (-0.020 + 0.040 * 0.25, -0.040, 0.0),
+              "calibrated": PLANE_REAL}
+
+
+class TableMapFarReach(unittest.TestCase):
+    """Review finding 1: the map at far reach (robot-like states), ITERS, the exactness threshold, the analytic qdot."""
+
+    def test_robot_far_reach_converges(self):
+        kin = SO101Kin()
+        q = torch.tensor(ROBOT_FAR, dtype=f64)
+        p0, r0 = kin.fk(q)
+        reach = torch.hypot(p0[:, 0] - 0.0388, p0[:, 1])
+        self.assertGreater(float(reach.min()), 0.28)
+        self.assertEqual(TB.ITERS, 8)
+        hard = 0
+        for name, c in FAR_PLANES.items():
+            pl = torch.tensor(c, dtype=f64).expand(len(q), 3)
+            qo, res = TB.observe(kin, q, pl)
+            self.assertLess(float(res.max()), 1e-12, name)                       # exact (<< EXACT = 1e-9 m)
+            p1, r1 = kin.fk(qo)
+            self.assertLess(float(((p1 - p0)[:, 2] - TB.height(pl, p0[:, :2])).abs().max()), 1e-12, name)
+            self.assertLess(float((p1 - p0)[:, :2].norm(dim=-1).max()), 1e-12, name)
+            self.assertLess(float(rot_angle(r1, r0).max()), 1e-7, name)
+            back, rb = TB.to_true(kin, qo, pl)                                    # the inverse of an image: exact
+            self.assertLess(float(rb.max()), 1e-12, name)
+            self.assertLess(float((back - q).abs().max()), 1e-9, name)
+            _, r4 = TB.shift(kin, q, TB.height(pl, p0[:, :2]), iters=4)        # the old 4 iterations were not
+            hard += int((r4 > 1e-7).sum())                                       # enough on these rows
+        self.assertGreater(hard, 60)
+
+    def test_synthetic_far_reach_and_tilted_poses(self):
+        """Robot-like far-reach poses (the logged rows above, perturbed: pan +-0.3 rad, pitch joints +-0.03 rad, roll
+        +-0.5 rad) and the same poses with wrist_flex 20 deg less (not top-down): every pose converges below 1e-12 m
+        (8 iterations) under the three planes."""
+        kin = SO101Kin()
+        g = torch.Generator().manual_seed(11)
+        base = torch.tensor(ROBOT_FAR, dtype=f64)
+        q = base[torch.randint(len(base), (800,), generator=g)]
+        q = q + (torch.rand(q.shape, generator=g, dtype=f64) - 0.5) * 2 * torch.tensor([0.3, 0.03, 0.03, 0.03, 0.5,
+                                                                                         0.0], dtype=f64)
+        p0, _ = kin.fk(q)
+        self.assertGreater(float((torch.hypot(p0[:, 0] - 0.0388, p0[:, 1]) > 0.28).float().mean()), 0.8)
+        qt = q.clone()
+        qt[:, 3] = qt[:, 3] - math.radians(20)                                     # wrist_flex: not top-down
+        for qq in (q, qt):
+            for c in FAR_PLANES.values():
+                pl = torch.tensor(c, dtype=f64).expand(len(qq), 3)
+                _, res = TB.observe(kin, qq, pl)
+                self.assertLess(float(res.max()), 1e-12, c)
+
+    def test_qd_analytic_far_reach(self):
+        kin = SO101Kin()
+        q = torch.tensor(ROBOT_FAR, dtype=f64)
+        qd = (torch.rand(len(q), 6, generator=torch.Generator().manual_seed(4), dtype=f64) - 0.5) * 3.0
+        for c in FAR_PLANES.values():
+            pl = torch.tensor(c, dtype=f64).expand(len(q), 3)
+            v = TB.observe_qd(kin, q, qd, pl)
+            h = 1e-5
+            cd = (TB.observe(kin, q + qd * h, pl)[0] - TB.observe(kin, q - qd * h, pl)[0]) / (2 * h)
+            self.assertLess(float((v - cd).abs().max()), 1e-6, c)                 # (the old forward difference:
+            self.assertEqual(float(TB.observe_qd(kin, q, torch.zeros_like(qd), pl).abs().max()), 0.0)  # 0.13 rad/s)
 
 
 @unittest.skipUnless(R.HAVE, "jt_h110 / dev tasks missing")
@@ -296,7 +422,7 @@ class TableOnline(unittest.TestCase):
                             slots=(pre["ptr"] + torch.arange(N)) % od.buf.cap))
             if od.buf.n >= 16 and t % 3 == 0:
                 od.train_steps()
-        on_seen, resets_changed, b_moved, n_off_checked = 0, 0, 0, 0
+        on_seen, resets_changed, b_moved, n_off_checked, n_lab2 = 0, 0, 0, 0, 0
         n_exec, K = st.cfg.n_exec, st.cfg.chunk
         jj = torch.arange(n_exec)
         kk = (jj + st.cfg.jaw_lead).clamp_max(K - 1)
@@ -383,17 +509,31 @@ class TableOnline(unittest.TestCase):
             if bool(off.any()):
                 self.assertLess(float((od.buf.lab1[sl][off] - lab[off].float()).abs().max()), 1e-5, t)
             self.assertTrue(torch.equal(od.buf.aux[sl], VI.aux_targets(pre["goal"], pre["cube"]).float()), t)
+            self.assertFalse(bool(TF["skip"].any() or TF["lab_bad"].any()), t)      # exact maps: every sample kept
+            # lab2 (the next decision's label, written into this sample): Phi(next label) in the same episode
+            if t > 0:
+                same_ep = pre["ep"] == rec[t - 1]["pre"]["ep"]
+                prev_sl = rec[t - 1]["slots"]
+                self.assertTrue(bool(od.buf.valid2[prev_sl][same_ep].all()), t)
+                self.assertFalse(bool(od.buf.valid2[prev_sl][~same_ep].any()), t)
+                self.assertTrue(torch.equal(od.buf.lab2[prev_sl][same_ep], TF["lab"][same_ep].float()), t)
+                self.assertLess(float((od.buf.lab2[prev_sl][same_ep].double()
+                                       - lo.reshape(lab.shape)[same_ep]).abs().max()), 1e-5, t)
+                n_lab2 += int(same_ep.sum())
+        self.assertGreater(n_lab2, 8 * N)
         self.assertGreater(on_seen, 0.5 * N * len(rec))
         self.assertLess(on_seen, 0.9 * N * len(rec))
         self.assertGreater(resets_changed, 5)
         self.assertGreater(b_moved, 20)                    # b follows the pose inside an episode
         self.assertGreater(n_off_checked, 10)
         ex = od.log_extra()
-        for k in ("tb_on", "tb_drop_mm", "tb_res_um", "tb_bad"):
+        for k in ("tb_on", "tb_drop_mm", "tb_res_um", "tb_res_applied_um", "tb_bad_frame", "tb_bad_applied",
+                  "tb_skip"):
             self.assertIn(k, ex)
         self.assertTrue(0.0 < ex["tb_on"] <= 1.0)
-        self.assertLess(ex["tb_res_um"], 1.0)
-        self.assertEqual(ex["tb_bad"], 0.0)
+        self.assertLess(ex["tb_res_um"], 1e-3)                  # converged rows: < 1 nm
+        self.assertEqual((ex["tb_bad_frame"], ex["tb_skip"]), (0.0, 0.0))
+        self.assertLess(ex["tb_bad_applied"], 0.05)
 
     def test_q_bias_and_table_bias_add(self):
         st = R.tiny_student(0)
@@ -407,6 +547,184 @@ class TableOnline(unittest.TestCase):
         self.assertTrue(torch.equal(od.last["robot"][:, :6], od2.last["robot"][:, :6] + od.last["tb"]["b"]))
         self.assertGreater(float(od.last["tb"]["b"].abs().max()), 1e-3)
         self.assertTrue(torch.equal(od.buf.q[:8], od.last["tb"]["q"]))     # the buffer's q: Phi(q), no q_bias
+
+
+class PlaneViews(R.FakeViews):
+    """FakeViews that accept the v8 render inputs (``plane``, ``held``; ``table_render_ok``) and record every call."""
+    table_render_ok = True
+
+    def __init__(self, *a, plate_on=False, **k):
+        super().__init__(*a, **k)
+        self.plate_on = plate_on
+        self.kw = []
+
+    def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False, plane=None, held=None):
+        self.kw.append(dict(q=q.detach().clone(), cp=cube_pos.detach().clone(),
+                            plane=None if plane is None else plane.detach().clone(),
+                            held=None if held is None else held.detach().clone()))
+        return super().render(q, cube_pos, cube_quat, goal_pose, dr, light, keep)
+
+
+def online_with(st, ocfg_over, views, seed=0, envs=16):
+    from nedm.so101_policy import joint_env as JE
+    o = dict(envs=envs, buffer=64, steps_per_iter=2, horizon=60, lr=1e-3, lr_backbone=1e-3)
+    o.update(ocfg_over)
+    with R.kin_world():
+        return VI.OnlineDAgger(st, JE.JointTeacher(str(R.JT_PATH), "cpu"), R.load(), "unused-nrd.pt", views,
+                               VI.OnlineConfig.from_dict(o), "cpu", seed, lambda s: None)
+
+
+@unittest.skipUnless(R.HAVE, "jt_h110 / dev tasks missing")
+class TableOnlineReview(unittest.TestCase):
+    """Review fixes in the loop: forced fallback rows (no training sample, acting offsets), the note-only dict, the
+    consistent images (``table_render``) and the held flag of the plate lift."""
+
+    def start(self, od):
+        A = torch.arange(od.env.B)
+        od.env.reset()
+        od._draw(A), od._lag_reset(A), od._bias_reset(A), od._qd_reset(A)
+        sent = []
+        orig = od.env.step
+
+        def spy(actions=None, targets=None, use_targets=None, step_hook=None):
+            sent.append(targets.clone())
+            return orig(actions, targets=targets, use_targets=use_targets, step_hook=step_hook)
+
+        od.env.step = spy
+        return sent
+
+    def test_note_only_is_off(self):
+        od, _ = R.make_online(R.tiny_student(0), dict(table_bias={"note": "off for now"}), 0, 4)
+        self.assertIsNone(od.tb)
+        with self.assertRaises(ValueError):                                 # table_render without planes
+            online_with(R.tiny_student(0), dict(table_render=True), PlaneViews(16), envs=4)
+        with self.assertRaises(ValueError):                                 # views that cannot draw planes
+            R.make_online(R.tiny_student(0), dict(table_bias={"p": 0.5}, table_render=True), 0, 4)
+
+    def test_forced_fallback_rows(self):
+        """Every map row of a planed world forced to 'no image' (TOL, EXACT = -1): its samples are not added, its
+        label does not complete the previous sample, acting uses x + b (inputs) and u_obs - b (applied targets)."""
+        N = 16
+        st = VI.expand_lastcmd(VI.expand_student(R.tiny_student(0), hist=1, cmd_in=True, device="cpu"), "cpu")
+        od, _ = R.make_online(st, dict(horizon=40, buffer=4000, table_bias=dict(p=0.6)), 0, N)
+        sent = self.start(od)
+        kin = SO101Kin()
+        n_exec, K = st.cfg.n_exec, st.cfg.chunk
+        jj = torch.arange(n_exec)
+        kk = (jj + st.cfg.jaw_lead).clamp_max(K - 1)
+        tol, exact = TB.TOL, TB.EXACT
+        try:
+            n_on = n_checked = n_prev = 0
+            for t in range(15):
+                od.it = t
+                if t == 3:          # 3 normal decisions first (previous samples of the planed worlds exist)
+                    od.log_extra()
+                    TB.TOL, TB.EXACT = -1.0, -1.0
+                pre = dict(ep=od.env.ep_count.clone(), q=od.env.ws.q.float().clone(), on=od.tb_on.clone(),
+                           plane=od.tb_plane.clone(), ptr=od.buf.ptr, n=od.buf.n, obs=od.env.obs.clone(),
+                           u=None if od.env.u_exe is None else od.env.u_exe.clone(), prev=od.prev_slot.clone())
+                od.act()
+                if t < 3:
+                    continue
+                TF, on, q = od.last["tb"], pre["on"], pre["q"].double()
+                self.assertTrue(torch.equal(TF["skip"], on) and torch.equal(TF["lab_bad"], on), t)
+                b = TF["b64"]
+                qo, _ = TB.observe(kin, q, pre["plane"])
+                self.assertLess(float((b - (qo - q)).abs().max()), 1e-6, t)       # b itself is still the map's
+                lab = od.env.codec.targets(od.jt.act(pre["obs"]).to(f64), q)
+                self.assertLess(float((TF["lab"] - (lab + b[:, None, :])).abs().max()), 1e-6, t)   # x + b
+                if pre["u"] is not None:
+                    self.assertTrue(torch.allclose(TF["u_exe"], pre["u"].double() + b[:, None, :], atol=1e-12), t)
+                # samples: only the worlds without a plane
+                added = od.buf.n - pre["n"]
+                self.assertEqual(added, int((~on).sum()), t)
+                sl = (pre["ptr"] + torch.arange(added)) % od.buf.cap
+                self.assertTrue(torch.equal(od.buf.q[sl], q[~on].float()), t)
+                self.assertTrue(bool((od.prev_slot[on] == -1).all()), t)
+                pv = pre["prev"]
+                m = on & (pv >= 0)
+                self.assertFalse(bool(od.buf.valid2[pv[m]].any()), t)              # not completed by a bad label
+                n_prev += int(m.sum())
+                # applied targets of the student slots: u_obs - b exactly
+                si = (~od.teacher).nonzero().flatten()
+                st.eval()
+                with torch.no_grad():
+                    delta = VI.denormalise(st, st.predict(VI.to_input(od.last["rgb"][si]), od.last["robot"][si]))
+                st.train()
+                u_obs = TF["q"][si][:, None, :] + delta
+                u_obs = torch.cat((u_obs[:, jj, :5], u_obs[:, kk, 5:]), -1).double()
+                want = u_obs - b[si][:, None, :]
+                self.assertTrue(torch.equal(sent[-1][si], want), t)
+                n_on += int(on.sum())
+                n_checked += int(on[si].sum())
+            self.assertGreater(n_on, 40)
+            self.assertGreater(n_checked, 10)
+            self.assertGreater(n_prev, 3)
+            ex = od.log_extra()
+            self.assertEqual((ex["tb_bad_frame"], ex["tb_bad_applied"], ex["tb_skip"]), (1.0, 1.0, 1.0))
+        finally:
+            TB.TOL, TB.EXACT = tol, exact
+
+    def test_table_render_consistent_images(self):
+        """table_render with image lag 1-3: the render draws the arm at Phi(lagged q), passes each world's plane, the
+        held flag (F["held"] and not fresh), and the aux cube target is the drawn cube (z + plane height); the
+        gripper-to-cube geometry of the drawn world equals the true one up to the plane's slope over their xy gap."""
+        N = 16
+        st = R.tiny_student(0, lag_range=[1, 3])
+        views = PlaneViews(st.cfg.res, st.cfg.cameras, plate_on=True)
+        od = online_with(st, dict(horizon=40, buffer=4000, table_bias=dict(p=0.7, slope_y=[-20, 20]),
+                                  table_render=True), views, envs=N)
+        self.assertTrue(od.tb_render)
+        self.start(od)
+        kin = SO101Kin()
+        n_on = 0
+        for t in range(24):
+            od.it = t
+            iq, icp, _ = od.lag_hist.get(od.lagk)
+            F = od.env.task.F
+            pre = dict(iq=iq.clone(), icp=icp.clone(), plane=od.tb_plane.clone(), on=od.tb_on.clone(),
+                       ptr=od.buf.ptr, fresh=od.fresh.clone(),
+                       held=None if F is None else F["held"].clone(), goal=torch.cat((od.env.task.goal_xy,
+                                                                                       od.env.task.goal_yaw[:, None]),
+                                                                                      -1).float())
+            od.act()
+            kw = views.kw[-1]
+            on = pre["on"]
+            self.assertTrue(torch.equal(kw["plane"], pre["plane"]), t)
+            want_q, _ = TB.observe(kin, pre["iq"].double(), pre["plane"])
+            self.assertLess(float((kw["q"].double() - want_q).abs().max()), 2e-6, t)
+            if bool((~on).any()):
+                self.assertTrue(torch.equal(kw["q"][~on], pre["iq"][~on]), t)         # no plane: the true arm
+            self.assertTrue(torch.equal(kw["cp"], pre["icp"]), t)                    # the renderer shears the cube
+            held = torch.zeros(N, dtype=torch.bool) if pre["held"] is None else pre["held"]
+            self.assertTrue(torch.equal(kw["held"], held & ~pre["fresh"]), t)
+            # aux cube target = the drawn cube (z + plane height under it)
+            sl = (pre["ptr"] + torch.arange(N)) % od.buf.cap
+            hz = torch.where(on, TB.height(pre["plane"], pre["icp"][:, :2].double()), 0.0).float()
+            want_cp = pre["icp"] + torch.cat((torch.zeros(N, 2), hz[:, None]), -1)
+            self.assertTrue(torch.equal(od.buf.aux[sl], VI.aux_targets(pre["goal"], want_cp).float()), t)
+            # the drawn gripper relative to the drawn cube = the true one (up to slope x xy gap)
+            g0, _ = kin.fk(pre["iq"].double())
+            g1, _ = kin.fk(kw["q"].double())
+            rel0 = g0 - pre["icp"].double()
+            rel1 = g1 - want_cp.double()
+            gap = (g0[:, :2] - pre["icp"][:, :2].double()).norm(dim=-1)
+            slope = pre["plane"][:, 1:].norm(dim=-1)
+            self.assertTrue(bool(((rel1 - rel0).norm(dim=-1) <= slope * gap + 2e-6).all()), t)
+            n_on += int(on.sum())
+        self.assertGreater(n_on, 0.5 * N * 24)
+        self.assertGreater(len({int(k) for k in od.lagk}), 1)
+        # without table_render: the true arm and no plane argument (the views' old call; plate_on: held only)
+        views2 = PlaneViews(st.cfg.res, st.cfg.cameras, plate_on=True)
+        od2 = online_with(st, dict(horizon=40, buffer=4000, table_bias=dict(p=1.0)), views2, envs=N)
+        self.start(od2)
+        od2.it = 0
+        iq, _, _ = od2.lag_hist.get(od2.lagk)
+        iq = iq.clone()
+        od2.act()
+        self.assertIsNone(views2.kw[-1]["plane"])
+        self.assertTrue(torch.equal(views2.kw[-1]["q"], iq))
+        self.assertIsNotNone(views2.kw[-1]["held"])
 
 
 @unittest.skipUnless(R.HAVE and shutil.which("git"), "jt_h110 / dev tasks / git missing")
@@ -455,6 +773,18 @@ class BitIdentity(unittest.TestCase):
     def test_plane_p0(self):            # on with p 0: no world gets a plane -> the base arrays bit for bit
         self.check("p0", {"hist": 2, "cmd_in": True}, {"qd_robot_p": 0.5},
                    {"qd_robot_p": 0.5, "table_bias": {"p": 0.0}})
+
+    C_OCFG = {"dyn": {"p": 0.8, "d_lo": 0, "d_hi": 1, "s_lo": 0.3, "s_hi": 1.0, "tau_lo": 0.02, "tau_hi": 0.15,
+                      "sag_max_deg": 1.5, "i_time_s": 0.2, "i_max_deg": 3.0}, "dyn_student_only": True,
+              "relabel_cmd_speed": True, "qd_robot_p": 0.5, "qd_window": 3}
+    C_CFG = {"hist": 2, "cmd_in": True, "lastcmd": True, "lag_range": [1, 4]}
+
+    def test_c_family_options(self):    # the C configs' options (robot dynamics, commanded-speed relabel, lastcmd)
+        self.check("cfam", self.C_CFG, self.C_OCFG)
+
+    def test_c_family_new_keys_off(self):   # ... with the v8 keys present but off (a note-only table_bias too)
+        self.check("cfam_off", self.C_CFG, self.C_OCFG,
+                   {**self.C_OCFG, "table_bias": {"note": "off"}, "plate_mm": [], "table_render": False})
 
 
 class OnlineViews(unittest.TestCase):
@@ -589,6 +919,108 @@ class PlateGeometry(unittest.TestCase):
             RealDR(plate_thickness=(0.001, 0.006)).draw(self.s1, 2, torch.Generator().manual_seed(0))
 
 
+@unittest.skipUnless(HAVE_MUJOCO, "the arm meshes need mujoco")
+class WorldPlaneGeometry(unittest.TestCase):
+    """``SO101Scene.transforms(..., world_plane=)`` (v8 table_render) and ``cube_held`` (the plate lift spares a held
+    cube; review findings 2, 3)."""
+
+    @classmethod
+    def setUpClass(cls):
+        from dataclasses import replace
+
+        from nedm.render.so101 import RealScene, SO101Scene, load_assets
+        cls.assets = load_assets()
+        cls.real = RealScene(ceiling=0.6, strip={"from": (0.1, -0.25, 0.55), "to": (0.35, -0.25, 0.55)},
+                             room={"center": (0.2, 0.0, 0.3), "half": (1.5, 1.5, 1.5), "floor_z": -0.75})
+        kw = dict(cameras=("external", "wrist"), goal="block")
+        cls.s = SO101Scene(cls.assets, real=cls.real, plate_depth=0.0045, **kw)
+        cls.sp = SO101Scene(cls.assets, real=replace(cls.real, table_plane=PLANE_REAL), plate_depth=0.0045, **kw)
+        n = 5
+        g = torch.Generator().manual_seed(0)
+        cls.q = torch.tensor([[0.1, 0.3, 0.6, 1.4, 0.2, 0.3]] * n, dtype=f64) + 0.1 * torch.rand(n, 6, generator=g,
+                                                                                                    dtype=f64)
+        cls.goal = torch.tensor([[0.25, 0.0, 0.2], [0.22, 0.05, 0.6], [0.28, -0.04, 1.0], [0.24, 0.02, 0.0],
+                                 [float("nan")] * 3], dtype=f64)
+        cls.cp = torch.tensor([[0.25, 0.0, 0.015], [0.20, 0.1, 0.05], [0.28, -0.04, 0.016], [0.24, 0.02, 0.0155],
+                               [0.3, 0.0, 0.015]], dtype=f64)
+        cls.cq = torch.nn.functional.normalize(torch.tensor([[1.0, 0, 0, 0.1], [0.9, 0.1, 0, 0.3], [1.0, 0, 0, 0],
+                                                             [0.8, 0, 0, 0.6], [1.0, 0, 0, 0]], dtype=f64), dim=-1)
+
+    def test_zero_plane_is_the_old_scene(self):
+        n = len(self.q)
+        b0, c0 = self.s.transforms(self.q, self.cp, self.cq, self.goal)
+        b1, c1 = self.s.transforms(self.q, self.cp, self.cq, self.goal, world_plane=torch.zeros(n, 3, dtype=f64))
+        self.assertTrue(torch.equal(b0, b1) and torch.equal(c0, c1))
+        with self.assertRaises(ValueError):                           # a scene with its own table plane
+            self.sp.transforms(self.q, self.cp, self.cq, self.goal, world_plane=torch.zeros(n, 3, dtype=f64))
+
+    def test_world_on_the_plane(self):
+        from nedm.render.so101 import SO101Scene, qmul, wxyz, xyzw
+        n = len(self.q)
+        P = torch.tensor(PLANE_REAL, dtype=f64)
+        b0, c0 = self.s.transforms(self.q, self.cp, self.cq, self.goal)
+        b1, c1 = self.s.transforms(self.q, self.cp, self.cq, self.goal, world_plane=P.expand(n, 3))
+        bp, _ = self.sp.transforms(self.q, self.cp, self.cq, self.goal)      # the scene built on the same plane
+        names = self.s.body_names
+        ci, gi = names.index("cube"), names.index("goal")
+        k0 = len(self.s.fixed_pose) - self.s.n_env
+        nb_fixed = len(self.s.fixed_pose)
+        first_fixed = b0.shape[1] - nb_fixed
+        arm = list(range(ci))
+        self.assertTrue(torch.equal(b1[:, arm], b0[:, arm]) and torch.equal(c1, c0))    # arm, cameras: arm frame
+        base = list(range(first_fixed, first_fixed + k0))
+        self.assertTrue(torch.equal(b1[:, base], b0[:, base]))                         # the arm base meshes stay
+        env = b1[:, first_fixed + k0:]
+        envp = bp[:, first_fixed + k0:]
+        groups = self.s.env_groups
+        room = torch.tensor([g in ("room", "room_floor") for g in groups])
+        self.assertEqual(int(room.sum()), 2)
+        self.assertTrue(torch.allclose(env[:, ~room], envp[:, ~room], atol=2e-7))      # = RealScene.on_plane
+        self.assertTrue(torch.equal(env[:, room], b0[:, first_fixed + k0:][:, room]))  # the lab room stays
+        self.assertTrue(torch.allclose(b1[:4, gi], bp[:4, gi], atol=2e-7))              # the plate on the plane
+        self.assertTrue(torch.equal(b1[4, gi], b0[4, gi]))                               # hidden stays hidden
+        # the cube: sheared (xy kept, z + the plane height under it) and tilted with the plane
+        h = TB.height(P, self.cp[:, :2])
+        want = self.cp + torch.stack((torch.zeros(n, dtype=f64), torch.zeros(n, dtype=f64), h), -1)
+        self.assertTrue(torch.allclose(b1[:, ci, :3].double(), want, atol=1e-7))
+        _, wq = SO101Scene.plane_frames(P[None])
+        self.assertTrue(torch.allclose(b1[:, ci, 3:].double(), xyzw(qmul(wq.expand(n, 4), self.cq)), atol=1e-7))
+        # a cube resting flat on the sim table rests on the plane: its bottom corners at the plane height (up to the
+        # second-order term of tilting about the sheared centre: half side x tilt^2 / 2 + its slope, ~12 um at 2 deg)
+        r = torch.tensor([[0.25, 0.05, 0.015]], dtype=f64)
+        bq, _ = self.s.transforms(self.q[:1], r, torch.tensor([[1.0, 0, 0, 0]], dtype=f64), self.goal[:1],
+                                  world_plane=P[None])
+        from nedm.render.so101 import qrot
+        corners = torch.tensor([[sx, sy, -1.0] for sx in (-1, 1) for sy in (-1, 1)], dtype=f64) * 0.015
+        cw = bq[0, ci, :3].double() + qrot(wxyz(bq[0, ci, 3:].double()).expand(4, 4), corners)
+        self.assertLess(float((cw[:, 2] - TB.height(P, cw[:, :2])).abs().max()), 3e-5)
+
+    def test_held_cube_not_lifted(self):
+        n = len(self.q)
+        cp = self.cp.clone()
+        cp[:, :2] = torch.nan_to_num(self.goal[:, :2], nan=0.3)                      # cubes over their plates
+        cp[:, 2] = 0.015                                                              # resting / pressed down
+        dz = torch.full((n,), 0.003, dtype=f64)
+        held = torch.tensor([True, False, True, False, True])
+        b0, _ = self.s.transforms(self.q, cp, self.cq, self.goal)
+        b1, _ = self.s.transforms(self.q, cp, self.cq, self.goal, plate_dz=dz)
+        b2, _ = self.s.transforms(self.q, cp, self.cq, self.goal, plate_dz=dz, cube_held=held)
+        ci = self.s.body_names.index("cube")
+        lift1 = (b1[:, ci, 2] - b0[:, ci, 2]).double()
+        lift2 = (b2[:, ci, 2] - b0[:, ci, 2]).double()
+        self.assertGreater(float(lift1[:4].min()), 1e-3)                              # not held: lifted
+        self.assertEqual(float(lift2[held].abs().max()), 0.0)                         # held: the physics pose
+        self.assertTrue(torch.equal(b2[~held], b1[~held]))
+        b3, _ = self.s.transforms(self.q, cp, self.cq, self.goal, plate_dz=dz,
+                                  cube_held=torch.zeros(n, dtype=torch.bool))
+        self.assertTrue(torch.equal(b3, b1))                                          # nobody held = the old lift
+        # both v8 inputs together: the plate lift first (flat model), then the plane
+        P = torch.tensor(PLANE_REAL, dtype=f64).expand(n, 3)
+        b4, _ = self.s.transforms(self.q, cp, self.cq, self.goal, plate_dz=dz, cube_held=held, world_plane=P)
+        want = b2[:, ci, 2].double() + TB.height(P, cp[:, :2])
+        self.assertTrue(torch.allclose(b4[:, ci, 2].double(), want, atol=1e-7))
+
+
 @unittest.skipUnless(GPU and HAVE_SCENE, "needs newton on CUDA and the v2 scene")
 class PlateRender(unittest.TestCase):
     @classmethod
@@ -677,6 +1109,14 @@ class PlateViews(unittest.TestCase):
         self.assertFalse(getattr(v0, "plate_on", False))
         c = v0.render(q, cp, cq, goal, dr=v0.nominal_draw(4), light=False)
         self.assertLess(float((a.int() - c.int()).abs().amax(-1).gt(0).float().mean()), 2e-3)
+        # per-world table planes (table_render): zeros = the same images bit for bit; a plane changes them; held
+        self.assertTrue(v.table_render_ok and v0.table_render_ok)
+        z = v.render(q, cp, cq, goal, dr=nd, light=False, plane=torch.zeros(4, 3, dtype=f64, device="cuda"),
+                     held=torch.zeros(4, dtype=torch.bool, device="cuda"))
+        self.assertTrue(torch.equal(z, a))
+        pl = torch.tensor(PLANE_REAL, dtype=f64, device="cuda").expand(4, 3)
+        e = v.render(q, cp, cq, goal, dr=nd, light=False, plane=pl)
+        self.assertFalse(torch.equal(e, a))
 
 
 @unittest.skipUnless(GPU and HAVE_SCENE and shutil.which("git"), "needs newton on CUDA, the v2 scene and git")
@@ -708,6 +1148,162 @@ class RenderBitIdentity(unittest.TestCase):
             self.assertEqual(bad, [], f"outputs differ from {BASE}")
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _hw():
+    hw = REPO / "scripts" / "so101_policy" / "real2sim" / "hw"
+    if str(hw) not in sys.path:
+        sys.path.insert(0, str(hw))
+    import hw_lib
+    return hw_lib
+
+
+class RobotPlaneFloor(unittest.TestCase):
+    """Review finding 5: the robot's action-layer floor and guard checks above a tilted table plane
+    (``hw_lib.ActionLayer(table_plane=)``, ``run_student_real.py --table-plane``); off = the old flat floor."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.H = _hw()
+        cls.kp = cls.H.default_kin_points()
+        if cls.kp is None:
+            raise unittest.SkipTest("kin points file missing")
+        from nedm.so101_policy import joint_env as JE
+        cls.JE = JE
+        cls.flat = cls.H.ActionLayer(cls.kp)
+
+    def poses(self, n=300, seed=0):
+        """Measured poses near the table (top-down IK, gripper 5-25 mm high) and targets that dip 0-30 mm lower."""
+        _, q, _, _ = workspace_poses(n, seed, z=(0.005, 0.025))
+        kin = SO101Kin()
+        u, _ = TB.shift(kin, q, -0.03 * torch.rand(len(q), generator=torch.Generator().manual_seed(seed + 1),
+                                                   dtype=f64))
+        return q.numpy(), u.numpy()
+
+    def test_parse_and_validation(self):
+        H = self.H
+        calib = {"scene": {"table_plane": {"coef": list(PLANE_REAL)}}}
+        self.assertIsNone(H.parse_table_plane("", calib))
+        self.assertEqual(H.parse_table_plane("calib", calib), PLANE_REAL)
+        self.assertEqual(H.parse_table_plane("-0.01,0,0.002"), (-0.01, 0.0, 0.002))
+        for bad in ("1,2", "a,b,c", "nan,0,0"):
+            with self.assertRaises(ValueError, msg=bad):
+                H.parse_table_plane(bad)
+        with self.assertRaises(ValueError):
+            H.parse_table_plane("calib", {})
+        with self.assertRaises(ValueError):
+            H.ActionLayer(self.kp, table_z=-0.01, table_plane=PLANE_REAL)
+        self.assertIsNone(self.flat.plane)
+        src = (REPO / "scripts/so101_policy/real2sim/hw/run_student_real.py").read_text()
+        self.assertIn('ap.add_argument("--table-plane", default=""', src)
+
+    def test_zero_plane_equals_flat_floor(self):
+        q, u = self.poses()
+        lz = self.H.ActionLayer(self.kp, table_plane=(0.0, 0.0, 0.0))
+        fired = 0
+        for i in range(len(q)):
+            a, ia = self.flat(u[i], q[i])
+            b, ib = lz(u[i], q[i])
+            np.testing.assert_allclose(b, a, atol=1e-12)
+            fired += ia["floor"]
+        self.assertGreater(fired, 50)
+        lo, ref = self.flat.floor_height(q)
+        np.testing.assert_array_equal(lo, self.flat.lowest(q))                # flat: the old values
+        self.assertEqual(ref, 0.0)
+        lo2, _ = lz.floor_height(q)
+        np.testing.assert_allclose(lo2, lo, atol=1e-12)
+
+    def test_flat_plane_equals_table_z(self):
+        q, u = self.poses(seed=2)
+        q_lo, u_lo = q.copy(), u.copy()
+        lf = self.H.ActionLayer(self.kp, table_z=-0.012)
+        lp = self.H.ActionLayer(self.kp, table_plane=(-0.012, 0.0, 0.0))
+        for i in range(0, len(q), 3):
+            np.testing.assert_allclose(lp(u_lo[i], q_lo[i])[0], lf(u_lo[i], q_lo[i])[0], atol=1e-7)
+
+    def test_tilted_plane_floor_and_guard(self):
+        H = self.H
+        q, u = self.poses(n=400, seed=3)
+        lp = H.ActionLayer(self.kp, table_plane=PLANE_REAL)
+        kin = lp.kin
+        pl = PLANE_REAL
+        n_fired = 0
+        for i in range(len(q)):
+            v, info = lp(u[i], q[i])
+            hv = float(kin.lowest_point(torch.as_tensor(v)[None], exact=False, plane=pl)[0])
+            hq = float(kin.lowest_point(torch.as_tensor(q[i])[None], exact=False, plane=pl)[0])
+            self.assertGreaterEqual(hv, min(self.JE.FLOOR, hq) - 1e-5, i)       # floor above the plane
+            n_fired += info["floor"]
+        self.assertGreater(n_fired, 20)
+        # the guard's floor checks measure above the plane: a pose 3 mm above the real table at x ~0.3 m (the
+        # arm-frame z there is ~ -12 mm) is fine with the plane, a hard-floor stop with the flat table_z 0
+        jm = H.JointMap.placeholder_identity()
+        lim = H.RealLimits(np.array([-150.0] * 5 + [0.0]), np.array([150.0] * 5 + [100.0]))
+        kin2 = SO101Kin()
+        pos = torch.tensor([[0.30, 0.0, 0.0]], dtype=f64)
+        pos[0, 2] = TB.height(torch.tensor(pl, dtype=f64), pos[0, :2]) + 0.025
+        q5, ok, _, _ = kin2.ik_topdown(None, pos, torch.zeros(1, dtype=f64))
+        self.assertTrue(bool(ok[0]))
+        qa = torch.cat((q5, torch.zeros(1, 1, dtype=f64)), -1)[0].numpy()
+        low_plane = float(kin.lowest_point(torch.as_tensor(qa)[None], exact=False, plane=pl)[0])
+        dz = low_plane - 0.003                                     # move it down to 3 mm above the plane
+        qa, _ = TB.shift(kin2, torch.as_tensor(qa)[None], torch.tensor([-dz], dtype=f64))
+        qa = qa[0].numpy()
+        self.assertLess(float(lp.lowest(qa)), -0.005)               # below the flat hard floor (-5 mm)
+        gp = H.Guard(H.GuardConfig(), lp, jm, lim)
+        gf = H.Guard(H.GuardConfig(), self.flat, jm, lim)
+        qr = jm.sim_to_real(qa)
+        self.assertFalse(any("floor" in m for m in gp.check_measured(qa, qr)))
+        self.assertTrue(any("measured floor" in m for m in gf.check_measured(qa, qr)))
+        self.assertEqual(H.check_path(np.stack([qa, qa]), lp, jm, lim, start=qa), [])
+
+
+class LowtableGate(unittest.TestCase):
+    """Review finding 8: the committed lowered-table gate (``scripts/so101_policy/real2sim/lowtable_gate.py``): pass
+    rule, variants, paths."""
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location("lowtable_gate",
+                                                      REPO / "scripts/so101_policy/real2sim/lowtable_gate.py")
+        cls.G = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.G)
+
+    def row(self, var, n=100, lenient=95, hover=2, tset="dev100"):
+        return dict(variant=var, set=tset, n=n, lenient=lenient, strict=lenient, lifted=n, closed=n, hover=hover,
+                    lifted_no_open=0, miss_open=0, rel_gt5mm=0, rel_plate_mm_p50=1.0, causes={})
+
+    def rows(self, **over):
+        out = []
+        for var in ("nominal", "real", "real_m5", "real_m5_floor", "real_m10"):
+            for tset in ("dev100", "home45_dev100"):
+                out.append(self.row(var, tset=tset, **over.get(var, {})))
+        return out
+
+    def test_rule_and_variants(self):
+        G = self.G
+        self.assertEqual(G.GATE_SETS, ("dev100", "home45_dev100"))
+        for v in ("nominal", "real", "real_m5", "real_m5_floor", "real_m10", "flat20"):
+            self.assertIn(v, G.VARIANTS)
+        self.assertEqual(G.VARIANTS["real_m10"][0], (G.PLANE[0] - 0.010, G.PLANE[1], G.PLANE[2]))
+        self.assertEqual(G.VARIANTS["real_m5_floor"][1], "table")
+        ok = G.judge(self.rows(), ref_nominal_pct=92.0)
+        self.assertTrue(ok["pass"], ok)
+        bad = G.judge(self.rows(real_m5=dict(lenient=89)), ref_nominal_pct=92.0)   # 89 % at real_m5
+        self.assertFalse(bad["pass"])
+        bad = G.judge(self.rows(real_m5_floor=dict(hover=6)), ref_nominal_pct=92.0)  # 12 hovers of 200
+        self.assertFalse(bad["pass"])
+        bad = G.judge(self.rows(nominal=dict(lenient=88)), ref_nominal_pct=92.0)   # 4 points below the reference
+        self.assertFalse(bad["pass"])
+        miss = G.judge([r for r in self.rows() if r["variant"] != "real_m5_floor"], ref_nominal_pct=92.0)
+        self.assertFalse(miss["pass"])                                             # a missing variant fails
+        self.assertEqual(G.REF_NOMINAL, {"C1": 92.0, "s28": 97.5})
+
+    def test_paths_are_configurable(self):
+        src = (REPO / "scripts/so101_policy/real2sim/lowtable_gate.py").read_text()
+        for flag in ("--data", "--out", "--python", "--lock"):
+            self.assertIn(f'"{flag}"', src)
+        self.assertNotIn("r2s-v8-table", src)                                       # the repo is the script's own
 
 
 if __name__ == "__main__":

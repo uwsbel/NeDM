@@ -46,10 +46,12 @@ evaluations; ``eval --light-redraw-p P`` is the same for a standalone evaluation
 
 Table randomisation (real2sim v8, off by default; ``nedm.so101_policy.table_bias``): the online config's
 ``table_bias`` puts a per-world table plane under the student's joint reading (q, qdot, cmd inputs, labels and applied
-targets in that frame), ``plate_mm`` randomises the goal plate thickness of the TRAINING views only
+targets in that frame), ``table_render`` draws the training images consistently (the arm at the reading, the world
+on the plane), ``plate_mm`` randomises the goal plate thickness of the TRAINING views only
 (``viral.online_views_cfg``; the evaluation views and the saved student config keep the scene's plate); configs
-``viral_r2s_online_v8_C_table.json`` / ``viral_r2s_online_v8_S_table.json``. The gate is ``eval --table-plane`` /
-``--table-dz`` (the physical table moved in CPU MuJoCo).
+``viral_r2s_online_v8_C_table.json`` / ``viral_r2s_online_v8_S_table.json``. The gate (pass rule in its docstring) is
+``scripts/so101_policy/real2sim/lowtable_gate.py`` (``eval --table-plane`` / ``--floor table``: the physical table
+moved in CPU MuJoCo); robot deploy with ``run_student_real.py --table-plane calib``.
 """
 from __future__ import annotations
 

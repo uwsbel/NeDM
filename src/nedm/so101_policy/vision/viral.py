@@ -546,7 +546,9 @@ class DRViews:
     the episode, ``nedm.render.bg_dr``); the scene's lights (randomised per call by ``RealDR.lights`` when ``light``);
     ``fx`` = the cameras' ``CamFX`` (None: sim scene). With the plate thickness randomisation (v8,
     ``RealDR.plate_thickness``; ``plate_on``) the per-world plate thickness ``plate_dz`` [n] as well (visual only;
-    the renderer is built with its plate depth).
+    the renderer is built with its plate depth; ``render(..., held=)`` [n] bool: cubes the jaws hold are not lifted).
+    ``render(..., plane=)`` [n, 3] (real scene without its own table_plane, ``table_render_ok``): every world's table
+    plane (``SO101Scene`` world_plane; v8 ``OnlineConfig.table_render``).
 
     Per-call state (studentlab image history): ``render(..., keep=True)`` keeps the last call's random light (and
     intrinsics) instead of a new draw (no random numbers used); ``call_id`` counts the changes of the per-call state
@@ -556,8 +558,10 @@ class DRViews:
                  top_eye=V.TOP_EYE, top_target=V.TOP_TARGET, dr: DRConfig | None = None, seed=0, device="cuda",
                  real: RealSetup | None = None):
         self.real, self.fx = real, None
+        self.table_render_ok = False        # per-world table planes (v8; the real scene without its own table_plane)
         if real is not None:
             self._init_real(num_worlds, res, cameras, backend, tiled, shadows, dr, seed, device, real)
+            self.table_render_ok = real.real.table_plane is None
             return
         from nedm.render.so101 import SO101Renderer
         self.r = SO101Renderer(int(num_worlds), width=int(res), height=int(res), backend=backend, cameras=tuple(cameras),
@@ -665,14 +669,22 @@ class DRViews:
         self._call_state = "random"
         self.call_id += 1
 
-    def _render_real(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False):
+    def _render_real(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False, plane=None, held=None):
         t0 = time.time()
+        if plane is not None and not self.table_render_ok:
+            raise ValueError("render(plane=): the real scene has its own table_plane")
         self._per_call_real((dr is None) if light is None else not light, keep)
         out = []
         for s in range(0, q.shape[0], self.num_worlds):
             e = min(q.shape[0], s + self.num_worlds)
             d = None if dr is None else {k: v[s:e] for k, v in dr.items()}
-            out.append(self.r.render_dr(q[s:e], cube_pos[s:e], cube_quat[s:e], goal_pose[s:e], draw=d).to(self.dev))
+            rkw = {}
+            if plane is not None:
+                rkw["world_plane"] = plane[s:e]
+            if held is not None:
+                rkw["cube_held"] = held[s:e]
+            out.append(self.r.render_dr(q[s:e], cube_pos[s:e], cube_quat[s:e], goal_pose[s:e], draw=d,
+                                        **rkw).to(self.dev))
         rgb = torch.cat(out) if len(out) > 1 else out[0]
         self.calls += 1
         self.views += q.shape[0] * len(self.cameras)
@@ -720,10 +732,15 @@ class DRViews:
         self.r.renderer.backend._camera.utils.create_default_light(self.r.shadows, direction=wp.vec3f(*d))
 
     @torch.no_grad()
-    def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False):
-        """``keep``: keep the last call's random per-call state (class docstring)."""
+    def render(self, q, cube_pos, cube_quat, goal_pose, dr=None, light=None, keep=False, plane=None, held=None):
+        """``keep``: keep the last call's random per-call state; ``plane`` / ``held`` (real scene): per-world table
+        planes / held cubes (class docstring)."""
         if self.real is not None:
-            return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light, keep)
+            if plane is None and held is None:
+                return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light, keep)
+            return self._render_real(q, cube_pos, cube_quat, goal_pose, dr, light, keep, plane, held)
+        if plane is not None or held is not None:
+            raise ValueError("render(plane=, held=): the real scene only")
         from nedm.render.so101 import qmul, wxyz, xyzw
         t0 = time.time()
         nominal = dr is None
@@ -1892,13 +1909,24 @@ class OnlineConfig:
     # under the gripper, the same gripper rotation; exact on the 3 pitch joints). Every joint quantity of the student
     # is in that observed frame (``table_frame``): q input (+ the q_bias draw), qdot input J_Phi qdot, history, cmd /
     # last-command inputs, the buffer's q and labels (Phi(q), Phi(teacher label)); its applied targets are
-    # Phi^-1(Phi(q) + predicted delta). Images, physics, the action layer, the teacher and the aux targets stay true.
+    # Phi^-1(Phi(q) + predicted delta). Physics, the action layer and the teacher stay true; images and the aux
+    # targets too unless ``table_render``. Training samples are exact (a world whose map rows are not all exact adds
+    # no sample that decision; ``table_frame``). A dict with only a "note" is off (``table_bias.is_on``).
     table_bias: dict = field(default_factory=dict)
     # ... and the goal plate ("mat") thickness of the TRAINING renders (real scene only; () = off): per world per
     # episode U(lo, hi) mm in the non-nominal slots (the real plate 3.9 mm, the scenes 1 mm), visual only
-    # (``RealDR.plate_thickness``: a cube over the plate is drawn on its top); the training views get it from
-    # ``online_views_cfg``, the student's saved config and the evaluation views do not
+    # (``RealDR.plate_thickness``: a cube over the plate that the jaws do not hold is drawn on its top; a held cube at
+    # its physics pose, sinking into a thicker plate); the training views get it from ``online_views_cfg``, the
+    # student's saved config and the evaluation views do not
     plate_mm: tuple = ()
+    # ... and consistent images for the table planes (needs table_bias and a real scene without its own table_plane;
+    # False = off): in the worlds with a plane the training renders draw the arm at the student's reading (Phi of the
+    # image state, also with image lag) and the world on the plane (the cube sheared by the plane height under it and
+    # tilted with the plane; plate, floor, mat, walls, strip and ceiling on the plane; ``SO101Scene`` world_plane), so
+    # images and joint reading agree as on the robot (the arm in the image IS the reading); the aux cube target is the
+    # drawn cube (z + plane height). Off: the true arm and the sim-height world (the image-vs-reading mismatch tells
+    # the drop, a cue that exists only in sim)
+    table_render: bool = False
 
     @staticmethod
     def from_dict(d):
@@ -1910,6 +1938,11 @@ class OnlineConfig:
         if d.get("table_bias"):
             from nedm.so101_policy.table_bias import TableBiasConfig
             TableBiasConfig.from_dict(d["table_bias"])                         # validate now
+        if d.get("table_render"):
+            from nedm.so101_policy.table_bias import is_on
+            if not is_on(d.get("table_bias")):
+                raise ValueError("table_render: needs table_bias (the planes to draw)")
+            d["table_render"] = bool(d["table_render"])
         if d.get("plate_mm"):
             d["plate_mm"] = tuple(float(v) for v in d["plate_mm"])
             if len(d["plate_mm"]) != 2 or not 0.0 < d["plate_mm"][0] <= d["plate_mm"][1] <= 20.0:
@@ -2081,17 +2114,28 @@ class OnlineDAgger:
             self.qb_h = torch.deg2rad(torch.tensor([float(v) for v in ocfg.q_bias_deg], device=self.dev))
             self.qb_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 91)
         self.tb = None              # v8: table height / tilt of the student's q input (OnlineConfig.table_bias)
-        if ocfg.table_bias:
-            from nedm.so101_policy import table_bias as TBI
+        self.tb_render = False      # ... and the consistent images (OnlineConfig.table_render)
+        from nedm.so101_policy import table_bias as TBI
+        if TBI.is_on(ocfg.table_bias):
             from nedm.so101_policy.kin import SO101Kin
             self.tb = TBI.TableBiasConfig.from_dict(ocfg.table_bias)
             self.tb_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 97)
             self.tb_plane = torch.zeros(N, 3, dtype=torch.float64, device=self.dev)    # per world (zeros: off)
             self.tb_on = torch.zeros(N, dtype=torch.bool, device=self.dev)
             self.tb_kin = SO101Kin(self.dev)
-            self.tb_res = torch.zeros((), dtype=torch.float64, device=self.dev)        # largest map residual (log)
-            self.tb_bad = torch.zeros(2, dtype=torch.long, device=self.dev)            # rows above 0.5 mm, rows
-            log(f"table bias of the student's q input: {json.dumps(self.tb.to_dict())}")
+            # log statistics since the last log row (``tb_note``): largest residual of the rows below TOL (frame map,
+            # applied targets), counts [rows above TOL, rows] of the planed worlds (frame map, student-slot applied
+            # targets), [samples skipped, samples] (a world whose frame map was not exact)
+            self.tb_res = torch.zeros(2, dtype=torch.float64, device=self.dev)
+            self.tb_cnt = torch.zeros(6, dtype=torch.long, device=self.dev)
+            self.tb_render = bool(ocfg.table_render)
+            if self.tb_render and not getattr(views, "table_render_ok", False):
+                raise ValueError("table_render: the training views must draw per-world table planes (DRViews of a real "
+                                 "scene without its own table_plane)")
+            log(f"table bias of the student's q input: {json.dumps(self.tb.to_dict())}"
+                + (" + consistent images (arm at the reading, world on the plane)" if self.tb_render else ""))
+        elif ocfg.table_render:
+            raise ValueError("table_render: needs table_bias")
         if ocfg.plate_mm and not getattr(views, "plate_on", False):
             raise ValueError("plate_mm: the training views need the plate thickness randomisation "
                              "(make_views(online_views_cfg(st.cfg, ocfg), ...))")
@@ -2144,38 +2188,58 @@ class OnlineDAgger:
         u = torch.rand(n, 6, device=self.dev, generator=self.qb_gen) * 2 - 1
         self.qb[idx] = u * self.qb_h[None] * on[:, None]
 
-    def table_frame(self, q, qf, qd, lab, u_exe=None):
+    def table_frame(self, q, qf, qd, lab, u_exe=None, iq=None, u_used=None):
         """The observed (table) frame of this decision (``OnlineConfig.table_bias``; ``table_bias`` module docstring):
         one batched Phi under each world's plane of the true q [N, 6] (float64, finite; ``qf`` = its float32 input
-        copy), of q + qd dt (the qdot reading J_Phi qd, ``table_bias.observe_qd``), of the labels [N, 5, 6] and of the
-        last decision's executed targets [N, 5, 6] (the cmd / last-command inputs; None: not needed) -> dict b [N, 6]
-        float32 (reading - q), q [N, 6] float32 (the reading qf + b), q64 [N, 6] float64 (Phi(q)), qd [N, 6] float32,
-        lab [N, 5, 6] float64, u_exe [N, 5, 6] float64 or None. Worlds without a plane get every value back as given."""
+        copy), of the labels [N, 5, 6], of the last decision's executed targets [N, 5, 6] (the cmd / last-command
+        inputs; None: not needed; ``u_used`` [N] bool: the worlds whose inputs use them, not at an episode start) and
+        of the lagged image state ``iq`` [N, 6] (``table_render`` with image lag; None: not needed); the qdot reading
+        J_Phi qd analytic (``table_bias.observe_qd``) -> dict b [N, 6] float32 (reading -
+        q), b64, q [N, 6] float32 (the reading qf + b), q64 [N, 6] float64 (Phi(q)), qd [N, 6] float32, lab [N, 5, 6]
+        float64, u_exe [N, 5, 6] float64 or None, iq [N, 6] float32 (Phi(iq); None if not asked), skip [N] bool (a world
+        with a plane whose map rows are not all exact, ``table_bias.EXACT``: no training sample this decision),
+        lab_bad [N] bool (its label rows are not exact: it does not complete the previous sample). Rows above
+        ``table_bias.TOL`` (no image) are acting-only fallbacks: x + b. Worlds without a plane get every value back as
+        given."""
         from nedm.so101_policy import table_bias as TBI
         N, f64 = qf.shape[0], torch.float64
         pl, on = self.tb_plane, self.tb_on
-        qd64 = qd.to(f64)
-        h = TBI.qd_step(qd64)[:, None]                                    # forward-difference step (s)
-        rows = [q, q + qd64 * h, lab.reshape(-1, 6).to(f64)]
-        planes = [pl, pl, pl.repeat_interleave(lab.shape[1], 0)]
+        K = lab.shape[1]
+        rows, planes = [q, lab.reshape(-1, 6).to(f64)], [pl, pl.repeat_interleave(K, 0)]
+        ons = [on, on.repeat_interleave(K)]                         # rows of the worlds with a plane (statistics)
         if u_exe is not None:
             rows.append(u_exe.to(self.dev, f64).reshape(-1, 6))
             planes.append(pl.repeat_interleave(u_exe.shape[1], 0))
+            ons.append(on.repeat_interleave(u_exe.shape[1]))
+        if iq is not None:
+            rows.append(iq.to(self.dev, f64))
+            planes.append(pl)
+            ons.append(on)
         out, res = TBI.observe(self.tb_kin, torch.cat(rows), torch.cat(planes))
-        self.tb_note(res)
-        bad = res > TBI.TOL                       # no image near the reach limit: the decision's offset instead
+        bad, inexact = res > TBI.TOL, res > TBI.EXACT     # no image (acting fallback) / not exact (no training)
         q64 = out[:N]
         b64 = q64 - q
-        qd_ok = on & ~bad[:N] & ~bad[N:2 * N]
-        qd_obs = torch.where(qd_ok[:, None], (out[N:2 * N] - q64) / h, qd64).to(qd.dtype)
-        k = 2 * N + lab.shape[0] * lab.shape[1]
+        qd_obs = torch.where(on[:, None], TBI.observe_qd(self.tb_kin, q, qd.to(f64), pl, q64), qd.to(f64)).to(qd.dtype)
+        k1 = N + N * K
+        k2 = k1 + (0 if u_exe is None else u_exe.shape[0] * u_exe.shape[1])
 
-        def mapped(x, lo, hi):            # rows [lo, hi) of the batch, fallback x + b where they did not converge
+        def mapped(x, lo, hi):            # rows [lo, hi) of the batch, fallback x + b where they have no image
             m = bad[lo:hi].reshape(x.shape[:-1])[..., None]
             return torch.where(m, x.to(f64) + b64[:, None, :], out[lo:hi].reshape(x.shape))
 
-        return dict(b=b64.float(), b64=b64, q=qf + b64.float(), q64=q64, qd=qd_obs, lab=mapped(lab, 2 * N, k),
-                    u_exe=None if u_exe is None else mapped(u_exe, k, out.shape[0]))
+        per = lambda m, lo, hi: m[lo:hi].reshape(N, -1).any(-1)                         # noqa: E731
+        lab_bad = per(inexact, N, k1)
+        skip = inexact[:N] | lab_bad
+        if u_exe is not None:
+            skip = skip | (per(inexact, k1, k2) & (torch.ones_like(on) if u_used is None else u_used))
+        iq_obs = None
+        if iq is not None:
+            skip = skip | inexact[k2:]
+            iq_obs = torch.where(bad[k2:, None], iq.to(self.dev, f64) + b64, out[k2:]).float()
+        self.tb_note(res, torch.cat(ons), frame=True, skip=(skip & on, on))
+        return dict(b=b64.float(), b64=b64, q=qf + b64.float(), q64=q64, qd=qd_obs, lab=mapped(lab, N, k1),
+                    u_exe=None if u_exe is None else mapped(u_exe, k1, k2), iq=iq_obs, skip=skip & on,
+                    lab_bad=lab_bad & on)
 
     def table_applied(self, u_obs, si, b64):
         """Applied (true-frame) targets of the student slots ``si``: Phi^-1 of their observed-frame targets u_obs
@@ -2186,17 +2250,27 @@ class OnlineDAgger:
         k = u_obs.shape[1]
         u, res = TBI.to_true(self.tb_kin, u_obs.reshape(-1, 6).to(torch.float64),
                              self.tb_plane[si].repeat_interleave(k, 0))
-        self.tb_note(res)
+        self.tb_note(res, self.tb_on[si].repeat_interleave(k, 0), frame=False)
         u = u.reshape(u_obs.shape)
         bad = (res > TBI.TOL).reshape(u_obs.shape[:2])[..., None]
         return torch.where(bad, u_obs.to(torch.float64) - b64[:, None, :], u)
 
-    def tb_note(self, res):
-        """Log statistics of the joint map's residuals (``log_extra`` tb_res_um = the largest, tb_bad = the share of
-        rows above ``table_bias.TOL`` that took the fallback, both since the last log row)."""
+    def tb_note(self, res, row_on, frame=True, skip=None):
+        """Log statistics of the joint map (``log_extra``, since the last log row; rows of the worlds with a plane
+        only): tb_res_um = the largest residual of the rows below ``table_bias.TOL`` (frame map; tb_res_applied_um:
+        the student slots' applied targets), tb_bad_frame / tb_bad_applied = the share of rows above TOL (acting
+        fallback), tb_skip = the share of samples of planed worlds not added (map not exact)."""
         from nedm.so101_policy import table_bias as TBI
-        self.tb_res = torch.maximum(self.tb_res, res.max())
-        self.tb_bad = self.tb_bad + torch.stack(((res > TBI.TOL).sum(), torch.tensor(res.numel(), device=res.device)))
+        k = 0 if frame else 1
+        m = row_on.to(res.device)
+        bad = (res > TBI.TOL) & m
+        good = torch.where(m & ~bad, res, torch.zeros_like(res))
+        self.tb_res[k] = torch.maximum(self.tb_res[k], good.max() if good.numel() else self.tb_res[k])
+        self.tb_cnt[2 * k] += bad.sum()
+        self.tb_cnt[2 * k + 1] += m.sum()
+        if skip is not None:
+            self.tb_cnt[4] += skip[0].sum()
+            self.tb_cnt[5] += skip[1].sum()
 
     def _qd_reset(self, idx):
         """Episode start of worlds ``idx``: robot-like qdot draw (``OnlineConfig.qd_robot_p``), tick history = start."""
@@ -2240,14 +2314,17 @@ class OnlineDAgger:
             out.update(self.env.pause.summary())
         if self.qd_hist is not None:
             out["qd_robot"] = round(float(self.qd_rob.float().mean()), 3)
-        if self.tb is not None:     # the worlds' current table planes: share with one, mean drop at x_ref, residual
-            on = self.tb_on
+        if self.tb is not None:     # the worlds' current table planes: share with one, mean drop at x_ref; the map's
+            on = self.tb_on         # statistics since the last row (``tb_note``)
             drop = -(self.tb_plane[:, 0] + self.tb_plane[:, 1] * float(self.tb.x_ref_m))
             out["tb_on"] = round(float(on.float().mean()), 3)
             out["tb_drop_mm"] = round(float(drop[on].mean()) * 1e3, 2) if bool(on.any()) else float("nan")
-            out["tb_res_um"] = round(float(self.tb_res) * 1e6, 3)
-            out["tb_bad"] = round(float(self.tb_bad[0]) / max(int(self.tb_bad[1]), 1), 6)
-            self.tb_res, self.tb_bad = torch.zeros_like(self.tb_res), torch.zeros_like(self.tb_bad)
+            r, c = self.tb_res.tolist(), [int(v) for v in self.tb_cnt.tolist()]
+            out["tb_res_um"], out["tb_res_applied_um"] = round(r[0] * 1e6, 4), round(r[1] * 1e6, 4)
+            out["tb_bad_frame"] = round(c[0] / max(c[1], 1), 6)
+            out["tb_bad_applied"] = round(c[2] / max(c[3], 1), 6)
+            out["tb_skip"] = round(c[4] / max(c[5], 1), 6)
+            self.tb_res, self.tb_cnt = torch.zeros_like(self.tb_res), torch.zeros_like(self.tb_cnt)
         if self.env.goal_jump is not None:
             out.update(self.env.goal_jump.summary())
         if self.img_hist:       # in-episode image pairs since the last log row: the share with the same light etc.
@@ -2315,24 +2392,41 @@ class OnlineDAgger:
                 light, kw = self.light_prev, dict(keep=True)
             self.light_prev = light
         icp = cp
+        TF = None
+        if self.tb is not None:     # the table plane's observed frame: reading, qdot, labels, last executed targets
+            ttb = time.time()       # (before the render: table_render draws the arm at the reading; own timing)
+            qd = self.qd_input(ws.qd.float().nan_to_num())
+            iq_ = self.lag_hist.get(self.lagk)[0] if self.tb_render and self.lag_hist is not None else None
+            TF = self.table_frame(torch.where(ok[:, None], q, torch.zeros_like(q)), qf, qd, lab,
+                                  env.u_exe if (self.n_cmd or self.LC) and env.u_exe is not None else None, iq_,
+                                  ~self.fresh)       # (an auto-reset world's u_exe is the last episode's: unused)
+            torch.cuda.synchronize() if self.dev.type == "cuda" else None
+            T["table"] = time.time() - ttb
+        rkw = {}                    # v8 render inputs (only when on: other views keep their old call)
+        if self.tb_render:          # consistent images: the world on each world's plane, the arm at the reading
+            rkw["plane"] = self.tb_plane
+        if getattr(self.views, "plate_on", False):      # the plate lift spares a cube the jaws hold
+            F = env.task.F
+            held = F["held"].to(self.dev) if F is not None else torch.zeros_like(self.fresh)
+            rkw["held"] = held & ~self.fresh            # (F of an auto-reset world is the last episode's)
         if self.lag_hist is not None:                     # the images lag; q, qd, the labels stay current
             iq, icp, icq = self.lag_hist.get(self.lagk)
-            rgb = self.views.render(iq, icp, icq, gp, dr=self.dr, light=light, **kw)
+            rgb = self.views.render(TF["iq"] if self.tb_render else iq, icp, icq, gp, dr=self.dr, light=light, **kw,
+                                    **rkw)
         else:
-            rgb = self.views.render(qf, cp, cq, gp, dr=self.dr, light=light, **kw)
+            rgb = self.views.render(TF["q"] if self.tb_render else qf, cp, cq, gp, dr=self.dr, light=light, **kw,
+                                    **rkw)
         cid = getattr(self.views, "call_id", None)
         same_call = cid is None or self.call_id is None or cid == self.call_id     # the last decision's light etc.
         self.call_id = cid
         torch.cuda.synchronize() if self.dev.type == "cuda" else None
-        T["render"] = time.time() - t1
+        T["render"] = time.time() - t1 - T.get("table", 0.0)
         t2 = time.time()
         stud = ~self.teacher if self.it >= o.warm_teacher_only else torch.zeros_like(self.teacher)
-        qd = self.qd_input(ws.qd.float().nan_to_num())                         # robot-like qdot in the qd_rob worlds
+        if TF is None:
+            qd = self.qd_input(ws.qd.float().nan_to_num())                     # robot-like qdot in the qd_rob worlds
         qin = qf + self.qb if self.qb_h is not None else qf                    # q input offset (q_bias)
-        TF = None
-        if self.tb is not None:     # the table plane's observed frame: reading, qdot, labels, last executed targets
-            TF = self.table_frame(torch.where(ok[:, None], q, torch.zeros_like(q)), qf, qd, lab,
-                                  env.u_exe if (self.n_cmd or self.LC) and env.u_exe is not None else None)
+        if TF is not None:          # (table frame)
             qin, qd = qin + TF["b"], TF["qd"]
         now = torch.cat((qin, qd), -1)                                         # [N, 12]
         fr = self.fresh
@@ -2391,6 +2485,9 @@ class OnlineDAgger:
         live = ok
         pv = self.prev_slot
         has = (pv >= 0) & live
+        if TF is not None:      # table frame: only exact samples / labels (``table_frame``: skip, lab_bad)
+            has = has & ~TF["lab_bad"]
+            live = ok & ~TF["skip"]
         if env.goal_jump is not None:     # the goal moved since the previous sample: no second-half label for it
             has = has & ~env.goal_jump.just
         lab_b, q_b = (lab, qf) if TF is None else (TF["lab"], TF["q"])          # (table frame: Phi(lab), Phi(q))
@@ -2398,6 +2495,10 @@ class OnlineDAgger:
             self.buf.lab2[pv[has]] = lab_b[has].float()
             self.buf.valid2[pv[has]] = True
         idx = live.nonzero().flatten()
+        if self.tb_render:      # the drawn cube: sheared by the plane height under it (``table_render``)
+            from nedm.so101_policy import table_bias as TBI
+            hz = torch.where(self.tb_on, TBI.height(self.tb_plane, icp[:, :2].double()), 0.0).to(icp.dtype)
+            icp = icp + torch.cat((torch.zeros_like(icp[:, :2]), hz[:, None]), -1)
         aux = aux_targets(gp[idx], icp[idx])
         plink = None
         if self.img_hist:     # the link to the previous sample (cut when the per-call render state changed)
