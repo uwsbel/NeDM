@@ -1,0 +1,154 @@
+{
+ "note": "Real2sim round v8 student variants (2026-10-24; ~/so101_r2s_claude/v8/VARIANTS.md): family C = init C1 (online relabel_v4 base), family S = init s28 (online v1 base); switches T = table DR (online config), V = scene v4 + base add-on DR + the b1 background DR (student config + scene file), L = image latency + queued command delay 0-2 (online config), H = memory (studentlab a3: student hist 4 + cmd_in, online goal jumps + hold cap 6 s + light_redraw_p 0.1). Launch on AMD: r2s_online.sbatch with R2S_SCENE=scene.amd, STUDENT_CFG=student_cfg, ONLINE_CFG=online_cfg, INIT=init.amd (the sbatch adds --set jaw_lead=0 scene=$R2S_SCENE calib=$R2S_CALIB). Robot: run_student_real.py --table-plane calib (every variant has T).",
+ "variants": [
+  {
+   "variant": "C_T",
+   "family": "C",
+   "switches": [
+    "T"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v1.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_C_T.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v4_relabel_s63/ckpt/it_02000.pt",
+    "local": "~/so101_r2s_claude/ckpt/c1_relabel_s63_it02000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v2.json",
+    "local": "~/so101_r2s_claude/scene/real_scene_v2.json"
+   }
+  },
+  {
+   "variant": "S_T",
+   "family": "S",
+   "switches": [
+    "T"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v1.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_S_T.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v2_online2_s28/ckpt/it_03000.pt",
+    "local": "~/so101_r2s_claude/ckpt/robot_v2_s28_it03000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v2.json",
+    "local": "~/so101_r2s_claude/scene/real_scene_v2.json"
+   }
+  },
+  {
+   "variant": "C_TV",
+   "family": "C",
+   "switches": [
+    "T",
+    "V"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v8_scene4_student.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_C_T.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v4_relabel_s63/ckpt/it_02000.pt",
+    "local": "~/so101_r2s_claude/ckpt/c1_relabel_s63_it02000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v4.json",
+    "local": "~/so101_r2s_claude/v8/scene4/real_scene_v4.json",
+    "sha256": "3e862c06395c6122587683dbbfc2d3d2bfb858e6c6ac47e51812634dd4f3fbef"
+   }
+  },
+  {
+   "variant": "S_TV",
+   "family": "S",
+   "switches": [
+    "T",
+    "V"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v8_scene4_student.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_S_T.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v2_online2_s28/ckpt/it_03000.pt",
+    "local": "~/so101_r2s_claude/ckpt/robot_v2_s28_it03000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v4.json",
+    "local": "~/so101_r2s_claude/v8/scene4/real_scene_v4.json",
+    "sha256": "3e862c06395c6122587683dbbfc2d3d2bfb858e6c6ac47e51812634dd4f3fbef"
+   }
+  },
+  {
+   "variant": "C_TL",
+   "family": "C",
+   "switches": [
+    "T",
+    "L"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v1.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_C_TL.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v4_relabel_s63/ckpt/it_02000.pt",
+    "local": "~/so101_r2s_claude/ckpt/c1_relabel_s63_it02000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v2.json",
+    "local": "~/so101_r2s_claude/scene/real_scene_v2.json"
+   }
+  },
+  {
+   "variant": "S_TL",
+   "family": "S",
+   "switches": [
+    "T",
+    "L"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v1.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_S_TL.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v2_online2_s28/ckpt/it_03000.pt",
+    "local": "~/so101_r2s_claude/ckpt/robot_v2_s28_it03000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v2.json",
+    "local": "~/so101_r2s_claude/scene/real_scene_v2.json"
+   }
+  },
+  {
+   "variant": "C_TVL",
+   "family": "C",
+   "switches": [
+    "T",
+    "V",
+    "L"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v8_scene4_student.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_C_TL.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v4_relabel_s63/ckpt/it_02000.pt",
+    "local": "~/so101_r2s_claude/ckpt/c1_relabel_s63_it02000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v4.json",
+    "local": "~/so101_r2s_claude/v8/scene4/real_scene_v4.json",
+    "sha256": "3e862c06395c6122587683dbbfc2d3d2bfb858e6c6ac47e51812634dd4f3fbef"
+   }
+  },
+  {
+   "variant": "S_TVLH",
+   "family": "S",
+   "switches": [
+    "T",
+    "V",
+    "L",
+    "H"
+   ],
+   "student_cfg": "configs/so101_policy/vision/viral_r2s_v8_scene4_hist_student.json",
+   "online_cfg": "configs/so101_policy/vision/viral_r2s_online_v8_S_TLH.json",
+   "init": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/runs/v2_online2_s28/ckpt/it_03000.pt",
+    "local": "~/so101_r2s_claude/ckpt/robot_v2_s28_it03000.pt"
+   },
+   "scene": {
+    "amd": "/work1/dannegrut/harry/so101_r2s_claude/data/scene/real_scene_v4.json",
+    "local": "~/so101_r2s_claude/v8/scene4/real_scene_v4.json",
+    "sha256": "3e862c06395c6122587683dbbfc2d3d2bfb858e6c6ac47e51812634dd4f3fbef"
+   }
+  }
+ ]
+}

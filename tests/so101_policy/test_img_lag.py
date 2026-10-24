@@ -279,8 +279,12 @@ class TestOnlineLoop(unittest.TestCase):
         self.assertGreater(stale, 0)
         self.assertEqual(int(od.samples), sum(int(r["cur"].sum()) for r in rec))      # stale decisions: no sample
         self.assertEqual(int(od.buf.n), int(od.samples))
+        # aux goal of the kept samples: the image goal, which is the CURRENT goal for every kept sample (the stale
+        # decisions, whose images show the old goal, add none; v8 integration review: the check below says so)
         aux_goal = torch.cat([r["calls"][0]["goal"][r["cur"]] for r in rec])[:, :2]
-        self.assertTrue(torch.equal(od.buf.aux[:od.buf.n, :2], aux_goal))            # aux goal = the image goal
+        self.assertTrue(torch.equal(od.buf.aux[:od.buf.n, :2], aux_goal))
+        cur_goal = torch.cat([r["gp"][r["cur"]] for r in rec])[:, :2].to(aux_goal)
+        self.assertTrue(torch.equal(od.buf.aux[:od.buf.n, :2], cur_goal))
 
 
 @unittest.skipUnless(R.HAVE and shutil.which("git"), "jt_h110 / dev tasks / git missing")

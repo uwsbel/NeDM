@@ -9,6 +9,9 @@
 #   (configs/so101_policy/ppo/r2s/teacher_roll_v8.json) with ONLINE_CFG=viral_r2s_online_relabel_roll_v8.json (an
 #   online config with roll_hi_deg refuses a JT trained without that cap); read when the job starts (a chained run
 #   may name a teacher checkpoint that its dependency writes)
+#   Round v8 student variants (C_T ... S_TVLH): configs/so101_policy/vision/viral_r2s_v8_variants.json gives per
+#   variant R2S_SCENE (scene.amd), STUDENT_CFG, ONLINE_CFG and INIT (init.amd); REPO=<another synced copy> runs that
+#   copy's code (r2s_env.sh, always sourced from $R2S/repo, keeps a given REPO: REPO=${REPO:-$R2S/repo})
 #SBATCH -J r2s-online
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x

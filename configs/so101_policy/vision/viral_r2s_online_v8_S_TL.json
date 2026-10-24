@@ -1,0 +1,52 @@
+{
+ "note": "Real2sim round v8 (2026-10-24, ~/so101_r2s_claude/v8/VARIANTS.md): online config S_TL = Family S = viral_r2s_online_v1.json (s28's online config; init s28 = runs/v2_online2_s28/ckpt/it_03000.pt). switches T+L (V is a student-config switch: viral_r2s_v8_scene4_student.json + scene v4). T = table DR (table_bias + table_render + plate_mm; nedm.so101_policy.table_bias): per world per episode with p 0.7 a table plane under the student's JOINT reading (exact joint map of the 3 pitch joints, labels / cmd / qdot / applied targets in the same frame), the training images drawn consistently (arm at the reading, world on the plane), goal plate thickness of the training renders U(1, 5) mm. Ranges from the real-data system ID (~/so101_r2s_claude/v8/sysid/sysid_v8.json, 115 robot episodes, 15 teleop episodes): calibrated real mat top z = -4.7 mm -36.4 x +18.4 y (mm per m), i.e. 13.8 mm below the sim table at x 0.25 m; at the 184 observed cube / plate positions -17.5 .. -8.3 mm (-21 .. -5 mm with the 3 mm calibration tolerance); plane tolerance c0 +-4 mm, c1 / c2 +-15 mm/m. Training: drop_mm U(0, 22) at x_ref 0.25 (covers 21 mm and the gate's real_m5 = 18.8 mm; real_m10 = 23.8 mm stays outside, the out-of-range check), slope_x U(-55, 25) mm/m (real -36.4 +- 15 = -51 .. -21, and the flat sim table), slope_y U(-10, 35) mm/m (real +18.4 +- 15 = 3 .. 33; the first v8 table configs had slope_y off), 30 % of the worlds keep the sim table; plate U(1, 5) mm (real 3.9 mm, scenes 1 mm). Floor coupling (sysid coupling_rule): in training the action-layer floor stays 1.5 mm above the TRUE table, which is the plane in the student's observed frame; deploy with run_student_real.py --table-plane calib (floor and guard checks above the calibrated plane), NEVER with --table-z 0 (that floor is 10-19 mm above the real mat at the cubes and holds the learned descent up). Gate: scripts/so101_policy/real2sim/lowtable_gate.py; pass rule (fixed 2026-10-24 before any table student was evaluated, viral_r2s_online_v8_C_table.json note): lenient >= 90 % at real_m5 AND real_m5_floor (200 episodes), hold-cap hovers <= 10 in each, nominal lenient >= the init's - 3 points (C1 92.0, s28 97.5); also report real and real_m10. Watch tb_bad_applied in curve.csv (> 1 %: reach cap needed). L = camera latency + queued command delay. img_lag U(10, 80) ms per world, drawn again every decision (redraw_p 1), both cameras share it (per_camera false: true costs ~65 % more render time; the real camera ages are nearly independent, median difference 11 ms), the images from the state interpolated between the 20 ms states and the goal of then; it replaces lag_range in the online loop (the in-run evaluation renders with the student's lag 2 = 40 ms). Range: two measurements disagree. sysid lag_fit (direct fit, weak: flat cost curve): p50 wrist 1.26-1.95 steps, external 1.50-2.18 steps, its DR mixture 0/1/2/3 steps = 0.05/0.34/0.49/0.12 (mean 34 ms); the latency fit (~/so101_r2s_claude/v8/latency, lag_fit.json): pipeline 26.5 ms + frame age U(0, 33) ms = 28-62 ms (p1-p99), mean 44 ms (a 45 ms pipeline, inside its flat fit, would give up to 78 ms). U(10, 80) ms covers both (mean 45 ms; C1's old lag_range 1-4 steps = 20-80 ms). Command delay: dyn delay_mode queue (every target d steps late, none dropped), d U{0, 1, 2} steps per episode in the robot-dynamics student worlds. The robot writes the first target of a chunk 46 ms after the joint read (sysid recommendation d_lo = d_hi = 2, jitter 0.4), so 0-2 (mean 1) is LOWER than measured; it is the variant definition of this round (--oset to set d 2). Not modelled: the longer real chunk (127 ms vs 100 ms, sysid hold_extra_steps proposal, no code). (S: the delay only, every other dynamics stage neutral, student worlds only.) Brightness: no change (sysid brightness verdict: session exposure 0.94-1.08 and within-episode p5-p95 0.89-1.10 of the median, inside the scene's exposure randomisation external 0.8-1.35, wrist 0.7-1.7; the wrist's worst within-episode frames reach 0.65). Wrist roll: not in these configs (the roll-cap workflow; add --oset roll_hi_deg=98 with TEACHER_JT = its capped teacher). Base note: real2sim online loop v1 (2026-10-21): build9's viral_online_v1 (the o16 / o17 loop: 1,024 NRD worlds, slots 0-511 JT-driven, half of them with 1 x std noise, 20 % nominal-visual slots, the scene light in 25 % of the decisions, 100,000-sample GPU buffer, 8 steps of 128 per decision, constant lr 1e-4 / 5e-5) for 3,000 decisions (o16 was cancelled after 3,000 of 6,000; constant lr, so the same schedule). Use with --config viral_r2s_v1.json (jaw lead 0).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "table_bias": {
+  "p": 0.7,
+  "drop_mm": [
+   0.0,
+   22.0
+  ],
+  "slope_x": [
+   -55.0,
+   25.0
+  ],
+  "slope_y": [
+   -10.0,
+   35.0
+  ],
+  "x_ref_m": 0.25
+ },
+ "plate_mm": [
+  1.0,
+  5.0
+ ],
+ "table_render": true,
+ "img_lag": {
+  "lo_ms": 10.0,
+  "hi_ms": 80.0,
+  "redraw_p": 1.0,
+  "per_camera": false,
+  "quantize": false
+ },
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 2,
+  "delay_mode": "queue"
+ },
+ "dyn_student_only": true
+}
