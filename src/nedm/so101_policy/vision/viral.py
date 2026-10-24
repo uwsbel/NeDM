@@ -67,7 +67,8 @@ layers to every per-world draw (zeros in ``nominal_draw``), so the online loop's
 Scene v4 round (2026-10-23, OFF by default, ~/so101_r2s_claude/v8/scene4): ``RealScene.parts`` may sit on the fixed
 base (scene v4 draws the real table clamp at the base) and ``RealDR.base_addon`` (``nedm.render.base_addon``) puts
 random blocks and cables at the base outline in a share of the worlds; ``load_real_setup`` then adds the slot bodies
-to the scene (``RealScene.addon_slots``), nominal draws keep them hidden.
+to the scene (``RealScene.addon_slots``), nominal draws keep them hidden; ``DRViews`` draws them on their own
+generator (seed + 917), so the other draws of every per-world reset stay as with them off.
 
 - Robot timing and servo in the online loop (``OnlineConfig.dyn`` -> ``joint_env.RobotDynConfig``: command delay with
   jitter, weaker arm servo, command lag, gravity sag, command noise; per world per episode), robot-like qdot inputs
@@ -618,6 +619,9 @@ class DRViews:
         self.rdr = rs.dr
         self.gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 911)
         self.light_gen = torch.Generator().manual_seed(int(seed) + 913)     # per-call draws (lights, intrinsics): CPU
+        # base add-ons (RealDR.base_addon): their own generator, so every other draw (each per-world reset of the
+        # online loop) is the same with them on or off (paired arms); None when off (nothing changes)
+        self.addon_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 917) if rs.dr.addon_on else None
         self.lights0 = [dict(lt) for lt in rs.real.lights]
         self.models0 = list(sc.camera_models)
         self.intrinsics_dr = float(getattr(self.rdr, "focal", 0.0)) > 0 or float(getattr(self.rdr, "pp_px", 0.0)) > 0
@@ -643,7 +647,8 @@ class DRViews:
         return {k: torch.where(nominal.view(-1, *([1] * (v.dim() - 1))), nd[k].to(v), v) for k, v in d.items()}
 
     def _draw_real(self, n):
-        d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev, res=self.res, bg_prior=self.bg_prior)
+        kw = {"addon_generator": self.addon_gen} if self.addon_gen is not None else {}
+        d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev, res=self.res, bg_prior=self.bg_prior, **kw)
         return {k: v.to(self.dev) for k, v in d.items()}
 
     def _per_call_real(self, nominal, keep=False):

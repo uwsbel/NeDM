@@ -850,8 +850,10 @@ class RealScene:
     ending at its listed first point.
     ``addon_slots`` (None: none; not read from the scene file): the hidden bodies that the base add-on randomisation
     (:attr:`RealDR.base_addon`) places per world, ``{"blocks": [(lx, ly, lz), ...], "cables": [(length, width),
-    ...]}`` (:meth:`RealDR.addon_slots`; ``viral.load_real_setup`` sets it from the merged ``dr``). They are the last
-    env bodies (group ``addon``, names ``addon_block{k}`` / ``addon_cable{k}``), nominally far below the scene.
+    ...]}`` and optionally ``"flats"`` / ``"drops"`` (flat cables and their sloped segments, (length, width))
+    (:meth:`RealDR.addon_slots`; ``viral.load_real_setup`` sets it from the merged ``dr``). They are the last env bodies
+    (group ``addon``, names ``addon_block{k}``, ``addon_cable{k}``, ``addon_flat{k}``, ``addon_drop{k}`` in this
+    order), nominally far below the scene.
     Colours (linear albedo, Newton multiplies by the light): ``colors[group]`` for REAL_GROUPS. ``lights``: Newton
     lights (``NewtonBackend.set_lights``), shared by all worlds; ``ambient``: Newton's fixed ambient term; ``sky``:
     8-bit colour of rays that hit nothing. ``tone``: per camera a tone map (``camera_fx``: exposure, wb, black, gamma,
@@ -1093,7 +1095,9 @@ class RealScene:
         if self.addon_slots:                                    # base add-on slots: hidden until RealDR places them
             hidden = np.array([0.0, 0.0, HIDDEN_Z, 0, 0, 0, 1.0])
             for kind, dims in (("block", self.addon_slots.get("blocks", ())),
-                               ("cable", self.addon_slots.get("cables", ()))):
+                               ("cable", self.addon_slots.get("cables", ())),
+                               ("flat", self.addon_slots.get("flats", ())),
+                               ("drop", self.addon_slots.get("drops", ()))):
                 for k, d in enumerate(dims):
                     half = [d[0] / 2, d[1] / 2, d[2] / 2] if kind == "block" else [d[0] / 2, d[1] / 2, d[1] / 2]
                     v, f = box_mesh(half)
@@ -1172,7 +1176,11 @@ class RealDR:
     Base add-on randomisation (scene v4 round, 2026-10-23; OFF by default, drawn after everything else, also after
     ``bg``): ``base_addon`` (dict of :class:`nedm.render.base_addon.BaseAddonDR` fields; {} = off): random blocks and
     cables at the arm base outline in a share ``p`` of the worlds; needs a scene built with its slot bodies
-    (``RealScene.addon_slots`` = :meth:`addon_slots`; ``viral.load_real_setup`` sets them)."""
+    (``RealScene.addon_slots`` = :meth:`addon_slots`; ``viral.load_real_setup`` sets them). Its random numbers come
+    from ``draw(..., addon_generator=)`` when given (``viral.DRViews`` gives its own, seed + 917), else from
+    ``generator`` after every other draw. Only with its own generator do the other draws of a seed stay the same over
+    SEVERAL calls (e.g. the online loop's per-world resets) with the add-ons on or off; with the shared generator only
+    the first call is paired."""
 
     bright: dict = field(default_factory=lambda: {"printed": (0.85, 1.1), "servo": (0.6, 2.0), "cube": (0.75, 1.25),
                                                   "plate": (0.75, 1.25), "floor": (0.8, 1.1), "mat": (0.5, 2.5),
@@ -1255,14 +1263,16 @@ class RealDR:
         return torch.device(generator.device) if generator is not None else torch.device("cpu")
 
     def draw(self, scene: "SO101Scene", n: int, generator: torch.Generator | None = None, device=None,
-             res: int | None = None, bg_prior: torch.Tensor | None = None) -> dict:
+             res: int | None = None, bg_prior: torch.Tensor | None = None,
+             addon_generator: torch.Generator | None = None) -> dict:
         """Per-world draws for n worlds: ``colors`` [n, bodies, 3], ``cam_offset`` [n, C, 6] (dpos, drot),
         ``env_pose`` [n, n_env, 7] (x y z qx qy qz qw) and, when the scene has a tone map, ``tone`` [n, C, 9]
         (``camera_fx.TONE_KEYS``), for :meth:`SO101Renderer.render_dr`. Random numbers are drawn on the generator's
         device (CPU without a generator); the results are on ``device`` (default the scene's). With ``bg`` on, also
         the background layers ``bg_*`` (:mod:`nedm.render.bg_dr`) at the output resolution ``res`` (default: the
         student view's output size); ``bg_prior`` [Cb, res, res]: placement weights of their clutter and spots
-        (:meth:`SO101Renderer.bg_prior`; None: uniform)."""
+        (:meth:`SO101Renderer.bg_prior`; None: uniform). ``addon_generator``: the base add-on draws' own generator
+        (None: ``generator``; class docstring)."""
         gdev = self._gen_device(generator)
         dev = torch.device(device or scene.device)
 
@@ -1332,7 +1342,14 @@ class RealDR:
                 res = views[0].out_wh[0]
             out.update(self.bg_dr().draw(n, len(cams), int(res), generator, dev, prior=bg_prior))
         if self.addon_on:                       # base add-ons: the very last draws (slots of a scene without it: hidden)
-            self.addon_dr().draw(scene, n, u, dev, out)
+            ua = u
+            if addon_generator is not None:     # their own generator: the main one is not used for them
+                adev = self._gen_device(addon_generator)
+
+                def ua(lo, hi, *shape):
+                    return (lo + (hi - lo) * torch.rand(n, *shape, device=adev, generator=addon_generator,
+                                                        dtype=torch.float64)).to(dev)
+            self.addon_dr().draw(scene, n, ua, dev, out)
         return out
 
     def _floor_draw(self, scene, env, names, u, dev) -> None:

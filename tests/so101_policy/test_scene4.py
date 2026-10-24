@@ -10,8 +10,15 @@
 - OffIdentity (GPU, git): ``scene4_ref.py`` (views nominal / randomised, draws, merge_nominal, RealDR + render_dr with
   segment, hdr and the background layers) gives the base commit's arrays bit for bit on the v2 and v3 scenes.
 - Pixels (GPU): a v4-like scene (v3-like + a clamp on the base) differs from the same scene without it only on the
-  clamp's pixels; hidden add-on slots change no pixel, depth or segment; drawn add-ons change only their own pixels;
-  the views of a config with ``real_dr.base_addon`` (slots, draws, nominal draw, merge_nominal).
+  clamp's pixels; hidden add-on slots change no pixel, depth or segment; drawn add-ons (also flat cables and their
+  sloped pieces) change only their own pixels; the views of a config with ``real_dr.base_addon`` (slots, draws,
+  nominal draw, merge_nominal); the add-ons' own generator keeps every other draw of DRViews paired over calls.
+- Review round 1 (CPU): every (lo, hi) range and non-negative scalar is checked; ``slot_spread="grid"`` covers both
+  ends of every range; flat cables (on the table, start at the outline, outward, heading range, sloped piece joined
+  to the start, counts, colours) and ``cable_phi`` / ``cable_heading``; ``block_reach``; ``addon_generator``.
+- RealV4Config (GPU, skipped without the files): the shipped config viral_r2s_v8_scene4_student.json with the real
+  scene v4 file: pin_real (sha256), make_views (background layers on, the add-on slots last), the clamp in the
+  external camera, add-on pixels untouched by the background layers, nominal draw = nominal render.
 
     CUDA_VISIBLE_DEVICES=0 PYTHONPATH=src ~/miniconda3/envs/so101_vision/bin/python -m unittest \
         tests.so101_policy.test_scene4 -v
@@ -21,6 +28,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -43,6 +51,8 @@ HAVE_MUJOCO = importlib.util.find_spec("mujoco") is not None
 GPU = (importlib.util.find_spec("newton") is not None and importlib.util.find_spec("warp") is not None
        and torch.cuda.is_available())
 HAVE_SCENE = SCENE_V2.exists() and CALIB.exists()
+SCENE_V4 = Path(os.environ.get("NEDM_R2S_SCENE_V4", "~/so101_r2s_claude/v8/scene4/real_scene_v4.json")).expanduser()
+CFG_V8 = REPO / "configs/so101_policy/vision/viral_r2s_v8_scene4_student.json"
 
 # a clamp-like part on the fixed base (scene v4 layout: a jaw beyond the base's -x side, a frame below it)
 JAW = {"name": "clamp_jaw", "body": "base", "group": "printed",
@@ -52,6 +62,8 @@ FRAME = {"name": "clamp_frame", "body": "base", "group": "printed", "color": [0.
          "polygon": [[-0.079, -0.037, -0.044], [-0.072, -0.037, -0.044], [-0.072, -0.016, -0.044],
                      [-0.079, -0.016, -0.044]], "offset": [0.0, 0.0, 0.046]}
 ADDON = {"p": 1.0, "n_blocks": [2, 2], "block_slots": 3, "n_cables": [1, 2], "cable_slots": 2}
+# with flat cables (review round 1): 3 blocks, 2 cables, 3 flats + 3 sloped pieces
+ADDON_FLAT = {**ADDON, "n_flat": [1, 2], "flat_slots": 3, "flat_drop": 0.6}
 
 
 def v3_like(d2: dict) -> dict:
@@ -156,9 +168,32 @@ class Structure(unittest.TestCase):
         self.assertFalse(RealDR(base_addon={"n_blocks": [0, 0], "n_cables": [0, 0]}).addon_on)
         self.assertTrue(RealDR(base_addon={"p": 0.5}).addon_on)
         for bad in ({"nope": 1}, {"p": 1.5}, {"n_blocks": [0, 5]}, {"n_blocks": [2, 1]},
-                    {"block_size": [[0.01, 0.02], [0.01, 0.02]]}, {"cable_len": [0.1, 0.05]}):
+                    {"block_size": [[0.01, 0.02], [0.01, 0.02]]}, {"cable_len": [0.1, 0.05]},
+                    # review round 1: every (lo, hi) range, the non-negative scalars, the new options
+                    {"block_gap": [0.002, -0.008]}, {"block_z": [0.03, -0.01]}, {"block_bright": [0.8, 0.3]},
+                    {"block_bright": [-0.1, 0.5]}, {"cable_in": [1.0, 0.2]}, {"cable_in": [-0.1, 0.5]},
+                    {"cable_z": [0.06, 0.01]}, {"cable_pitch": [1.3, 0.4]}, {"cable_pitch": [0.4, 2.0]},
+                    {"cable_bright": [0.12, 0.02]}, {"block_tint": -0.1}, {"cable_tint": -0.1},
+                    {"block_tilt": -0.2}, {"cable_yaw": -1.0}, {"block_reach": -0.1}, {"reach_xy": [0.0]},
+                    {"slot_spread": "sobol"}, {"flat_drop": 1.5}, {"flat_yaw": 1.6}, {"flat_yaw": -0.1},
+                    {"n_flat": [0, 1]}, {"n_flat": [2, 1], "flat_slots": 3}, {"flat_len": [0.0, 0.1]},
+                    {"drop_len": [0.09, 0.04]}, {"drop_z": [0.0, 0.05]}, {"flat_gap": [0.004, -0.004]},
+                    {"flat_phi": [2.0, 1.0]}, {"flat_heading": [4.0, 2.0]}, {"cable_heading": [0.0, 7.0]},
+                    {"cable_phi": [3.0, 1.0]}, {"block_slots": -1}, {"cable_width": [0.01, 0.004]}):
             with self.assertRaises(ValueError, msg=str(bad)):
                 BaseAddonDR.from_dict(bad)
+        ok = BaseAddonDR.from_dict({"n_flat": [0, 1], "flat_slots": 2, "flat_heading": [1.6, 4.7],
+                                    "cable_heading": None, "slot_spread": "grid"})
+        self.assertTrue(ok.flat_on and ok.on)
+        self.assertFalse(BaseAddonDR.from_dict({"n_flat": [0, 1], "flat_slots": 2, "n_blocks": [0, 0],
+                                                "n_cables": [0, 0], "p": 0.0}).on)
+        self.assertTrue(BaseAddonDR.from_dict({"n_flat": [0, 1], "flat_slots": 2, "n_blocks": [0, 0],
+                                               "n_cables": [0, 0]}).on)
+        # the defaults of the new options = the first build: no flats, Halton slots, no reach limit
+        d0 = BaseAddonDR()
+        self.assertEqual((d0.slot_spread, d0.block_reach, d0.n_flat, d0.flat_slots, d0.flat_heading,
+                          d0.cable_heading), ("halton", 0.0, (0, 0), 0, None, None))
+        self.assertEqual(set(d0.slots()), {"blocks", "cables"})
         with self.assertRaises(ValueError):
             RealDR.from_dict({"base_addon": {"nope": 1}}).addon_on
 
@@ -215,6 +250,181 @@ class Structure(unittest.TestCase):
         off = old.draw(sc, 4, torch.Generator().manual_seed(0))
         self.assertTrue(bool((off["env_pose"][:, ne:, 2] == HIDDEN_Z).all()))
 
+    def test_slot_spread(self):
+        from nedm.render.base_addon import BaseAddonDR
+        # Halton (default): the first build's slots (k = 1..4): only the middle of each range
+        h = np.array(BaseAddonDR().slots()["blocks"])
+        self.assertTrue(np.allclose(h, [[0.0425, 0.018333, 0.0098], [0.02875, 0.026667, 0.0136],
+                                        [0.05625, 0.012778, 0.0174], [0.021875, 0.021111, 0.0212]], atol=1e-6))
+        # grid: per dimension the S values lo + j / (S - 1) (hi - lo), both ends included, distinct boxes
+        for S in (2, 4, 12):
+            d = BaseAddonDR(slot_spread="grid", block_slots=S, n_blocks=(1, min(2, S)), cable_slots=S,
+                            n_cables=(0, 1), flat_slots=S, n_flat=(0, 1))
+            sl = d.slots()
+            b = np.array(sl["blocks"])
+            for k, (lo, hi) in enumerate(d.block_size):
+                self.assertTrue(np.allclose(np.sort(b[:, k]), np.linspace(lo, hi, S), atol=1e-6), (S, k))
+            self.assertEqual(len({tuple(x) for x in b.tolist()}), S)
+            c = np.array(sl["cables"])
+            self.assertTrue(np.allclose(np.sort(c[:, 0]), np.linspace(*d.cable_len, S), atol=1e-6))
+            f, dr = np.array(sl["flats"]), np.array(sl["drops"])
+            self.assertTrue(np.allclose(np.sort(f[:, 0]), np.linspace(*d.flat_len, S), atol=1e-6))
+            self.assertTrue(np.allclose(np.sort(dr[:, 0]), np.linspace(*d.drop_len, S), atol=1e-6))
+            self.assertTrue(np.array_equal(f[:, 1], dr[:, 1]))                   # a sloped piece = its cable's width
+            if S >= 4:                                                           # dimensions not in lock step
+                self.assertFalse(np.array_equal(np.argsort(b[:, 0]), np.argsort(b[:, 1])))
+        one = BaseAddonDR(slot_spread="grid", block_slots=1, n_blocks=(1, 1)).slots()["blocks"][0]
+        self.assertTrue(np.allclose(one, [np.mean(r) for r in BaseAddonDR().block_size]))
+
+    def test_flat_cables(self):
+        from nedm.render.base_addon import BaseAddonDR
+        from nedm.render.so101 import HIDDEN_Z, RealDR, wxyz
+        heading = (1.8, 4.5)
+        cfg = {**ADDON_FLAT, "flat_heading": list(heading), "flat_phi": [1.4, 4.9]}
+        dr = RealDR(wall_xy=0.02, mat_xy=0.01, base_addon=cfg)
+        sc, real = self.make(addon_slots=dr.addon_slots())
+        names = sc.env_names
+        self.assertEqual(names[-11:], [f"addon_block{k}" for k in range(3)] + [f"addon_cable{k}" for k in range(2)]
+                         + [f"addon_flat{k}" for k in range(3)] + [f"addon_drop{k}" for k in range(3)])
+        n = 4000
+        out = dr.draw(sc, n, torch.Generator().manual_seed(5))
+        # adding flat cables keeps the blocks' and cables' draws (they are drawn after them)
+        ref = RealDR(wall_xy=0.02, mat_xy=0.01, base_addon=ADDON)
+        sc0, _ = self.make(addon_slots=ref.addon_slots())
+        o0 = ref.draw(sc0, n, torch.Generator().manual_seed(5))
+        ne0 = len(sc0.env_names)
+        self.assertTrue(torch.equal(o0["env_pose"], out["env_pose"][:, :ne0]))
+        self.assertTrue(torch.equal(o0["colors"], out["colors"][:, :len(sc0.body_names)]))
+        sl = dr.addon_slots()
+        add = BaseAddonDR.from_dict(cfg)
+        fl = [names.index(f"addon_flat{k}") for k in range(3)]
+        dp = [names.index(f"addon_drop{k}") for k in range(3)]
+        env = out["env_pose"].double()
+        fs = env[:, fl, 2] > HIDDEN_Z / 2
+        ds = env[:, dp, 2] > HIDDEN_Z / 2
+        nf = fs.sum(1)
+        self.assertTrue(bool(((nf >= 1) & (nf <= 2)).all()))                    # p = 1, n_flat (1, 2)
+        self.assertTrue(bool((ds <= fs).all()))                                  # a sloped piece only with its cable
+        share = float(ds.sum()) / float(fs.sum())
+        self.assertTrue(0.55 < share < 0.65, share)                              # flat_drop 0.6
+        hull, _ = sc.base_outline()
+        c, _, _ = BaseAddonDR.outline_table(hull)
+        top = -float(real.mat_thickness)
+        for k in range(3):
+            m = fs[:, k]
+            L, W = sl["flats"][k]
+            pose = env[m, fl[k]]
+            # lies on the table: centre at the table top + W / 2 + 0.5 mm, its axis horizontal
+            self.assertTrue(torch.allclose(pose[:, 2], torch.full_like(pose[:, 2], top + W / 2 + 0.0005)))
+            qw = wxyz(pose[:, 3:])
+            head = 2 * torch.atan2(qw[:, 3], qw[:, 0])
+            self.assertTrue(torch.allclose(qw[:, 1:3], torch.zeros_like(qw[:, 1:3]), atol=1e-12))
+            hv = torch.stack([torch.cos(head), torch.sin(head)], -1)
+            start = pose[:, :2] - L / 2 * hv
+            # the start is at the outline (+ flat_gap): its distance to the hull boundary <= 4 mm + lookup error
+            dist = np.array([_dist_to_polygon(p, hull) for p in start.numpy()])
+            self.assertLess(dist.max(), 0.004 + 0.0015)
+            # outward: the far end is farther from the footprint centre than the start, and outside the hull
+            cc = torch.tensor(c)
+            self.assertTrue(bool(((pose[:, :2] + L / 2 * hv - cc).norm(dim=-1) > (start - cc).norm(dim=-1)).all()))
+            # heading within flat_heading (every outline point of flat_phi has an outward heading in it)
+            mid, half = (heading[0] + heading[1]) / 2, (heading[1] - heading[0]) / 2
+            off = torch.remainder(head - mid + math.pi, 2 * math.pi) - math.pi
+            self.assertTrue(bool((off.abs() <= half + 1e-9).all()), float(off.abs().max()))
+            # the sloped piece joins the cable's start and rises to drop_z (pitch clamped)
+            md = ds[:, k]
+            Ld, Wd = sl["drops"][k]
+            self.assertEqual(Wd, W)
+            dpose = env[md, dp[k]]
+            dq = wxyz(dpose[:, 3:])
+            ax = _rot(dq, torch.tensor([1.0, 0.0, 0.0], dtype=torch.float64).expand(len(dq), 3))
+            low = dpose[:, :3] + Ld / 2 * ax                                     # +x end: down at the cable start
+            fpose = env[md, fl[k]]
+            fq = wxyz(fpose[:, 3:])
+            fh = 2 * torch.atan2(fq[:, 3], fq[:, 0])
+            fstart = fpose[:, :2] - L / 2 * torch.stack([torch.cos(fh), torch.sin(fh)], -1)
+            self.assertTrue(torch.allclose(low[:, :2], fstart, atol=1e-9))
+            self.assertTrue(torch.allclose(low[:, 2], fpose[:, 2], atol=1e-9))
+            rise = (dpose[:, 2] - fpose[:, 2]) * 2
+            self.assertTrue(bool((rise >= Ld * 0.05 - 1e-9).all() and (rise <= Ld * 0.97 + 1e-9).all()))
+            # the same grey for the cable and its sloped piece, dark
+            nb = len(sc.body_names)
+            first = nb - len(names)
+            cf, cd = out["colors"][md, first + fl[k]], out["colors"][md, first + dp[k]]
+            self.assertTrue(torch.equal(cf, cd))
+            self.assertTrue(bool((cf <= 0.12 * 1.1 + 1e-6).all()))
+        # cable_phi / cable_heading: the sloped cables start in the range and head within it
+        cfg2 = {**ADDON, "cable_phi": [2.0, 4.3], "cable_heading": [2.2, 4.1]}
+        dr2 = RealDR(base_addon=cfg2)
+        sc2, _ = self.make(addon_slots=dr2.addon_slots())
+        o2 = dr2.draw(sc2, 3000, torch.Generator().manual_seed(6))
+        kc = [sc2.env_names.index(f"addon_cable{k}") for k in range(2)]
+        e2 = o2["env_pose"].double()[:, kc]
+        sh = e2[..., 2] > HIDDEN_Z / 2
+        q2 = wxyz(e2[..., 3:])
+        ax = _rot(q2.reshape(-1, 4), torch.tensor([1.0, 0, 0], dtype=torch.float64).expand(q2.numel() // 4, 3))
+        ax = ax.reshape(*q2.shape[:-1], 3)
+        h2 = torch.atan2(ax[..., 1], ax[..., 0])[sh]
+        off = torch.remainder(h2 - 3.15 + math.pi, 2 * math.pi) - math.pi
+        self.assertTrue(bool((off.abs() <= 0.95 + 1e-9).all()), float(off.abs().max()))
+        self.assertTrue(bool((ax[..., 2][sh] < 0).all()))                       # downwards
+        # a scene without the flat slots is refused
+        with self.assertRaises(ValueError):
+            dr.draw(sc0, 4, torch.Generator().manual_seed(0))
+
+    def test_block_reach(self):
+        from nedm.render.so101 import HIDDEN_Z, RealDR, wxyz
+        reach = 0.09
+        base = {**ADDON, "block_slots": 6, "slot_spread": "grid", "n_blocks": [2, 3]}
+        on = RealDR(base_addon={**base, "block_reach": reach})
+        off = RealDR(base_addon=base)
+        sc, _ = self.make(addon_slots=on.addon_slots())
+        n = 3000
+        a = on.draw(sc, n, torch.Generator().manual_seed(8))
+        b = off.draw(sc, n, torch.Generator().manual_seed(8))
+        kb = [sc.env_names.index(f"addon_block{k}") for k in range(6)]
+        dims = torch.tensor(on.addon_slots()["blocks"], dtype=torch.float64)
+        ea, eb = a["env_pose"].double()[:, kb], b["env_pose"].double()[:, kb]
+        sh = ea[..., 2] > HIDDEN_Z / 2
+        self.assertTrue(torch.equal(sh, eb[..., 2] > HIDDEN_Z / 2))
+        corners = torch.tensor([[sx, sy, sz] for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)],
+                               dtype=torch.float64)
+        ctr = torch.tensor([0.0388, 0.0], dtype=torch.float64)
+        far = []
+        for k in range(6):
+            m = sh[:, k]
+            pts = corners[None] * dims[k] / 2
+            q = wxyz(ea[m, k, 3:])[:, None].expand(-1, 8, 4)
+            P = ea[m, k, None, :3] + _rot(q, pts.expand(len(q), 8, 3))
+            far.append((P[..., :2] - ctr).norm(dim=-1).max(1).values)
+        far = torch.cat(far)
+        self.assertLessEqual(float(far.max()), reach + 1e-9)
+        moved = ~torch.isclose(ea[..., :2], eb[..., :2]).all(-1) & sh
+        self.assertTrue(bool(moved.any()) and bool((~moved & sh).any()))        # some pulled in, the rest kept
+        self.assertTrue(torch.equal(ea[..., 2:][~moved], eb[..., 2:][~moved]))
+        self.assertTrue(torch.equal(a["colors"], b["colors"]))
+
+    def test_addon_generator_pairs_draws(self):
+        from nedm.render.so101 import RealDR
+        kw = dict(wall_xy=0.02, mat_xy=0.01, floor_turn_deg=8.0, floor_xy=0.03)
+        off, on = RealDR(**kw), RealDR(**kw, base_addon=ADDON_FLAT)
+        sc0, _ = self.make()
+        sc, _ = self.make(addon_slots=on.addon_slots())
+        ne, nb = len(sc0.env_names), len(sc0.body_names)
+        g0, g1 = torch.Generator().manual_seed(3), torch.Generator().manual_seed(3)
+        ga = torch.Generator().manual_seed(9)
+        for call in range(3):                                   # several calls (the online loop's per-world resets)
+            a = off.draw(sc0, 64, g0)
+            b = on.draw(sc, 64, g1, addon_generator=ga)
+            self.assertTrue(torch.equal(a["env_pose"], b["env_pose"][:, :ne]), call)
+            self.assertTrue(torch.equal(a["colors"], b["colors"][:, :nb]), call)
+            self.assertTrue(torch.equal(a["cam_offset"], b["cam_offset"]), call)
+        # the shared generator (no addon_generator) pairs only the first call
+        g0, g1 = torch.Generator().manual_seed(3), torch.Generator().manual_seed(3)
+        off.draw(sc0, 64, g0), on.draw(sc, 64, g1)
+        a, b = off.draw(sc0, 64, g0), on.draw(sc, 64, g1)
+        self.assertFalse(torch.equal(a["cam_offset"], b["cam_offset"]))
+
     @unittest.skipUnless(HAVE_SCENE, "needs the v2 scene and the calibration")
     def test_load_real_setup_slots(self):
         from nedm.so101_policy.vision import viral as VI
@@ -226,6 +436,13 @@ class Structure(unittest.TestCase):
         self.assertTrue(rs2.dr.addon_on)
         self.assertEqual(rs2.real.addon_slots, rs2.dr.addon_slots())
         self.assertEqual(rs2.scene_sha256, rs.scene_sha256)
+
+
+def _rot(q_wxyz, v):
+    """Rotate v [..., 3] by the unit quaternions q [..., 4] (w x y z)."""
+    w, xyz = q_wxyz[..., :1], q_wxyz[..., 1:]
+    t = 2 * torch.cross(xyz, v, dim=-1)
+    return v + w * t + torch.cross(xyz, t, dim=-1)
 
 
 def _dist_to_polygon(p, poly):
@@ -373,6 +590,43 @@ class Pixels(unittest.TestCase):
         self.assertTrue(torch.equal(on[keep], off[keep]))
         self.assertTrue((hid["env_pose"][:, -5:, 2] == HIDDEN_Z).all())
 
+    def test_flat_addons_change_only_their_pixels(self):
+        from nedm.render.so101 import RealDR
+        dr = RealDR.from_dict({"base_addon": {**ADDON_FLAT, "flat_phi": [1.4, 4.9], "flat_heading": [1.8, 4.5]}})
+        r, _ = self.renderer(self.p4, dr.addon_slots(), n=16)
+        ns = 11
+        self.assertEqual(r.scene.env_names[-ns:][-6:], [f"addon_flat{k}" for k in range(3)]
+                         + [f"addon_drop{k}" for k in range(3)])
+        q, cp, cq, goal = (t[:1].expand(16, *t.shape[1:]).clone() for t in self.states)
+        d = dr.draw(r.scene, 16, torch.Generator().manual_seed(4))
+        hid = {k: v.clone() for k, v in d.items()}
+        hid["env_pose"][:, -ns:] = r.scene.env_pose[-ns:].to(hid["env_pose"])
+        on, seg = r.render_dr(q, cp, cq, goal, draw=d, segment=True)
+        off = r.render_dr(q, cp, cq, goal, draw=hid)
+        names = self.named(r, seg).astype(str)
+        add = np.char.startswith(names, "addon_")
+        flat = np.char.startswith(names, "addon_flat") | np.char.startswith(names, "addon_drop")
+        self.assertGreater(int(flat[:, 0].sum()), 16 * 10)                   # flat cables seen by the external camera
+        keep = torch.as_tensor(~add, device=on.device)
+        self.assertTrue(torch.equal(on[keep], off[keep]))
+
+    def test_views_addon_generator_pairs(self):
+        """DRViews: the add-ons' own generator keeps every other draw the same as without them, call after call."""
+        base = replace(self.VI.ViralConfig(), cameras=("external", "wrist"), res=224, scene=str(self.p4),
+                       calib=str(CALIB))
+        v0 = self.VI.make_views(base, 4, seed=5, device="cuda")
+        v1 = self.VI.make_views(replace(base, real_dr={"base_addon": ADDON_FLAT}), 4, seed=5, device="cuda")
+        self.assertIsNone(v0.addon_gen)
+        self.assertIsNotNone(v1.addon_gen)
+        ne, nb = len(v0.r.scene.env_names), len(v0.r.scene.body_names)
+        for call in range(3):
+            a, b = v0.draw(8), v1.draw(8)
+            self.assertEqual(set(a), set(b))
+            for k in a:
+                x = b[k][:, :ne] if k == "env_pose" else b[k][:, :nb] if k == "colors" else b[k]
+                self.assertTrue(torch.equal(a[k], x), (call, k))
+            self.assertTrue(bool((b["env_pose"][:, ne:, 2] > -1).any()))
+
     def test_views_with_addons(self):
         cfg = replace(self.VI.ViralConfig(), cameras=("external", "wrist"), res=224, scene=str(self.p4),
                       calib=str(CALIB), real_dr={"base_addon": ADDON})
@@ -390,6 +644,76 @@ class Pixels(unittest.TestCase):
         self.assertTrue(torch.equal(m["env_pose"][1], d["env_pose"][1]))
         img = v.render(q, cp, cq, goal, dr=d)
         self.assertEqual(tuple(img.shape), (4, 2, 224, 224, 3))
+
+
+@unittest.skipUnless(GPU and SCENE_V4.exists() and CALIB.exists(), "needs newton on CUDA, scene v4 and the calibration")
+class RealV4Config(unittest.TestCase):
+    """The shipped training combination: viral_r2s_v8_scene4_student.json + the real scene v4 file (sha256 pinned),
+    background layers and base add-ons together."""
+
+    @classmethod
+    def setUpClass(cls):
+        from nedm.so101_policy.vision import viral as VI
+        cls.VI = VI
+        cls.d = json.loads(CFG_V8.read_text())
+        cls.cfg = VI.ViralConfig.from_dict({**{k: v for k, v in cls.d.items() if k != "note"},
+                                            "scene": str(SCENE_V4), "calib": str(CALIB)})
+        sys.path.insert(0, str(HERE))
+        import scene4_ref
+        q, cp, cq, goal = scene4_ref.states(8)
+        q[:, 0] = 0.9                                             # the arm turned left: the clamp side is free
+        cls.states = tuple(t.cuda() for t in (q, cp, cq, goal))
+
+    def test_pin_views_render(self):
+        from nedm.render.base_addon import BaseAddonDR
+        VI = self.VI
+        cfg = VI.pin_real(replace(self.cfg))                      # refuses a scene file other than the pinned one
+        self.assertEqual(cfg.scene_sha256, self.d["scene_sha256"])
+        self.assertTrue(cfg.crops)
+        v = VI.make_views(cfg, 8, seed=3, device="cuda")
+        self.assertEqual(v.bg_cams, ("external",))               # scene v3's background layers stay on
+        add = BaseAddonDR.from_dict(self.d["real_dr"]["base_addon"])
+        sl = add.slots()
+        want = [f"addon_{kind[:-1]}{k}" for kind in ("blocks", "cables", "flats", "drops")
+                for k in range(len(sl[kind]))]
+        self.assertEqual(v.r.scene.env_names[-len(want):], want)
+        self.assertEqual(len(v.r.scene.env_names) - len(want), len(VI.make_views(
+            replace(cfg, real_dr={}), 1, device="cuda").r.scene.env_names))
+        names = np.array(v.r.scene.body_names + ["<none>", "<mixed>"])
+        q, cp, cq, goal = self.states
+        # nominal: the clamp is in the external camera; the nominal draw renders the nominal picture
+        nominal = v.render(q, cp, cq, goal)
+        self.assertTrue(torch.equal(nominal, v.render(q, cp, cq, goal, dr=v.nominal_draw(8), light=False)))
+        _, seg = v.r.render_dr(q, cp, cq, goal, draw=v.nominal_draw(8), segment=True)
+        sg = seg.cpu().numpy()
+        nm = names[np.where(sg >= 0, sg, np.where(sg == -1, len(names) - 2, len(names) - 1))]
+        self.assertGreater(int(np.isin(nm[:, 0], ["base_clamp_jaw", "base_clamp_frame"]).sum()), 8 * 40)
+        # randomised draws with the add-ons in every world: the background layers do not touch add-on pixels
+        cfg1 = replace(cfg, real_dr={"base_addon": {**self.d["real_dr"]["base_addon"], "p": 1.0}})
+        v1 = VI.make_views(cfg1, 8, seed=4, device="cuda")
+        d = v1.draw(8)
+        self.assertTrue(any(k.startswith("bg_") for k in d))
+        nobg = dict(d)
+        nobg.update(v1.rdr.bg_nominal(8, v1.cameras, v1.res, v1.dev))
+        ids = torch.tensor([i for i, nm_ in enumerate(v1.r.scene.body_names) if nm_.startswith("addon_")],
+                           device="cuda")
+        # the renderer applies the scene's nominal image effects (external: chroma blur k 9, blur k 7) AFTER the
+        # layers, so changed background pixels bleed up to 7 px into an add-on's edge: compare with them off
+        fx = v1.r._fx
+        self.assertIsNotNone(fx)
+        try:
+            v1.r._fx = None
+            rgb, seg = v1.r.render_dr(q, cp, cq, goal, draw=d, segment=True)
+            rgb0, seg0 = v1.r.render_dr(q, cp, cq, goal, draw=nobg, segment=True)
+        finally:
+            v1.r._fx = fx
+        self.assertTrue(torch.equal(seg, seg0))
+        addm = torch.isin(seg, ids)
+        self.assertGreater(int(addm[:, 0].sum()), 8 * 20)                    # add-ons seen by the external camera
+        self.assertTrue(torch.equal(rgb[addm], rgb0[addm]))
+        self.assertFalse(torch.equal(rgb[:, 0], rgb0[:, 0]))                # the layers did change the background
+        img = v1.render(q, cp, cq, goal, dr=d)
+        self.assertEqual(tuple(img.shape), (8, 2, 224, 224, 3))
 
 
 if __name__ == "__main__":
