@@ -298,6 +298,50 @@ class TestIntegral(unittest.TestCase):
         o = decision(off, cmd[:, None].expand(3, 5, 6), q=small)
         self.assertTrue(torch.equal(o, cmd[:, None].expand(3, 5, 6)) and float(off.integ.abs().max()) == 0.0)
 
+    def test_antiwindup_option(self):
+        """``i_antiwindup`` (off by default: the old rule bit for bit; the robot guard's rule, ``hw_lib.Guard``): a
+        joint held at its actuator range does not wind the integral up, the correction never passes the range."""
+        self.assertFalse(JE.RobotDynConfig().i_antiwindup)
+        self.assertNotIn("i_antiwindup", JE.RobotDynConfig(i_time_s=0.2).to_dict())       # off: the old record
+        on = JE.RobotDynConfig.from_dict(dict(i_time_s=0.2, i_antiwindup=True))
+        self.assertIs(on.to_dict()["i_antiwindup"], True)
+        self.assertEqual(JE.RobotDynConfig.from_dict(json.loads(json.dumps(on.to_dict()))), on)
+        self.assertFalse(on.neutral)
+        hi = math.radians(101.2)                                         # the real wrist-roll stop (roll cap)
+        lim = (-10.0 * torch.ones(6, dtype=torch.float64),
+               torch.tensor([10.0, 10.0, 10.0, 10.0, hi, 10.0], dtype=torch.float64))
+        cmd = torch.zeros(2, 6, dtype=torch.float64)
+        cmd[:, 4] = math.radians(101.08)                                 # below the range end ...
+        cmd[:, 1] = -math.radians(0.45)                                  # ... and a stuck lift (the correction acts)
+        q = torch.zeros(2, 6, dtype=torch.float64)
+        q[:, 4] = math.radians(100.69)                                   # the roll held at 100.69 deg
+        runs = {}
+        for tag, kw in (("default", {}), ("off", dict(i_antiwindup=False)), ("on", dict(i_antiwindup=True))):
+            d = dyn(2, i_time_s=0.2, **kw)
+            o = torch.cat([decision(d, cmd[:, None].expand(2, 5, 6), q=q, lim=lim) for _ in range(40)], 1)
+            runs[tag] = (o, d.integ.clone())
+        self.assertTrue(torch.equal(runs["default"][0], runs["off"][0]))             # default = off, bit for bit
+        self.assertTrue(torch.equal(runs["default"][1], runs["off"][1]))
+        (o0, i0), (o1, i1) = runs["off"], runs["on"]
+        np.testing.assert_allclose(torch.rad2deg(i0[:, 4]).numpy(), 3.0, atol=1e-9)    # old: wound up at the stop
+        np.testing.assert_allclose(i1[:, 4].numpy(), hi - math.radians(101.08), atol=1e-12)   # new: to the end only
+        np.testing.assert_allclose(torch.rad2deg(i1[:, 1]).numpy(), -3.0, atol=1e-9)  # the lift: corrected as before
+        self.assertTrue(torch.equal(o1[..., [0, 1, 2, 3, 5]], o0[..., [0, 1, 2, 3, 5]]))
+        np.testing.assert_allclose(o1[..., 4].numpy(), o0[..., 4].numpy(), atol=1e-12)  # the same clamped roll
+        self.assertLessEqual(float(o1[..., 4].max()), hi + 1e-12)
+        # leaving the stop: the old rule keeps the +3 deg on the roll, the new one at most what it had (0.12 deg)
+        cmd2 = cmd.clone()
+        cmd2[:, 4] = math.radians(90.0)
+        q2 = q.clone()
+        q2[:, 4] = math.radians(90.0)
+        for tag in ("off", "on"):
+            d = dyn(2, i_time_s=0.2, i_antiwindup=tag == "on")
+            for _ in range(40):
+                decision(d, cmd[:, None].expand(2, 5, 6), q=q, lim=lim)
+            o = decision(d, cmd2[:, None].expand(2, 5, 6), q=q2, lim=lim)
+            want = 3.0 if tag == "off" else math.degrees(hi) - 101.08
+            np.testing.assert_allclose(torch.rad2deg(o[:, 0, 4]).numpy(), 90.0 + want, atol=1e-6)
+
 
 # ---- the env: bit-identical when off, the stage in the step loop -----------------------------------------------------
 def head_step(env, targets):
@@ -1162,7 +1206,7 @@ class TestRealServo(unittest.TestCase):
         self.assertNotIn("servo_params", off.dyn_info())
         self.assertNotIn("servo", off.dyn_info()["cfg"])
         self.assertNotIn("servo", off.resolved()["env"]["dyn"])
-        old = {k: v for k, v in dataclasses.asdict(off.dyn.cfg).items() if k != "servo"}
+        old = {k: v for k, v in dataclasses.asdict(off.dyn.cfg).items() if k not in ("servo", "i_antiwindup")}
         self.assertEqual(off.dyn_info()["cfg"], old)
         self.assertEqual(JE.JointEnvConfig.from_dict(off.cfg.to_dict()), off.cfg)
         with mock.patch.object(JE, "EVAL_KP_SCALE", 0.5):              # the softness counted twice: an error

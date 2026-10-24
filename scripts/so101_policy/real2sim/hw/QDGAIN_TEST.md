@@ -33,8 +33,8 @@ moving down to the plate and the student releases as in the sim.
 2. Start from the folded rest pose. In the `q real` line of the run output: the 2nd value (shoulder lift) must be
    between -88 and -100, the 3rd value (elbow) between 80 and 90. Else the run refuses (move the arm by hand with the
    torque off, then start again).
-3. The wrist camera cable must have slack for a wrist roll of about 120 deg (HOME turns the wrist; the cable pulled
-   out once on 10-22).
+3. The wrist camera cable must have slack for a wrist roll of about 76 deg real (HOME turns the wrist; since 10-24 HOME
+   has sim roll 0 = 75.8 deg real, before 120.8 deg; the cable pulled out once on 10-22).
 4. The cameras must stay in their USB ports (external = port 4.1.4, wrist = port 4.1.1). The script uses these paths.
 
 ## 4. Test plan

@@ -21,6 +21,14 @@ Modes
   50 Hz (a query every 0.1 s, 5 targets executed, each through the action layer and the guard), time limit, stop on
   q / space / Esc / Ctrl+C or on any guard reason; then HOLD (arm at the measured q, gripper at its last command,
   torque on) and a menu (hold and exit / slow return to the start pose / torque off).
+- ``deploy-json`` (make_orin_bundle.sh, no robot): writes the bundle's ``assets/deploy.json`` for ``--student`` (floor
+  mode from the checkpoint, table plane source, HOME, the eval guard; ``run_deploy_json``).
+
+Floor (``--floor-mode``, default auto = the student's; hw_lib "floor mode"): ``flat`` for students trained on the sim
+table (floor 1.5 mm above sim z = ``--table-z``), ``plane`` for students trained with the v8 table randomisation
+(checkpoint ``v8_online.table_bias``: floor 1.5 mm above the calibrated mat plane, the guard's floor stops relative to
+that plane). Live refuses another mode than the student's and plane-mode floor stops deeper than 5 / 8 mm below the
+plane (double lowering). The banner prints the floor mode and its numbers.
 
 Examples (luffy, from the worktree root)
     ~/miniconda3/envs/so101_vision/bin/python scripts/so101_policy/real2sim/hw/run_student_real.py replay \
@@ -332,22 +340,15 @@ def build_common(args):
         jm.offset_rad = jm.offset_rad + qo
         jm.source = f"{jm.source} + --q-offset-deg {args.q_offset_deg}"
     kp = Path(args.kin_points).expanduser() if args.kin_points else H.default_kin_points()
-    plane = H.parse_table_plane(getattr(args, "table_plane", ""), calib)
-    layer = H.ActionLayer(kp, table_z=args.table_z) if plane is None else H.ActionLayer(kp, table_z=args.table_z,
-                                                                                         table_plane=plane)
     gcfg = H.GuardConfig.from_dict(json.loads(args.guard) if args.guard else {})
     import torch
     dev = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     policy = H.StudentPolicy(args.student, dev, args.cam_map or None, args.jaw_lead, None if args.amp is None else
                              bool(args.amp))
-    switch = None
-    if args.student2:                                  # two students: the first until the cube is held (SwitchPolicy)
-        second = H.StudentPolicy(args.student2, dev, args.cam_map or None, args.jaw_lead, None if args.amp is None else
-                                 bool(args.amp))
-        policy = H.SwitchPolicy(policy, second, n_hold=args.switch_hold_queries, plate_m=args.switch_plate_m,
-                                layer=layer)
-        switch = dict(first=policy.P[0].ckpt, second=second.ckpt, n_hold=policy.n_hold, plate_m=policy.plate_m,
-                      held_jaw_deg=policy.HELD_JAW_DEG, squeeze_deg=policy.SQUEEZE_DEG)
+    floor = floor_setup(args, calib, policy.meta, gcfg)
+    plane = floor["plane"]
+    layer = H.ActionLayer(kp, table_z=args.table_z) if plane is None else H.ActionLayer(kp, table_z=args.table_z,
+                                                                                         table_plane=plane)
     views = H.view_specs(calib, H.REAL_CAMERAS, policy.res, interp=args.interp)
     # a real2sim student pins the crops it was trained with (cfg.crops, keyed by the student's camera names): use them;
     # a --crop that differs from them is refused unless --allow-crop-change (the images would differ from training)
@@ -378,15 +379,49 @@ def build_common(args):
                                                       n_exec=policy.n_exec, hist=policy.H, cmd_in=policy.cmd_in,
                                                       img_hist=policy.img_hist, lastcmd=policy.lastcmd,
                                                       jaw_lead=policy.jaw_lead,
-                                                      amp=policy.amp), switch=switch, device=dev,
-                cam_map=policy.cam_map,
+                                                      amp=policy.amp), device=dev, cam_map=policy.cam_map,
                 calib=str(args.calib) if calib is not None else None, joint_map=jm.describe(), kin_points=str(kp),
                 table_z=args.table_z, guard=gcfg.__dict__, qdot_window=args.qdot_window, qd_gain=args.qd_gain,
                 views={k: dict(crop_xywh=v.crop_xywh, out_wh=v.out_wh, interp=v.interp, source=v.source)
                        for k, v in views.items()})
     if plane is not None:
         info["table_plane"] = list(plane)
+    info["floor"] = {k: v for k, v in floor.items() if k != "plane"}
     return calib, jm, layer, gcfg, policy, views, info
+
+
+def floor_setup(args, calib, meta, gcfg):
+    """--floor-mode (hw_lib "floor mode"): auto = the student's mode (``H.student_floor_mode``: plane for a v8
+    table-trained student, else flat; an explicit --table-plane = plane). plane: the floor above --table-plane (default
+    "calib", the calibrated mat plane), --table-z must stay 0; flat: --table-z, no --table-plane. A mode other than the
+    student's or plane-mode floor stops deeper than ``H.PLANE_STOP_MIN_M`` (double lowering): live refuses (unless
+    --allow-floor-mismatch), dry / replay warn. -> dict(mode, student_mode, why, plane, table_plane_spec, problems,
+    lines)."""
+    st_mode, why = H.student_floor_mode(meta)
+    mode = args.floor_mode
+    if mode == "auto":
+        mode = "plane" if args.table_plane else st_mode
+    spec = ""
+    if mode == "plane":
+        if args.table_z != 0.0:
+            raise SystemExit("--floor-mode plane: the floor follows --table-plane; leave --table-z at 0")
+        spec = args.table_plane or "calib"
+        try:
+            plane = H.parse_table_plane(spec, calib)
+        except ValueError as e:
+            raise SystemExit(f"floor mode plane: {e} (--calib {args.calib})") from None
+    else:
+        if args.table_plane:
+            raise SystemExit("--floor-mode flat with --table-plane: give one of them")
+        plane = None
+    probs = H.floor_problems(mode, st_mode, gcfg)
+    if probs:
+        msg = "floor settings: " + "; ".join(probs)
+        if getattr(args, "mode", "") == "live" and not args.allow_floor_mismatch:
+            raise SystemExit(msg + " (live refused; --allow-floor-mismatch to override)")
+        log("WARNING: " + msg)
+    return dict(mode=mode, student_mode=st_mode, why=why, plane=plane, table_plane_spec=spec, problems=probs,
+                lines=H.floor_lines(mode, why, args.table_z, plane, gcfg))
 
 
 def print_setup(info):
@@ -395,16 +430,65 @@ def print_setup(info):
         f"{info['student_cfg']['res']} device {info['device']}")
     log(f"joint map: {'PLACEHOLDER ' if jm['placeholder'] else ''}{jm['source']} sign {jm['sign']} offset_rad "
         f"{np.round(jm['offset_rad'], 4).tolist()} gripper_lin {np.round(jm['gripper_lin'], 5).tolist()}")
-    if info.get("switch"):
-        sw = info["switch"]
-        log(f"TWO STUDENTS: {sw['first']} until the cube is held ({sw['n_hold']} queries in a row, jaw "
-            f"{sw['held_jaw_deg'][0]:g}-{sw['held_jaw_deg'][1]:g} deg"
-            + (f", grasp point within {sw['plate_m']:g} m of the plate" if sw["plate_m"] > 0 else "")
-            + f"), then {sw['second']}")
+    for s in info["floor"]["lines"]:
+        log(s)
+    g = info["guard"]
+    if g.get("i_time_s", 0) > 0:
+        log(f"servo-error integral correction: i_time_s {g['i_time_s']:g}, at most {g['i_max_deg']:g} deg, anti-windup "
+            f"at the real joint range {'ON' if g.get('i_antiwindup') else 'OFF'}")
+    if info.get("home_sim_deg") is not None:
+        log(f"HOME sim deg {info['home_sim_deg']} (--home)")
     for k, v in info["views"].items():
         log(f"view {k}: crop {v['crop_xywh']} -> {v['out_wh']} ({v['interp']}, {v['source']})")
     if info.get("qd_gain", 1.0) != 1.0:
         log(f"qdot input gain {info['qd_gain']} (the student's qdot input x {info['qd_gain']}; guard and log: measured)")
+
+
+def parse_home(spec):
+    """--home "a,b,c,d,e,f" (sim deg) -> sim rad [6]."""
+    try:
+        h = np.radians(np.asarray([float(v) for v in str(spec).split(",")], np.float64))
+    except ValueError:
+        h = np.zeros(0)
+    if h.shape != (6,) or not np.all(np.isfinite(h)):
+        raise SystemExit("--home needs 6 values (sim degrees)")
+    return h
+
+
+def run_deploy_json(args):
+    """make_orin_bundle.sh: the bundle's assets/deploy.json = what robot_test.sh passes to every run of this bundle:
+    the floor mode of the student (``H.student_floor_mode``, read from the checkpoint), the table plane source, HOME,
+    the eval session's guard (``H.eval_guard``), and the banner's floor lines. Reads the checkpoint only (no model)."""
+    import hashlib
+
+    import torch
+    ck_path = Path(args.student).expanduser()
+    ck = torch.load(ck_path, map_location="cpu", weights_only=False)
+    meta = {k: v for k, v in ck.items() if k not in ("state_dict", "stats")}
+    mode, why = H.student_floor_mode(meta)
+    calib = H.load_calib(args.calib)
+    plane = None
+    if mode == "plane":
+        try:
+            plane = H.parse_table_plane("calib", calib)
+        except ValueError as e:
+            raise SystemExit(f"deploy-json: the student needs the plane floor: {e} (--calib {args.calib})") from None
+    home = np.degrees(parse_home(args.home))
+    eg = H.eval_guard(mode)
+    rec = dict(version=1, built=time.strftime("%Y-%m-%d %H:%M:%S"),
+               note="written by make_orin_bundle.sh (run_student_real.py deploy-json); robot_test.sh passes --floor-mode, "
+                    "--table-plane / --table-z and --home from here to every run, and eval_guard as eval's --guard",
+               student_sha256=hashlib.sha256(ck_path.read_bytes()).hexdigest(), floor_mode=mode, floor_why=why,
+               table_plane="calib" if mode == "plane" else "", table_plane_coef=None if plane is None else list(plane),
+               table_z=0.0, home_sim_deg=",".join(f"{v:g}" for v in np.round(home, 6)), eval_guard=eg,
+               eval_floor_lines=H.floor_lines(mode, why, 0.0, plane, H.GuardConfig.from_dict(eg)))
+    out = Path(args.out).expanduser()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(rec, indent=1) + "\n")
+    log(f"deploy settings -> {out}: floor mode {mode}, HOME sim deg {rec['home_sim_deg']}, eval guard {eg}")
+    for s in rec["eval_floor_lines"]:
+        log(s)
+    return rec
 
 
 # ---- replay -------------------------------------------------------------------------------------------------------
@@ -722,15 +806,14 @@ def run_robot(args, live):
     if args.auto_confirm and not fake:
         raise SystemExit("--auto-confirm is only for --backend fake")
     calib, jm, layer, gcfg, policy, views, info = build_common(args)
+    home_sim = parse_home(args.home)
+    info["home_sim_deg"] = [round(float(v), 6) for v in np.degrees(home_sim)]
     print_setup(info)
     if live and not args.i_am_supervising:
         raise SystemExit("live mode moves the robot: pass --i-am-supervising and stay at the robot")
     if live and jm.placeholder and not fake:
         raise SystemExit(f"live mode needs a real joint map in {args.calib} (calib_v1.json joint_map); the placeholder "
                          f"identity map is not verified")
-    home_sim = np.radians(np.asarray([float(v) for v in args.home.split(",")], np.float64))
-    if home_sim.shape != (6,):
-        raise SystemExit("--home needs 6 values (sim degrees)")
     out_dir = Path(args.out).expanduser()
     out_dir.mkdir(parents=True, exist_ok=True)
     policy.warmup()
@@ -1023,13 +1106,9 @@ def end_menu(io, jm, limits, layer, guard, q_start_real, args, last_cmd):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0], formatter_class=argparse.RawTextHelpFormatter,
                                  allow_abbrev=False)          # robot_test.sh checks the full flag names
-    ap.add_argument("mode", choices=("replay", "dry", "live"))
+    ap.add_argument("mode", choices=("replay", "dry", "live", "deploy-json"),
+                    help="deploy-json: write the bundle's assets/deploy.json (--out) for --student (make_orin_bundle.sh)")
     ap.add_argument("--student", required=True, help="ViralNet checkpoint (vision.viral.save_student)")
-    ap.add_argument("--student2", default="", help="second student: takes over when the cube is held (hw_lib."
-                    "SwitchPolicy); --student does the grasp")
-    ap.add_argument("--switch-hold-queries", type=int, default=5, help="--student2: held at this many queries in a row")
-    ap.add_argument("--switch-plate-m", type=float, default=0.0, help="--student2: also wait until the grasp point is "
-                    "this close (m, xy) to the first student's plate estimate (0 = switch at the hold)")
     ap.add_argument("--calib", default=str(DEFAULT_CALIB_V1), help="calib_v1.json (joint_map, student_view, episodes)")
     ap.add_argument("--kin-points", default="", help="kin_points_v1.npz (default: hw_lib.default_kin_points)")
     ap.add_argument("--device", default="", help="cuda / cpu (default cuda if available)")
@@ -1047,11 +1126,18 @@ def main(argv=None):
     ap.add_argument("--qdot-window", type=int, default=3)
     ap.add_argument("--qd-gain", type=float, default=1.0, help="the student's qdot INPUT x this gain (1 = off; real2sim "
                     "2026-10-22: the slow real arm makes the student's steps shrink; robot-like sim 50 %% at 1, 88 %% at 2)")
-    ap.add_argument("--table-z", type=float, default=0.0, help="real table top z in the arm base frame (m)")
-    ap.add_argument("--table-plane", default="", help="floor above a tilted table instead of --table-z: 'calib' "
-                    "(calib_v1 scene.table_plane, the measured real table) or c0,c1,c2 (m; z = c0 + c1 x + c2 y); the "
-                    "action-layer floor and the guard's floor checks then measure above that plane. Needed by students "
-                    "trained with the v8 table randomisation (configs viral_r2s_online_v8_*_table.json); empty = off")
+    ap.add_argument("--floor-mode", default="auto", choices=("auto", "flat", "plane"),
+                    help="table floor: flat = above sim z = --table-z (students trained on the sim table: C1, s28, "
+                    "roll-cap students); plane = above --table-plane (default calib: the calibrated real mat), for "
+                    "students trained with the v8 table randomisation (checkpoint v8_online.table_bias); auto = the "
+                    "student's (an explicit --table-plane = plane). Live refuses a mode other than the student's and "
+                    "plane-mode floor stops deeper than 5 mm (command) / 8 mm (measured) below the plane")
+    ap.add_argument("--allow-floor-mismatch", action="store_true",
+                    help="live: accept a floor mode other than the student's, or deep plane-mode floor stops")
+    ap.add_argument("--table-z", type=float, default=0.0, help="flat floor: real table top z in the arm base frame (m)")
+    ap.add_argument("--table-plane", default="", help="plane floor: 'calib' (calib_v1 scene.table_plane, the measured "
+                    "real table) or c0,c1,c2 (m; z = c0 + c1 x + c2 y); the action-layer floor and the guard's floor "
+                    "checks then measure above that plane (--floor-mode)")
     ap.add_argument("--guard", default="", help="GuardConfig overrides as JSON")
     ap.add_argument("--thumb-res", type=int, default=112, help="logged student input images (px; 0 = full)")
     ap.add_argument("--out", default="", help="output folder (default ~/so101_r2s_claude/hw/<mode>_<time>)")
@@ -1070,13 +1156,18 @@ def main(argv=None):
     ap.add_argument("--time-limit", type=float, default=15.0, help="student loop seconds")
     ap.add_argument("--episodes-n", type=int, default=0, help="live: eval session of n episodes (result prompt, return "
                     "to HOME and scene reset between them; logs <out>/ep_NN, summary <out>/session.json); 0 = one run")
-    ap.add_argument("--home", default=",".join(str(v) for v in H.HOME_SIM_DEG), help="HOME pose, 6 SIM degrees")
+    ap.add_argument("--home", default=",".join(f"{v:g}" for v in H.ROBOT_HOME_SIM_DEG),
+                    help="HOME pose, 6 SIM degrees (default hw_lib.ROBOT_HOME_SIM_DEG: wrist roll 0)")
     ap.add_argument("--home-speed-deg-s", type=float, default=15.0, help="peak joint speed of HOME / return moves")
     ap.add_argument("--home-clearance", type=float, default=0.02, help="m above the table for HOME / return paths")
     ap.add_argument("--configure", default="auto", choices=("auto", "always", "never"))
     ap.add_argument("--i-am-supervising", action="store_true")
     ap.add_argument("--auto-confirm", action="store_true", help="fake backend only: skip the typed confirmations")
     args = ap.parse_args(argv)
+    if args.mode == "deploy-json":
+        if not args.out:
+            raise SystemExit("deploy-json needs --out <bundle>/assets/deploy.json")
+        return run_deploy_json(args)
     if not args.out:
         args.out = str(Path("~/so101_r2s_claude/hw").expanduser() / f"{args.mode}_{time.strftime('%Y%m%d_%H%M%S')}")
     if args.mode == "replay":

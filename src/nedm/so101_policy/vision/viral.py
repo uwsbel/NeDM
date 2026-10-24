@@ -2533,8 +2533,9 @@ class OnlineDAgger:
     def ckpt_record(self) -> dict:
         """Checkpoint keys of the v8 training options (``save_student(**extra)``): ``v8_online`` = the image lag
         (``img_lag``) and the table randomisation (``table_bias``, ``table_render``, ``plate_mm``) the student was
-        trained with; {} while all of them are off (the old checkpoint layout bit for bit). Record only: the
-        evaluation and the robot do not read it (the evaluation renders with ``ViralConfig.lag``)."""
+        trained with; {} while all of them are off (the old checkpoint layout bit for bit). The evaluation does not
+        read it (it renders with ``ViralConfig.lag``); the robot reads ``table_bias`` for its floor mode
+        (``hw_lib.student_floor_mode``: on = the floor above the calibrated mat plane)."""
         rec = {}
         if getattr(self, "il", None) is not None:
             rec["img_lag"] = asdict(self.il)

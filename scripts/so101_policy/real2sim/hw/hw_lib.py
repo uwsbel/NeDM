@@ -12,7 +12,8 @@ Units and frames
 - Joint map (``calib_v1.json`` "joint_map"): sim_rad[i] = sign[i] * radians(real_deg[i]) + offset_rad[i] for the 5 arm
   joints, sim jaw rad = a * real_gripper + b. ``JointMap.placeholder_identity`` (sign +1, offset 0, a = pi / 180,
   b = 0) is a placeholder only (signs and offsets NOT verified); live mode refuses it.
-- World = arm base frame, z up, sim table top z = 0 (``table_z`` shifts the floor if the real table is elsewhere).
+- World = arm base frame, z up, sim table top z = 0 (``table_z`` shifts the floor if the real table is elsewhere; the
+  floor mode "plane" puts it above the calibrated real mat plane instead, ``student_floor_mode``).
 
 Control timing (as in the sim: ``joint_env``): one 20 ms step per target; a student query every ``n_exec`` (5) steps
 = 0.1 s; the query sees the measured q, a qdot estimate and the newest camera frames; it returns a chunk of 10 absolute
@@ -38,12 +39,19 @@ FPS_REC = 30                   # LeRobot recordings
 STS_RES = 4096                 # STS3215 ticks per turn (LeRobot: max_res = resolution - 1 = 4095)
 REAL_CAMERAS = ("external", "wrist")
 DEFAULT_CAM_MAP = {"top": "external", "external": "external", "wrist": "wrist"}
-# Default HOME pose in SIM degrees: the median start of the build9 development tasks (dev100.npz: 1.0, -5.2, -14.8,
-# 92.1, 11.0, 36.3) rounded, pan set to 0, wrist roll 45 (teacher jt_h110 in CPU MuJoCo, 1,500 paired tasks: roll 45
-# 98.1 % vs roll 0 95.1 %, McNemar p 0.002 on the 500 tasks not used to choose it; roll 30-60 all >= 97 %, roll -45
-# 91 %; ~/so101_r2s_claude/teacher_check). Real LeRobot degrees with calib_v1: (0.0, -3.2, -6.5, 93.1, 120.8), gripper
-# 31.2. Grasp point (0.27, 0.0, 0.14) m, lowest gripper point 121 mm (roll 0).
+# HOME45 pose in SIM degrees (the sim teacher check and its task sets, ``teacher_home_check.py``; the robot's HOME until
+# 2026-10-23): the median start of the build9 development tasks (dev100.npz: 1.0, -5.2, -14.8, 92.1, 11.0, 36.3)
+# rounded, pan set to 0, wrist roll 45 (teacher jt_h110 in CPU MuJoCo, 1,500 paired tasks: roll 45 98.1 % vs roll 0
+# 95.1 %, McNemar p 0.002 on the 500 tasks not used to choose it; roll 30-60 all >= 97 %, roll -45 91 %;
+# ~/so101_r2s_claude/teacher_check). Real LeRobot degrees with calib_v1: (0.0, -3.2, -6.5, 93.1, 120.8), gripper 31.2.
 HOME_SIM_DEG = (0.0, -5.0, -15.0, 92.0, 45.0, 30.0)
+# The robot's default HOME (run_student_real.py --home, the bundles' assets/deploy.json; 2026-10-24): HOME45 with wrist
+# roll 0. The real wrist roll stops at +101.2 sim deg (RealLimits: calibrated range end - 3 deg); from roll 45 many
+# episodes turn the roll into that stop (115 robot episodes: 26 reached it, 9 stalls; sysid_v8.json "roll"). Sim
+# tests with the real roll stop (2026-10-24): robot-feasible success C1 59-66 % -> 87-88 %, s28 60-68 % -> 95 % with
+# roll 0. Real LeRobot degrees with calib_v1: (0.0, -3.2, -6.5, 93.1, 75.8), gripper 31.2. Grasp point (0.27, 0.0,
+# 0.14) m, lowest gripper point 121 mm.
+ROBOT_HOME_SIM_DEG = (0.0, -5.0, -15.0, 92.0, 0.0, 30.0)
 
 
 # ---- calibration file ---------------------------------------------------------------------------------------------
@@ -64,6 +72,90 @@ def parse_table_plane(spec, calib=None):
     if len(c) != 3 or not all(math.isfinite(v) for v in c):
         raise ValueError(f"--table-plane {spec!r}: 'calib' or c0,c1,c2 (m)")
     return c
+
+
+# ---- floor mode (run_student_real.py --floor-mode; README "Floor") --------------------------------------------------
+# The action-layer floor must have the clearance above the real mat that the student was trained with
+# (~/so101_r2s_claude/v8/sysid/sysid_v8.json table_dz_range_m.coupling_rule):
+# - "flat": students trained on the sim table only (C1, s28, the roll-cap students): floor FLOOR (1.5 mm) above sim
+#   z = table_z (0), as in their training; the guard's floor stops are relative to the same z.
+# - "plane": students trained with the v8 table randomisation (checkpoint ``v8_online.table_bias``): in training the
+#   floor stays FLOOR above the TRUE table, i.e. above the table plane in the student's (= the real robot's) joint
+#   frame; on the robot: FLOOR above the calibrated mat plane (calib_v1 scene.table_plane), and the guard's floor
+#   stops relative to that plane too. Today's flat eval stops (-15 / -20 mm, set because the real mat is 8-18 mm
+#   below the sim table) must NOT be used on top of the plane (double lowering: stops 15-20 mm into the real mat).
+FLOOR_MODES = ("flat", "plane")
+# The guard's floor stops of the eval session (robot_test.sh eval, via the bundle's assets/deploy.json) per mode, m:
+# flat = the eval values of 2026-10-22 .. 23 (relative to sim z = table_z 0; unchanged); plane = the GuardConfig
+# defaults, relative to the calibrated mat plane.
+EVAL_FLOOR_GUARD = {"flat": {"cmd_floor_m": -0.015, "hard_floor_m": -0.020},
+                    "plane": {"cmd_floor_m": -0.002, "hard_floor_m": -0.005}}
+# ... with the servo-error integral correction (both modes; anti-windup at the real joint range, GuardConfig)
+EVAL_I_GUARD = {"i_time_s": 0.2, "i_max_deg": 3.0, "i_antiwindup": True}
+# Plane mode: floor stops deeper than this below the mat plane are refused in live mode (double lowering; m)
+PLANE_STOP_MIN_M = {"cmd_floor_m": -0.005, "hard_floor_m": -0.008}
+# The calibrated mat plane at the 184 observed cube and plate positions of the robot logs, mm relative to sim z = 0
+# (sysid_v8.json table.json "plane at cubes + plates" min / max): for the banner's flat-mode clearances
+OBSERVED_MAT_MM = (-17.47, -8.31)
+
+
+def eval_guard(mode):
+    """The eval session's guard overrides (``GuardConfig`` dict) of floor mode ``mode``."""
+    if mode not in FLOOR_MODES:
+        raise ValueError(f"floor mode {mode!r}: one of {FLOOR_MODES}")
+    return {**EVAL_FLOOR_GUARD[mode], **EVAL_I_GUARD}
+
+
+def student_floor_mode(meta):
+    """Checkpoint keys of a student (``StudentPolicy.meta``: everything but the weights) -> (floor mode, why): "plane"
+    if it was trained with the v8 table randomisation (``v8_online.table_bias`` on; ``table_bias.is_on``), else
+    "flat"."""
+    tb = dict(((meta or {}).get("v8_online") or {}).get("table_bias") or {})
+    if set(tb) - {"note"}:
+        return "plane", ("trained with the v8 table randomisation (checkpoint v8_online.table_bias: p {p}, drop {d} mm "
+                         "at x {x} m, slope x {sx} / y {sy} mm per m)").format(
+            p=tb.get("p"), d=tb.get("drop_mm"), x=tb.get("x_ref_m"), sx=tb.get("slope_x"), sy=tb.get("slope_y"))
+    return "flat", "trained on the sim table (no v8_online.table_bias in the checkpoint)"
+
+
+def floor_problems(mode, student_mode, gcfg):
+    """Floor settings that do not fit the student -> list of strings (empty = ok): a floor mode other than the
+    student's (``student_floor_mode``), or plane-mode floor stops deeper than ``PLANE_STOP_MIN_M`` (double lowering).
+    run_student_real.py: live refuses them (unless --allow-floor-mismatch), dry / replay warn."""
+    bad = []
+    if mode != student_mode:
+        bad.append(f"floor mode {mode} but the student needs {student_mode}")
+    if mode == "plane":
+        for k, lim in PLANE_STOP_MIN_M.items():
+            v = float(getattr(gcfg, k))
+            if v < lim:
+                bad.append(f"guard {k} {v * 1e3:g} mm below the mat plane (plane mode allows down to {lim * 1e3:g} "
+                           f"mm: deeper stops = double lowering, the gripper may press the table)")
+    return bad
+
+
+def floor_lines(mode, why, table_z, plane, gcfg):
+    """The banner's floor lines (mm, relative to the real mat at the observed cube / plate positions)."""
+    from nedm.so101_policy import joint_env as JE
+    f = JE.FLOOR * 1e3
+    cmd, hard = gcfg.cmd_floor_m * 1e3, gcfg.hard_floor_m * 1e3
+    if mode == "plane":
+        c0, c1, c2 = plane
+        return [f"FLOOR MODE plane: student {why}",
+                f"  floor {f:.1f} mm above the mat plane z = {c0 * 1e3:.1f} mm {c1 * 1e3:+.1f} x {c2 * 1e3:+.1f} y "
+                f"(mm per m; calib_v1 scene.table_plane); stops: command {-cmd:.1f} mm, measured {-hard:.1f} mm below "
+                f"the plane. Relative to the real mat (everywhere, +-3 mm calibration): floor {f:+.1f} mm, command "
+                f"stop {cmd:+.1f} mm, measured stop {hard:+.1f} mm"]
+    z = table_z * 1e3
+    lo, hi = OBSERVED_MAT_MM
+
+    def rng(v):                 # a height relative to sim z = 0 -> relative to the mat at the observed positions
+        a, b = v - hi, v - lo
+        return f"{a:+.1f} .. {b:+.1f} mm"
+    return [f"FLOOR MODE flat: student {why}",
+            f"  floor {f:.1f} mm above sim z = table_z {z:+.1f} mm; stops: command {cmd:+.1f} mm, measured {hard:+.1f} "
+            f"mm (+ table_z). Relative to the real mat at the observed cube / plate positions ({lo:.1f} .. {hi:.1f} mm "
+            f"vs sim z 0): floor {rng(z + f)}, command stop {rng(z + cmd)}, measured stop {rng(z + hard)}"]
 
 
 def load_calib(path):
@@ -359,6 +451,8 @@ class GuardConfig:
     i_max_deg: float = 3.0             #   each step adds (command - measured q) * DT / i_time_s, the sum <= i_max_deg,
     i_v_min: float = 0.02              #   only while the joint does not move to its command faster than this (rad/s)
     i_e_max_deg: float = 1.0           #   and only while |command - measured q| < this (not for a blocked joint)
+    i_antiwindup: bool = True          #   not on a joint at its LeRobot-unit range (Guard.apply; False = the rule
+                                       #   of the robot days 2026-10-22 .. 23)
 
     @staticmethod
     def from_dict(d):
@@ -378,7 +472,19 @@ class Guard:
     ``u_layer`` (sim rad [6], None before the first ``apply`` or after a non-finite target): the target of the last
     ``apply`` right after the step limit and the action layer, BEFORE the integral correction and the LeRobot-unit
     clamps = the sim's executed target (``joint_env`` ``u_exe``). The command input of a ``cmd_in`` student reads it,
-    never the sent command (``u_sim``: + the integral correction) or ``prev`` (+ the LeRobot clamps)."""
+    never the sent command (``u_sim``: + the integral correction) or ``prev`` (+ the LeRobot clamps).
+
+    Anti-windup of the integral correction (``GuardConfig.i_antiwindup``, on by default; real2sim 2026-10-24): a joint
+    at its LeRobot-unit range (``real_range_sim``) cannot follow a correction. Without the rule the integral grew there
+    (robot 2026-10-23, eval_20261023_141614 ep 6 and eval_20261023_144431 ep 1: measured wrist roll 100.69 sim deg,
+    target 100.9-101.1, range end 101.21, the error 0.4 deg < i_e_max_deg so the integral reached +3 deg; the sent
+    command stayed clipped at 101.21, ``prev`` = 101.21 - 3 = 98.2 deg, 2.5 deg >= 0.9 x LEAD from the measured roll:
+    "stall: wrist_roll blocked" after 25 steps). With the rule, on a joint whose action-layer target or student target
+    is at / beyond its range, or whose corrected command would be clipped there, the error is not integrated, and the
+    correction is limited to [min(0, lo - target), max(0, hi - target)] (it never pushes the command past the range;
+    0 when the target is at / beyond it): the sent command is the same clipped value, ``prev`` = the target. Joints
+    inside their range are not changed. ``i_aw`` [5] bool: the arm joints the rule held in the last ``apply`` (at /
+    beyond the range; logged per step as ``i_aw``)."""
 
     def __init__(self, cfg: GuardConfig, layer: ActionLayer, jmap: JointMap, limits: RealLimits):
         self.cfg, self.layer, self.jmap, self.limits = cfg, layer, jmap, limits
@@ -387,13 +493,21 @@ class Guard:
         self.prev = None
         self.err_run = 0
         self.integ = np.zeros(ARM)
+        self.i_aw = np.zeros(ARM, bool)
         self.u_layer = None
 
     def reset(self, q_sim):
         self.prev = np.asarray(q_sim, np.float64).copy()
         self.err_run = 0
         self.integ = np.zeros(ARM)
+        self.i_aw = np.zeros(ARM, bool)
         self.u_layer = None
+
+    def real_range_sim(self):
+        """The LeRobot-unit range (``limits``: calibrated range - margin) of the 5 arm joints in sim rad -> (lo, hi)."""
+        a = self.jmap.real_to_sim(self.limits.lo)[:ARM]
+        b = self.jmap.real_to_sim(self.limits.hi)[:ARM]
+        return np.minimum(a, b), np.maximum(a, b)
 
     def _box(self, p):
         c = self.cfg
@@ -427,7 +541,7 @@ class Guard:
         c = self.cfg
         ev = dict(step=False, lead=False, range=False, floor=False, real_range=False, max_rel=False)
         u = np.asarray(u_sim, np.float64)
-        self.u_layer = None
+        self.u_layer, self.i_aw = None, np.zeros(ARM, bool)
         if not np.all(np.isfinite(u)):
             return None, None, ev, ["student target: not finite"]
         if self.prev is None:
@@ -444,7 +558,16 @@ class Guard:
             if qd_sim is not None:         # a joint that follows its command needs no correction (no wind-up in motion)
                 e = np.where(np.asarray(qd_sim)[:ARM] * np.sign(e) > c.i_v_min, 0.0, e)
             e = np.where(np.abs(e) < math.radians(c.i_e_max_deg), e, 0.0)   # blocked joint / new target: no more push
+            if c.i_antiwindup:             # a joint at its real range: no integration (class docstring)
+                rlo, rhi = self.real_range_sim()
+                t5, s5, c5 = u[:ARM], np.asarray(u_sim, np.float64)[:ARM], u[:ARM] + self.integ
+                tol = 1e-9
+                self.i_aw = ((t5 >= rhi - tol) | (t5 <= rlo + tol) | (s5 > rhi) | (s5 < rlo) | (c5 >= rhi - tol)
+                             | (c5 <= rlo + tol))
+                e = np.where(self.i_aw, 0.0, e)
             self.integ = np.clip(self.integ + e * (DT / c.i_time_s), -imax, imax)
+            if c.i_antiwindup:             # bleed off: never past the range, 0 for a target at / beyond it
+                self.integ = np.clip(self.integ, np.minimum(0.0, rlo - t5), np.maximum(0.0, rhi - t5))
             u = u.copy()
             u[:ARM] += self.integ
         ur = self.jmap.sim_to_real(u)
@@ -683,80 +806,7 @@ class StudentPolicy:
         return out
 
 
-class SwitchPolicy:
-    """Two plain students in one episode (real2sim 2026-10-23): ``first`` (the grasp student) until the cube is held,
-    then ``second`` (the carry and release student) until ``reset``. Held = at ``n_hold`` queries in a row the measured
-    jaw is 4-14 deg (the real jaw holds the 30 mm cube at 8-9 deg) and the jaw target of the previous decision's last
-    executed step is more than 3 deg below it (the jaw squeezes). With ``plate_m`` > 0 the switch also waits until the
-    grasp point is within ``plate_m`` (xy) of the first student's plate estimate (median of its last 5 queries).
-    Offline check on the 100 logged robot episodes of 10-22/23 (n_hold 5): the rule switched in 60 of 60 grasped
-    episodes, 0.46 s (p50) after the hold start, and in 0 of 40 missed ones. Both students must have the same inputs
-    (cameras, res, chunk, crops, calibration) and no history or command inputs (the second one starts with no state).
-    ``query`` adds ``policy`` (0 first, 1 second) to its output."""
-
-    HELD_JAW_DEG = (4.0, 14.0)
-    SQUEEZE_DEG = 3.0
-
-    def __init__(self, first: StudentPolicy, second: StudentPolicy, n_hold=5, plate_m=0.0, layer=None):
-        for k in ("cams", "res", "n_exec", "chunk", "cam_map"):
-            if getattr(first, k) != getattr(second, k):
-                raise ValueError(f"switch: the students differ in {k}: {getattr(first, k)} / {getattr(second, k)}")
-        for k in ("crops", "calib_sha256"):
-            a, b = getattr(first.cfg, k, None), getattr(second.cfg, k, None)
-            if a != b:
-                raise ValueError(f"switch: the students differ in cfg.{k}: {a} / {b}")
-        for p in (first, second):
-            if p.H or p.cmd_in or p.img_hist or p.lastcmd:
-                raise ValueError(f"switch: {p.ckpt} has a history / command input (not supported)")
-        if int(n_hold) < 1:
-            raise ValueError("switch: n_hold must be 1 or more")
-        if plate_m > 0 and layer is None:
-            raise ValueError("switch: plate_m > 0 needs the action layer (grasp point)")
-        self.P = (first, second)
-        self.n_hold, self.plate_m, self.layer = int(n_hold), float(plate_m), layer
-        self.cams, self.cam_map, self.res = first.cams, first.cam_map, first.res
-        self.n_exec, self.chunk, self.jaw_lead, self.amp = first.n_exec, first.chunk, first.jaw_lead, first.amp
-        self.H, self.cmd_in, self.img_hist, self.lastcmd = 0, False, False, False
-        self.cfg, self.meta = first.cfg, first.meta
-        self.ckpt = f"{first.ckpt} -> {second.ckpt}"
-        self.reset()
-
-    def reset(self):
-        for p in self.P:
-            p.reset()
-        self.active, self.run, self.prev_jaw, self.switch_query, self.n_query = 0, 0, None, None, 0
-        self.plates = []
-
-    def warmup(self, n=3):
-        for p in self.P:
-            p.warmup(n)
-        self.reset()
-
-    def query(self, images, q_sim, qd_sim, **kw):
-        if self.active == 0:
-            jaw = math.degrees(float(q_sim[5]))
-            lo, hi = self.HELD_JAW_DEG
-            held = self.prev_jaw is not None and lo <= jaw <= hi and self.prev_jaw < jaw - self.SQUEEZE_DEG
-            self.run = self.run + 1 if held else 0
-            near = True
-            if self.plate_m > 0:
-                near = False
-                if self.plates:
-                    gp = self.layer.tcp(np.asarray(q_sim, np.float64))
-                    pl = np.median(np.asarray(self.plates[-5:]), 0)
-                    near = math.hypot(gp[0] - pl[0], gp[1] - pl[1]) < self.plate_m
-            if self.run >= self.n_hold and near:
-                self.active, self.switch_query = 1, self.n_query
-        out = self.P[self.active].query(images, q_sim, qd_sim)
-        if self.active == 0:
-            self.plates.append(np.asarray(out["plate_xy"], np.float64))
-        self.prev_jaw = math.degrees(float(out["exec"][-1, ARM]))
-        out["policy"] = self.active
-        self.n_query += 1
-        return out
-
-
-# ---- one control step (replay, dry, live)---------------------------------------------------------------------------
+# ---- one control step (replay, dry, live) ---------------------------------------------------------------------------
 @dataclass
 class StepOut:
     u_sim: np.ndarray | None
@@ -794,11 +844,12 @@ class Controller:
         self.cmd = []               # Guard.prev after the last two steps (oldest first): the last-command input
         self.u_layer = []           # Guard.u_layer of the last n_exec loop steps (NaN: no command that step)
         self.S = {k: [] for k in ("t", "q_real", "q_sim", "qd_sim", "u_target", "u_layer", "u_sim", "u_real", "i_corr",
-                                  "query", "ev_step", "ev_lead", "ev_range", "ev_floor", "ev_real_range", "ev_max_rel",
-                                  "n_stop", "ms_qdot", "ms_frames", "ms_pre", "ms_model", "ms_guard", "ms_ctrl")}
+                                  "i_aw", "query", "ev_step", "ev_lead", "ev_range", "ev_floor", "ev_real_range",
+                                  "ev_max_rel", "n_stop", "ms_qdot", "ms_frames", "ms_pre", "ms_model", "ms_guard",
+                                  "ms_ctrl")}
         self.Q = {k: [] for k in ("t", "step", "chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz",
-                                  "frame_age_ms", "thumbs", "robot", "lastcmd", "policy")}  # robot / lastcmd /
-                                                                        # policy (SwitchPolicy): empty (no key) when not used
+                                  "frame_age_ms", "thumbs", "robot", "lastcmd")}  # robot / lastcmd: empty (no
+                                                                                  # key) when not used
         self.events = {}
 
     def reset(self, q_real=None):
@@ -853,8 +904,6 @@ class Controller:
             if "robot" in r and (getattr(self.p, "H", 0) or getattr(self.p, "cmd_in", False)
                                  or getattr(self.p, "img_hist", False)):
                 Q["robot"].append(np.asarray(r["robot"]))
-            if "policy" in r:
-                Q["policy"].append(int(r["policy"]))
             Q["t"].append(t)
             Q["step"].append(self.k)
             for kk in ("chunk", "exec", "aux", "plate_xy", "plate_yaw4_deg", "cube_xyz"):
@@ -876,7 +925,8 @@ class Controller:
         for kk, v in (("t", t), ("q_real", q_real), ("q_sim", q_sim), ("qd_sim", qd), ("u_target", target),
                       ("u_layer", ul), ("u_sim", nan6 if u_sim is None else u_sim),
                       ("u_real", nan6 if u_real is None else u_real),
-                      ("i_corr", self.g.integ.copy()), ("query", query), ("n_stop", len(stop))):
+                      ("i_corr", self.g.integ.copy()), ("i_aw", self.g.i_aw.copy()), ("query", query),
+                      ("n_stop", len(stop))):
             S[kk].append(v)
         for kk in ("step", "lead", "range", "floor", "real_range", "max_rel"):
             S["ev_" + kk].append(bool(ev.get(kk, False)))

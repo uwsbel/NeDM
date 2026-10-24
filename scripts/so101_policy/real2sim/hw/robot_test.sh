@@ -9,6 +9,7 @@
 #   ./robot_test.sh eval [n] [s] [args]   MOVES THE ROBOT: n episodes in a row (default 10 x 40 s), servo correction
 #
 # [args] go to run_student_real.py as they are. Outputs: ~/so101_hw_runs/<mode>_<time>/ (RUNS overrides).
+# Every mode takes the floor mode, the table plane source and HOME from assets/deploy.json (make_orin_bundle.sh).
 set -eo pipefail
 SELF="$(readlink -f "${BASH_SOURCE[0]}")"
 cd "$(dirname "$SELF")"
@@ -16,16 +17,37 @@ MODE="${1:-}"
 [ $# -gt 0 ] && shift
 RUN=scripts/so101_policy/real2sim/hw/run_student_real.py
 S=(--student assets/student.pt --calib assets/calib_v1.json)
-# a bundle with assets/student2.pt runs two students: student.pt until the cube is held, then student2.pt
-if [ -f assets/student2.pt ]; then S+=(--student2 assets/student2.pt); fi
+DEPLOY=assets/deploy.json
 RUNS="${RUNS:-$HOME/so101_hw_runs}"
 DATA_ROOT="${DATA_ROOT:-$HOME/lerobot/data}"
 TILT=(--q-offset-deg 0,-2.086,0,0,0)
-# eval: floor stops below the real table (it is 4-17 mm below the sim table), integral correction of the servo error
-EVAL=(--amp 0 --guard '{"cmd_floor_m":-0.015,"hard_floor_m":-0.020,"i_time_s":0.2,"i_max_deg":3.0}')
 export HF_HUB_OFFLINE=1
 
-usage() { sed -n '2,11p' "$SELF" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage() { sed -n '2,12p' "$SELF" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+
+# assets/deploy.json (run_student_real.py deploy-json, written by make_orin_bundle.sh from the student checkpoint):
+#   floor_mode  flat  = students trained on the sim table (C1, s28, roll-cap students): floor 1.5 mm above sim z 0,
+#                       eval floor stops -15 / -20 mm (the real mat is 8-18 mm below the sim table)
+#               plane = students trained with the v8 table randomisation: floor 1.5 mm above the calibrated mat plane
+#                       (--table-plane calib), eval floor stops 2 / 5 mm below that plane (no double lowering)
+#   home_sim_deg HOME (sim deg; wrist roll 0), eval_guard = eval's --guard (+ --amp 0)
+deploy_get() {
+  python -c 'import json, sys
+v = json.load(open(sys.argv[1]))[sys.argv[2]]
+print(v if isinstance(v, str) else json.dumps(v, separators=(",", ":")))' "$DEPLOY" "$1"
+}
+load_deploy() {
+  [ -f "$DEPLOY" ] || { echo "no $DEPLOY in this bundle: rebuild it with make_orin_bundle.sh (2026-10-24 or later)"; exit 1; }
+  FLOOR_MODE="$(deploy_get floor_mode)" && HOME_DEG="$(deploy_get home_sim_deg)" && EVAL_GUARD="$(deploy_get eval_guard)" \
+    || { echo "cannot read $DEPLOY"; exit 1; }
+  case "$FLOOR_MODE" in
+    flat)  FLOOR=(--floor-mode flat --table-z 0) ;;
+    plane) FLOOR=(--floor-mode plane --table-plane "$(deploy_get table_plane)") ;;
+    *) echo "$DEPLOY: unknown floor_mode $FLOOR_MODE"; exit 1 ;;
+  esac
+  FLOOR+=(--home "$HOME_DEG")
+  EVAL=(--amp 0 --guard "$EVAL_GUARD")
+}
 
 activate() {
   if [ "${CONDA_DEFAULT_ENV:-}" != lerobot ]; then
@@ -43,8 +65,21 @@ need_tty() {
 }
 
 # the launcher sets these itself (the banner must tell what the run does): refuse them in [args]
+no_floor_overrides() {
+  local a
+  for a in "$@"; do
+    case "$a" in
+      --floor-mode|--floor-mode=*|--table-z|--table-z=*|--table-plane|--table-plane=*|--home|--home=*|\
+      --allow-floor-mismatch)
+        echo "do not give $a here: the floor and HOME come from $DEPLOY (the banner shows them); use" \
+             "run_student_real.py directly for other values"
+        exit 1 ;;
+    esac
+  done
+}
 no_overrides() {
   local a
+  no_floor_overrides "$@"
   for a in "$@"; do
     case "$a" in
       --time-limit|--time-limit=*|--q-offset-deg|--q-offset-deg=*|--out|--out=*|--backend|--backend=*|--auto-confirm|\
@@ -65,6 +100,11 @@ case "$MODE" in
     st=0
     echo "== bundle files"
     if files_ok; then echo "ok ($(head -1 MANIFEST.txt))"; else echo "CHANGED OR MISSING (above)"; st=1; fi
+    echo "== deploy settings ($DEPLOY)"
+    if [ -f "$DEPLOY" ]; then
+      echo "floor mode $(deploy_get floor_mode): $(deploy_get floor_why)"
+      echo "HOME sim deg $(deploy_get home_sim_deg); eval guard $(deploy_get eval_guard)"
+    else echo "MISSING $DEPLOY (rebuild the bundle)"; st=1; fi
     echo "== Python env ($CONDA_DEFAULT_ENV)"
     python - <<'EOF' || st=1
 import importlib.metadata as m
@@ -100,15 +140,18 @@ EOF
     ;;
   replay)
     activate
+    load_deploy
+    no_floor_overrides "$@"
     O="$(out_dir replay)"
-    echo "replay (no robot) -> $O"
-    exec python "$RUN" replay "${S[@]}" --data-root "$DATA_ROOT" \
+    echo "replay (no robot) -> $O; floor mode $FLOOR_MODE"
+    exec python "$RUN" replay "${S[@]}" "${FLOOR[@]}" --data-root "$DATA_ROOT" \
       --episodes green_cube_red_plate:0,green_cube_red_plate:2,green_cube_red_plate_1:5 --out "$O" "$@"
     ;;
   dry|live|live-tilt|eval)
     need_tty
     activate
     files_ok || { echo "bundle files changed or missing (MANIFEST.txt): refusing"; exit 1; }
+    load_deploy
     T=30; [ "$MODE" != dry ] && T=15
     N=1
     if [ "$MODE" = eval ]; then
@@ -130,14 +173,16 @@ EOF
     # run_student_real.py refuses dry / live while another program can use the port or a camera (device_users)
     if [ "$MODE" = dry ]; then
       echo "DRY run, $T s: the robot and the cameras are read only; no motor writes. -> $O"
-      exec python "$RUN" dry "${S[@]}" --out "$O" --time-limit "$T" "$@"
+      echo "Floor mode: $FLOOR_MODE ($DEPLOY)"
+      exec python "$RUN" dry "${S[@]}" "${FLOOR[@]}" --out "$O" --time-limit "$T" "$@"
     fi
+    echo "Floor mode: $FLOOR_MODE  HOME sim deg: $HOME_DEG  ($DEPLOY: $(deploy_get floor_why))"
     if [ "$MODE" = eval ]; then
       echo "EVAL session, $N episodes of up to $T s: THIS MOVES THE ROBOT. -> $O"
-      echo "Settings: ${EVAL[*]}"
+      echo "Settings: ${FLOOR[*]} ${EVAL[*]}"
       cat <<EOF
   1. Arm in the folded rest pose, workspace clear, one hand near the arm.
-  2. Type MOVE: the arm goes to HOME (wrist roll about 120 deg; watch the wrist camera cable).
+  2. Type MOVE: the arm goes to HOME (about 10 s; the wrist roll turns to about 76 deg real; watch the cable).
   3. Each episode: put the cube and the plate 0.15-0.27 m from the base, type RUN. Push space when the episode is
      done (or it ends at $T s). Type the result (g grasp, l lift, p placed; for example glp, or -).
   4. Type r: the arm goes back to HOME (the gripper opens), then reset the scene for the next episode.
@@ -145,15 +190,16 @@ EOF
 EOF
     else
       echo "LIVE run, $T s: THIS MOVES THE ROBOT. -> $O"
+      echo "Settings: ${FLOOR[*]}"
       if [ "$MODE" = live-tilt ]; then echo "Table-tilt correction ON: ${TILT[*]}"; fi
       cat <<EOF
   1. Arm in the folded rest pose, workspace clear, one hand near the arm.
-  2. Type MOVE: the arm goes to HOME (11-13 s, <= 15 deg/s, the wrist roll turns about 120 deg).
+  2. Type MOVE: the arm goes to HOME (about 10 s, <= 15 deg/s; the wrist roll turns to about 76 deg real).
   3. Put the cube and the plate 0.15-0.27 m from the shoulder pan axis, then type RUN.
   4. Stop at any time: q / space / Esc / Ctrl+C. At the end the torque stays ON (menu: r return, t torque off).
 EOF
     fi
-    exec python "$RUN" live --i-am-supervising "${S[@]}" --out "$O" --time-limit "$T" "${EXTRA[@]}" "$@"
+    exec python "$RUN" live --i-am-supervising "${S[@]}" "${FLOOR[@]}" --out "$O" --time-limit "$T" "${EXTRA[@]}" "$@"
     ;;
   ""|-h|--help|help) usage 0 ;;
   *) echo "unknown mode: $MODE"; usage 1 ;;

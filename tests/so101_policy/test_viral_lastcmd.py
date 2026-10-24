@@ -367,7 +367,8 @@ OLD_LOG_KEYS = {"t", "q_real", "q_sim", "qd_sim", "u_target", "u_sim", "u_real",
                           "thumbs")}                                     # the episode log before the last command
 # merge with the studentlab branch (2026-10-23): every student's log has the per-step Guard.u_layer (the action-layer
 # target before the integral correction and the LeRobot clamps); still no last-command key while the option is off
-BASE_LOG_KEYS = OLD_LOG_KEYS | {"u_layer"}
+# robot deploy settings (2026-10-24): every log has the per-step anti-windup flags of the integral (Guard.i_aw [5])
+BASE_LOG_KEYS = OLD_LOG_KEYS | {"u_layer", "i_aw"}
 
 
 def fake_robot_run(H, pol, n=32, i_time_s=0.2):

@@ -72,7 +72,9 @@ real table: training keeps the floor 1.5 mm above the TRUE table, i.e. above the
 robot's ``run_student_real.py --table-z 0`` (default) keeps the lowest gripper point 1.5 mm above z = 0 of the ARM
 frame, ~13 mm above the real table at the cubes, and holds a lower descent up. Deploy a table-trained student with
 ``--table-plane calib`` (``hw_lib.ActionLayer(table_plane=)``: the floor and the guard's floor checks above the
-calibrated plane; MuJoCo: ``vision_viral.py eval --floor table``), never with ``--table-z 0``.
+calibrated plane; MuJoCo: ``vision_viral.py eval --floor table``), never with ``--table-z 0``. The robot script does
+this by itself (2026-10-24): ``run_student_real.py --floor-mode auto`` (default) reads ``v8_online.table_bias`` from
+the checkpoint (``hw_lib.student_floor_mode``), and live mode refuses a flat floor for such a student.
 """
 from __future__ import annotations
 

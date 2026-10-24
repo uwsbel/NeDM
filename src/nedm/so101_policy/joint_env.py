@@ -207,6 +207,8 @@ class RobotDynConfig:
     1.7 deg sag +1.84 / +1.91 deg). The integral correction (``i_time_s`` > 0) is the robot guard's
     (``hw_lib.GuardConfig.i_*``, robot runs: i_time_s 0.2, i_max_deg 3): without it a constant sag moves a policy
     that commands relative to the measured q by the sag at every decision (jt_h110: 0.8 % lenient at 0.5 deg).
+    ``i_antiwindup`` (off by default; the robot guard has it on since 2026-10-24, ``hw_lib.Guard``): the integral does
+    not grow on a joint held at its actuator range (the robot: a wrist roll at its real stop wound up to +3 deg).
     ``servo`` ({} = off): the real servo fitted on the robot logs (``RealServo``, ``servo_spec``; report
     ~/so101_r2s_claude/sim_debug/scout/tr_servo.md), per joint fixed values or [lo, hi] ranges drawn per world and
     episode. It REPLACES the lag / sag / gain (they must stay neutral: s 1, tau 0, sag 0, else counted twice); stage
@@ -231,6 +233,10 @@ class RobotDynConfig:
     i_max_deg: float = 3.0              #   integ += (command - q) DT / i_time_s, |integ| <= i_max_deg, only while
     i_e_max_deg: float = 1.0            #   |command - q| < i_e_max_deg and the joint does not move to its command
     i_v_min: float = 0.02               #   faster than i_v_min (rad/s); the sent command = command + integ
+    i_antiwindup: bool = False          #   the robot guard's anti-windup (hw_lib.Guard, 2026-10-24): no integration on
+                                        #   a joint whose command is at its actuator range (tlo .. thi, the roll cap
+                                        #   included) or whose corrected command would pass it, and the correction is
+                                        #   kept within [min(0, tlo - cmd), max(0, thi - cmd)]; False = the old rule
     servo: dict = field(default_factory=dict)   # the fitted real servo (``servo_spec`` keys); {} = off
 
     def __post_init__(self):
@@ -276,11 +282,14 @@ class RobotDynConfig:
         return RobotDynConfig(**{k: v for k, v in d.items() if k in known})
 
     def to_dict(self):
-        """The record (``asdict``) without the servo key while it is off: records of servo-free settings stay as they
-        were before the servo existed (older code copies reject unknown keys in ``from_dict``)."""
+        """The record (``asdict``) without the servo key while it is off and without ``i_antiwindup`` while it is
+        False: records of the old settings stay as they were (older code copies reject unknown keys in
+        ``from_dict``)."""
         d = copy.deepcopy(asdict(self))
         if not d["servo"]:
             del d["servo"]
+        if not d["i_antiwindup"]:
+            del d["i_antiwindup"]
         return d
 
     @property
@@ -924,8 +933,19 @@ class RobotDyn:
                 e = torch.where(v_ * torch.sign(e) > c.i_v_min, torch.zeros_like(e), e)
             e = torch.where(e.abs() < math.radians(c.i_e_max_deg), e, torch.zeros_like(e))    # blocked / new target
             im = math.radians(c.i_max_deg)
-            self.integ = torch.where(self.on[:, None], (self.integ + e * (CONTROL_DT / c.i_time_s)).clamp(-im, im),
-                                     self.integ)
+            if c.i_antiwindup:            # the robot guard's anti-windup at the actuator range (RobotDynConfig)
+                lo5 = tlo[..., :5].to(torch.float64).expand(B, 5)
+                hi5 = thi[..., :5].to(torch.float64).expand(B, 5)
+                c5, w5 = cmd[:, :5], cmd[:, :5] + self.integ
+                tol = 1e-9
+                sat = (c5 >= hi5 - tol) | (c5 <= lo5 + tol) | (w5 >= hi5 - tol) | (w5 <= lo5 + tol)
+                e = torch.where(sat, torch.zeros_like(e), e)
+                new = (self.integ + e * (CONTROL_DT / c.i_time_s)).clamp(-im, im)
+                new = torch.minimum(torch.maximum(new, (lo5 - c5).clamp(max=0.0)), (hi5 - c5).clamp(min=0.0))
+                self.integ = torch.where(self.on[:, None], new, self.integ)
+            else:
+                self.integ = torch.where(self.on[:, None], (self.integ + e * (CONTROL_DT / c.i_time_s)).clamp(-im, im),
+                                         self.integ)
             cmd = torch.cat((cmd[:, :5] + self.integ, cmd[:, 5:]), -1)
         if self.servo is not None:        # the fitted real servo (arm + jaw) replaces the lag / sag / gain (neutral)
             v = self.servo.step(cmd, q, held)
