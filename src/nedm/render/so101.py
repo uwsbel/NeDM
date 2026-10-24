@@ -361,6 +361,10 @@ class SO101Scene:
     per-world body colours (Newton: :meth:`SO101Renderer.set_appearance`) can colour it per world (build9's visual
     randomisation); the pictures are the same as with the static table.
 
+    ``plate_depth`` (real scene; None = off, the old plate): the goal plate's mesh is this deep (m, >= the scene's
+    ``plate_thickness``) below its nominal top, so a per-world plate thickness up to ``plate_depth`` is a vertical
+    shift of the plate (``transforms(..., plate_dz=)``; :class:`RealDR` ``plate_thickness``); the part below the mat
+    top is hidden in the mat.
     ``real``: a :class:`RealScene` (off by default) builds the REAL setup instead (:meth:`_init_real`): no sim table;
     cameras from REAL_VIEWS (default ``external`` + ``wrist``, calibrated, :attr:`camera_models`); everything is a body
     (per-world colours and poses for all of it): the moving arm meshes, the cube, the goal plate (the 50 mm ``block``
@@ -371,12 +375,15 @@ class SO101Scene:
     def __init__(self, assets: SO101Assets | None = None, cube_colors=None, goal: str | None = "plate",
                  front_eye=FRONT_EYE, front_target=FRONT_TARGET, device=None, cfg: dict | None = None,
                  cameras: Sequence[str] | None = None, top_eye=TOP_EYE, top_target=TOP_TARGET,
-                 table_body: bool = False, real: "RealScene | None" = None):
+                 table_body: bool = False, real: "RealScene | None" = None, plate_depth: float | None = None):
         from nedm.render import cameras as cams
         self.real, self.camera_models = real, None
+        self.plate_depth = None
+        if plate_depth is not None and real is None:
+            raise ValueError("plate_depth (plate thickness randomisation) needs the real scene")
         if real is not None:
             self._init_real(real, assets, cube_colors, goal, front_eye, front_target, device, cfg, cameras, top_eye,
-                            top_target)
+                            top_target, plate_depth)
             return
         cameras = CAMERAS if cameras is None else cameras
         self.cameras = tuple(cameras)
@@ -461,7 +468,7 @@ class SO101Scene:
         self.fovy_deg = float(cam["fovy_deg"])
 
     def _init_real(self, real: "RealScene", assets, cube_colors, goal, front_eye, front_target, device, cfg, cameras,
-                   top_eye, top_target) -> None:
+                   top_eye, top_target, plate_depth=None) -> None:
         """The real-setup scene (class docstring, :class:`RealScene`)."""
         from nedm.render import cameras as cams
         self.cameras = tuple(REAL_CAMERAS if cameras is None else cameras)
@@ -511,7 +518,12 @@ class SO101Scene:
         self.goal_meshes = 0 if goal is None else 1
         if goal is not None:
             pt = float(real.plate_thickness)
-            v, f = box_mesh([BLOCK_HALF, BLOCK_HALF, pt / 2], (0.0, 0.0, pt / 2))
+            if plate_depth is not None:     # thickness randomisation (v8): the mesh reaches this far below its top
+                self.plate_depth = max(pt, float(plate_depth))
+            if self.plate_depth is None or self.plate_depth <= pt:
+                v, f = box_mesh([BLOCK_HALF, BLOCK_HALF, pt / 2], (0.0, 0.0, pt / 2))
+            else:                           # top at pt as before
+                v, f = box_mesh([BLOCK_HALF, BLOCK_HALF, self.plate_depth / 2], (0.0, 0.0, pt - self.plate_depth / 2))
             groups["plate"].append(len(bodies))
             bodies.append(MeshBody("goal", vertices=v, faces=f, color=real.color("plate")))
         # fixed bodies: the arm base meshes (at their welded pose), then the floor, the mat and the walls
@@ -577,17 +589,53 @@ class SO101Scene:
         """Nominal poses [n_env, 7] (x y z qx qy qz qw, float64) of the floor, mat and walls (real scene)."""
         return self.fixed_pose[len(self.fixed_pose) - self.n_env:]
 
-    def _real_transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None):
+    def _plate_shift(self, g, cube_pos, cq, plate_dz):
+        """Plate thickness randomisation (v8; table frame of the flat model): the plate rows ``g`` [n, 7]
+        (x y z qx qy qz qw, before the table-plane map) raised by ``plate_dz`` [n] (m: the plate top above the nominal
+        one; hidden plates stay), and the cube's visual lift [n] (m, along the table normal): a cube over the plate
+        sinks into the drawn plate no deeper than into the nominal plate (lift = plate_dz - its lowest corner's height
+        above the table clipped at 0, if positive: a cube resting on the table sits plate_thickness deep in the plate,
+        as in the nominal scene; full lift with the cube centre over the plate, none once its footprint is off the
+        plate, linear between), so a thicker plate does not swallow a resting or placed cube; the cube's physics
+        state is unchanged. -> (g, lift)."""
+        f64 = dict(device=self.device, dtype=torch.float64)
+        n = g.shape[0]
+        shown = g[:, 2] > HIDDEN_Z / 2
+        dz = torch.where(shown, torch.as_tensor(plate_dz).to(**f64).reshape(n), 0.0)
+        g = g.clone()
+        g[:, 2] = g[:, 2] + dz
+        qi = (self.plane_q * torch.tensor([1.0, -1.0, -1.0, -1.0], **f64)).expand(n, 4)
+        c = qrot(qi, cube_pos - self.plane_o)                                     # cube centre, table frame
+        w_, x_, y_, z_ = qmul(qi, cq).unbind(-1)                                  # cube rotation, table frame
+        rz = torch.stack((2 * (x_ * z_ - w_ * y_), 2 * (y_ * z_ + w_ * x_), 1 - 2 * (x_ * x_ + y_ * y_)), -1)
+        bottom = c[:, 2] - self.cube_half * rz.abs().sum(-1)                      # lowest corner above the table
+        yaw = 2 * torch.atan2(g[:, 5], g[:, 6])                                   # the plate's yaw (z turn, xyzw)
+        d = c[:, :2] - g[:, :2]
+        lx = torch.cos(yaw) * d[:, 0] + torch.sin(yaw) * d[:, 1]
+        ly = -torch.sin(yaw) * d[:, 0] + torch.cos(yaw) * d[:, 1]
+        over = ((BLOCK_HALF + self.cube_half - torch.maximum(lx.abs(), ly.abs())) / self.cube_half).clamp(0.0, 1.0)
+        lift = over * (dz - bottom.clamp_min(0.0)).clamp_min(0.0)
+        return g, torch.where(shown & torch.isfinite(lift), lift, 0.0)
+
+    def _real_transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None, plate_dz=None):
         f64 = dict(device=self.device, dtype=torch.float64)
         q = torch.as_tensor(q).to(**f64)
         n = q.shape[0]
         pos, quat = self.kin(q)
         parts = [torch.cat([pos[:, self.mesh_body], xyzw(quat[:, self.mesh_body])], -1)]
         cq = torch.as_tensor(cube_quat).to(**f64)
-        cube = torch.cat([torch.as_tensor(cube_pos).to(**f64), xyzw(cq / cq.norm(dim=-1, keepdim=True))], -1)
+        cq = cq / cq.norm(dim=-1, keepdim=True)
+        cp = torch.as_tensor(cube_pos).to(**f64)
+        g = None
+        if plate_dz is not None:
+            if self.goal_style is None or self.plate_depth is None:
+                raise ValueError("plate_dz needs the goal plate and a renderer built with plate_depth")
+            g, lift = self._plate_shift(self.goal_transform(goal_pose, n), cp, cq, plate_dz)
+            cp = cp + lift[:, None] * qrot(self.plane_q.expand(n, 4), torch.tensor([0.0, 0.0, 1.0], **f64).expand(n, 3))
+        cube = torch.cat([cp, xyzw(cq)], -1)
         parts.append(cube[:, None])
         if self.goal_style is not None:
-            g = self.goal_transform(goal_pose, n)
+            g = self.goal_transform(goal_pose, n) if g is None else g
             if self.real.table_plane is not None:          # the plate lies on the measured table plane
                 qp = self.plane_q.expand(n, 4)
                 shown = g[:, 2:3] > HIDDEN_Z / 2
@@ -622,18 +670,22 @@ class SO101Scene:
     def body_names(self) -> list[str]:
         return self.scene.body_names
 
-    def transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None) -> tuple[torch.Tensor, torch.Tensor]:
+    def transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None,
+                   plate_dz=None) -> tuple[torch.Tensor, torch.Tensor]:
         """Body transforms [B, bodies, 7] and camera transforms [B, cameras, 7] (x y z, qx qy qz qw; float32).
 
         q [B, 6] rad; cube_pos [B, 3] m; cube_quat [B, 4] w x y z (normalised here); goal_pose None (hidden),
         [B, 3] = goal cube centre x, y (m) and yaw (rad), or [B, 7] = goal cube pose (position, quaternion w x y z),
         of which x, y and the yaw of the face closest to the table (:func:`flat_yaw`) are used. The marker lies on the
         table top under that point. Rows with a non-finite goal are hidden. ``env_pose`` (real scene only)
-        [B, n_env, 7] x y z qx qy qz qw replaces the floor, mat and wall poses (:attr:`env_pose`)."""
+        [B, n_env, 7] x y z qx qy qz qw replaces the floor, mat and wall poses (:attr:`env_pose`). ``plate_dz`` (real
+        scene built with ``plate_depth`` only) [B]: per-world plate thickness (:meth:`_plate_shift`)."""
         if self.real is not None:
-            return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose)
-        if env_pose is not None:
-            raise ValueError("env_pose needs the real scene")
+            if plate_dz is None:
+                return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose)
+            return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose, plate_dz)
+        if env_pose is not None or plate_dz is not None:
+            raise ValueError("env_pose / plate_dz need the real scene")
         f64 = dict(device=self.device, dtype=torch.float64)
         q = torch.as_tensor(q).to(**f64)
         n = q.shape[0]
@@ -1089,7 +1141,15 @@ class RealDR:
     (``RealScene.wall_end``) along its wall; ``bg`` (dict of :class:`nedm.render.bg_dr.BgDR` fields; {} = off): the
     image-space layers of the background (texture, clutter, spots, dark-area profile, floor gradient, low texture,
     mat folds, boundary blur) in linear colour before the tone map; needs a renderer with ``bg_cameras``
-    (:meth:`bg_cameras`) and the output resolution (``draw(..., res=)``)."""
+    (:meth:`bg_cameras`) and the output resolution (``draw(..., res=)``).
+
+    Plate thickness (real2sim v8, from studentlab round C, 2026-10-23; OFF by default, drawn after everything else):
+    ``plate_thickness`` (lo, hi) m: per world the goal plate's thickness ~ U(lo, hi) (real plate 3.9 mm, sim 1 mm),
+    VISUAL ONLY (the physics cube still lands on z = 0): draw key ``plate_dz`` [n] = thickness - the scene's
+    ``plate_thickness`` (the plate's top above its nominal top; the renderer needs ``plate_depth=``
+    :meth:`plate_depth`); a cube over the plate is lifted visually so it never sinks deeper into the plate than in the
+    nominal scene (:meth:`SO101Scene._plate_shift`): a resting or placed cube is drawn on the plate's top, a held cube
+    in the last ``plate_dz`` above the table slides up in the jaws (as a real cube pressed onto the plate)."""
 
     bright: dict = field(default_factory=lambda: {"printed": (0.85, 1.1), "servo": (0.6, 2.0), "cube": (0.75, 1.25),
                                                   "plate": (0.75, 1.25), "floor": (0.8, 1.1), "mat": (0.5, 2.5),
@@ -1115,6 +1175,21 @@ class RealDR:
     floor_xy: float = 0.0
     wall_end: float = 0.0
     bg: dict = field(default_factory=dict)
+    plate_thickness: tuple = ()
+
+    @property
+    def plate_on(self) -> bool:
+        """Plate thickness randomisation on (``plate_thickness`` = (lo, hi) m)."""
+        return bool(self.plate_thickness)
+
+    def plate_depth(self) -> float | None:
+        """The plate mesh depth a renderer needs for ``plate_thickness`` (its upper end; None: off)."""
+        if not self.plate_on:
+            return None
+        lo, hi = (float(v) for v in self.plate_thickness)
+        if not 0.0 < lo <= hi:
+            raise ValueError(f"RealDR.plate_thickness {self.plate_thickness}: (lo, hi) m with 0 < lo <= hi")
+        return hi
 
     @property
     def bg_on(self) -> bool:
@@ -1234,6 +1309,15 @@ class RealDR:
                     raise ValueError("RealDR.bg: pass the output resolution (draw(..., res=))")
                 res = views[0].out_wh[0]
             out.update(self.bg_dr().draw(n, len(cams), int(res), generator, dev, prior=bg_prior))
+        if self.plate_on:            # v8: after every other draw (class docstring)
+            if getattr(scene, "plate_depth", None) is None:
+                raise ValueError("RealDR.plate_thickness: build the renderer with plate_depth=RealDR.plate_depth()")
+            hi = self.plate_depth()
+            lo = float(self.plate_thickness[0])
+            if hi > scene.plate_depth + 1e-12:
+                raise ValueError(f"RealDR.plate_thickness {self.plate_thickness} > the renderer's plate_depth "
+                                 f"{scene.plate_depth}")
+            out["plate_dz"] = u(lo, hi) - float(scene.real.plate_thickness)
         return out
 
     def _floor_draw(self, scene, env, names, u, dev) -> None:
@@ -1353,6 +1437,8 @@ class SO101Renderer:
     (:class:`RealDR` ``bg``, :mod:`nedm.render.bg_dr`) in :meth:`render_dr` / :meth:`render` (``bg=``); builds the
     segment output internally (the colours are the same as without it). ``bg_dark_groups``: the groups of the dark
     area outside the light box (``BgDR.dark_groups``).
+    ``plate_depth`` (real scene; None = off): the plate mesh depth for the per-world plate thickness (:class:`RealDR`
+    ``plate_thickness``, ``render(..., plate_dz=)``; :class:`SO101Scene`).
     """
 
     NEAR_M = 0.012
@@ -1365,7 +1451,7 @@ class SO101Renderer:
                  cameras: Sequence[str] | None = None, top_eye=TOP_EYE, top_target=TOP_TARGET,
                  table_body: bool = False, real: "RealScene | None" = None, segment: bool = False,
                  hdr: bool = False, bg_cameras: Sequence[str] = (),
-                 bg_dark_groups: Sequence[str] = ("room", "room_floor")):
+                 bg_dark_groups: Sequence[str] = ("room", "room_floor"), plate_depth: float | None = None):
         from nedm.render.renderer import BatchRenderer
         if backend == "madrona":
             torch_device = "cuda:0"
@@ -1374,7 +1460,7 @@ class SO101Renderer:
                 else "cpu"
         self.scene = SO101Scene(assets, cube_colors, goal, front_eye, front_target, device=torch_device,
                                 cameras=cameras, top_eye=top_eye, top_target=top_target, table_body=table_body,
-                                real=real)
+                                real=real, **({} if plate_depth is None else dict(plate_depth=plate_depth)))
         self.cameras = self.scene.cameras
         self.real = real
         self.bg_cameras = tuple(bg_cameras or ())
@@ -1528,7 +1614,8 @@ class SO101Renderer:
         return self.scene.body_names + [mesh.name for mesh, _ in self.scene.scene.statics]
 
     def render(self, q, cube_pos, cube_quat, goal_pose=None, depth: bool = False, copy: bool = True,
-               env_pose=None, cam_offset=None, tone=None, segment: bool = False, hdr: bool = False, bg=None):
+               env_pose=None, cam_offset=None, tone=None, segment: bool = False, hdr: bool = False, bg=None,
+               plate_dz=None):
         """rgb [B, C, H, W, 3] uint8 (cameras in :attr:`cameras` order), and with ``depth`` also z-depth [B, C, H, W]
         float32 (m along the camera axis, 0 = nothing hit). Inputs as :meth:`SO101Scene.transforms`, any device and
         float dtype, B <= num_worlds. ``copy=False`` returns a view of the renderer's buffer (overwritten by the next
@@ -1540,8 +1627,12 @@ class SO101Renderer:
         disagree); ``hdr``: also the linear colour [B, C, H, W, 3] float32 (sub-pixel mean; rays that hit nothing get
         the sky colour turned linear). Extra outputs follow rgb (and depth) in the order segment, hdr. ``bg``: the
         background layers (``bg_*`` of :meth:`RealDR.draw`, rows = B) of the ``bg_cameras``, applied to the linear
-        colour before the tone map (the ``hdr`` output stays the renderer's own)."""
-        if env_pose is None:
+        colour before the tone map (the ``hdr`` output stays the renderer's own). ``plate_dz`` [B] (renderer built with
+        ``plate_depth``): the per-world plate thickness (:meth:`SO101Scene._plate_shift`)."""
+        if plate_dz is not None:
+            body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose, env_pose=env_pose,
+                                                  plate_dz=plate_dz)
+        elif env_pose is None:
             body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose)
         else:
             body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose, env_pose=env_pose)
@@ -1642,9 +1733,9 @@ class SO101Renderer:
 
     def render_dr(self, q, cube_pos, cube_quat, goal_pose=None, draw: dict | None = None, **kw):
         """:meth:`render` with per-world randomisation ``draw`` (:meth:`RealDR.draw`: colors [B, bodies, 3],
-        cam_offset [B, C, 6], env_pose [B, n_env, 7], tone [B, C, 9], background layers ``bg_*``; any key may be
-        missing: a missing key means its nominal value, also for the colours), or the nominal scene with None. Newton
-        colours are per world (rows beyond B repeat row 0)."""
+        cam_offset [B, C, 6], env_pose [B, n_env, 7], tone [B, C, 9], background layers ``bg_*``, plate_dz [B]; any
+        key may be missing: a missing key means its nominal value, also for the colours), or the nominal scene with
+        None. Newton colours are per world (rows beyond B repeat row 0)."""
         if draw is None or draw.get("colors") is None:
             if not self._nominal:
                 self.set_appearance(reset=True)
@@ -1661,6 +1752,8 @@ class SO101Renderer:
             kw["tone"] = draw["tone"]
         if draw.get("bg_par") is not None:
             kw["bg"] = {k: draw[k] for k in ("bg_tex", "bg_low", "bg_mat", "bg_par")}
+        if draw.get("plate_dz") is not None:
+            kw["plate_dz"] = draw["plate_dz"]
         return self.render(q, cube_pos, cube_quat, goal_pose, env_pose=draw.get("env_pose"),
                            cam_offset=draw.get("cam_offset"), **kw)
 

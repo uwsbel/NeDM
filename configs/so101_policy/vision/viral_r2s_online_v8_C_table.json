@@ -1,0 +1,64 @@
+{
+ "note": "C family = viral_r2s_online_relabel_v4.json (C1's online config: robot dynamics in the student slots, commanded-speed relabel, robot-like qdot, lag 1-4, 30 s episodes; C1 = init s28 it3000 + --config viral_r2s_v1.json) + real2sim v8 table DR (2026-10-23): + table_bias = per world per episode with p 0.7 a table plane under the student's JOINT reading (drop U(0, 20) mm at x 0.25 m, slope along x U(-40, 40) mm/m; the measured real table: 13.8 mm drop, -36.4 mm/m): the student reads the joints of a real arm whose world lies on that plane (exact, 3 pitch joints; labels, cmd, qdot and applied targets mapped too; table_bias.py), so its descent stop and open cannot come from the joint height alone; + plate_mm = goal plate ('mat') thickness of the training renders U(1, 5) mm (real 3.9 mm, scenes 1 mm; visual only). Robot side unchanged; deploy with --table-z at the real table (about -0.012) or the action-layer floor holds a lower descent up. Gate: MuJoCo lowered table (vision_viral.py eval --table-plane / --table-dz, plate 3.9 mm, drops judged at the plate top: ~/so101_r2s_claude/v8/table/lowtable.py).",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 0,
+  "jitter": 0.0,
+  "s_lo": 0.3,
+  "s_hi": 1.0,
+  "tau_lo": 0.02,
+  "tau_hi": 0.15,
+  "sag_max_deg": 1.5,
+  "noise_max": 0.0,
+  "i_time_s": 0.2,
+  "i_max_deg": 3.0,
+  "i_e_max_deg": 1.0,
+  "i_v_min": 0.02
+ },
+ "dyn_student_only": true,
+ "qd_robot_p": 0.5,
+ "qd_window": 3,
+ "horizon": 1500,
+ "hold_cap_s": 20.0,
+ "hold_obs_s": 3.5,
+ "lag_range": [
+  1,
+  4
+ ],
+ "relabel_cmd_speed": true,
+ "table_bias": {
+  "p": 0.7,
+  "drop_mm": [
+   0.0,
+   20.0
+  ],
+  "slope_x": [
+   -40.0,
+   40.0
+  ],
+  "slope_y": [
+   0.0,
+   0.0
+  ],
+  "x_ref_m": 0.25
+ },
+ "plate_mm": [
+  1.0,
+  5.0
+ ]
+}

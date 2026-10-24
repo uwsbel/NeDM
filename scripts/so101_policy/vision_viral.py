@@ -43,6 +43,13 @@ config adds inputs (``hist``, ``cmd_in``, ``img_hist``: ``viral.expand_student``
 summary adds ``goal_shift`` with the shifted / unshifted episodes). The online config's ``light_redraw_p`` (< 1: the
 per-call light and intrinsics stay for several decisions; the image-history arm A4) also applies to the in-run
 evaluations; ``eval --light-redraw-p P`` is the same for a standalone evaluation (with ``--randomise``).
+
+Table randomisation (real2sim v8, off by default; ``nedm.so101_policy.table_bias``): the online config's
+``table_bias`` puts a per-world table plane under the student's joint reading (q, qdot, cmd inputs, labels and applied
+targets in that frame), ``plate_mm`` randomises the goal plate thickness of the TRAINING views only
+(``viral.online_views_cfg``; the evaluation views and the saved student config keep the scene's plate); configs
+``viral_r2s_online_v8_C_table.json`` / ``viral_r2s_online_v8_S_table.json``. The gate is ``eval --table-plane`` /
+``--table-dz`` (the physical table moved in CPU MuJoCo).
 """
 from __future__ import annotations
 
@@ -438,7 +445,11 @@ def cmd_online(a):
     check_seeds(tasks["seeds"])
     evs = eval_sets(a.eval_tasks, a.eval_n)
     guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
-    views = VI.make_views(st.cfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
+    vcfg = VI.online_views_cfg(st.cfg, ocfg)       # training views: + the online config's plate thickness (v8)
+    if vcfg is not st.cfg:
+        log(f"training views: RealDR plate_thickness {vcfg.real_dr['plate_thickness']} m (online config plate_mm; "
+            "the evaluation views and the student's config keep the scene's plate)")
+    views = VI.make_views(vcfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device)
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s)
     od = VI.OnlineDAgger(st, jt, tasks, x(a.nrd_ckpt), views, ocfg, a.device, a.seed, log)
