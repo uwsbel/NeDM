@@ -1,0 +1,24 @@
+{
+ "starts": "/work1/dannegrut/harry/so101_r2s_claude/data/v9_restart/bank_pp_h45h0mix.npz",
+ "horizon": 1500,
+ "task": {
+  "hold_cap_s": 20.0
+ },
+ "hold_obs_s": 3.5,
+ "roll_hi_deg": 98.0,
+ "pause": {
+  "p": 0.5,
+  "s_lo": 0.5,
+  "s_hi": 3.0,
+  "near_m": 0.3,
+  "z_lo": 0.002,
+  "z_hi": 0.08,
+  "rate": 0.15,
+  "max_n": 2
+ },
+ "rest": {
+  "bank": "/work1/dannegrut/harry/so101_r2s_claude/data/v9_restart/rest_bank_v9_8k.npz",
+  "share": 0.25
+ },
+ "note": "real2sim round v9 (2026-10-25), candidate 2 'restart teacher': PPO fine-tune of D's teacher (runs/tppo_roll_v8_s21/ckpt/model_00200.pt, the roll-capped fine-tune of teacher_roll_v8.json) that must start again from rest. Robot 2026-10-24: the camera student stopped with the cube held, low (TCP 19-29 mm sim z) and 50-110 mm from the plate; D's teacher labels 'stay' / 'open the jaw' there. Step 0 (~/so101_r2s_claude/v9/restart/STEP0.md): from held-cube rest starts (lifted 1, the bank's held time, qdot 0) D's teacher drops the cube far from the goal in 86-91 % of the episodes (MuJoCo and NRD, nominal servo) and in 100 % at the 8 robot stop states; with the old pause widened to the carry its places fall from 96.5-99.5 % to 28.5-30 %. Changes from teacher_roll_v8.json: (1) start bank bank_pp_h45h0mix.npz = D's teacher bank (bank_pp_split0 once + train_H45_8k 3 times) + the HOME roll 0 training starts train_H_8k 3 times (vision_viral_teacher.py starts, roll cap 98, dev / fresh sets excluded): 34 / 33 / 33 %; (2) rest: 25 % of the automatic resets start from the step-0 rest bank (8,192 rows: cube held at rest, bottom 2-40 mm above the sim table, 40-150 mm from the bank goal, pan / roll over the 10-24 carry range, lifted 1, held 0.3-8 s; JointEnvConfig.rest); (3) pause anywhere in the carry: near_m 0.30, cube bottom 2-80 mm, rate 0.15 per decision, 0.5-3 s, 2 at most, half of the episodes (JointEnvConfig.pause; the 10-22 pause was near_m 0.04, z 8-60 mm). Same as roll_v8: 30 s episodes, hold cap 20 s, held-time scale 3.5 s, roll cap 98, joint_ppo_v3_kl02.json, 200 iterations, 8,192 worlds. r2s_teacher_ppo.sbatch REPO=$R2S/repo_v9 INIT=<D's teacher> DEV_TASKS=home45_dev100 DEV_EXTRA='dev100 home_dev100 v9_restart/rest_dev200' EXTRA=--dev-match-env (the rest dev set's lifted flag and held time are preset in the dev evaluation: joint_teacher.run_tasks). Gate: ~/so101_r2s_claude/v9/teacher/TEACHER_GATE.md. Variant 2a: nominal NRD worlds (no robot dynamics stage)."
+}

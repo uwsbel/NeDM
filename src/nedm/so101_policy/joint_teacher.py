@@ -400,6 +400,10 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
     outputs ``goal_jumps`` (per episode), ``goal_xy_final``, ``goal_jump_d`` / ``goal_jump_lat`` (the last jump's
     offset of the cube from the new goal, m; + = past along the carry) and, with ``record``, ``row_goal_xy``
     (``goal_xy`` stays the task's own goal).
+    Held-cube rest starts (round v9 task files with ``rest_lifted`` / ``rest_air_s`` / ``rest_ctrl``): after the reset
+    the task's lifted flag and held time are preset (``JointVecEnv.set_rest``); files without these keys: unchanged.
+    The NRD start keeps its one-entry history; CPU MuJoCo needs the exact held-target reset of
+    ~/so101_r2s_claude/v9/restart/scripts/step0_eval.py (its warm-up moves a held cube past the start check).
     -> dict of numpy arrays."""
     from nedm.so101_policy.vision.demos import start_state
     from nedm.so101_policy.vision.teacher import hash_normal
@@ -411,6 +415,11 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
         if env.cfg.world == "mujoco" else None
     seeds = torch.as_tensor(tasks["seeds"], dtype=torch.long, device=dev)
     obs = env.reset_tasks(torch.arange(B, device=dev), start_state(tasks, dev), g("goal_xy"), g("goal_yaw"), seeds, mj)
+    if "rest_lifted" in tasks:    # held-cube rest starts (round v9 task files, rest_* keys): lifted flag, held time
+        env.set_rest(torch.arange(B, device=dev), torch.as_tensor(np.asarray(tasks["rest_lifted"], bool)),
+                     torch.as_tensor(np.round(np.asarray(tasks["rest_air_s"], np.float64) / JE.CONTROL_DT)),
+                     torch.as_tensor(np.asarray(tasks["rest_ctrl"], np.float64)[:, 5]) if "rest_ctrl" in tasks else None)
+        obs = env.obs = env._observe()
     goal_pose = torch.cat((g("goal_xy"), g("goal_yaw")[:, None]), -1)
     if src is None:
         src = np.full(B, 1 if student is not None else 0)

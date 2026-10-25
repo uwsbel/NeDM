@@ -52,6 +52,12 @@ the guard's. The teacher's observation does not change (it reads the measured q)
 above the cap are dropped (``drop_high_roll``); fixed tasks with such a start warn. Per episode the env records
 ``roll_cmd_max`` (the largest commanded wrist roll, before the action layer, policy frame) and ``roll_q_max`` (the
 largest measured one) in ``extras["episode"]`` (rad).
+
+Held-cube rest starts (real2sim round v9, 2026-10-25, OFF by default: ``JointEnvConfig.rest`` None): a share of the
+automatic resets starts from a rest bank (``RestConfig``: the cube held at rest, low and far from the goal, the task's
+lifted flag and held time preset), the state where the robot student stopped on 2026-10-24. With the arm pause
+(``PauseConfig``) widened to the whole carry (``near_m`` up to 0.30 m, ``z_lo`` 0.002 m; a config change only) the
+PPO teacher learns to start again from rest.
 """
 from __future__ import annotations
 
@@ -322,7 +328,9 @@ class PauseConfig:
     measured q for ``s_lo``-``s_hi`` s (the jaw follows its command), started at a decision where the cube is held,
     lifted, within ``near_m`` (xy) of the goal and its bottom ``z_lo``-``z_hi`` above z = 0, with probability ``rate``
     per decision, at most ``max_n`` times per episode, in a share ``p`` of the episodes. The JT labels the still
-    states ("descend"); after the pause the normal physics continue. Training only (``JointEnvConfig.pause``)."""
+    states ("descend"); after the pause the normal physics continue. Training only (``JointEnvConfig.pause``).
+    Round v9 (2026-10-25): ``near_m`` up to 0.30 and ``z_lo`` 0.002 put the pauses anywhere in the carry (the robot's
+    carry stops: 50-110 mm from the plate, cube bottom a few mm above the sim table); the defaults are unchanged."""
     p: float = 0.5
     s_lo: float = 0.5
     s_hi: float = 3.0
@@ -400,6 +408,72 @@ class Pause:
     def summary(self):
         return dict(pause_on=round(float(self.on.double().mean()), 3),
                     pause_now=round(float((self.left > 0).double().mean()), 3), pause_started=int(self.started))
+
+
+# ---- held-cube rest starts (real2sim round v9, 2026-10-25; off by default) -----------------------------------------
+REST_STATE = ("q", "qd", "cube_pos", "cube_quat", "cube_v", "cube_w")
+REST_KEYS = ("rest_goal_xy", "rest_goal_yaw", "rest_lifted", "rest_air_s")
+
+
+@dataclass
+class RestConfig:
+    """Held-cube rest starts (real2sim round v9): on the robot of 2026-10-24 the student stopped with the cube in the
+    jaw, low (TCP 19-29 mm sim z) and 50-110 mm from the plate, and the teacher labels "stay" / "open the jaw" there:
+    with the lifted flag 1, a long held time and no arm speed a low held cube is a place state for it (step 0,
+    ~/so101_r2s_claude/v9/restart/STEP0.md: 86-91 % far drops from such starts). With this option every automatic
+    reset (``JointVecEnv._pool_reset``) is, with probability ``share``, a rest start: a row of the rest bank ``bank``
+    (.npz: the start-bank keys ``REST_STATE`` at rest + ``rest_goal_xy`` [N, 2], ``rest_goal_yaw`` [N],
+    ``rest_lifted`` [N], ``rest_air_s`` [N] (s held so far), optional ``rest_ctrl`` [N, 6]: the held targets, whose jaw
+    column becomes the robot dynamics stage's past jaw command), with the row's goal, the task's lifted flag =
+    ``rest_lifted`` and held time = ``rest_air_s`` (``JointVecEnv.set_rest``). The other resets draw their rows and goals
+    as before (the env's generator makes the same draws); the rest draws use their own generator. Rows above the
+    wrist-roll cap are dropped. Training only (start-bank worlds); fixed tasks with rest_* keys:
+    ``joint_teacher.run_tasks``."""
+    bank: str = ""
+    share: float = 0.25
+
+    def __post_init__(self):
+        if not self.bank or isinstance(self.share, bool) or not 0.0 <= float(self.share) <= 1.0:
+            raise ValueError(f"rest config: a bank path and a share in [0, 1], got {self}")
+        self.bank, self.share = str(self.bank), float(self.share)
+
+
+def rest_config(v) -> RestConfig | None:
+    """None / False / {} / "" -> None (off); a dict or a JSON string -> ``RestConfig``."""
+    if isinstance(v, RestConfig):
+        return v
+    if isinstance(v, str):
+        v = json.loads(v) if v.strip() else None
+    if v is None or v is False or (isinstance(v, dict) and not v):
+        return None
+    d = {k: x for k, x in dict(v).items() if k != "note"}
+    bad = sorted(set(d) - {f.name for f in fields(RestConfig)})
+    if bad:
+        raise ValueError(f"unknown rest keys {bad}")
+    return RestConfig(**d)
+
+
+def load_rest_bank(path, device) -> dict:
+    """Rest bank (``RestConfig``) -> dict of [N, ...] tensors: ``REST_STATE`` (float64), goal_xy, goal_yaw, lifted
+    (bool), air (held time in 20 ms steps, long), jaw_cmd (float64; only with ``rest_ctrl``). Refuses the sealed test
+    and a task file (``goal_xy`` key: development / fresh sets are not training starts)."""
+    p = Path(str(path)).expanduser()
+    if "test_sealed" in str(p):
+        raise ValueError("the sealed test data must not be used for starts")
+    z = np.load(p)
+    if "goal_xy" in z.files:
+        raise ValueError(f"{p}: a task file (goal_xy), not a rest bank")
+    miss = [k for k in REST_STATE + REST_KEYS if k not in z.files]
+    if miss:
+        raise ValueError(f"{p}: rest bank without {miss}")
+    f = lambda k: torch.as_tensor(np.asarray(z[k], np.float64), device=device)               # noqa: E731
+    b = {k: f(k) for k in REST_STATE}
+    b.update(goal_xy=f("rest_goal_xy"), goal_yaw=f("rest_goal_yaw"),
+             lifted=torch.as_tensor(np.asarray(z["rest_lifted"], bool), device=device),
+             air=torch.round(f("rest_air_s") / CONTROL_DT).long())
+    if "rest_ctrl" in z.files:
+        b["jaw_cmd"] = f("rest_ctrl")[:, 5]
+    return b
 
 
 # ---- goal jumps (studentlab trials A2-A4, 2026-10-22; off by default) ---------------------------------------------
@@ -1092,12 +1166,14 @@ class JointEnvConfig:
                                                       # (``hold_cap_kw`` keeps the old envs' 3.5 s with a new cap)
     goal_jump: object = None                          # GoalJumpConfig (or its dict): goal jumps; None = off
     roll_hi_deg: object = None                        # wrist-roll target cap (sim deg; module docstring); None = off
+    rest: object = None                               # RestConfig (or its dict): held-cube rest starts; None = off
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
         self.pause = pause_config(self.pause)
         self.goal_jump = goal_jump_config(self.goal_jump)
         self.roll_hi_deg = roll_hi_config(self.roll_hi_deg)
+        self.rest = rest_config(self.rest)
 
     @staticmethod
     def from_dict(d):
@@ -1118,6 +1194,8 @@ class JointEnvConfig:
             d.pop("goal_jump", None)
         if d.get("roll_hi_deg") is None:  # off: the old record (readable by code without the roll cap)
             d.pop("roll_hi_deg", None)
+        if d.get("rest") is None:         # off: the old record (readable by code without rest starts)
+            d.pop("rest", None)
         return d
 
 
@@ -1169,6 +1247,15 @@ class JointVecEnv:
         self.roll_dropped = 0             # roll cap: start-bank rows dropped (wrist roll above the cap)
         if self.roll_hi is not None and self.bank is not None:
             self.bank, self.roll_dropped = drop_high_roll(self.bank, float(self.thi[ROLL]))
+        self.rest = None                  # held-cube rest starts (RestConfig; None = off): the bank, own generator
+        if cfg.rest is not None:
+            if self.bank is None:
+                raise ValueError("rest starts: automatic resets from a start bank only (cfg.starts, world not mujoco)")
+            self.rest, self.rest_dropped = load_rest_bank(cfg.rest.bank, dev), 0
+            if self.roll_hi is not None:
+                self.rest, self.rest_dropped = drop_high_roll(self.rest, float(self.thi[ROLL]))
+            self.rest_gen = torch.Generator(dev).manual_seed((int(cfg.seed) * 0x27D4EB2F + 0x7E5) & 0x7FFFFFFFFFFF)
+            self.rest_n, self.rest_resets = 0, 0                 # rest starts / all automatic resets so far (log)
         self.pool = None
         f, li = dict(dtype=torch.float64, device=dev), dict(dtype=torch.long, device=dev)
         self.ep_count = torch.zeros(B, **li)
@@ -1321,7 +1408,49 @@ class JointVecEnv:
         i = self.pool["i"][k]
         s = (int(self.cfg.seed) * 0x9E3779B1 + self.ep_count[idx] * self.B + idx) & 0xFFFFFFFF
         self.ep_count[idx] += 1
-        self._reset_rows(idx, start_rows(self.bank, i), self.pool["goal_xy"][k], self.pool["goal_yaw"][k], s)
+        if self.rest is None:
+            self._reset_rows(idx, start_rows(self.bank, i), self.pool["goal_xy"][k], self.pool["goal_yaw"][k], s)
+            return
+        # held-cube rest starts (RestConfig): a share of the rows from the rest bank; the others as above (same draws)
+        r = torch.rand(len(idx), generator=self.rest_gen, dtype=torch.float64, device=self.dev) < self.cfg.rest.share
+        n = ~r
+        if bool(n.any()):
+            self._reset_rows(idx[n], start_rows(self.bank, i[n]), self.pool["goal_xy"][k[n]],
+                             self.pool["goal_yaw"][k[n]], s[n])
+        if bool(r.any()):
+            ri, R = idx[r], self.rest
+            j = torch.randint(len(R["q"]), (len(ri),), generator=self.rest_gen, device=self.dev)
+            self._reset_rows(ri, start_rows(R, j), R["goal_xy"][j], R["goal_yaw"][j], s[r])
+            self.set_rest(ri, R["lifted"][j], R["air"][j], R["jaw_cmd"][j] if "jaw_cmd" in R else None)
+        self.rest_n += int(r.sum())
+        self.rest_resets += len(idx)
+
+    def set_rest(self, idx, lifted, air_steps, jaw_cmd=None):
+        """Worlds ``idx`` (just reset) start at rest with the cube in the jaw (``RestConfig``; fixed tasks:
+        ``joint_teacher.run_tasks``): the task's lifted flag ``lifted`` [n] bool, the held time ``air_steps`` [n] (20 ms
+        steps, the tracker's ``air_run``: the JT observation's held-time input), held now (``since_release`` 0); with
+        the robot dynamics stage its past jaw commands = ``jaw_cmd`` [n] (rad: the closed command of the carry, not
+        the measured jaw; None = keep the reset's measured jaw). The caller computes the observation afterwards."""
+        tr = self.task.tr
+        tr.lifted[idx] = torch.as_tensor(lifted, device=self.dev).bool()
+        tr.air_run[idx] = torch.as_tensor(air_steps, device=self.dev).long()
+        tr.prev_held[idx] = True
+        tr.since_release[idx] = 0
+        if jaw_cmd is not None and self.dyn is not None:
+            cj = torch.as_tensor(jaw_cmd, dtype=torch.float64, device=self.dev)
+            self.dyn.hold[idx, 5] = cj
+            self.dyn.prev5[idx, :, 5] = cj[:, None]
+            self.dyn.f[idx, 5] = cj
+            if self.dyn.servo is not None:
+                self.dyn.servo.hist[idx, :, 5] = cj[:, None]
+
+    def rest_info(self) -> dict | None:
+        """The rest-start option for logs (None = off): bank, share, rows (after the roll cap), rows dropped, rest
+        starts / all automatic resets so far."""
+        if self.rest is None:
+            return None
+        return dict(bank=self.cfg.rest.bank, share=self.cfg.rest.share, rows=int(len(self.rest["q"])),
+                    dropped=int(self.rest_dropped), rest_starts=int(self.rest_n), resets=int(self.rest_resets))
 
     def reset(self):
         idx = torch.arange(self.B, device=self.dev)

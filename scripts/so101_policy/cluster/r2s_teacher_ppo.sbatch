@@ -6,6 +6,9 @@
 #   evaluations; the log adds "roll over cap" = share of the episodes that commanded the roll above it)
 #   DEV_TASKS=<task file> (default dev100), DEV_EXTRA="<task files>" (more dev sets: log + RUN/dev_evals.jsonl),
 #   EXTRA=--dev-match-env (dev evaluations with the env config's horizon / hold cap), ENVS, EVAL_EVERY, SAVE_EVERY
+#   REPO=<another synced copy> (e.g. $R2S/repo_v9): runs that copy's code and sources its r2s_env.sh (unset: $R2S/repo,
+#   as before). Round v9 restart teacher (rest starts + widened pause): ENVCFG=configs/so101_policy/ppo/r2s/
+#   teacher_restart_v9a.json (nominal NRD) or _v9b.json (+ the student recipe's slow-arm dynamics), INIT=<D's teacher>
 #SBATCH -J r2s-tppo
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x
@@ -13,7 +16,7 @@
 #SBATCH -t 03:00:00
 #SBATCH -o /work1/dannegrut/harry/so101_r2s_claude/logs/%x_%j.out
 set -uo pipefail
-set +u; source /work1/dannegrut/harry/so101_r2s_claude/repo/scripts/so101_policy/cluster/r2s_env.sh; set -u
+set +u; source "${REPO:-/work1/dannegrut/harry/so101_r2s_claude/repo}/scripts/so101_policy/cluster/r2s_env.sh"; set -u
 cd "$REPO"
 ENVCFG=${ENVCFG:?set ENVCFG=<env json>}
 RUN=${RUN:?set RUN=<dir>}

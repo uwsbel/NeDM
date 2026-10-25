@@ -33,6 +33,7 @@ import argparse
 import json
 import sys
 import time
+from dataclasses import asdict
 from pathlib import Path
 
 import numpy as np
@@ -238,6 +239,10 @@ def cmd_ppo(a):
     env = JE.JointVecEnv(cfg, codec)
     if env.roll_hi is not None:   # the wrist-roll cap of the env config (roll_hi_deg): also in the dev evaluations
         log(f"roll cap: {json.dumps(env.roll_info())}")
+    if env.rest is not None:      # held-cube rest starts of the env config (rest; round v9)
+        log(f"rest starts: {json.dumps(env.rest_info())}")
+    if env.pause is not None:     # the arm pause of the env config (pause)
+        log(f"pause: {json.dumps(asdict(cfg.pause))}")
     tc = JT.ppo_train_cfg(json.loads(Path(a.train_config).read_text()) if a.train_config else None)
     tc["seed"] = a.seed
     pk = dict(init["policy_kwargs"])
@@ -304,7 +309,9 @@ def cmd_ppo(a):
             + (f" | dev nrd len {row['dev_nrd_lenient']:.2f} strict {row['dev_nrd_strict']:.2f}"
                if "dev_nrd_lenient" in row else "")
             + (f" roll over {row['dev_nrd_roll_cmd_over']:.2f}" if "dev_nrd_roll_cmd_over" in row else "")
-            + "".join(dev_more))
+            + "".join(dev_more)
+            + (f" | rest starts {env.rest_n}/{env.rest_resets}" if env.rest is not None else "")
+            + (f" | pauses {env.pause.started}" if env.pause is not None else ""))
         if algo.iteration % a.save_every == 0 or algo.iteration == a.iterations:
             algo.save(out / "ckpt" / f"model_{algo.iteration:05d}.pt")
             algo.save(out / "ckpt" / "last.pt")
