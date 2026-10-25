@@ -58,6 +58,11 @@ automatic resets starts from a rest bank (``RestConfig``: the cube held at rest,
 lifted flag and held time preset), the state where the robot student stopped on 2026-10-24. With the arm pause
 (``PauseConfig``) widened to the whole carry (``near_m`` up to 0.30 m, ``z_lo`` 0.002 m; a config change only) the
 PPO teacher learns to start again from rest.
+
+Kinematic arm-table end (real2sim round v9c, 2026-10-25, OFF by default: ``JointEnvConfig.arm_table`` None): the NRD has
+no arm-table contact; with ``ArmTableConfig`` the env raises the world's arm_table flag (the task's world_arm_table
+end) when the lowest gripper / moving-jaw collision point at q + tau x qd is below the table (before the first firm
+lift), the MuJoCo contact end of a fast grasp descent.
 """
 from __future__ import annotations
 
@@ -65,7 +70,7 @@ import copy
 import json
 import math
 import os
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, field, fields, replace
 from pathlib import Path
 
 import numpy as np
@@ -485,6 +490,61 @@ def far_open_config(v) -> FarOpenConfig | None:
     if bad:
         raise ValueError(f"unknown far_open keys {bad}")
     return FarOpenConfig(**d)
+
+
+@dataclass
+class ArmTableConfig:
+    """A kinematic arm-table end for worlds without an arm-table contact (the NRD; real2sim round v9c, 2026-10-25; off by
+    default: ``JointEnvConfig.arm_table`` None). After every 20 ms world step: the lowest collision point of the gripper
+    and the moving jaw (``kin.lowest_point``, the deploy guard's points; heights above the table plane if one is set) at
+    the pose extrapolated ``tau_s`` ahead with the measured joint rates, q + ``tau_s`` x qd, below ``margin_m`` -> the
+    world's ``arm_table`` flag -> the task's ``world_arm_table`` end (the failure cost of every rule), as MuJoCo's
+    contact end. ``tau_s`` 0: the pose itself. ``grasp_only``: only in worlds before their first firm lift
+    (``task.tr.lifted`` False before the step): the place descent and the held-cube rest starts are not touched.
+    Why: the restart teachers (s36_cont) lost 13-14 points of MuJoCo HOME roll 0 to arm-table ends at the grasp (22 of
+    200 episodes, D's teacher 0): the jaw closes while the arm still descends at about 0.2 m/s, the targets sit on the
+    action layer's 1.5 mm floor and the MuJoCo arm overshoots it; the moving jaw's fingertip mesh touches the table
+    (all 22). The NRD has no arm-table pair (``nrd_sim``: arm_table all False), so PPO in the NRD never paid for it.
+    Fit on the gate rollouts (``~/so101_r2s_claude/v9/fix/teacher/``): all 22 MuJoCo ends were before the first lift.
+    margin 0, tau 0.02 s, grasp only fires on all 22 (MuJoCo states), in 87 of 200 of s36_cont's NRD HOME roll 0
+    episodes and in 3 of 200 of D's teacher's (6 of D's 193 MuJoCo successes)."""
+    margin_m: float = 0.0
+    tau_s: float = 0.02
+    grasp_only: bool = True
+
+    def __post_init__(self):
+        if not isinstance(self.grasp_only, bool):
+            raise ValueError(f"arm_table config: grasp_only must be a bool, got {self.grasp_only!r}")
+        for k in ("margin_m", "tau_s"):
+            v = getattr(self, k)
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(float(v)):
+                raise ValueError(f"arm_table config: {k} must be a finite number, got {v!r}")
+        if not (0.0 <= float(self.tau_s) <= 0.1 and -0.005 <= float(self.margin_m) <= 0.02):
+            raise ValueError(f"arm_table config: tau_s in [0, 0.1] s and margin_m in [-0.005, 0.02] m, got {self}")
+        self.margin_m, self.tau_s = float(self.margin_m), float(self.tau_s)
+
+
+def arm_table_config(v) -> ArmTableConfig | None:
+    """None / False / {} / "" -> None (off); a dict or a JSON string -> ``ArmTableConfig``."""
+    if isinstance(v, ArmTableConfig):
+        return v
+    if isinstance(v, str):
+        v = json.loads(v) if v.strip() else None
+    if v is None or v is False or (isinstance(v, dict) and not v):
+        return None
+    d = {k: x for k, x in dict(v).items() if k != "note"}
+    bad = sorted(set(d) - {f.name for f in fields(ArmTableConfig)})
+    if bad:
+        raise ValueError(f"unknown arm_table keys {bad}")
+    return ArmTableConfig(**d)
+
+
+def arm_table_rule(q, qd, kin, at: ArmTableConfig, plane=None):
+    """[B] bool: ``ArmTableConfig``'s kinematic arm-table end at the measured state (q, qd [B, 6])."""
+    q = q.to(torch.float64)
+    qx = q if at.tau_s == 0.0 else q + at.tau_s * qd.to(torch.float64)
+    low = kin.lowest_point(qx) if plane is None else kin.lowest_point(qx, plane=plane)
+    return low < at.margin_m
 
 
 def load_rest_bank(path, device) -> dict:
@@ -1202,6 +1262,7 @@ class JointEnvConfig:
     roll_hi_deg: object = None                        # wrist-roll target cap (sim deg; module docstring); None = off
     rest: object = None                               # RestConfig (or its dict): held-cube rest starts; None = off
     far_open: object = None                           # FarOpenConfig (or its dict): jaw-open cost far from the goal
+    arm_table: object = None                          # ArmTableConfig (or its dict): kinematic arm-table end
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
@@ -1210,6 +1271,7 @@ class JointEnvConfig:
         self.roll_hi_deg = roll_hi_config(self.roll_hi_deg)
         self.rest = rest_config(self.rest)
         self.far_open = far_open_config(self.far_open)
+        self.arm_table = arm_table_config(self.arm_table)
 
     @staticmethod
     def from_dict(d):
@@ -1234,6 +1296,8 @@ class JointEnvConfig:
             d.pop("rest", None)
         if d.get("far_open") is None:     # off: the old record
             d.pop("far_open", None)
+        if d.get("arm_table") is None:    # off: the old record
+            d.pop("arm_table", None)
         return d
 
 
@@ -1286,6 +1350,7 @@ class JointVecEnv:
         if self.roll_hi is not None and self.bank is not None:
             self.bank, self.roll_dropped = drop_high_roll(self.bank, float(self.thi[ROLL]))
         self.far_open_sum = torch.zeros((), dtype=torch.float64, device=dev)   # FarOpenConfig: summed cost (log)
+        self.arm_table_n = torch.zeros((), dtype=torch.long, device=dev)       # ArmTableConfig: ends by the rule (log)
         self.rest = None                  # held-cube rest starts (RestConfig; None = off): the bank, own generator
         if cfg.rest is not None:
             if self.bank is None:
@@ -1582,6 +1647,7 @@ class JointVecEnv:
             self.pause.begin(task, self.ws.q)
         rc = self.roll_hi is not None     # the wrist-roll cap (off: the old path, bit for bit)
         fo = self.cfg.far_open if task.F is not None else None   # FarOpenConfig (None: the old reward, bit for bit)
+        atc = self.cfg.arm_table          # ArmTableConfig (None: the old world flags, bit for bit)
         for j in range(STEPS):
             if rc:                        # the commanded roll before the action layer (policy frame), live worlds
                 self.roll_cmd_max = torch.where(task.tr.end == 0, torch.fmax(self.roll_cmd_max, u5[:, j, ROLL]),
@@ -1616,6 +1682,12 @@ class JointVecEnv:
                 fo_cost = torch.where(far, fo.cost * jo, torch.zeros_like(jo))
             ws = self.world.step(u)
             self.ws = ws if self.cfg.world != "mujoco" else ws.to(self.dev)
+            if atc is not None:           # ArmTableConfig: the kinematic arm-table end (a new WorldState, the world's
+                hit = arm_table_rule(self.ws.q, self.ws.qd, self.kin, atc, self.table_plane)   # own record unchanged)
+                if atc.grasp_only:        # before the first firm lift only (the tracker before this step)
+                    hit = hit & ~task.tr.lifted
+                self.arm_table_n = self.arm_table_n + (hit & (task.tr.end == 0)).sum()
+                self.ws = replace(self.ws, arm_table=self.ws.arm_table.to(device=hit.device, dtype=torch.bool) | hit)
             if rc:                        # the measured roll after the step (policy frame)
                 rq = self.ws.q[:, ROLL].to(torch.float64) + (0.0 if self.q_offset is None else self.q_offset[ROLL])
                 self.roll_q_max = torch.where(lv, torch.fmax(self.roll_q_max, rq), self.roll_q_max)

@@ -1,0 +1,35 @@
+{
+ "note": "real2sim round v9c (2026-10-25), teacher fix variant B: joint_ppo_v3_kl02_std25.json with the PPO action std 0.1 (init 0.1, floor 0.02, cap 0.2, reset 0.1) instead of 0.25 / 0.05 / 0.5 / 0.25. Why: fine-tune of the restart teacher s36_cont with the kinematic arm-table end; a lower exploration noise than the 0.25 of the restart runs (D's teacher: 0.03-0.06), to keep the restart skill while the grasp descent is corrected. | real2sim round v9 (2026-10-25), restart teacher: joint_ppo_v3_kl02.json with the action std of the from-scratch joint teacher's PPO (joint_teacher.ppo_train_cfg: init 0.25, floor 0.05, cap 0.5, reset 0.25) instead of 0.05 / 0.02 / 0.2 / 0.05. Why: in tppo_restart_v9a_s31 / v9b_s32 (std 0.05) the rest dev set stayed at 10-12 % lenient for 80 iterations; at the rest starts the jaw-closed action is 0.36 / 0.52 / 0.94 normalised units (p50, jaw coefficients k0 / k1 / k2) from D's jaw-open action = 7-19 std at 0.05, so PPO almost never samples it, and the KL of a small mean change at std 0.05 holds the adaptive lr at ~1e-5. The std groups are contiguous (15 + 3 dims) while the jaw coefficients are dims 5 / 11 / 17, so no jaw-only std is possible. | real2sim teacher fine-tune 2026-10-22: joint_ppo_v3 with desired_kl 0.02 (v3: 0.005; in the fine-tunes under the robot dynamics stage the adaptive lr fell to 2.25e-6 at kl 0.007 and success stayed flat).",
+ "algorithm": {
+  "clip_param": 0.2,
+  "desired_kl": 0.02,
+  "entropy_coef": 0.0,
+  "gamma": 0.99,
+  "lam": 0.95,
+  "learning_rate": 0.0001,
+  "max_grad_norm": 1.0,
+  "num_learning_epochs": 5,
+  "num_mini_batches": 8,
+  "schedule": "adaptive",
+  "use_clipped_value_loss": true,
+  "value_loss_coef": 1.0
+ },
+ "num_steps_per_env": 32,
+ "critic_lr": 0.0003,
+ "init_std": [
+  0.1,
+  0.1
+ ],
+ "std_floor": [
+  0.02,
+  0.02
+ ],
+ "std_cap": [
+  0.2,
+  0.2
+ ],
+ "std_reset": [
+  0.1,
+  0.1
+ ]
+}
