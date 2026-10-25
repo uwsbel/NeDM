@@ -217,6 +217,65 @@ class TestEnv(unittest.TestCase):
             with self.assertRaises(ValueError):                 # a task file is not a rest bank
                 JE.load_rest_bank(TASKS, "cpu")
 
+    def test_far_open_cost(self):
+        """FarOpenConfig: cost 0 = off bit for bit; cost > 0 lowers the reward by exactly cost x max(0, executed jaw
+        target - measured jaw) summed over the steps of live worlds whose cube is held (forced here), lifted and far."""
+        from nedm.so101_policy import joint_teacher as JT
+        from nedm.so101_policy.vision.demos import start_state
+        t = tasks(12)
+
+        def run(fo):
+            env = JT.make_env("kin", 12, codec(), "cpu", horizon=60, dyn=False)
+            env.cfg.far_open = JE.far_open_config(fo)
+            env.reset_tasks(torch.arange(12), start_state(t, "cpu"), torch.as_tensor(t["goal_xy"]),
+                            torch.as_tensor(t["goal_yaw"]), torch.as_tensor(t["seeds"]))
+            env.task.tr.lifted[:] = True
+            orig, wstep = env.task.step, env.world.step
+            rec = []
+
+            def step(*a, **k):                 # every cube counts as held (the kin world grasps only by closing)
+                out = orig(*a, **k)
+                env.task.F["held"] = torch.ones_like(env.task.F["held"])
+                return out
+
+            def world_step(u):                 # q, cube, liveness before each 20 ms step
+                F = env.task.F
+                rec.append((env.ws.q[:, 5].clone(), None if F is None else F["c"][:, :2].clone(),
+                            (env.task.tr.end == 0).clone()))
+                return wstep(u)
+            env.task.step, env.world.step = step, world_step
+            out, exp = [], []
+            for k in range(4):
+                rec.clear()
+                tg = env.ws.q.to(torch.float64)[:, None, :].expand(12, JE.STEPS, 6).clone()
+                tg[:6, :, 5] += 0.3                                              # open
+                tg[6:, :, 5] -= 0.1                                              # close
+                obs, rew, done, ex = env.step(None, targets=tg)
+                out.append(rew.double())
+                e = torch.zeros(12, dtype=torch.float64)
+                for j, (qj, c, live) in enumerate(rec):
+                    if k > 0:                  # decision 1: no task.F yet (the cost starts with the 2nd decision)
+                        far = live & ((c - env.task.goal_xy).norm(dim=-1) > 0.04)
+                        e += torch.where(far, (env.u_exe[:, j, 5] - qj).clamp(min=0.0), torch.zeros_like(e))
+                exp.append(e)
+            return torch.stack(out, 1), torch.stack(exp, 1), env
+        off, _, e0 = run(None)
+        zero, _, _ = run(dict(cost=0.0))
+        on, exp, e1 = run(dict(cost=2.0, far_m=0.04))
+        self.assertTrue(torch.equal(off, zero))
+        self.assertEqual(float(e0.far_open_sum), 0.0)
+        self.assertTrue(torch.allclose(off - on, 2.0 * exp, atol=1e-6))
+        self.assertTrue(bool((exp[:6, 1] > 0.1).all()))       # the opening worlds pay (later: the jaw reaches its range end)
+        self.assertLess(float(exp[6:].max()), 0.1)            # closing jaw: only the servo overshoot (5 steps)
+        self.assertAlmostEqual(float(e1.far_open_sum), float(2.0 * exp.sum()), places=5)
+        c = JE.JointEnvConfig.from_dict(dict(far_open=dict(cost=0.5, note="x")))
+        self.assertEqual(c.far_open, JE.FarOpenConfig(0.5, 0.04))
+        self.assertEqual(c.to_dict()["far_open"], dict(cost=0.5, far_m=0.04))
+        self.assertNotIn("far_open", JE.JointEnvConfig().to_dict())
+        for bad in (dict(cost=-1.0), dict(far_m=0.0), dict(cost=True), dict(k=1)):
+            with self.assertRaises(ValueError, msg=repr(bad)):
+                JE.far_open_config(bad)
+
     def test_run_tasks_rest_keys(self):
         from nedm.so101_policy import joint_teacher as JT
         t = tasks(8)

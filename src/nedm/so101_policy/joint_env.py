@@ -453,6 +453,40 @@ def rest_config(v) -> RestConfig | None:
     return RestConfig(**d)
 
 
+@dataclass
+class FarOpenConfig:
+    """A dense cost on jaw-open commands while the held cube is far from the goal (real2sim round v9, 2026-10-25;
+    training reward only, off by default: ``JointEnvConfig.far_open`` None). Every 20 ms step, in live worlds whose cube
+    is held (``task.F["held"]`` of the previous step), lifted (``task.tr.lifted``) and more than ``far_m`` (xy) from the
+    goal: reward -= ``cost`` x max(0, jaw target - measured jaw) (rad; the action layer's executed jaw target ``u_exe``).
+    Why: from the held-cube rest starts (``RestConfig``) D's teacher opens the jaw far from the goal; the closed jaw is
+    7-19 policy std away and a successful restart needs it closed for several decisions in a row, so the success reward
+    alone gave PPO no signal (tppo_restart_v9a_s31: rest dev set 10 -> 12 % in 140 iterations). The cost is a smooth
+    function of the action at every such step. It never acts at the place (within ``far_m``) or before the first lift."""
+    cost: float = 0.5
+    far_m: float = 0.04
+
+    def __post_init__(self):
+        if isinstance(self.cost, bool) or not (float(self.cost) >= 0.0 and float(self.far_m) > 0.0):
+            raise ValueError(f"far_open config: cost >= 0 and far_m > 0, got {self}")
+        self.cost, self.far_m = float(self.cost), float(self.far_m)
+
+
+def far_open_config(v) -> FarOpenConfig | None:
+    """None / False / {} / "" -> None (off); a dict or a JSON string -> ``FarOpenConfig``."""
+    if isinstance(v, FarOpenConfig):
+        return v
+    if isinstance(v, str):
+        v = json.loads(v) if v.strip() else None
+    if v is None or v is False or (isinstance(v, dict) and not v):
+        return None
+    d = {k: x for k, x in dict(v).items() if k != "note"}
+    bad = sorted(set(d) - {f.name for f in fields(FarOpenConfig)})
+    if bad:
+        raise ValueError(f"unknown far_open keys {bad}")
+    return FarOpenConfig(**d)
+
+
 def load_rest_bank(path, device) -> dict:
     """Rest bank (``RestConfig``) -> dict of [N, ...] tensors: ``REST_STATE`` (float64), goal_xy, goal_yaw, lifted
     (bool), air (held time in 20 ms steps, long), jaw_cmd (float64; only with ``rest_ctrl``). Refuses the sealed test
@@ -1167,6 +1201,7 @@ class JointEnvConfig:
     goal_jump: object = None                          # GoalJumpConfig (or its dict): goal jumps; None = off
     roll_hi_deg: object = None                        # wrist-roll target cap (sim deg; module docstring); None = off
     rest: object = None                               # RestConfig (or its dict): held-cube rest starts; None = off
+    far_open: object = None                           # FarOpenConfig (or its dict): jaw-open cost far from the goal
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
@@ -1174,6 +1209,7 @@ class JointEnvConfig:
         self.goal_jump = goal_jump_config(self.goal_jump)
         self.roll_hi_deg = roll_hi_config(self.roll_hi_deg)
         self.rest = rest_config(self.rest)
+        self.far_open = far_open_config(self.far_open)
 
     @staticmethod
     def from_dict(d):
@@ -1196,6 +1232,8 @@ class JointEnvConfig:
             d.pop("roll_hi_deg", None)
         if d.get("rest") is None:         # off: the old record (readable by code without rest starts)
             d.pop("rest", None)
+        if d.get("far_open") is None:     # off: the old record
+            d.pop("far_open", None)
         return d
 
 
@@ -1247,6 +1285,7 @@ class JointVecEnv:
         self.roll_dropped = 0             # roll cap: start-bank rows dropped (wrist roll above the cap)
         if self.roll_hi is not None and self.bank is not None:
             self.bank, self.roll_dropped = drop_high_roll(self.bank, float(self.thi[ROLL]))
+        self.far_open_sum = torch.zeros((), dtype=torch.float64, device=dev)   # FarOpenConfig: summed cost (log)
         self.rest = None                  # held-cube rest starts (RestConfig; None = off): the bank, own generator
         if cfg.rest is not None:
             if self.bank is None:
@@ -1542,6 +1581,7 @@ class JointVecEnv:
         if self.pause is not None:
             self.pause.begin(task, self.ws.q)
         rc = self.roll_hi is not None     # the wrist-roll cap (off: the old path, bit for bit)
+        fo = self.cfg.far_open if task.F is not None else None   # FarOpenConfig (None: the old reward, bit for bit)
         for j in range(STEPS):
             if rc:                        # the commanded roll before the action layer (policy frame), live worlds
                 self.roll_cmd_max = torch.where(task.tr.end == 0, torch.fmax(self.roll_cmd_max, u5[:, j, ROLL]),
@@ -1568,12 +1608,21 @@ class JointVecEnv:
             if rc:                        # the cap on the target sent to the world, after every stage
                 u = self.cap_roll(u)
                 lv = task.tr.end == 0
+            if fo is not None:            # FarOpenConfig: held, lifted, far from the goal (task.F of the last step);
+                Fp = task.F               # the executed jaw target above the measured jaw before this step
+                far = (task.tr.end == 0) & Fp["held"] & task.tr.lifted & \
+                    ((Fp["c"][:, :2] - task.goal_xy).norm(dim=-1) > fo.far_m)
+                jo = (ex[-1][:, 5].to(torch.float64) - self.ws.q[:, 5].to(torch.float64)).clamp(min=0.0)
+                fo_cost = torch.where(far, fo.cost * jo, torch.zeros_like(jo))
             ws = self.world.step(u)
             self.ws = ws if self.cfg.world != "mujoco" else ws.to(self.dev)
             if rc:                        # the measured roll after the step (policy frame)
                 rq = self.ws.q[:, ROLL].to(torch.float64) + (0.0 if self.q_offset is None else self.q_offset[ROLL])
                 self.roll_q_max = torch.where(lv, torch.fmax(self.roll_q_max, rq), self.roll_q_max)
             r, _, _, info = task.step(self.ws, None, None)
+            if fo is not None:
+                r = r - fo_cost
+                self.far_open_sum = self.far_open_sum + fo_cost.sum()
             rew += r
             if step_hook is not None:
                 step_hook(self, j)
