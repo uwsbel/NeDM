@@ -63,6 +63,11 @@ Kinematic arm-table end (real2sim round v9c, 2026-10-25, OFF by default: ``Joint
 no arm-table contact; with ``ArmTableConfig`` the env raises the world's arm_table flag (the task's world_arm_table
 end) when the lowest gripper / moving-jaw collision point at q + tau x qd is below the table (before the first firm
 lift), the MuJoCo contact end of a fast grasp descent.
+
+Grasp target toward the fixed jaw (real2sim round v11, 2026-10-25, OFF by default: ``JointEnvConfig.grasp_shift``
+None): ``GraspShiftConfig`` charges the offset of the cube from a grasp target moved ``d_m`` along the closing axis
+toward the fixed jaw (cube centre wanted at hx = +d_m: nearer the middle of the open jaws, more fixed-jaw margin) at
+the moment the fingertips reach the cube-top level and at the close start (training reward only).
 """
 from __future__ import annotations
 
@@ -545,6 +550,90 @@ def arm_table_rule(q, qd, kin, at: ArmTableConfig, plane=None):
     qx = q if at.tau_s == 0.0 else q + at.tau_s * qd.to(torch.float64)
     low = kin.lowest_point(qx) if plane is None else kin.lowest_point(qx, plane=plane)
     return low < at.margin_m
+
+
+@dataclass
+class GraspShiftConfig:
+    """A grasp target moved ``d_m`` along the jaw axis toward the FIXED jaw (real2sim round v11, 2026-10-25; training
+    reward only, off by default: ``JointEnvConfig.grasp_shift`` None). The cube then sits nearer the middle of the open
+    jaws: wanted offset of the cube centre from the grasp point (TCP) along the gripper's closing axis (gripper x,
+    fixed jaw -> moving jaw; ``task.features`` ``hx``: horizontal, in the gripper yaw frame) = +``d_m``.
+
+    The cost acts at two events of a live world before its first firm lift, with the cube free (not held, on the
+    table) and the TCP within ``r_m`` (xy) of the cube centre: (1) the TCP goes below ``h_m`` above the cube centre
+    (a downward crossing between two 20 ms steps; with a top-down gripper the fingertips are then at the cube-top level:
+    the moment the fixed jaw clears the cube or lands on it), (2) the measured jaw goes below ``jaw_rad`` (the close
+    start; the moving jaw has not reached the cube yet) with the TCP below ``h_m``. At each event: reward -= ``cost`` x
+    min(max(0, |hx - d_m| - ``tol_m``), ``cap_m``) (m). Event (1) does not depend on the jaw (a policy cannot avoid it by
+    a half-closed descent); event (2) measures the cube position in the open jaws at the close.
+
+    Why: on the robot the grasp fails when the fixed-jaw tip ends > 3 mm over the cube (0 / 38 held); a 30 mm cube on
+    the grasp point clears the fixed jaw by only 2.8 mm (arm model), the open moving jaw by 33 mm. In sim, a cube 3-5 mm
+    toward the moving jaw at the descent start gave +31 to +41 of 224 grasps for all 4 robot students
+    (~/so101_r2s_claude/grasp_why/). The teacher reward has no placement term: the reach potential (``task.potential``,
+    TCP xy to the cube xy) is cashed in at the first firm lift, so it does not set the grasp point, and the NRD lets
+    the fixed jaw pass through the cube top (the task's jaw_overlap rule ends it; ~/so101_r2s_claude/v11/teacher/).
+    Check before use (v11 step 2): with the cube 0-12 mm toward the moving jaw, a scripted close pushes it onto the
+    fixed jaw and holds it in MuJoCo and in the NRD (144 / 144 lifted in both; NRD in-hand x error about -2 mm)."""
+    d_m: float = 0.004
+    cost: float = 50.0
+    tol_m: float = 0.001
+    cap_m: float = 0.015
+    h_m: float = 0.028
+    r_m: float = 0.03
+    jaw_rad: float = 0.45
+
+    def __post_init__(self):
+        for k in ("d_m", "cost", "tol_m", "cap_m", "h_m", "r_m", "jaw_rad"):
+            v = getattr(self, k)
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(float(v)):
+                raise ValueError(f"grasp_shift config: {k} must be a finite number, got {v!r}")
+            setattr(self, k, float(v))
+        if not (0.0 <= self.d_m <= 0.015 and self.cost >= 0.0 and 0.0 <= self.tol_m <= 0.005
+                and 0.0 < self.cap_m <= 0.03 and 0.005 <= self.h_m <= 0.06 and 0.005 <= self.r_m <= 0.06
+                and 0.2 <= self.jaw_rad <= 0.7):
+            raise ValueError(f"grasp_shift config: d_m in [0, 0.015] m, cost >= 0, tol_m in [0, 0.005] m, cap_m in "
+                             f"(0, 0.03] m, h_m and r_m in [0.005, 0.06] m, jaw_rad in [0.2, 0.7] rad, got {self}")
+
+
+def grasp_shift_config(v) -> GraspShiftConfig | None:
+    """None / False / {} / "" -> None (off); a dict or a JSON string -> ``GraspShiftConfig``."""
+    if isinstance(v, GraspShiftConfig):
+        return v
+    if isinstance(v, str):
+        v = json.loads(v) if v.strip() else None
+    if v is None or v is False or (isinstance(v, dict) and not v):
+        return None
+    d = {k: x for k, x in dict(v).items() if k != "note"}
+    bad = sorted(set(d) - {f.name for f in fields(GraspShiftConfig)})
+    if bad:
+        raise ValueError(f"unknown grasp_shift keys {bad}")
+    return GraspShiftConfig(**d)
+
+
+def grasp_height(F):
+    """[B] TCP height above the cube centre (m) of task features F."""
+    return F["tcp"][:, 2] - F["c"][:, 2]
+
+
+def grasp_shift_events(F, h_prev, jaw_prev, lifted, gs: GraspShiftConfig):
+    """``GraspShiftConfig``'s events at the state of features F (after a 20 ms step), with the previous step's TCP
+    height above the cube centre ``h_prev`` [B] and measured jaw ``jaw_prev`` [B] and the task's lifted flag before
+    the step [B] -> (descent event [B] bool, close event [B] bool, hx - d_m [B] m, TCP height now [B] m)."""
+    h = grasp_height(F)
+    free = ~F["held"] & F["on_table"] & ~lifted & (F["dxy"] < gs.r_m)
+    low = h < gs.h_m
+    e1 = free & low & (h_prev >= gs.h_m)
+    e2 = free & low & (jaw_prev >= gs.jaw_rad) & (F["jaw"] < gs.jaw_rad)
+    return e1, e2, F["hx"] - gs.d_m, h
+
+
+def grasp_shift_cost(err, gs: GraspShiftConfig):
+    """[B] cost of one event at the offset error err = hx - d_m [B] (m)."""
+    return gs.cost * (err.abs() - gs.tol_m).clamp(min=0.0, max=gs.cap_m)
+
+
+GS_STATS = ("n_descent", "hx_descent", "abs_err_descent", "n_close", "hx_close", "abs_err_close", "cost")
 
 
 def load_rest_bank(path, device) -> dict:
@@ -1263,6 +1352,8 @@ class JointEnvConfig:
     rest: object = None                               # RestConfig (or its dict): held-cube rest starts; None = off
     far_open: object = None                           # FarOpenConfig (or its dict): jaw-open cost far from the goal
     arm_table: object = None                          # ArmTableConfig (or its dict): kinematic arm-table end
+    grasp_shift: object = None                        # GraspShiftConfig (or its dict): grasp target toward the
+                                                      # fixed jaw (placement cost at the descent and the close)
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
@@ -1272,6 +1363,7 @@ class JointEnvConfig:
         self.rest = rest_config(self.rest)
         self.far_open = far_open_config(self.far_open)
         self.arm_table = arm_table_config(self.arm_table)
+        self.grasp_shift = grasp_shift_config(self.grasp_shift)
 
     @staticmethod
     def from_dict(d):
@@ -1298,6 +1390,8 @@ class JointEnvConfig:
             d.pop("far_open", None)
         if d.get("arm_table") is None:    # off: the old record
             d.pop("arm_table", None)
+        if d.get("grasp_shift") is None:  # off: the old record
+            d.pop("grasp_shift", None)
         return d
 
 
@@ -1351,7 +1445,14 @@ class JointVecEnv:
             self.bank, self.roll_dropped = drop_high_roll(self.bank, float(self.thi[ROLL]))
         self.far_open_sum = torch.zeros((), dtype=torch.float64, device=dev)   # FarOpenConfig: summed cost (log)
         self.arm_table_n = torch.zeros((), dtype=torch.long, device=dev)       # ArmTableConfig: ends by the rule (log)
-        self.rest = None                  # held-cube rest starts (RestConfig; None = off): the bank, own generator
+        # GraspShiftConfig (None = off): the previous step's TCP height above the cube centre and measured jaw (set at
+        # every reset), and the summed event statistics (log; GS_STATS order)
+        self.gs_h = self.gs_jaw = None
+        self.gs_stats = torch.zeros(len(GS_STATS), dtype=torch.float64, device=dev)
+        if cfg.grasp_shift is not None:
+            self.gs_h = torch.zeros(B, dtype=torch.float64, device=dev)
+            self.gs_jaw = torch.zeros(B, dtype=torch.float64, device=dev)
+        self.rest = None                 # held-cube rest starts (RestConfig; None = off): the bank, own generator
         if cfg.rest is not None:
             if self.bank is None:
                 raise ValueError("rest starts: automatic resets from a start bank only (cfg.starts, world not mujoco)")
@@ -1491,6 +1592,9 @@ class JointVecEnv:
             ws = self.world.reset(idx, start)
         self.ws = ws.to(self.dev)
         self.task.reset(idx, self.ws.index(idx), goal_xy, goal_yaw)
+        if self.gs_h is not None:         # GraspShiftConfig: the start state is the first "previous step"
+            F0 = T.features(self.ws.index(idx), self.kin, None, self.tcfg)
+            self.gs_h[idx], self.gs_jaw[idx] = grasp_height(F0), F0["jaw"]
         self.task_seed[idx] = seeds
         self.ep_ret[idx], self.ep_len[idx] = 0.0, 0
         if self.dyn is not None:          # robot dynamics: new draws, hold / lag state = the measured start q
@@ -1648,6 +1752,7 @@ class JointVecEnv:
         rc = self.roll_hi is not None     # the wrist-roll cap (off: the old path, bit for bit)
         fo = self.cfg.far_open if task.F is not None else None   # FarOpenConfig (None: the old reward, bit for bit)
         atc = self.cfg.arm_table          # ArmTableConfig (None: the old world flags, bit for bit)
+        gs = self.cfg.grasp_shift         # GraspShiftConfig (None: the old reward, bit for bit)
         for j in range(STEPS):
             if rc:                        # the commanded roll before the action layer (policy frame), live worlds
                 self.roll_cmd_max = torch.where(task.tr.end == 0, torch.fmax(self.roll_cmd_max, u5[:, j, ROLL]),
@@ -1691,10 +1796,22 @@ class JointVecEnv:
             if rc:                        # the measured roll after the step (policy frame)
                 rq = self.ws.q[:, ROLL].to(torch.float64) + (0.0 if self.q_offset is None else self.q_offset[ROLL])
                 self.roll_q_max = torch.where(lv, torch.fmax(self.roll_q_max, rq), self.roll_q_max)
+            if gs is not None:            # the tracker before this step: live worlds, lifted flag
+                gs_live, gs_lifted = task.tr.end == 0, task.tr.lifted.clone()
             r, _, _, info = task.step(self.ws, None, None)
             if fo is not None:
                 r = r - fo_cost
                 self.far_open_sum = self.far_open_sum + fo_cost.sum()
+            if gs is not None:            # GraspShiftConfig: placement cost at the descent / close events
+                e1, e2, err, h = grasp_shift_events(task.F, self.gs_h, self.gs_jaw, gs_lifted, gs)
+                e1, e2 = e1 & gs_live, e2 & gs_live
+                gc = (e1.to(torch.float64) + e2.to(torch.float64)) * grasp_shift_cost(err, gs)
+                r = r - gc
+                hx = task.F["hx"]
+                self.gs_stats = self.gs_stats + torch.stack((
+                    e1.sum().to(torch.float64), (hx * e1).sum(), (err.abs() * e1).sum(),
+                    e2.sum().to(torch.float64), (hx * e2).sum(), (err.abs() * e2).sum(), gc.sum()))
+                self.gs_h, self.gs_jaw = h, task.F["jaw"].clone()   # own tensors (F["jaw"] can view ws.q)
             rew += r
             if step_hook is not None:
                 step_hook(self, j)

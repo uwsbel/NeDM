@@ -247,6 +247,9 @@ def cmd_ppo(a):
         log(f"far-open jaw cost: {json.dumps(asdict(cfg.far_open))}")
     if cfg.arm_table is not None:  # the kinematic arm-table end (arm_table; round v9c)
         log(f"kinematic arm-table end: {json.dumps(asdict(cfg.arm_table))}")
+    if cfg.grasp_shift is not None:  # the grasp target toward the fixed jaw (grasp_shift; round v11)
+        log(f"grasp shift: {json.dumps(asdict(cfg.grasp_shift))}")
+    gs_last = env.gs_stats.clone()
     tc = JT.ppo_train_cfg(json.loads(Path(a.train_config).read_text()) if a.train_config else None)
     tc["seed"] = a.seed
     pk = dict(init["policy_kwargs"])
@@ -305,6 +308,17 @@ def cmd_ppo(a):
                                        if "roll_cmd_over" in s else ""))
             with open(out / "dev_evals.jsonl", "a") as f_:   # every dev set's summary (the CSV keeps its header)
                 f_.write(json.dumps(rec) + "\n")
+        gs_txt = ""
+        if cfg.grasp_shift is not None:   # this iteration's grasp-shift events (training rollouts)
+            g_ = (env.gs_stats - gs_last).tolist()
+            gs_last = env.gs_stats.clone()
+            n1, n2 = max(g_[0], 1.0), max(g_[3], 1.0)
+            row.update(gs_n_descent=g_[0], gs_hx_descent_mm=g_[1] / n1 * 1e3, gs_err_descent_mm=g_[2] / n1 * 1e3,
+                       gs_n_close=g_[3], gs_hx_close_mm=g_[4] / n2 * 1e3, gs_err_close_mm=g_[5] / n2 * 1e3,
+                       gs_cost=g_[6])
+            gs_txt = (f" | grasp shift: descent n {g_[0]:.0f} hx {row['gs_hx_descent_mm']:+.1f} |err| "
+                      f"{row['gs_err_descent_mm']:.1f} mm, close n {g_[3]:.0f} hx {row['gs_hx_close_mm']:+.1f} |err| "
+                      f"{row['gs_err_close_mm']:.1f} mm, cost {g_[6]:.1f}")
         curve.write(row)
         log(f"it {algo.iteration}: succ {row['success']:.3f} len {row['lenient']:.3f} lifted {row['lifted']:.3f} "
             f"kl {row['kl']:.4f} lr {row['lr']:.2e} vloss {row['value_loss']:.4f} std {row['std_move']:.3f}/"
@@ -317,7 +331,8 @@ def cmd_ppo(a):
             + (f" | rest starts {env.rest_n}/{env.rest_resets}" if env.rest is not None else "")
             + (f" | pauses {env.pause.started}" if env.pause is not None else "")
             + (f" | far-open cost {float(env.far_open_sum):.1f}" if cfg.far_open is not None else "")
-            + (f" | arm-table rule ends {int(env.arm_table_n)}" if cfg.arm_table is not None else ""))
+            + (f" | arm-table rule ends {int(env.arm_table_n)}" if cfg.arm_table is not None else "")
+            + gs_txt)
         if algo.iteration % a.save_every == 0 or algo.iteration == a.iterations:
             algo.save(out / "ckpt" / f"model_{algo.iteration:05d}.pt")
             algo.save(out / "ckpt" / "last.pt")

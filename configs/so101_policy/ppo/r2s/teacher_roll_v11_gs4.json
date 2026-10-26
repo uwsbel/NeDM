@@ -1,0 +1,24 @@
+{
+ "starts": "/work1/dannegrut/harry/so101_r2s_claude/data/bank_pp_h45mix.npz",
+ "horizon": 1500,
+ "task": {
+  "hold_cap_s": 20.0
+ },
+ "hold_obs_s": 3.5,
+ "roll_hi_deg": 98.0,
+ "arm_table": {
+  "margin_m": 0.0,
+  "tau_s": 0.02,
+  "grasp_only": true
+ },
+ "grasp_shift": {
+  "d_m": 0.004,
+  "cost": 50.0,
+  "tol_m": 0.001,
+  "cap_m": 0.015,
+  "h_m": 0.028,
+  "r_m": 0.03,
+  "jaw_rad": 0.45
+ },
+ "note": "real2sim round v11 (2026-10-25), experiment 2a 'grasp-margin teacher', d = 4 mm: teacher_roll_v8.json (D's teacher env: start bank bank_pp_h45mix, 30 s episodes, hold cap 20 s, held-time scale 3.5 s, roll cap 98, nominal NRD worlds) + the kinematic arm-table end (arm_table, as teacher_restart_v9c_at.json) + grasp_shift (JointEnvConfig.grasp_shift, GraspShiftConfig): the grasp target moved 4 mm along the closing axis toward the FIXED jaw (cube centre wanted at hx = +d: nearer the middle of the open jaws); cost 50 per m x max(0, |hx - d| - 1 mm) (at most 15 mm) at the descent event (TCP goes below 28 mm above the cube centre within 30 mm xy, cube free, before the first firm lift) and at the close event (measured jaw goes below 0.45 rad there). Why: the robot grasp fails when the fixed-jaw tip ends > 3 mm over the cube (0 / 38 held); a centred 30 mm cube clears the fixed jaw by 2.8 mm; in sim a cube 3-5 mm toward the moving jaw at the descent start gave +31 to +41 of 224 grasps for all 4 robot students (~/so101_r2s_claude/grasp_why/, rule R6). Fine-tune INIT = D's teacher (runs/tppo_roll_v8_s21/ckpt/model_00200.pt), joint_ppo_v3_kl02.json, 8,192 worlds, r2s_teacher_ppo.sbatch REPO=$R2S/repo_v11 DEV_TASKS=home45_dev100 DEV_EXTRA='dev100 home_dev100' EXTRA=--dev-match-env. Gate: ~/so101_r2s_claude/v11/teacher/TEACHER_GATE_v11.md."
+}
