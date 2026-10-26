@@ -66,7 +66,9 @@ flat in the student's observed frame (the robot's flat arm-frame floor; the true
 ``joint_env.JointEnvConfig.floor_raise``); the labelling JT must have been fine-tuned with that floor raise
 (``check_jt_floor``: the run stops otherwise, ``--allow-floor-raise-mismatch``; teacher configs
 ``configs/so101_policy/ppo/r2s/teacher_roll_v12_*.json``); ``--eval-table-plane`` runs the in-run MuJoCo evaluations on
-that plane (table moved, floor 'zero' = flat in the arm frame, renders on the plane). The checkpoint records
+that plane (table moved, floor 'zero' = flat in the arm frame, renders on the plane). A run with ``student_floor``
+"observed" turns it on by default and takes the evaluations' episode length and hold cap from the online config
+(``inrun_eval_setup``; ``--no-eval-table-plane`` / ``--horizon`` / ``--hold-cap-s`` override). The checkpoint records
 ``v8_online.student_floor`` and the robot deploys it with the flat floor (``hw_lib.student_floor_mode``). ``eval`` /
 ``collect --floor-raise`` = the raise in the TRUE frame (the student reads the true joints).
 """
@@ -256,6 +258,28 @@ def check_jt_floor(jt, floor_raise, allow=False, tol=1e-9):
             raise SystemExit(msg + "; use the teacher fine-tuned with this raise or --allow-floor-raise-mismatch")
         log("WARNING: " + msg + " (--allow-floor-raise-mismatch)")
     return jf
+
+
+def inrun_eval_setup(a, ocfg, log=log):
+    """The in-run evaluation world of an online run (v12 review finding 5). ``student_floor`` "observed" (one fixed
+    lower table under every training world, the robot's flat floor): the evaluations run on that plane by default
+    (``--eval-table-plane``; ``--no-eval-table-plane``: the sim table, a WARNING: no training world is at that height)
+    and take the online config's episode length and hold cap (``OnlineConfig.horizon`` / ``hold_cap_s``) unless
+    ``--horizon`` / ``--hold-cap-s`` are given. Other runs: as before (the plane only with ``--eval-table-plane``, 400
+    steps, the task's hold cap). -> (eval_table_plane bool, horizon, hold_cap_s or None = the task default)."""
+    observed = getattr(ocfg, "student_floor", "true") == "observed"
+    etp = getattr(a, "eval_table_plane", None)
+    if etp is None:
+        etp = observed
+    elif observed and not etp:
+        log("WARNING: --no-eval-table-plane with student_floor observed: the in-run evaluations run on the sim table "
+            "(no training world is at that height)")
+    hor = getattr(a, "horizon", None)
+    hor = int(hor) if hor is not None else (int(ocfg.horizon) if observed else 400)
+    cap = getattr(a, "hold_cap_s", None)
+    if cap is None and observed and float(ocfg.hold_cap_s) != JE.T.TaskConfig.hold_cap_s:
+        cap = float(ocfg.hold_cap_s)
+    return bool(etp), hor, (None if cap is None else float(cap))
 
 
 def check_jt_roll(jt, roll_hi_deg, allow=False):
@@ -534,7 +558,8 @@ def cmd_online(a):
             "the evaluation views and the student's config keep the scene's plate)")
     views = VI.make_views(vcfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     etab = None                   # v12 --eval-table-plane: the in-run evaluations on the training plane (robot-like)
-    if a.eval_table_plane:
+    e_plane, e_hor, e_cap = inrun_eval_setup(a, ocfg)    # (student_floor observed: plane, horizon and cap by default)
+    if e_plane:
         from nedm.so101_policy import table as TB
         from nedm.so101_policy.table_bias import TableBiasConfig, is_on
         if not is_on(ocfg.table_bias) or not TableBiasConfig.from_dict(ocfg.table_bias).plane:
@@ -548,10 +573,15 @@ def cmd_online(a):
     eval_roll = a.roll_hi_deg if a.roll_hi_deg is not None else ocfg.roll_hi_deg
     if eval_roll != ocfg.roll_hi_deg:
         log(f"NOTE: in-run evaluations with roll cap {eval_roll}, training env {ocfg.roll_hi_deg}")
-    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s,
+    if etab is not None or e_hor != 400 or e_cap is not None:
+        log(f"in-run evaluations: {e_hor} steps, hold cap {e_cap if e_cap is not None else JE.T.TaskConfig.hold_cap_s} s"
+            f", table {'the training plane' if etab is not None else 'the sim table'}")
+    cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), e_hor, hold_cap_s=e_cap,
                      roll_hi_deg=eval_roll, table=None if etab is None else (etab, "zero", None))
     od = VI.OnlineDAgger(st, jt, tasks, x(a.nrd_ckpt), views, ocfg, a.device, a.seed, log)
     meta = dict(student_cfg=VI.cfg_dict(st.cfg), online=VI.asdict(ocfg), init=str(a.init), jt=jt.info(), argv=sys.argv)
+    if etab is not None or e_hor != 400 or e_cap is not None:     # v12 (the old default: no key)
+        meta["inrun_eval"] = dict(horizon=e_hor, hold_cap_s=e_cap, table_plane=None if etab is None else list(etab))
     robot_opts = od.env.dyn is not None or od.qd_hist is not None or od.env.tcfg.horizon != 400 \
         or od.env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s or od.env.goal_jump is not None \
         or od.env.roll_hi is not None or od.env.cfg.floor_raise is not None or jt_raise is not None or etab is not None
@@ -758,10 +788,13 @@ def main(argv=None):
     q.add_argument("--allow-floor-raise-mismatch", action="store_true",
                    help="accept a JT trained with another floor raise than the online env's (student_floor observed: "
                         "-table_bias.plane; else none)")
-    q.add_argument("--eval-table-plane", action="store_true",
+    q.add_argument("--eval-table-plane", action=argparse.BooleanOptionalAction, default=None,
                    help="v12: the in-run MuJoCo evaluations on the online config's fixed table plane (table moved, "
-                        "floor flat in the arm frame = the robot's, renders on the plane)")
-    q.set_defaults(fn=cmd_online)
+                        "floor flat in the arm frame = the robot's, renders on the plane); default on for "
+                        "student_floor observed, else off")
+    # in-run evaluations: --horizon / --hold-cap-s unset = 400 steps and the task's cap, or (student_floor observed) the
+    # online config's horizon / hold_cap_s (inrun_eval_setup)
+    q.set_defaults(fn=cmd_online, horizon=None)
 
     q = sub.add_parser("eval")
     common(q)

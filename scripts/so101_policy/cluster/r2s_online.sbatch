@@ -14,8 +14,10 @@
 #   copy's code and sources that copy's r2s_env.sh (REPO unset: $R2S/repo, as before), e.g.
 #   sbatch --export=ALL,REPO=$R2S/repo_v8,... $R2S/repo_v8/scripts/so101_policy/cluster/r2s_online.sbatch
 #   Round v12 table drop: ONLINE_CFG with table_bias {"plane": [...]} + student_floor "observed", TEACHER_JT = the
-#   teacher fine-tuned with the matching floor raise (teacher_roll_v12_*.json; the run refuses another one),
-#   EXTRA=--eval-table-plane (in-run evaluations on the plane, the robot's flat floor)
+#   teacher fine-tuned with the matching floor raise (teacher_roll_v12_*.json; the run refuses another one); the
+#   in-run evaluations run on the plane (the robot's flat floor) with the online config's horizon / hold cap by default
+#   (vision_viral.inrun_eval_setup; EXTRA=--no-eval-table-plane / --horizon / --hold-cap-s override).
+#   Online configs: configs/so101_policy/vision/viral_r2s_online_v12_{ctrl,tb05,tb10,tb15,tbpl}.json
 #SBATCH -J r2s-online
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x

@@ -14,7 +14,9 @@ v12 teacher configs.
 - Env (CPU, kin world + dev tasks): off = no record key; a flat raise = the env with floor_z set (bit for bit); a
   tilted raise executes ``safety(..., floor_lift=raise)`` at every 20 ms step; make_env / run_tasks records; the
   floor creep measure (``JointVecEnv.floor_gap``, ``run_tasks(floor_gap=True)``: no change of the rollout).
-- Config also: ``joint_teacher.resolve_floor_raise`` (the eval / collect ``--floor-raise auto`` default = the JT's
+- Config also: the round v12 student online configs (``viral_r2s_online_v12_ctrl`` / ``tb05`` / ``tb10`` / ``tb15`` /
+  ``tbpl``: D's online config + one fixed plane each, the plane = -the matching teacher's floor raise),
+  ``joint_teacher.resolve_floor_raise`` (the eval / collect ``--floor-raise auto`` default = the JT's
   own) and an online plane beyond the floor raise's limit refused by ``OnlineConfig.from_dict``.
 - BitIdentity (CPU, git): the base commit (``NEDM_V12_FLOOR_BASE``, default cf0dd6687 = claude/r2s-v11) and this code
   give the same arrays with the options off: the online loop + evaluation actor (``studentlab_ref.py``: defaults, the
@@ -22,7 +24,9 @@ v12 teacher configs.
   the floor active).
 - Online (CPU, jt_h110 + dev tasks, kin world): student_floor observed -> the online env's floor raise = -plane,
   planes fixed in every world, the checkpoint record; every executed target (student and teacher slots) keeps the
-  robot's flat floor in the observed frame; the default keeps the v8 rule; the JT floor check.
+  robot's flat floor in the observed frame; the default keeps the v8 rule; the JT floor check; the in-run
+  evaluation world (``vision_viral.inrun_eval_setup``: an observed run evaluates on its plane with the online
+  config's horizon / hold cap by default, review finding 5).
 - HwDeploy (CPU, kin points): a v12 student deploys flat with table_frame true (no --q-offset-deg / live-tilt), old v8
   students keep the plane floor, an unknown student_floor is refused; deploy.json; the bundle's live-tilt refusal.
 
@@ -221,6 +225,29 @@ class Config(unittest.TestCase):
             self.assertEqual(c.floor_raise, fr, tag)
             self.assertIsNone(c.grasp_shift)
             self.assertIsNone(c.arm_table)
+
+    def test_v12_student_configs(self):
+        """The round v12 student online configs: ctrl = D's online config (only the note differs); tb05 / tb10 / tb15 /
+        tbpl = D's + one fixed plane (p 1), table_render, student_floor observed, nothing else; each one's floor raise
+        equals its teacher config's floor_raise (the run's JT check)."""
+        from nedm.so101_policy.vision import viral as VI
+        v, ppo = REPO / "configs/so101_policy/vision", REPO / "configs/so101_policy/ppo/r2s"
+        base = json.loads((v / "viral_r2s_online_relabel_roll_v8.json").read_text())
+        strip = lambda d: {k: x for k, x in d.items() if k != "note"}       # noqa: E731
+        ctrl = json.loads((v / "viral_r2s_online_v12_ctrl.json").read_text())
+        self.assertEqual(strip(ctrl), strip(base))
+        self.assertIsNone(VI.online_floor_raise(VI.OnlineConfig.from_dict(ctrl)))
+        planes = {"tb05": [-0.005, 0.0, 0.0], "tb10": [-0.010, 0.0, 0.0], "tb15": [-0.015, 0.0, 0.0],
+                  "tbpl": list(PLANE_CAL)}
+        for tag, pl in planes.items():
+            raw = json.loads((v / f"viral_r2s_online_v12_{tag}.json").read_text())
+            self.assertEqual(strip(raw), {**strip(base), "table_bias": {"plane": pl, "p": 1.0}, "table_render": True,
+                                          "student_floor": "observed"}, tag)
+            oc = VI.OnlineConfig.from_dict(raw)
+            jt = json.loads((ppo / f"teacher_roll_v12_fr{tag[2:]}.json").read_text())
+            want = JE.floor_raise_config(jt["floor_raise"])
+            got = VI.online_floor_raise(oc)
+            self.assertLess(max(abs(a - b) for a, b in zip(got, want)), 1e-12, tag)   # check_jt_floor tol 1e-9
 
 
 # ---- the floor guard ---------------------------------------------------------------------------------------------------
@@ -614,6 +641,60 @@ class Online(unittest.TestCase):
         body = src[i:src.index("\ndef ", i + 10)]
         self.assertIn("check_jt_floor(jt, o_raise, a.allow_floor_raise_mismatch)", body)
         self.assertLess(body.index("check_jt_floor("), body.index("VI.OnlineDAgger("))
+
+
+    def test_inrun_eval_setup(self):
+        """v12 review finding 5: an online run with student_floor observed evaluates on its training plane with the
+        online config's episode length and hold cap by default; the flags override (--no-eval-table-plane with a
+        WARNING); other runs keep the old defaults (sim table, 400 steps, the task's cap); the online parser leaves
+        --horizon / --hold-cap-s / --eval-table-plane unset (eval keeps 400); cmd_online uses the resolved values."""
+        sys.path.insert(0, str(REPO / "scripts" / "so101_policy"))
+        import vision_viral as VV
+        from nedm.so101_policy.vision import viral as VI
+        cfg = REPO / "configs/so101_policy/vision"
+        d8 = json.loads((cfg / "viral_r2s_online_relabel_roll_v8.json").read_text())     # D's online config
+        obs = VI.OnlineConfig.from_dict({**d8, **self.OBS})                               # 1,500 steps, cap 20 s
+        d8 = VI.OnlineConfig.from_dict(d8)
+
+        def ns(**k):
+            return argparse.Namespace(**{"eval_table_plane": None, "horizon": None, "hold_cap_s": None, **k})
+        logs = []
+        self.assertEqual(VV.inrun_eval_setup(ns(), obs, logs.append), (True, 1500, 20.0))
+        self.assertEqual(VV.inrun_eval_setup(ns(horizon=400, hold_cap_s=3.5), obs, logs.append), (True, 400, 3.5))
+        self.assertEqual(logs, [])
+        self.assertEqual(VV.inrun_eval_setup(ns(eval_table_plane=False), obs, logs.append), (False, 1500, 20.0))
+        self.assertEqual(len(logs), 1)
+        self.assertTrue(logs[0].startswith("WARNING"))
+        self.assertEqual(VV.inrun_eval_setup(ns(), d8, logs.append), (False, 400, None))           # as before
+        self.assertEqual(VV.inrun_eval_setup(ns(eval_table_plane=True, horizon=1500, hold_cap_s=20.0), d8, logs.append),
+                         (True, 1500, 20.0))
+        obs0 = VI.OnlineConfig.from_dict(dict(self.OBS))                       # the defaults: 400 steps, cap 3.5 s
+        self.assertEqual(VV.inrun_eval_setup(ns(), obs0, logs.append), (True, 400, None))
+        self.assertEqual(len(logs), 1)
+        got = []
+        orig = VV.cmd_online, VV.cmd_eval
+        base = ["--jt", "j", "--out", "o", "--tasks", "t"]
+        try:
+            VV.cmd_online = VV.cmd_eval = got.append
+            VV.main(["online", *base, "--init", "i", "--eval-tasks", "e"])
+            VV.main(["online", *base, "--init", "i", "--eval-tasks", "e", "--no-eval-table-plane", "--horizon", "700",
+                     "--hold-cap-s", "9"])
+            VV.main(["online", *base, "--init", "i", "--eval-tasks", "e", "--eval-table-plane"])
+            VV.main(["eval", *base, "--student", "s"])
+        finally:
+            VV.cmd_online, VV.cmd_eval = orig
+        self.assertEqual([(getattr(g, "eval_table_plane", None), g.horizon, g.hold_cap_s) for g in got],
+                         [(None, None, None), (False, 700, 9.0), (True, None, None), (None, 400, None)])
+        self.assertEqual(VV.inrun_eval_setup(got[0], obs, logs.append), (True, 1500, 20.0))
+        self.assertEqual(VV.inrun_eval_setup(got[0], d8, logs.append), (False, 400, None))
+        src = (REPO / "scripts/so101_policy/vision_viral.py").read_text()
+        i = src.index("def cmd_online")
+        body = src[i:src.index("\ndef ", i + 10)]
+        self.assertIn("e_plane, e_hor, e_cap = inrun_eval_setup(a, ocfg)", body)
+        self.assertIn("if e_plane:", body)
+        self.assertIn("a.eval_workers, x(a.mj_python), e_hor, hold_cap_s=e_cap,", body)
+        self.assertNotIn("a.horizon", body)
+        self.assertNotIn("a.hold_cap_s", body)
 
 
 # ---- robot deploy ----------------------------------------------------------------------------------------------------
