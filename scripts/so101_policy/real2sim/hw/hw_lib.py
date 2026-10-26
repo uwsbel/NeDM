@@ -192,25 +192,39 @@ def student_table_frame(meta) -> bool:
     return bool(TBI.is_on(tb) and float(tb.get("p", TBI.TableBiasConfig.p)) > 0.0)
 
 
-def floor_frame_problems(mode, q_offset_deg=None, table_frame=False):
+def student_floor_observed(meta) -> bool:
+    """True for the round v12 students trained under the flat arm-frame floor (checkpoint ``v8_online.student_floor``
+    "observed"): their floor in training was 1.5 mm above z 0 of the arm frame, so the robot's --table-z must stay 0."""
+    return ((meta or {}).get("v8_online") or {}).get("student_floor", "true") == "observed"
+
+
+def floor_frame_problems(mode, q_offset_deg=None, table_frame=False, observed=False, table_z=0.0):
     """Plane mode with an extra joint-map offset (run_student_real.py --q-offset-deg, e.g. live-tilt's table-tilt
     correction 0,-2.086,0,0,0) -> list of strings (empty = ok). The calibrated mat plane is measured in the plain
     calib_v1 joint frame; an offset turns the arm frame against it, and the floor and the floor checks then see the
     gripper at a wrong height above the mat (live-tilt: 3.7-10 mm too high at r 0.15-0.27 m, i.e. the floor 2-8.5 mm
     in the mat). The tilt correction is for flat students only (the plane floor already follows the real table).
     ``table_frame`` (``student_table_frame``: also the round v12 flat-floor table students): any offset is refused as
-    well (the student corrects for the real table itself). run_student_real.py: live refuses it with no override, dry
-    / replay warn."""
+    well (the student corrects for the real table itself). ``observed`` (``student_floor_observed``: the round v12
+    students trained under the flat floor 1.5 mm above z 0 of the arm frame) with a ``table_z`` (--table-z) other than
+    0: the floor would move by table_z from the floor the student was trained with (e.g. -0.0126 = 12.6 mm lower),
+    refused as well. run_student_real.py: live refuses these with no override, dry / replay warn."""
+    bad = []
+    if observed and float(table_z) != 0.0:      # round v12 flat-floor students (``student_floor_observed``)
+        bad.append(f"--table-z {float(table_z):g} with a student trained under the flat arm-frame floor (checkpoint "
+                   "v8_online.student_floor observed): its floor was 1.5 mm above z 0 of the arm frame in training; "
+                   f"--table-z moves it {abs(float(table_z)) * 1e3:.1f} mm {'lower' if table_z < 0 else 'higher'} "
+                   "(leave --table-z at 0)")
     qo = np.zeros(ARM) if q_offset_deg is None else np.asarray(q_offset_deg, np.float64)
     if mode == "plane" and np.any(qo != 0.0):
-        return [f"--q-offset-deg {','.join(f'{v:g}' for v in qo)} in floor mode plane: the mat plane is in the "
-                "calib_v1 joint frame, an offset moves the floor into the mat (live-tilt / --q-offset-deg are for "
-                "flat students only)"]
+        return bad + [f"--q-offset-deg {','.join(f'{v:g}' for v in qo)} in floor mode plane: the mat plane is in the "
+                      "calib_v1 joint frame, an offset moves the floor into the mat (live-tilt / --q-offset-deg are "
+                      "for flat students only)"]
     if table_frame and np.any(qo != 0.0):       # round v12 flat-floor table students (``student_table_frame``)
-        return [f"--q-offset-deg {','.join(f'{v:g}' for v in qo)} with a student trained in the table frame: it "
-                "already corrects for the real table (the offset would correct twice; live-tilt / --q-offset-deg are "
-                "for students trained on the sim table only)"]
-    return []
+        return bad + [f"--q-offset-deg {','.join(f'{v:g}' for v in qo)} with a student trained in the table frame: "
+                      "it already corrects for the real table (the offset would correct twice; live-tilt / "
+                      "--q-offset-deg are for students trained on the sim table only)"]
+    return bad
 
 
 def floor_lines(mode, why, table_z, plane, gcfg):

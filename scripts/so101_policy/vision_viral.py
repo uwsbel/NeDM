@@ -237,10 +237,8 @@ def jt_roll_cap(jt):
 
 def jt_floor_raise(jt):
     """The floor raise (``JE.JointEnvConfig.floor_raise`` tuple) the JT was trained with (its checkpoint's env record),
-    None = none."""
-    rec = getattr(jt, "env_rec", None) or {}
-    env = rec.get("env") if isinstance(rec, dict) else None
-    return JE.floor_raise_config(env.get("floor_raise")) if isinstance(env, dict) else None
+    None = none (``JT.jt_floor_raise``)."""
+    return JT.jt_floor_raise(jt)
 
 
 def check_jt_floor(jt, floor_raise, allow=False, tol=1e-9):
@@ -650,6 +648,10 @@ def cmd_eval(a):
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     plane, floor, qo, moved = TB.from_cli(a)
     gs = JE.GoalJumpConfig.from_spec(a.goal_shift, max_n=1, before_p=0.0) if a.goal_shift else None
+    if not a.floor_raise and jt_floor_raise(jt) is not None:      # (v12 review finding 4: a note, no default)
+        log(f"NOTE: the JT was trained with floor raise {list(jt_floor_raise(jt))}; this student evaluation has none "
+            "(--floor-raise: the TRUE-frame raise; a table-frame student's robot-like check is --table-plane with "
+            "--floor zero)")
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                      table=(plane, floor, qo) if moved else None, cli=a if a.log_only_extra else None,
                      hold_cap_s=a.hold_cap_s, goal_jump=gs, roll_hi_deg=a.roll_hi_deg,
@@ -672,7 +674,7 @@ def cmd_collect(a):
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     n = len(t["seeds"])
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s,
-                     roll_hi_deg=a.roll_hi_deg, floor_raise=a.floor_raise or None)
+                     roll_hi_deg=a.roll_hi_deg, floor_raise=JT.resolve_floor_raise(a.floor_raise, jt, log, "collect"))
     rng = np.random.default_rng(a.seed)
     student = None
     src = np.zeros(n, np.int64)
@@ -812,9 +814,10 @@ def main(argv=None):
     q.add_argument("--lag-rec", action="store_true", help="record the 20 ms states for image lag (row_lag)")
     q.add_argument("--lag-kmax", type=int, default=0,
                    help="row_lag states per row (default viral.LAG_REC 4 or the student lag_max; implies --lag-rec)")
-    q.add_argument("--floor-raise", default="",
-                   help="the action-layer floor raise ('c0,c1,c2' m or one height; JointEnvConfig.floor_raise); "
-                        "default off")
+    q.add_argument("--floor-raise", default="auto",
+                   help="the action-layer floor raise ('c0,c1,c2' m or one height; JointEnvConfig.floor_raise): "
+                        "'auto' (default) = the JT's own (none = off, the old behaviour), '0' = off; another value "
+                        "than the JT's own is logged as a WARNING")
     q.add_argument("--out", required=True)
     q.set_defaults(fn=cmd_collect)
 

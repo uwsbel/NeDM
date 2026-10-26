@@ -12,7 +12,8 @@
 #   Round v12 table-drop teachers (D's env + the action-layer floor raised 5 / 10 / 15 mm or by the measured plane;
 #   the dev evaluations take the env config's floor_raise too): ENVCFG=configs/so101_policy/ppo/r2s/
 #   teacher_roll_v12_fr05.json (_fr10, _fr15, _frpl), INIT=<D's teacher>, DEV_TASKS=home45_dev100 DEV_EXTRA='dev100
-#   home_dev100' EXTRA=--dev-match-env
+#   home_dev100' EXTRA=--dev-match-env; with a raise the dev evaluations also log the floor creep before the lift
+#   ("floor gap p50 / p10" mm in the log, dev_evals.jsonl floor_gap_mm_*, the CSV's dev_nrd_* columns)
 #SBATCH -J r2s-tppo
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x

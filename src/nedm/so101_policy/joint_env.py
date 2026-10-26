@@ -1646,6 +1646,18 @@ class JointVecEnv:
         return dict(plane=plane, floor_plane=self.floor_plane, floor_z=self.floor_z,
                     q_offset=None if self.q_offset is None else self.q_offset.tolist(), table=self.world.table)
 
+    def floor_gap(self, q=None):
+        """Height (m) of the measured pose's lowest gripper / moving-jaw point above the action layer's floor, the
+        quantity ``floor_guard`` compares (``_low`` with the floor plane / the tilted floor raise, in the policy's
+        joint frame) minus the floor (FLOOR + floor_z + the flat floor raise); negative = below the floor (the guard
+        lets a target go as low as a measured pose that sags: the "floor creep", v12 review finding 2). q [B, 6]
+        (default the world's measured q) -> float64 [B]."""
+        q = (self.ws.q if q is None else q).to(device=self.dev, dtype=torch.float64)
+        if self.q_offset is not None:
+            q = q + self.q_offset
+        fz = self.floor_z if self.raise_z is None else self.floor_z + self.raise_z
+        return _low(self.kin, q, q, self.floor_plane, self.raise_lift) - (FLOOR + fz)
+
     def table_info(self) -> dict:
         out = dict(plane=self.table_plane, floor_plane=self.floor_plane, floor_z=self.floor_z,
                    q_offset=None if self.q_offset is None else self.q_offset.tolist())

@@ -174,9 +174,10 @@ def cmd_eval(a):
     jt = JE.JointTeacher(x(a.jt), a.device)
     t = load_tasks(a.tasks, a.n, a.first)
     B = len(t["seeds"])
+    fr = JT.resolve_floor_raise(a.floor_raise, jt, log, f"eval ({a.world})")   # auto: the JT's own (v12)
     env = JT.make_env(a.world, B, jt.codec, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                       lead_clamp=not a.no_lead, floor_guard=not a.no_floor, hold_cap_s=a.hold_cap_s,
-                      hold_obs_s=a.hold_obs_s, roll_hi_deg=a.roll_hi_deg, floor_raise=a.floor_raise or None)
+                      hold_obs_s=a.hold_obs_s, roll_hi_deg=a.roll_hi_deg, floor_raise=fr)
     if env.dyn is not None:       # $NEDM_SO101_DYN (joint_teacher.make_env)
         log(f"robot dynamics ({a.world}, {B} worlds): {json.dumps(env.dyn_info()['cfg'])}")
     if env.roll_hi is not None:   # the wrist-roll cap (--roll-hi-deg)
@@ -190,7 +191,8 @@ def cmd_eval(a):
     extra = TB.log_only_extra(env, a)
     if extra:
         log(f"log-only task rules: {env.tcfg.log_only}")
-    r = JT.run_tasks(env, t, jt, noise=a.noise, record_states=a.record_states, log=log)
+    r = JT.run_tasks(env, t, jt, noise=a.noise, record_states=a.record_states, log=log,
+                     floor_gap=a.floor_gap or env.cfg.floor_raise is not None)   # the floor creep (v12; off: no key)
     env.close()
     if moved:
         r["table"] = np.array(json.dumps(env.table_info()))
@@ -286,6 +288,12 @@ def cmd_ppo(a):
     if a.dev_match_env:
         dev_kw = dict(horizon=int(cfg.horizon), hold_cap_s=env.tcfg.hold_cap_s, hold_obs_s=float(cfg.hold_obs_s))
         log(f"dev evaluations: {json.dumps(dev_kw)} (the training env's)")
+    fgap = cfg.floor_raise is not None   # v12: the dev evaluations log the floor creep before the lift (review F2)
+    dev_cols = []                 # the dev columns in every CSV row (the header is the first row's keys: empty
+    if dev_t is not None and fgap:   # before the first dev evaluation; v12 floor-raise runs only)
+        dev_cols = ["dev_nrd_lenient", "dev_nrd_strict"] + (["dev_nrd_roll_cmd_over"] if cfg.roll_hi_deg is not None
+                                                            else []) + ["dev_nrd_floor_gap_p50_mm",
+                                                                        "dev_nrd_floor_gap_p10_mm"]
     t0 = time.time()
     for it in range(start, a.iterations):
         row = algo.iterate()
@@ -298,20 +306,28 @@ def cmd_ppo(a):
             for k_, (name, tt) in enumerate([(Path(a.dev_tasks).stem, dev_t)] + dev_x):
                 ev = JT.make_env("nrd", len(tt["seeds"]), jt.codec, a.device, x(a.nrd_ckpt),
                                  roll_hi_deg=cfg.roll_hi_deg, floor_raise=cfg.floor_raise, **dev_kw)
-                r = JT.run_tasks(ev, tt, jt)
+                r = JT.run_tasks(ev, tt, jt, floor_gap=fgap)
                 ev.close()
                 s = JT.summarize(r)
                 rec["sets"][name] = s
+                gap_txt = (f" floor gap p50 {s['floor_gap_mm_p50']:+.1f} p10 {s['floor_gap_mm_p10']:+.1f} mm"
+                           if "floor_gap_mm_p10" in s else "")
                 if k_ == 0:       # the first set: the learning curve's dev columns (as before)
                     row["dev_nrd_lenient"], row["dev_nrd_strict"] = s["lenient"], s["strict"]
                     if "roll_cmd_over" in s:
                         row["dev_nrd_roll_cmd_over"] = s["roll_cmd_over"]
+                    if "floor_gap_mm_p10" in s:
+                        row["dev_nrd_floor_gap_p50_mm"] = s["floor_gap_mm_p50"]
+                        row["dev_nrd_floor_gap_p10_mm"] = s["floor_gap_mm_p10"]
+                    dev_more.insert(0, gap_txt)
                 else:
                     dev_more.append(f" | {name} len {s['lenient']:.2f} strict {s['strict']:.2f}"
                                     + (f" roll over {s['roll_cmd_over']:.2f} at cap {s['roll_q_at_cap']:.2f}"
-                                       if "roll_cmd_over" in s else ""))
+                                       if "roll_cmd_over" in s else "") + gap_txt)
             with open(out / "dev_evals.jsonl", "a") as f_:   # every dev set's summary (the CSV keeps its header)
                 f_.write(json.dumps(rec) + "\n")
+        for k_ in dev_cols:       # (v12 floor-raise runs: the dev columns in the header, empty between evaluations)
+            row.setdefault(k_, None)
         gs_txt = ""
         if cfg.grasp_shift is not None:   # this iteration's grasp-shift events (training rollouts)
             g_ = (env.gs_stats - gs_last).tolist()
@@ -329,8 +345,9 @@ def cmd_ppo(a):
             f"{row['std_trigger']:.3f} {row['world_steps_per_s']:.0f} st/s"
             + (f" | roll over cap {row['roll_cmd_over']:.3f}" if "roll_cmd_over" in row else "")
             + (f" | dev nrd len {row['dev_nrd_lenient']:.2f} strict {row['dev_nrd_strict']:.2f}"
-               if "dev_nrd_lenient" in row else "")
-            + (f" roll over {row['dev_nrd_roll_cmd_over']:.2f}" if "dev_nrd_roll_cmd_over" in row else "")
+               if row.get("dev_nrd_lenient") is not None else "")
+            + (f" roll over {row['dev_nrd_roll_cmd_over']:.2f}"
+               if row.get("dev_nrd_roll_cmd_over") is not None else "")
             + "".join(dev_more)
             + (f" | rest starts {env.rest_n}/{env.rest_resets}" if env.rest is not None else "")
             + (f" | pauses {env.pause.started}" if env.pause is not None else "")
@@ -421,9 +438,15 @@ def main(argv=None):
                    help="held-time scale of the JT observation (s; 0: the task's, 3.5 with another --hold-cap-s)")
     q.add_argument("--roll-hi-deg", type=float, default=None,
                    help="the wrist-roll target cap (sim deg; the real roll ends at 101.2); default off")
-    q.add_argument("--floor-raise", default="",
-                   help="the action-layer floor raise (joint_env.JointEnvConfig.floor_raise): 'c0,c1,c2' (m, the floor "
-                        "1.5 mm above z = c0 + c1 x + c2 y at the grasp point) or one height (m); default off")
+    q.add_argument("--floor-raise", default="auto",
+                   help="the action-layer floor raise (joint_env.JointEnvConfig.floor_raise): 'auto' (default) = the "
+                        "JT's own (its checkpoint's env record; none = off, the old behaviour), '0' = off, "
+                        "'c0,c1,c2' (m, the floor 1.5 mm above z = c0 + c1 x + c2 y at the grasp point; a negative "
+                        "first value: --floor-raise=-0.005,0,0) or one height (m); another value than the JT's own "
+                        "is logged as a WARNING. MuJoCo evaluations of a JT: --device cpu (or the GPU lock)")
+    q.add_argument("--floor-gap", action="store_true",
+                   help="record floor_gap_prelift (the lowest measured gripper point above the action layer's floor "
+                        "before the lift; on by itself with a floor raise)")
     q.add_argument("--out", default="")
     from nedm.so101_policy import table as TB
     TB.add_cli(q)

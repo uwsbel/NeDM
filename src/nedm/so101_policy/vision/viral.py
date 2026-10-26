@@ -2094,6 +2094,9 @@ class OnlineConfig:
             if not is_on(d.get("table_bias")) or not TableBiasConfig.from_dict(d["table_bias"]).plane:
                 raise ValueError("student_floor observed: needs table_bias with a fixed plane (table_bias.plane; one "
                                  "floor raise for all worlds)")
+            # the floor raise -plane within the env's limits (JE.FLOOR_RAISE_MAX, tighter than the plane's own): fail
+            # here, not when the online env is built (v12 review finding 6)
+            JE.raise_of_table(TableBiasConfig.from_dict(d["table_bias"]).plane)
         if d.get("plate_mm"):
             d["plate_mm"] = tuple(float(v) for v in d["plate_mm"])
             if len(d["plate_mm"]) != 2 or not 0.0 < d["plate_mm"][0] <= d["plate_mm"][1] <= 20.0:

@@ -12,7 +12,10 @@ v12 teacher configs.
   point of a pose minus raise(grasp xy) = the lowest point of its reading Phi(pose) (to 1e-9 m), the same rows are
   clamped, and the guarded targets keep the observed-frame floor.
 - Env (CPU, kin world + dev tasks): off = no record key; a flat raise = the env with floor_z set (bit for bit); a
-  tilted raise executes ``safety(..., floor_lift=raise)`` at every 20 ms step; make_env / run_tasks records.
+  tilted raise executes ``safety(..., floor_lift=raise)`` at every 20 ms step; make_env / run_tasks records; the
+  floor creep measure (``JointVecEnv.floor_gap``, ``run_tasks(floor_gap=True)``: no change of the rollout).
+- Config also: ``joint_teacher.resolve_floor_raise`` (the eval / collect ``--floor-raise auto`` default = the JT's
+  own) and an online plane beyond the floor raise's limit refused by ``OnlineConfig.from_dict``.
 - BitIdentity (CPU, git): the base commit (``NEDM_V12_FLOOR_BASE``, default cf0dd6687 = claude/r2s-v11) and this code
   give the same arrays with the options off: the online loop + evaluation actor (``studentlab_ref.py``: defaults, the
   C family, the v8 random table planes, the new keys present but off) and joint-env rollouts (actions and targets,
@@ -156,9 +159,50 @@ class Config(unittest.TestCase):
         self.assertEqual(VI.OnlineConfig.from_dict({"student_floor": "true"}).student_floor, "true")
         for bad in ({"student_floor": "observed"}, {"student_floor": "observed", "table_bias": {"note": "x"}},
                     {"student_floor": "observed", "table_bias": {"p": 1.0, "drop_mm": [10, 10]}},
-                    {"student_floor": "flat"}, {"student_floor": "observed", "table_bias": {"plane": [0.0, 0.0]}}):
+                    {"student_floor": "flat"}, {"student_floor": "observed", "table_bias": {"plane": [0.0, 0.0]}},
+                    {"student_floor": "observed", "table_bias": {"plane": [-0.045, 0.0, 0.0]}}):   # (review F6)
             with self.assertRaises(ValueError, msg=repr(bad)):
                 VI.OnlineConfig.from_dict(bad)
+        # a plane beyond the floor raise's limit is still a valid v8-rule plane (the table_bias limit is 0.06 m)
+        self.assertIsNone(VI.online_floor_raise(VI.OnlineConfig.from_dict({"table_bias": {"plane": [-0.045, 0, 0]}})))
+
+    def test_resolve_floor_raise(self):
+        """v12 review finding 4: the JT commands' --floor-raise "auto" = the JT's own (none: off), "0" = off, another
+        value than the JT's own: a WARNING."""
+        from nedm.so101_policy import joint_teacher as JT
+
+        class J:
+            def __init__(self, env):
+                self.env_rec = {"env": env} if env is not None else {}
+        old, new = J({"floor_guard": True}), J({"floor_raise": [0.015, 0.0, 0.0]})
+        msgs = []
+        for spec in ("", "auto", "AUTO", None):
+            self.assertIsNone(JT.resolve_floor_raise(spec, old, msgs.append))
+            self.assertIsNone(JT.resolve_floor_raise(spec, J(None), msgs.append))
+            self.assertEqual(JT.resolve_floor_raise(spec, new, msgs.append), (0.015, 0.0, 0.0))
+        self.assertFalse([m for m in msgs if "WARNING" in m])
+        msgs.clear()
+        for off in ("0", "off", "none", "0.0"):
+            self.assertIsNone(JT.resolve_floor_raise(off, old, msgs.append))
+        self.assertFalse(msgs)
+        self.assertIsNone(JT.resolve_floor_raise("0", new, msgs.append))                 # explicit off: warned
+        self.assertTrue(msgs and "WARNING" in msgs[-1])
+        msgs.clear()
+        self.assertEqual(JT.resolve_floor_raise("0.01", new, msgs.append), (0.01, 0.0, 0.0))
+        self.assertTrue(msgs and "WARNING" in msgs[-1])
+        msgs.clear()
+        self.assertEqual(JT.resolve_floor_raise("0.015,0,0", new, msgs.append), (0.015, 0.0, 0.0))
+        self.assertFalse(msgs)
+        self.assertEqual(JT.jt_floor_raise(new), (0.015, 0.0, 0.0))
+        self.assertIsNone(JT.jt_floor_raise(old))
+        from importlib import util
+        spec = util.spec_from_file_location("vvt", REPO / "scripts/so101_policy/vision_viral_teacher.py")
+        m = util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()), self.assertRaises(SystemExit):
+            m.main(["eval", "--help"])
 
     def test_v12_teacher_configs(self):
         d = REPO / "configs/so101_policy/ppo/r2s"
@@ -354,6 +398,38 @@ class Env(unittest.TestCase):
         self.assertEqual(json.loads(str(r["floor_raise"])), list(PLANE_CAL))
         r0 = JT.run_tasks(JT.make_env("kin", 4, jt.codec, "cpu", horizon=40), t, jt)
         self.assertNotIn("floor_raise", r0)
+        self.assertNotIn("floor_gap_prelift", r0)                                 # off: no key
+        self.assertNotIn("floor_gap_mm_p10", JT.summarize(r0))
+        # v12 review finding 2: the floor creep before the lift (floor_gap); the rollout itself does not change
+        r1 = JT.run_tasks(JT.make_env("kin", 4, jt.codec, "cpu", horizon=40), t, jt, floor_gap=True)
+        for k in r0:
+            if k not in ("wall_s", "student_s"):
+                self.assertTrue(np.array_equal(np.asarray(r0[k]), np.asarray(r1[k])), k)
+        g = r1["floor_gap_prelift"]
+        self.assertEqual(g.shape, (4,))
+        s1 = JT.summarize(r1)
+        self.assertEqual(s1["floor_gap_n"], int(np.isfinite(g).sum()))
+        self.assertAlmostEqual(s1["floor_gap_mm_p50"], float(np.median(g[np.isfinite(g)]) * 1e3))
+
+    def test_floor_gap(self):
+        """JointVecEnv.floor_gap = the floor guard's own measure minus the floor: 0 for a pose whose lowest point is
+        on the floor; a flat raise h moves it by -h; a tilted raise is measured at the pose's grasp point."""
+        e0 = self.env_for(self.t)
+        q = e0.ws.q.to(f64)
+        g0 = e0.floor_gap()
+        k = e0.kin
+        self.assertTrue(torch.allclose(g0, k.lowest_point(q, exact=False) - JE.FLOOR, atol=1e-12))
+        h = 0.010
+        e1 = self.env_for(self.t, (h, 0.0, 0.0))
+        self.assertTrue(torch.allclose(e1.floor_gap(q), g0 - h, atol=1e-12))
+        lift = JE.raise_of_table(PLANE_CAL)
+        e2 = self.env_for(self.t, lift)
+        self.assertTrue(torch.allclose(e2.floor_gap(q), g0 - JE.lift_at(k, q, lift), atol=1e-12))
+        # the guard keeps a target's own gap >= min(0, the measured pose's gap)
+        tg = down_targets(q, scale=0.2)
+        u = JE.safety(tg, q, e2.tlo, e2.thi, None, k, JE.FLOOR, None, floor_lift=lift)
+        gu = JE._low(k, u, q, None, lift) - JE.FLOOR
+        self.assertTrue(bool((gu >= torch.minimum(e2.floor_gap(q), torch.zeros_like(gu)) - 1e-6).all()))
 
 
 # ---- bit identity with the base commit -----------------------------------------------------------------------------
@@ -574,6 +650,17 @@ class HwDeploy(unittest.TestCase):
         self.assertEqual(H.floor_frame_problems("flat", [0, -2.086, 0, 0, 0]), [])              # C1 / D: as before
         self.assertTrue(H.floor_frame_problems("flat", [0, -2.086, 0, 0, 0], table_frame=True))
         self.assertEqual(H.floor_frame_problems("flat", [0, 0, 0, 0, 0], table_frame=True), [])
+        # review finding 3: a v12 flat-floor student refuses a --table-z other than 0; older students: as before
+        self.assertTrue(H.student_floor_observed(V12_REC))
+        self.assertFalse(H.student_floor_observed(V8_REC))
+        self.assertFalse(H.student_floor_observed({}))
+        self.assertEqual(H.floor_frame_problems("flat", None, table_frame=True, observed=True, table_z=0.0), [])
+        bad = H.floor_frame_problems("flat", None, table_frame=True, observed=True, table_z=-0.0126)
+        self.assertEqual(len(bad), 1)
+        self.assertIn("12.6 mm lower", bad[0])
+        self.assertEqual(len(H.floor_frame_problems("flat", [0, -2.086, 0, 0, 0], table_frame=True, observed=True,
+                                                    table_z=-0.0126)), 2)
+        self.assertEqual(H.floor_frame_problems("flat", None, observed=False, table_z=-0.0126), [])   # C1 / D
         self.assertEqual(H.floor_problems("flat", "flat", H.GuardConfig.from_dict(H.eval_guard("flat"))), [])
 
     def test_floor_setup(self):
@@ -599,6 +686,16 @@ class HwDeploy(unittest.TestCase):
         f = R_.floor_setup(a("dry", q_offset_deg="0,-2.086,0,0,0"), calib, V12_REC, G(H.eval_guard("flat")))
         self.assertTrue(any("table frame" in p for p in f["problems"]))
         f = R_.floor_setup(a(q_offset_deg="0,-2.086,0,0,0"), calib, {}, G(H.eval_guard("flat")))   # D: as before
+        self.assertEqual(f["problems"], [])
+        # review finding 3: --table-z other than 0 for a v12 flat-floor student: live refused (no override), dry warns
+        for allow in (False, True):
+            with self.assertRaises(SystemExit) as cm:
+                R_.floor_setup(a(table_z=-0.0126, allow_floor_mismatch=allow), calib, V12_REC, G(H.eval_guard("flat")))
+            self.assertIn("no override", str(cm.exception))
+            self.assertIn("--table-z", str(cm.exception))
+        f = R_.floor_setup(a("dry", table_z=-0.0126), calib, V12_REC, G(H.eval_guard("flat")))
+        self.assertTrue(any("--table-z" in p for p in f["problems"]))
+        f = R_.floor_setup(a(table_z=-0.0126), calib, {}, G(H.eval_guard("flat")))           # C1 / D: as before
         self.assertEqual(f["problems"], [])
 
     @unittest.skipUnless(KIN_OK, "kin points missing")

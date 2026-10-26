@@ -386,9 +386,44 @@ def make_env(world, B, codec, device="cuda", nrd_ckpt=None, workers=0, mj_python
     return JE.JointVecEnv(cfg, codec)
 
 
+def jt_floor_raise(jt):
+    """The floor raise (``JE.JointEnvConfig.floor_raise`` tuple) a JT was trained with (its checkpoint's env record;
+    ``JE.JointTeacher.env_rec``), None = none (also a JT without the record)."""
+    rec = getattr(jt, "env_rec", None) or {}
+    env = rec.get("env") if isinstance(rec, dict) else None
+    return JE.floor_raise_config(env.get("floor_raise")) if isinstance(env, dict) else None
+
+
+FLOOR_RAISE_OFF = ("0", "off", "none")
+
+
+def resolve_floor_raise(spec, jt, log=log_default, what="evaluation"):
+    """The ``--floor-raise`` of the JT-driven commands (v12 review finding 4): "auto" or "" = the JT's own
+    (``jt_floor_raise``; a JT without a raise: off, the old behaviour), "0" / "off" / "none" = off, else a height (m) or
+    "c0,c1,c2" (``JE.floor_raise_config``). A value other than the JT's own is logged as a WARNING (an NRD-vs-MuJoCo
+    comparison of one JT must use one floor). -> tuple or None."""
+    s = str(spec if spec is not None else "").strip().lower()
+    own = jt_floor_raise(jt)
+    if s in ("", "auto"):
+        fr = own
+        if fr is not None:
+            log(f"floor raise: auto = the JT's own {list(fr)} ({what})")
+    elif s in FLOOR_RAISE_OFF:
+        fr = None
+    else:
+        fr = JE.floor_raise_config(spec)
+    a = (0.0, 0.0, 0.0) if fr is None else fr
+    b = (0.0, 0.0, 0.0) if own is None else own
+    if max(abs(u - v) for u, v in zip(a, b)) > 1e-9:
+        log(f"WARNING: {what} floor raise {None if fr is None else list(fr)}, the JT was trained with "
+            f"{None if own is None else list(own)}")
+    return fr
+
+
 @torch.no_grad()
 def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, student=None, src=None, noise=None,
-              noise_seed=0, record=False, record_states=False, full_horizon=False, log=None, student_hook=None):
+              noise_seed=0, record=False, record_states=False, full_horizon=False, log=None, student_hook=None,
+              floor_gap=False):
     """One episode per world on ``tasks`` (env.B rows). ``src`` [B] int: 0 = JT drives, 1 = student drives (default:
     student if given, else JT). ``noise`` [B] float: Gaussian noise of that many PPO std on the JT's normalised action
     (JT-driven worlds; counter-based draws from the task seed, decision index and ``noise_seed``). ``student``: object
@@ -397,6 +432,9 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
     (the label: defined at every state), the JT observation ``obs`` [47] (relabelling by another JT), who drove; per
     episode the outcomes. ``record_states``: per 20 ms step q and
     cube pose [B, S, ...] (videos). ``full_horizon``: keep stepping after the task ended (videos).
+    ``floor_gap`` (v12 review finding 2; off: no key): per episode ``floor_gap_prelift`` = the lowest measured
+    gripper / moving-jaw point above the action layer's floor (``JointVecEnv.floor_gap``; m, negative = below), min
+    over the 20 ms steps of the live episode before its first firm lift (inf: no such step).
     Goal jumps (``env.goal_jump``, off by default): the student gets the env's CURRENT goal at every decision; extra
     outputs ``goal_jumps`` (per episode), ``goal_xy_final``, ``goal_jump_d`` / ``goal_jump_lat`` (the last jump's
     offset of the cube from the new goal, m; + = past along the carry) and, with ``record``, ``row_goal_xy``
@@ -443,10 +481,15 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
     t0 = time.time()
     t_student = 0.0
 
+    fgap = torch.full((B,), math.inf, dtype=torch.float64, device=dev) if floor_gap else None
+
     def hook(e, j):
         if SS is not None:
             SS["q"].append(e.ws.q.float().cpu())
             SS["cube"].append(torch.cat((e.ws.cube_pos, e.ws.cube_quat), -1).float().cpu())
+        if fgap is not None:      # the floor creep before the first firm lift (live episodes)
+            pre = (e.task.tr.end == 0) & ~e.task.tr.lifted
+            fgap.copy_(torch.where(pre.to(dev), torch.minimum(fgap, e.floor_gap().to(dev)), fgap))
 
     for k in range(env.max_episode_length + 1):
         live = env.task.tr.end == 0
@@ -478,7 +521,7 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
             if "goal_xy" in R:
                 R["goal_xy"].append(env.task.goal_xy.float().cpu())
         obs, _, done, ex = env.step(a, targets=tg, use_targets=stud if tg is not None else None,
-                                    step_hook=hook if SS is not None else None)
+                                    step_hook=hook if SS is not None or fgap is not None else None)
         ep = ex["episode"]
         if keep is None:
             keep = {n_: v.clone() for n_, v in ep.items()}
@@ -502,6 +545,8 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
         out["roll_cap_rad"] = np.float64(env.thi[JE.ROLL])
     if getattr(env.cfg, "floor_raise", None) is not None:   # the floor raise (JSON [c0, c1, c2], m); off: no key
         out["floor_raise"] = np.array(json.dumps(list(env.cfg.floor_raise)))
+    if fgap is not None:          # the floor creep before the first firm lift (m; off: no key)
+        out["floor_gap_prelift"] = fgap.cpu().numpy()
     if gj is not None:
         out["goal_jumps"] = gj.n.cpu().numpy().astype(np.int16)
         out["goal_xy_final"] = env.task.goal_xy.float().cpu().numpy()
@@ -541,7 +586,25 @@ def summarize(r):
         out["end_xy_mm_p50_strict"] = float(np.median(np.asarray(r["end_xy"])[s]) * 1e3)
     if "roll_cmd_max" in r and "roll_cap_rad" in r:     # the roll cap: episodes that pushed above / reached it
         out.update(roll_summary(r["roll_cmd_max"], r["roll_q_max"], float(r["roll_cap_rad"])))
+    if "floor_gap_prelift" in r:  # the floor creep before the lift (run_tasks floor_gap): mm, negative = below
+        out.update(floor_gap_summary(r["floor_gap_prelift"]))
     return out
+
+
+# the real robot's floor creep (v12 review, ~/so101_r2s_claude/v12/table/review/creep_robot.json): the lowest measured
+# gripper point before the lift minus the 1.5 mm flat floor, eval episodes 10-24..10-26 (n 68 holds, all students)
+ROBOT_FLOOR_GAP_MM = dict(p50=-4.4, p10=-11.6, min=-14.0, n=68)
+
+
+def floor_gap_summary(g):
+    """Per-episode ``floor_gap_prelift`` (m) -> dict floor_gap_mm_p50 / _p10 / _min (finite episodes, mm; negative =
+    below the action layer's floor) and floor_gap_n; the teacher gate compares p10 with ``ROBOT_FLOOR_GAP_MM``."""
+    g = np.asarray(g, np.float64)
+    g = g[np.isfinite(g)] * 1e3
+    if not len(g):
+        return dict(floor_gap_n=0)
+    return dict(floor_gap_mm_p50=float(np.median(g)), floor_gap_mm_p10=float(np.percentile(g, 10)),
+                floor_gap_mm_min=float(g.min()), floor_gap_n=int(len(g)))
 
 
 def roll_summary(cmd_max, q_max, cap):
