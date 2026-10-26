@@ -68,6 +68,21 @@ Grasp target toward the fixed jaw (real2sim round v11, 2026-10-25, OFF by defaul
 None): ``GraspShiftConfig`` charges the offset of the cube from a grasp target moved ``d_m`` along the closing axis
 toward the fixed jaw (cube centre wanted at hx = +d_m: nearer the middle of the open jaws, more fixed-jaw margin) at
 the moment the fingertips reach the cube-top level and at the close start (training reward only).
+
+Floor raise (real2sim round v12, 2026-10-26, OFF by default: ``JointEnvConfig.floor_raise`` None): the action layer's
+table floor is ``FLOOR`` above z = raise(xy) = c0 + c1 x + c2 y instead of above z = 0; the table, the cube, the task
+rules, the observation and the kinematic arm-table end stay at the sim table (z = 0). Why: the real table is 8-17 mm
+below the sim table relative to the arm and the robot keeps its floor flat at 1.5 mm above z = 0 of the ARM frame; a
+student distilled with the table frame map (``table_bias``: the student reads Phi(q), the joints of an arm whose world
+lies on the table plane) sees that robot floor at z = -plane(xy) in the TRUE (physics) frame, i.e. raised by the drop
+(``raise_of_table``). A flat raise (c1 = c2 = 0) is the robot's ``--table-z c0`` rule (``floor`` = FLOOR + c0); a tilted
+one measures each pose's lowest gripper / moving-jaw point from raise(x_g, y_g) at THAT pose's grasp point
+(``floor_guard`` lift): the frame map moves the whole gripper by the plane height at the grasp point, so this is the
+robot's flat arm-frame floor exactly (the guard's pull-back line is straight in the true joints, the robot's in the
+read joints: the clamped target can differ slightly where the floor acts). The PPO teacher env, the fixed-task
+envs (``joint_teacher.make_env``: teacher / student evaluations, PPO dev evaluations) and the online env
+(``viral.OnlineConfig.student_floor`` "observed") take it. ``set_table`` (MuJoCo evaluations) allows only its floor
+"zero" with a raise.
 """
 from __future__ import annotations
 
@@ -147,27 +162,41 @@ FLOOR = 0.0015                                       # m, the decoder's low_min 
 EVAL_KP_SCALE = float(os.environ.get("NEDM_SO101_EVAL_KP_SCALE", "1"))
 
 
-def _low(kin, u, q, plane=None):
+def lift_at(kin, u, lift):
+    """The floor raise (``JointEnvConfig.floor_raise``) of poses u [B, >= 5] (m): c0 + c1 x + c2 y at the pose's grasp
+    point (``kin.fk``; the arm joints only), ``lift`` = (c0, c1, c2). float64 [B]."""
+    p, _ = kin.fk(u[:, :5])
+    c0, c1, c2 = (float(c) for c in lift)
+    return c0 + c1 * p[:, 0] + c2 * p[:, 1]
+
+
+def _low(kin, u, q, plane=None, lift=None):
     """Lowest gripper / moving-jaw collision point (m) of the arm pose u[:, :5] with the commanded and the measured jaw
-    angle (the smaller). ``plane``: height above that plane instead of world z (``table.py``)."""
+    angle (the smaller). ``plane``: height above that plane instead of world z (``table.py``). ``lift`` (c0, c1, c2):
+    minus the floor raise at the pose's grasp point (``lift_at``; None: the old code)."""
     kw = {} if plane is None else dict(plane=plane)
     a = kin.lowest_point(u, exact=False, **kw)
     b = kin.lowest_point(torch.cat((u[:, :5], q[:, 5:6]), -1), exact=False, **kw)
-    return torch.minimum(a, b)
+    if lift is None:
+        return torch.minimum(a, b)
+    return torch.minimum(a, b) - lift_at(kin, u, lift)
 
 
-def floor_guard(u, q, kin, floor=FLOOR, iters=8, plane=None):
+def floor_guard(u, q, kin, floor=FLOOR, iters=8, plane=None, lift=None):
     """Table floor of the action layer (the decoder's floor rule in joint space): a target whose lowest gripper /
     moving-jaw point is below ``floor`` AND below that of the measured pose is pulled back toward the measured q along
     the straight joint line, u' = q + lam (u - q) with the largest lam (bisection) that keeps it at or above
     min(floor, the measured pose's lowest point). Stateless (robot kinematics + measured q). u, q [B, 6] -> [B, 6].
     ``plane`` (c0, c1, c2): heights above the plane z = c0 + c1 x + c2 y instead of world z (a floor that follows a
-    tilted table; a flat floor at height h is ``floor`` = FLOOR + h, as the robot's ``--table-z``)."""
-    lu = _low(kin, u, q, plane)
+    tilted table; a flat floor at height h is ``floor`` = FLOOR + h, as the robot's ``--table-z``). ``lift`` (c0, c1,
+    c2): a tilted floor raise (``JointEnvConfig.floor_raise``): every pose's lowest point is measured from c0 + c1 x +
+    c2 y at ITS OWN grasp point (vertical), the image of the robot's flat arm-frame floor under the student's table
+    frame map (``table_bias``: the map moves the whole gripper by the plane height at the grasp point)."""
+    lu = _low(kin, u, q, plane, lift)
     bad = lu < floor - 1e-9
     if not bool(bad.any()):
         return u
-    lq = _low(kin, q, q, plane)
+    lq = _low(kin, q, q, plane, lift)
     ref = torch.minimum(lq, torch.full_like(lq, floor))
     bad = bad & (lu < ref - 1e-9)
     if not bool(bad.any()):
@@ -180,22 +209,25 @@ def floor_guard(u, q, kin, floor=FLOOR, iters=8, plane=None):
     base = torch.cat((qb[:, :5], ub[:, 5:]), -1)
     for _ in range(iters):
         mid = (lo + hi) / 2
-        ok = _low(kin, base + mid[:, None] * d, qb, plane) >= rb - 1e-9
+        ok = _low(kin, base + mid[:, None] * d, qb, plane, lift) >= rb - 1e-9
         lo, hi = torch.where(ok, mid, lo), torch.where(ok, hi, mid)
     out = u.clone()
     out[idx] = base + lo[:, None] * d
     return out
 
 
-def safety(u, q, tlo, thi, lead=None, kin=None, floor=None, floor_plane=None):
+def safety(u, q, tlo, thi, lead=None, kin=None, floor=None, floor_plane=None, floor_lift=None):
     """The action layer of teacher AND student: arm targets within ``lead`` of the measured q, the table floor
-    (``floor_guard`` with ``kin``, if ``floor`` is given; ``floor_plane``: heights above that plane), all targets
-    within the collector's range. u, q [B, 6] -> [B, 6]."""
+    (``floor_guard`` with ``kin``, if ``floor`` is given; ``floor_plane``: heights above that plane; ``floor_lift``: a
+    tilted floor raise measured at each pose's grasp point, ``floor_guard`` lift), all targets within the collector's
+    range. u, q [B, 6] -> [B, 6]."""
     if lead is not None:
         arm = torch.minimum(torch.maximum(u[:, :5], q[:, :5] - lead), q[:, :5] + lead)
         u = torch.cat((arm, u[:, 5:]), -1)
     u = torch.minimum(torch.maximum(u, tlo), thi)
     if kin is not None and floor is not None:
+        if floor_lift is not None:
+            return floor_guard(u, q, kin, floor, plane=floor_plane, lift=floor_lift)
         u = floor_guard(u, q, kin, floor) if floor_plane is None else floor_guard(u, q, kin, floor, plane=floor_plane)
     return u
 
@@ -754,6 +786,49 @@ def roll_hi_config(v) -> float | None:
         raise ValueError(f"roll_hi_deg {v}: must be above the wrist roll's lower target limit "
                          f"{math.degrees(TLO[ROLL]):.1f} deg")
     return float(v)
+
+
+FLOOR_RAISE_MAX = (0.03, 0.2, 0.2)          # floor_raise limits: |c0| m, |c1|, |c2| m per m (a units guard)
+
+
+def floor_raise_config(v) -> tuple | None:
+    """``JointEnvConfig.floor_raise`` (module docstring "Floor raise"): None / False / 0 / [] / "" / all zeros -> None
+    (off); a number (m) or the string "h" -> the flat raise (h, 0, 0); a sequence (c0, c1, c2) (m, m per m) or the
+    string "c0,c1,c2" -> a tuple of floats. Raises ValueError for another length, a bool / non-finite value, or values
+    beyond ``FLOOR_RAISE_MAX`` (mm given as m)."""
+    import numbers
+    if isinstance(v, str):
+        v = v.strip()
+        v = [float(x) for x in v.split(",")] if v else None
+        v = v[0] if v is not None and len(v) == 1 else v
+    if v is None or v is False:
+        return None
+    if isinstance(v, numbers.Real) and not isinstance(v, bool):
+        v = (v, 0.0, 0.0)
+    try:
+        c = tuple(v)
+    except TypeError:
+        raise ValueError(f"floor_raise {v!r}: a height (m) or (c0, c1, c2)") from None
+    if len(c) == 0:
+        return None
+    if len(c) != 3 or any(isinstance(x, bool) or not isinstance(x, numbers.Real) or not math.isfinite(float(x))
+                          for x in c):
+        raise ValueError(f"floor_raise {v!r}: a height (m) or 3 finite numbers (c0 m, c1, c2 m per m)")
+    c = tuple(float(x) + 0.0 for x in c)                 # (+ 0.0: no -0.0 in the record)
+    if any(abs(x) > m for x, m in zip(c, FLOOR_RAISE_MAX)):
+        raise ValueError(f"floor_raise {list(c)}: beyond |c0| {FLOOR_RAISE_MAX[0]} m, |c1|, |c2| {FLOOR_RAISE_MAX[1]} "
+                         "(units: m, m per m)")
+    return None if not any(c) else c
+
+
+def raise_of_table(plane) -> tuple | None:
+    """The floor raise that puts the action-layer floor flat in the frame of a world whose table lies on ``plane``
+    (c0, c1, c2; ``table.py``, c0 < 0 = lower than the sim table): -plane (``table_bias`` frame map: the reading is
+    the true pose moved by plane(xy) at the grasp point, so the robot's flat floor z = 0 of the reading is z =
+    -plane(xy) in the true frame). None / zeros -> None."""
+    if plane is None:
+        return None
+    return floor_raise_config([-float(c) for c in plane])
 
 
 def drop_high_roll(bank: dict, hi: float):
@@ -1354,6 +1429,8 @@ class JointEnvConfig:
     arm_table: object = None                          # ArmTableConfig (or its dict): kinematic arm-table end
     grasp_shift: object = None                        # GraspShiftConfig (or its dict): grasp target toward the
                                                       # fixed jaw (placement cost at the descent and the close)
+    floor_raise: object = None                        # (c0, c1, c2) m or a flat height: the action-layer floor
+                                                      # 1.5 mm above z = raise(xy) (module docstring); None = off
 
     def __post_init__(self):
         self.dyn = dyn_config(self.dyn)
@@ -1364,6 +1441,7 @@ class JointEnvConfig:
         self.far_open = far_open_config(self.far_open)
         self.arm_table = arm_table_config(self.arm_table)
         self.grasp_shift = grasp_shift_config(self.grasp_shift)
+        self.floor_raise = floor_raise_config(self.floor_raise)
 
     @staticmethod
     def from_dict(d):
@@ -1392,6 +1470,10 @@ class JointEnvConfig:
             d.pop("arm_table", None)
         if d.get("grasp_shift") is None:  # off: the old record
             d.pop("grasp_shift", None)
+        if d.get("floor_raise") is None:  # off: the old record
+            d.pop("floor_raise", None)
+        else:
+            d["floor_raise"] = list(d["floor_raise"])
         return d
 
 
@@ -1476,6 +1558,11 @@ class JointVecEnv:
         self.floor_plane = None           # the action layer's floor plane (tilted); None = flat floor at floor_z
         self.floor_z = 0.0                # flat floor height (m): FLOOR + floor_z (the robot script's --table-z)
         self.q_offset = None              # [6] joint offset of the policy frame (sim emulation of a joint-map offset)
+        # floor raise (JointEnvConfig.floor_raise; None = off): flat -> raise_z (added to floor_z), tilted -> raise_lift
+        # (floor_guard lift: measured at each pose's grasp point)
+        fr = cfg.floor_raise
+        self.raise_z = None if fr is None or fr[1] != 0.0 or fr[2] != 0.0 else fr[0]
+        self.raise_lift = None if fr is None or self.raise_z is not None else fr
         # robot dynamics stage (real2sim; None = off) with its own generator, and the JT observation's held-time scale
         self.dyn = None if cfg.dyn is None else RobotDyn(cfg.dyn, B, dev, (int(cfg.seed) * 0x9E3779B1 + 0xD1A) &
                                                          0x7FFFFFFFFFFF)
@@ -1537,6 +1624,9 @@ class JointVecEnv:
         from nedm.so101_policy import table as TB
         if self.cfg.world != "mujoco":
             raise ValueError("set_table: CPU MuJoCo worlds only")
+        if self.cfg.floor_raise is not None and floor != "zero":
+            raise ValueError(f"set_table floor {floor!r} with floor_raise {list(self.cfg.floor_raise)}: one floor "
+                             "rule at a time (floor 'zero' + the raise, or no raise)")
         plane = None if plane is None or not any(plane) else tuple(float(c) for c in plane)
         self.table_plane = plane
         self.task.table_plane = plane
@@ -1557,8 +1647,11 @@ class JointVecEnv:
                     q_offset=None if self.q_offset is None else self.q_offset.tolist(), table=self.world.table)
 
     def table_info(self) -> dict:
-        return dict(plane=self.table_plane, floor_plane=self.floor_plane, floor_z=self.floor_z,
-                    q_offset=None if self.q_offset is None else self.q_offset.tolist())
+        out = dict(plane=self.table_plane, floor_plane=self.floor_plane, floor_z=self.floor_z,
+                   q_offset=None if self.q_offset is None else self.q_offset.tolist())
+        if self.cfg.floor_raise is not None:      # (off: the old keys)
+            out["floor_raise"] = list(self.cfg.floor_raise)
+        return out
 
     def dyn_info(self) -> dict | None:
         """The robot dynamics setting (``RobotDynConfig`` as a dict) + the per-world draws of the current episodes
@@ -1743,7 +1836,9 @@ class JointVecEnv:
         rew = torch.zeros(B, dtype=torch.float64, device=self.dev)
         info = None
         ex = []
-        fl = (FLOOR if self.floor_z == 0.0 else FLOOR + self.floor_z) if self.cfg.floor_guard else None
+        fz = self.floor_z if self.raise_z is None else self.floor_z + self.raise_z     # (floor raise: flat part)
+        fl = (FLOOR if fz == 0.0 else FLOOR + fz) if self.cfg.floor_guard else None
+        lk = {} if self.raise_lift is None else dict(floor_lift=self.raise_lift)   # (floor raise: tilted; off: {})
         dyn = self.dyn if self.dyn is not None and self.dyn.active else None      # None: the old path, bit for bit
         if dyn is not None:
             dyn.begin()
@@ -1759,11 +1854,11 @@ class JointVecEnv:
                                                 self.roll_cmd_max)
             if self.q_offset is None:
                 u = safety(u5[:, j], self.ws.q.to(torch.float64), self.tlo, self.thi, self.lead, self.kin, fl,
-                           self.floor_plane)
+                           self.floor_plane, **lk)
             else:   # the action layer in the policy's joint frame (targets u5 are in it), mapped back to the world
                 qo = self.q_offset
                 u = safety(u5[:, j], self.ws.q.to(torch.float64) + qo, self.tlo, self.thi, self.lead, self.kin, fl,
-                           self.floor_plane) - qo
+                           self.floor_plane, **lk) - qo
             if rc:                        # the cap after the floor guard too (it pulls a target toward a measured roll
                 u = self.cap_roll(u)      # above the cap), as the guard's range clamp after its action layer
             ex.append(u)                # u_exe: the action layer's targets (before the robot dynamics / servo scale)

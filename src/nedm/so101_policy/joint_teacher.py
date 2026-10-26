@@ -370,18 +370,19 @@ EP_OUT = ("end", "success", "success10", "lifted", "end_xy", "end_yaw", "ret", "
 
 def make_env(world, B, codec, device="cuda", nrd_ckpt=None, workers=0, mj_python=None, horizon=400, members="split",
              lead_clamp=True, floor_guard=True, hold_cap_s=None, hold_obs_s=0.0, dyn=None, goal_jump=None,
-             roll_hi_deg=None):
+             roll_hi_deg=None, floor_raise=None):
     """Fixed-task env (evaluation, round collection). ``hold_cap_s`` / ``hold_obs_s``: ``JE.hold_cap_kw`` (None / 0 =
     the task defaults). ``dyn``: robot dynamics (``JE.RobotDynConfig`` or its dict); None = the process-wide
     evaluation setting of ``$NEDM_SO101_DYN`` (unset = off), False = off. ``goal_jump``: ``JE.GoalJumpConfig`` (or
     its dict; None = off): goal jumps during the episodes (the evaluation-only goal shift). ``roll_hi_deg``: the
-    wrist-roll target cap (sim deg, ``JE.JointEnvConfig.roll_hi_deg``); None = off."""
+    wrist-roll target cap (sim deg, ``JE.JointEnvConfig.roll_hi_deg``); None = off. ``floor_raise``: the action-layer
+    floor raise (``JE.JointEnvConfig.floor_raise``: a height in m or (c0, c1, c2)); None = off."""
     ck = [str(Path(c).expanduser()) for c in ([nrd_ckpt] if isinstance(nrd_ckpt, (str, Path)) else (nrd_ckpt or []))]
     dyn = JE.dyn_from_env() if dyn is None else JE.dyn_config(dyn)
     cfg = JE.JointEnvConfig(world=world, num_envs=B, device=device, ckpts=ck, members=members, auto_reset=False,
                             stagger=False, starts="", horizon=int(horizon), mj_workers=workers, mj_python=mj_python,
                             lead_clamp=lead_clamp, floor_guard=floor_guard, dyn=dyn, goal_jump=goal_jump,
-                            roll_hi_deg=roll_hi_deg, **JE.hold_cap_kw(hold_cap_s, hold_obs_s))
+                            roll_hi_deg=roll_hi_deg, floor_raise=floor_raise, **JE.hold_cap_kw(hold_cap_s, hold_obs_s))
     return JE.JointVecEnv(cfg, codec)
 
 
@@ -499,6 +500,8 @@ def run_tasks(env: JE.JointVecEnv, tasks, teacher: JE.JointTeacher | None, stude
     if getattr(env, "roll_hi", None) is not None:      # the roll cap (per-episode roll_cmd_max / roll_q_max: rad)
         out["roll_hi_deg"] = np.float64(env.cfg.roll_hi_deg)
         out["roll_cap_rad"] = np.float64(env.thi[JE.ROLL])
+    if getattr(env.cfg, "floor_raise", None) is not None:   # the floor raise (JSON [c0, c1, c2], m); off: no key
+        out["floor_raise"] = np.array(json.dumps(list(env.cfg.floor_raise)))
     if gj is not None:
         out["goal_jumps"] = gj.n.cpu().numpy().astype(np.int16)
         out["goal_xy_final"] = env.task.goal_xy.float().cpu().numpy()

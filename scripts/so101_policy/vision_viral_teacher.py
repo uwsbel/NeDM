@@ -176,11 +176,13 @@ def cmd_eval(a):
     B = len(t["seeds"])
     env = JT.make_env(a.world, B, jt.codec, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                       lead_clamp=not a.no_lead, floor_guard=not a.no_floor, hold_cap_s=a.hold_cap_s,
-                      hold_obs_s=a.hold_obs_s, roll_hi_deg=a.roll_hi_deg)
+                      hold_obs_s=a.hold_obs_s, roll_hi_deg=a.roll_hi_deg, floor_raise=a.floor_raise or None)
     if env.dyn is not None:       # $NEDM_SO101_DYN (joint_teacher.make_env)
         log(f"robot dynamics ({a.world}, {B} worlds): {json.dumps(env.dyn_info()['cfg'])}")
     if env.roll_hi is not None:   # the wrist-roll cap (--roll-hi-deg)
         log(f"roll cap: {json.dumps(env.roll_info())}")
+    if env.cfg.floor_raise is not None:   # the action-layer floor raise (--floor-raise)
+        log(f"floor raise: the floor 1.5 mm above z = {list(env.cfg.floor_raise)} (c0 + c1 x + c2 y, m)")
     from nedm.so101_policy import table as TB
     plane, floor, _, moved = TB.from_cli(a)
     if moved:      # evaluation only: a lowered / tilted table (table.py)
@@ -249,6 +251,8 @@ def cmd_ppo(a):
         log(f"kinematic arm-table end: {json.dumps(asdict(cfg.arm_table))}")
     if cfg.grasp_shift is not None:  # the grasp target toward the fixed jaw (grasp_shift; round v11)
         log(f"grasp shift: {json.dumps(asdict(cfg.grasp_shift))}")
+    if cfg.floor_raise is not None:  # the action-layer floor raise (floor_raise; round v12): the dev evaluations too
+        log(f"floor raise: the floor 1.5 mm above z = {list(cfg.floor_raise)} (c0 + c1 x + c2 y, m)")
     gs_last = env.gs_stats.clone()
     tc = JT.ppo_train_cfg(json.loads(Path(a.train_config).read_text()) if a.train_config else None)
     tc["seed"] = a.seed
@@ -293,7 +297,7 @@ def cmd_ppo(a):
             rec = dict(iteration=algo.iteration, sets={})
             for k_, (name, tt) in enumerate([(Path(a.dev_tasks).stem, dev_t)] + dev_x):
                 ev = JT.make_env("nrd", len(tt["seeds"]), jt.codec, a.device, x(a.nrd_ckpt),
-                                 roll_hi_deg=cfg.roll_hi_deg, **dev_kw)
+                                 roll_hi_deg=cfg.roll_hi_deg, floor_raise=cfg.floor_raise, **dev_kw)
                 r = JT.run_tasks(ev, tt, jt)
                 ev.close()
                 s = JT.summarize(r)
@@ -417,6 +421,9 @@ def main(argv=None):
                    help="held-time scale of the JT observation (s; 0: the task's, 3.5 with another --hold-cap-s)")
     q.add_argument("--roll-hi-deg", type=float, default=None,
                    help="the wrist-roll target cap (sim deg; the real roll ends at 101.2); default off")
+    q.add_argument("--floor-raise", default="",
+                   help="the action-layer floor raise (joint_env.JointEnvConfig.floor_raise): 'c0,c1,c2' (m, the floor "
+                        "1.5 mm above z = c0 + c1 x + c2 y at the grasp point) or one height (m); default off")
     q.add_argument("--out", default="")
     from nedm.so101_policy import table as TB
     TB.add_cli(q)
