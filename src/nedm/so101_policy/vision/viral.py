@@ -2058,6 +2058,15 @@ class OnlineConfig:
     # drawn cube (z + plane height). Off: the true arm and the sim-height world (the image-vs-reading mismatch tells
     # the drop, a cue that exists only in sim)
     table_render: bool = False
+    # real2sim v12 (2026-10-26): the action-layer floor of the online env with ``table_bias``: "true" (default, the v8
+    # coupling rule) = FLOOR above the TRUE (sim) table in every world, i.e. above the plane in the student's observed
+    # frame (robot: floor mode plane); "observed" = flat FLOOR above z = 0 of the OBSERVED frame, the robot's flat
+    # arm-frame floor: the online env's floor raised by -plane at the grasp point (``JE.JointEnvConfig.floor_raise`` =
+    # ``JE.raise_of_table``; every slot, student and JT), needs ``table_bias`` with a fixed ``plane``; the labelling JT
+    # must have been trained with the same floor raise (vision_viral.py online checks its env record); the checkpoint
+    # records it (``ckpt_record``: v8_online.student_floor) and the robot deploys it with the flat floor
+    # (``hw_lib.student_floor_mode``)
+    student_floor: str = "true"
     # real2sim v8 (2026-10-23): the robot's image latency (``ImgLagConfig`` dict: lo_ms, hi_ms, redraw_p, per_camera,
     # quantize; {} = off, the student's integer lag as before): a lag in ms per world (and camera), drawn again per
     # decision, the images rendered from the interpolated past state and goal; replaces lag_range in this run
@@ -2078,6 +2087,13 @@ class OnlineConfig:
             if not is_on(d.get("table_bias")):
                 raise ValueError("table_render: needs table_bias (the planes to draw)")
             d["table_render"] = bool(d["table_render"])
+        if d.get("student_floor", "true") != "true":
+            if d["student_floor"] != "observed":
+                raise ValueError(f"student_floor {d['student_floor']!r}: 'true' (default) or 'observed'")
+            from nedm.so101_policy.table_bias import TableBiasConfig, is_on
+            if not is_on(d.get("table_bias")) or not TableBiasConfig.from_dict(d["table_bias"]).plane:
+                raise ValueError("student_floor observed: needs table_bias with a fixed plane (table_bias.plane; one "
+                                 "floor raise for all worlds)")
         if d.get("plate_mm"):
             d["plate_mm"] = tuple(float(v) for v in d["plate_mm"])
             if len(d["plate_mm"]) != 2 or not 0.0 < d["plate_mm"][0] <= d["plate_mm"][1] <= 20.0:
@@ -2097,6 +2113,15 @@ class OnlineConfig:
         if d.get("roll_hi_deg") is not None:
             d["roll_hi_deg"] = JE.roll_hi_config(d["roll_hi_deg"])          # validate now
         return OnlineConfig(**{k: v for k, v in d.items() if k in known})
+
+
+def online_floor_raise(ocfg: OnlineConfig):
+    """The online env's floor raise (``JE.JointEnvConfig.floor_raise``; None = off): -plane of the fixed table plane
+    (``JE.raise_of_table``) with ``student_floor`` "observed", else None (a zero plane: None)."""
+    if getattr(ocfg, "student_floor", "true") != "observed":
+        return None
+    from nedm.so101_policy.table_bias import TableBiasConfig
+    return JE.raise_of_table(TableBiasConfig.from_dict(ocfg.table_bias).plane)
 
 
 def online_views_cfg(cfg: ViralConfig, ocfg: OnlineConfig) -> ViralConfig:
@@ -2212,7 +2237,8 @@ class OnlineDAgger:
         cfg = JE.JointEnvConfig(world=world, num_envs=N, device=device, ckpts=[str(nrd_ckpt)], auto_reset=True,
                                 stagger=True, starts="", seed=seed, horizon=int(ocfg.horizon), dyn=ocfg.dyn or None,
                                 pause=ocfg.pause or None, goal_jump=ocfg.goal_jump or None,
-                                roll_hi_deg=ocfg.roll_hi_deg, **JE.hold_cap_kw(ocfg.hold_cap_s, ocfg.hold_obs_s))
+                                roll_hi_deg=ocfg.roll_hi_deg, floor_raise=online_floor_raise(ocfg),
+                                **JE.hold_cap_kw(ocfg.hold_cap_s, ocfg.hold_obs_s))
         self.env = JE.JointVecEnv(cfg, jt.codec)
         f64 = dict(dtype=torch.float64, device=self.dev)
         self.env.bank = {k: torch.as_tensor(tasks[f"state_{k}"], **f64) for k in
@@ -2299,6 +2325,10 @@ class OnlineDAgger:
                                  "scene without its own table_plane)")
             log(f"table bias of the student's q input: {json.dumps(self.tb.to_dict())}"
                 + (" + consistent images (arm at the reading, world on the plane)" if self.tb_render else ""))
+            if self.env.cfg.floor_raise is not None or getattr(ocfg, "student_floor", "true") != "true":
+                log(f"student floor {ocfg.student_floor}: the online env's floor 1.5 mm above z = "
+                    f"{self.env.cfg.floor_raise} (c0 + c1 x + c2 y at the grasp point, true frame; None = z 0) = flat "
+                    "in the observed frame (the robot's flat floor)")
         elif ocfg.table_render:
             raise ValueError("table_render: needs table_bias")
         if ocfg.plate_mm and not getattr(views, "plate_on", False):
@@ -2534,13 +2564,16 @@ class OnlineDAgger:
         """Checkpoint keys of the v8 training options (``save_student(**extra)``): ``v8_online`` = the image lag
         (``img_lag``) and the table randomisation (``table_bias``, ``table_render``, ``plate_mm``) the student was
         trained with; {} while all of them are off (the old checkpoint layout bit for bit). The evaluation does not
-        read it (it renders with ``ViralConfig.lag``); the robot reads ``table_bias`` for its floor mode
-        (``hw_lib.student_floor_mode``: on = the floor above the calibrated mat plane)."""
+        read it (it renders with ``ViralConfig.lag``); the robot reads ``table_bias`` and ``student_floor`` for its
+        floor mode (``hw_lib.student_floor_mode``: table_bias on = the floor above the calibrated mat plane, unless
+        ``student_floor`` "observed" (v12; only written when not the default): the flat arm-frame floor)."""
         rec = {}
         if getattr(self, "il", None) is not None:
             rec["img_lag"] = asdict(self.il)
         if getattr(self, "tb", None) is not None:
             rec.update(table_bias=self.tb.to_dict(), table_render=bool(self.tb_render))
+            if getattr(self.o, "student_floor", "true") != "true":      # v12: the flat observed-frame floor
+                rec["student_floor"] = self.o.student_floor
         if getattr(self.o, "plate_mm", ()):
             rec["plate_mm"] = [float(v) for v in self.o.plate_mm]
         return {"v8_online": rec} if rec else {}

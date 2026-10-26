@@ -13,6 +13,9 @@
 #   variant R2S_SCENE (scene.amd), STUDENT_CFG, ONLINE_CFG and INIT (init.amd); REPO=<another synced copy> runs that
 #   copy's code and sources that copy's r2s_env.sh (REPO unset: $R2S/repo, as before), e.g.
 #   sbatch --export=ALL,REPO=$R2S/repo_v8,... $R2S/repo_v8/scripts/so101_policy/cluster/r2s_online.sbatch
+#   Round v12 table drop: ONLINE_CFG with table_bias {"plane": [...]} + student_floor "observed", TEACHER_JT = the
+#   teacher fine-tuned with the matching floor raise (teacher_roll_v12_*.json; the run refuses another one),
+#   EXTRA=--eval-table-plane (in-run evaluations on the plane, the robot's flat floor)
 #SBATCH -J r2s-online
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x

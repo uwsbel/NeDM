@@ -75,6 +75,12 @@ frame, ~13 mm above the real table at the cubes, and holds a lower descent up. D
 calibrated plane; MuJoCo: ``vision_viral.py eval --floor table``), never with ``--table-z 0``. The robot script does
 this by itself (2026-10-24): ``run_student_real.py --floor-mode auto`` (default) reads ``v8_online.table_bias`` from
 the checkpoint (``hw_lib.student_floor_mode``), and live mode refuses a flat floor for such a student.
+
+Round v12 (2026-10-26, off by default): ``TableBiasConfig.plane`` = one fixed plane in every world (no draw) and
+``viral.OnlineConfig.student_floor`` "observed" = the online env's floor flat in the OBSERVED frame (the robot's flat
+arm-frame floor; in the true frame raised by -plane at the grasp point, ``joint_env.JointEnvConfig.floor_raise``), so
+the student deploys with the robot's flat floor (``hw_lib.student_floor_mode``: v8_online.student_floor observed ->
+flat) and the labelling teacher is the one fine-tuned with the same floor raise.
 """
 from __future__ import annotations
 
@@ -98,12 +104,18 @@ class TableBiasConfig:
     """Per world per episode with probability ``p`` a table plane, else the sim table (b = 0):
     the table top at x = ``x_ref_m`` (y = 0) ``drop_mm`` ~ U(lo, hi) mm BELOW the sim table (positive = lower), its
     slope along x ``slope_x`` ~ U(lo, hi) mm per m (the measured real table: -36.4, i.e. it falls with x) and along y
-    ``slope_y`` (real +18.4; off by default). Plane c = (-drop - slope_x x_ref, slope_x, slope_y) (m, ``table.py``)."""
+    ``slope_y`` (real +18.4; off by default). Plane c = (-drop - slope_x x_ref, slope_x, slope_y) (m, ``table.py``).
+
+    ``plane`` (real2sim round v12, 2026-10-26; () = off): ONE fixed plane (c0, c1, c2) (m, ``table.py``) for every
+    world and episode, no random draw (``sample`` uses no random numbers); ``p`` must then be 1 (the default with a
+    plane) and the ranges must not be given. (0, 0, 0) is allowed: every world on the sim table, the frame map the
+    identity (``shift`` returns q itself)."""
     p: float = 0.7
     drop_mm: tuple = (0.0, 20.0)
     slope_x: tuple = (-40.0, 40.0)
     slope_y: tuple = (0.0, 0.0)
     x_ref_m: float = 0.25
+    plane: tuple = ()
 
     RANGES = ("drop_mm", "slope_x", "slope_y")
 
@@ -114,6 +126,22 @@ class TableBiasConfig:
         if bad:
             raise ValueError(f"unknown table_bias keys {bad}")
         d.pop("note", None)
+        pl = d.get("plane")
+        if pl is not None and not (isinstance(pl, (list, tuple)) and len(pl) == 0):   # one fixed plane (docstring)
+            if not isinstance(pl, (list, tuple)) or len(pl) != 3 or \
+                    any(isinstance(v, bool) or not isinstance(v, (int, float)) for v in pl):
+                raise ValueError(f"table_bias plane {pl!r}: 3 numbers (c0, c1, c2), m")
+            pl = tuple(float(v) + 0.0 for v in pl)
+            if not all(math.isfinite(v) for v in pl) or abs(pl[0]) > 0.06 or max(abs(pl[1]), abs(pl[2])) > 0.2:
+                raise ValueError(f"table_bias plane {list(pl)}: finite, |c0| <= 0.06 m, |c1|, |c2| <= 0.2 (m per m)")
+            given = sorted(k for k in TableBiasConfig.RANGES if k in d)
+            if given:
+                raise ValueError(f"table_bias plane with {given}: a fixed plane has no ranges")
+            if float(d.get("p", 1.0)) != 1.0:
+                raise ValueError(f"table_bias plane with p {d['p']}: a fixed plane is in every world (p 1)")
+            d["plane"], d["p"] = pl, 1.0
+        else:
+            d.pop("plane", None)
         for k in TableBiasConfig.RANGES:
             if k in d:
                 v = tuple(float(x) for x in d[k])
@@ -130,7 +158,13 @@ class TableBiasConfig:
         return c
 
     def to_dict(self) -> dict:
-        return {k: (list(v) if isinstance(v, tuple) else v) for k, v in asdict(self).items()}
+        d = {k: (list(v) if isinstance(v, tuple) else v) for k, v in asdict(self).items()}
+        if not self.plane:                # off: the old record
+            d.pop("plane")
+        else:                             # a fixed plane: no ranges (unused)
+            for k in self.RANGES:
+                d.pop(k)
+        return d
 
 
 def plane_coef(drop_m, slope_x, slope_y, x_ref):
@@ -143,7 +177,11 @@ def plane_coef(drop_m, slope_x, slope_y, x_ref):
 
 def sample(n, cfg: TableBiasConfig, gen=None, device="cpu"):
     """n per-world draws -> (plane [n, 3] float64 (zeros where off), on [n] bool). Random numbers (one call each, on
-    ``gen``): on, drop, slope_x, slope_y."""
+    ``gen``): on, drop, slope_x, slope_y. A fixed ``cfg.plane``: that plane in every row, on everywhere, no random
+    numbers."""
+    if cfg.plane:
+        pl = torch.tensor(cfg.plane, dtype=torch.float64, device=device)
+        return pl.expand(n, 3).clone(), torch.ones(n, dtype=torch.bool, device=device)
     f = dict(device=device, generator=gen, dtype=torch.float64)
     on = torch.rand(n, **f) < float(cfg.p)
 

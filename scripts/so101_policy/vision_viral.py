@@ -60,6 +60,15 @@ on the plane), ``plate_mm`` randomises the goal plate thickness of the TRAINING 
 ``viral_r2s_online_v8_C_table.json`` / ``viral_r2s_online_v8_S_table.json``. The gate (pass rule in its docstring) is
 ``scripts/so101_policy/real2sim/lowtable_gate.py`` (``eval --table-plane`` / ``--floor table``: the physical table
 moved in CPU MuJoCo); robot deploy with ``run_student_real.py --table-plane calib``.
+Table drop with the flat floor (real2sim v12, off by default): the online config's ``table_bias`` {"plane": [c0, c1,
+c2]} puts ONE fixed plane under every world (no draw) and ``student_floor`` "observed" keeps the online env's floor
+flat in the student's observed frame (the robot's flat arm-frame floor; the true-frame floor raised by -plane,
+``joint_env.JointEnvConfig.floor_raise``); the labelling JT must have been fine-tuned with that floor raise
+(``check_jt_floor``: the run stops otherwise, ``--allow-floor-raise-mismatch``; teacher configs
+``configs/so101_policy/ppo/r2s/teacher_roll_v12_*.json``); ``--eval-table-plane`` runs the in-run MuJoCo evaluations on
+that plane (table moved, floor 'zero' = flat in the arm frame, renders on the plane). The checkpoint records
+``v8_online.student_floor`` and the robot deploys it with the flat floor (``hw_lib.student_floor_mode``). ``eval`` /
+``collect --floor-raise`` = the raise in the TRUE frame (the student reads the true joints).
 """
 from __future__ import annotations
 
@@ -106,21 +115,26 @@ def subset(t, idx):
 
 class EnvCache:
     def __init__(self, jt, device, nrd, workers, mj_python, horizon, table=None, cli=None, hold_cap_s=None,
-                 goal_jump=None, roll_hi_deg=None):
+                 goal_jump=None, roll_hi_deg=None, floor_raise=None):
         self.c, self.jt, self.dev, self.nrd, self.w, self.mp, self.h = {}, jt, device, nrd, workers, mj_python, horizon
         self.table = table        # (plane, floor, q_offset) for JointVecEnv.set_table (evaluation only), None: off
         self.cli = cli            # eval args (``--log-only-extra``), None: off
         self.hold_cap_s = hold_cap_s   # the hold_cap rule (s; ``--hold-cap-s``), None: the task default
         self.goal_jump = goal_jump     # JE.GoalJumpConfig: the evaluation-only goal shift (``--goal-shift``), None: off
         self.roll_hi_deg = roll_hi_deg  # the wrist-roll target cap (sim deg; ``--roll-hi-deg``), None: off
+        self.floor_raise = floor_raise  # the action-layer floor raise (``--floor-raise``; JointEnvConfig), None: off
 
     def get(self, world, B):
         k = (world, B)
         if k not in self.c:
             self.c[k] = JT.make_env(world, B, self.jt.codec, self.dev, self.nrd, self.w, self.mp, self.h,
-                                    hold_cap_s=self.hold_cap_s, goal_jump=self.goal_jump, roll_hi_deg=self.roll_hi_deg)
+                                    hold_cap_s=self.hold_cap_s, goal_jump=self.goal_jump, roll_hi_deg=self.roll_hi_deg,
+                                    floor_raise=self.floor_raise)
             if self.c[k].roll_hi is not None:
                 log(f"roll cap ({world}, {B} worlds): {json.dumps(self.c[k].roll_info())}")
+            if self.c[k].cfg.floor_raise is not None:
+                log(f"floor raise ({world}, {B} worlds): the floor 1.5 mm above z = {list(self.c[k].cfg.floor_raise)} "
+                    "(c0 + c1 x + c2 y at the grasp point; the student reads the true joints)")
             if self.c[k].goal_jump is not None:
                 log(f"goal shift ({world}, {B} worlds): {json.dumps(VI.asdict(self.c[k].goal_jump.cfg))}")
             if self.c[k].dyn is not None:      # $NEDM_SO101_DYN (joint_teacher.make_env)
@@ -219,6 +233,31 @@ def jt_roll_cap(jt):
     env = rec.get("env") if isinstance(rec, dict) else None
     v = env.get("roll_hi_deg") if isinstance(env, dict) else None
     return None if v is None else float(v)
+
+
+def jt_floor_raise(jt):
+    """The floor raise (``JE.JointEnvConfig.floor_raise`` tuple) the JT was trained with (its checkpoint's env record),
+    None = none."""
+    rec = getattr(jt, "env_rec", None) or {}
+    env = rec.get("env") if isinstance(rec, dict) else None
+    return JE.floor_raise_config(env.get("floor_raise")) if isinstance(env, dict) else None
+
+
+def check_jt_floor(jt, floor_raise, allow=False, tol=1e-9):
+    """Online runs: the labelling JT must have been trained with the online env's floor raise
+    (``VI.online_floor_raise``; None = none; both None: no check), else SystemExit (``allow``: a warning). The JT's
+    labels are its raw targets; a JT trained under another floor learned descents for another action layer (the
+    baseline of D's teacher under raised floors: ~/so101_r2s_claude/v12/table/). -> the JT's own floor raise."""
+    jf = jt_floor_raise(jt)
+    a = (0.0, 0.0, 0.0) if floor_raise is None else tuple(floor_raise)
+    b = (0.0, 0.0, 0.0) if jf is None else jf
+    if max(abs(x - y) for x, y in zip(a, b)) > tol:
+        msg = (f"online floor raise {None if floor_raise is None else list(floor_raise)}: the JT "
+               f"{getattr(jt, 'path', '?')} was trained with floor raise {None if jf is None else list(jf)}")
+        if not allow:
+            raise SystemExit(msg + "; use the teacher fine-tuned with this raise or --allow-floor-raise-mismatch")
+        log("WARNING: " + msg + " (--allow-floor-raise-mismatch)")
+    return jf
 
 
 def check_jt_roll(jt, roll_hi_deg, allow=False):
@@ -478,6 +517,8 @@ def cmd_online(a):
         oc[k] = json.loads(v)
     ocfg = VI.OnlineConfig.from_dict(oc)
     jt_roll = check_jt_roll(jt, ocfg.roll_hi_deg, a.allow_uncapped_jt)
+    o_raise = VI.online_floor_raise(ocfg)         # v12: student_floor observed (None: the online env's floor at z 0)
+    jt_raise = check_jt_floor(jt, o_raise, a.allow_floor_raise_mismatch)
     if ocfg.lag_range and tuple(ocfg.lag_range) != tuple(st.cfg.lag_range):      # the online config's image lag range
         sets = dict(s_.split("=", 1) for s_ in a.set or [])                       # (wins over --config, not --set)
         if a.config and "lag_range" in sets and tuple(json.loads(sets["lag_range"])) != tuple(ocfg.lag_range):
@@ -494,18 +535,28 @@ def cmd_online(a):
         log(f"training views: RealDR plate_thickness {vcfg.real_dr['plate_thickness']} m (online config plate_mm; "
             "the evaluation views and the student's config keep the scene's plate)")
     views = VI.make_views(vcfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
-    eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device)
+    etab = None                   # v12 --eval-table-plane: the in-run evaluations on the training plane (robot-like)
+    if a.eval_table_plane:
+        from nedm.so101_policy import table as TB
+        from nedm.so101_policy.table_bias import TableBiasConfig, is_on
+        if not is_on(ocfg.table_bias) or not TableBiasConfig.from_dict(ocfg.table_bias).plane:
+            raise SystemExit("--eval-table-plane: needs the online config's table_bias with a fixed plane")
+        etab = TB.parse(plane=TableBiasConfig.from_dict(ocfg.table_bias).plane)     # (a zero plane: None, as off)
+        log(f"in-run evaluations: MuJoCo {TB.describe(etab)} (the training plane), floor 'zero' (flat in the arm "
+            "frame, the robot's), renders on the plane")
+    eviews = VI.make_views(st.cfg, a.render_worlds, seed=a.seed + 1, allow_change=a.allow_scene_change, device=a.device,
+                           **({} if etab is None else dict(geometry_over={"table_plane": list(etab)})))
     # the in-run evaluations: the online config's wrist-roll cap (--roll-hi-deg: another one for the evaluations only)
     eval_roll = a.roll_hi_deg if a.roll_hi_deg is not None else ocfg.roll_hi_deg
     if eval_roll != ocfg.roll_hi_deg:
         log(f"NOTE: in-run evaluations with roll cap {eval_roll}, training env {ocfg.roll_hi_deg}")
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.eval_workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s,
-                     roll_hi_deg=eval_roll)
+                     roll_hi_deg=eval_roll, table=None if etab is None else (etab, "zero", None))
     od = VI.OnlineDAgger(st, jt, tasks, x(a.nrd_ckpt), views, ocfg, a.device, a.seed, log)
     meta = dict(student_cfg=VI.cfg_dict(st.cfg), online=VI.asdict(ocfg), init=str(a.init), jt=jt.info(), argv=sys.argv)
     robot_opts = od.env.dyn is not None or od.qd_hist is not None or od.env.tcfg.horizon != 400 \
         or od.env.tcfg.hold_cap_s != JE.T.TaskConfig.hold_cap_s or od.env.goal_jump is not None \
-        or od.env.roll_hi is not None
+        or od.env.roll_hi is not None or od.env.cfg.floor_raise is not None or jt_raise is not None or etab is not None
     if robot_opts:              # the resolved online env (robot dynamics, episode length, hold cap)
         meta["online_env"] = dict(horizon=od.env.tcfg.horizon, hold_cap_s=od.env.tcfg.hold_cap_s,
                                   hold_obs_s=od.env.cfg.hold_obs_s,
@@ -515,6 +566,11 @@ def cmd_online(a):
         if od.env.roll_hi is not None:
             meta["online_env"]["roll_cap"] = dict(od.env.roll_info(), eval_roll_hi_deg=eval_roll,
                                                   jt_roll_hi_deg=jt_roll)
+        if od.env.cfg.floor_raise is not None or jt_raise is not None or etab is not None:   # v12 (off: no key)
+            meta["online_env"]["floor_raise"] = dict(
+                env=None if od.env.cfg.floor_raise is None else list(od.env.cfg.floor_raise),
+                jt=None if jt_raise is None else list(jt_raise), student_floor=ocfg.student_floor,
+                eval_table_plane=None if etab is None else list(etab))
         log(f"online env: {json.dumps(meta['online_env'])}")
     (out / "meta.json").write_text(json.dumps(meta, indent=1, default=str))
     f = open(out / "curve.csv", "a", newline="")
@@ -596,7 +652,8 @@ def cmd_eval(a):
     gs = JE.GoalJumpConfig.from_spec(a.goal_shift, max_n=1, before_p=0.0) if a.goal_shift else None
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon,
                      table=(plane, floor, qo) if moved else None, cli=a if a.log_only_extra else None,
-                     hold_cap_s=a.hold_cap_s, goal_jump=gs, roll_hi_deg=a.roll_hi_deg)
+                     hold_cap_s=a.hold_cap_s, goal_jump=gs, roll_hi_deg=a.roll_hi_deg,
+                     floor_raise=a.floor_raise or None)
     geo = {"table_plane": list(plane)} if plane is not None and not a.no_render_table else None
     if geo:
         log(f"render: {TB.describe(plane)} (scene geometry override, evaluation only)")
@@ -615,7 +672,7 @@ def cmd_collect(a):
     t = load_tasks(a.tasks, np.arange(a.first, a.first + a.n) if a.n else None)
     n = len(t["seeds"])
     cache = EnvCache(jt, a.device, x(a.nrd_ckpt), a.workers, x(a.mj_python), a.horizon, hold_cap_s=a.hold_cap_s,
-                     roll_hi_deg=a.roll_hi_deg)
+                     roll_hi_deg=a.roll_hi_deg, floor_raise=a.floor_raise or None)
     rng = np.random.default_rng(a.seed)
     student = None
     src = np.zeros(n, np.int64)
@@ -696,6 +753,12 @@ def main(argv=None):
     q.add_argument("--eval-workers", type=int, default=8)
     q.add_argument("--allow-uncapped-jt", action="store_true",
                    help="online config with roll_hi_deg: accept a JT trained without that cap (or a higher one)")
+    q.add_argument("--allow-floor-raise-mismatch", action="store_true",
+                   help="accept a JT trained with another floor raise than the online env's (student_floor observed: "
+                        "-table_bias.plane; else none)")
+    q.add_argument("--eval-table-plane", action="store_true",
+                   help="v12: the in-run MuJoCo evaluations on the online config's fixed table plane (table moved, "
+                        "floor flat in the arm frame = the robot's, renders on the plane)")
     q.set_defaults(fn=cmd_online)
 
     q = sub.add_parser("eval")
@@ -722,6 +785,10 @@ def main(argv=None):
                    help="with --randomise: per decision the probability of a new random light / intrinsics draw, else "
                         "the last one stays (an image-history student: use its online config's light_redraw_p); "
                         "1 = a new draw every decision")
+    q.add_argument("--floor-raise", default="",
+                   help="the action-layer floor raise ('c0,c1,c2' m or one height; JointEnvConfig.floor_raise) in "
+                        "the TRUE frame: the student reads the true joints (a table-frame student's robot-like "
+                        "check is --table-plane with --floor zero); default off")
     q.add_argument("--out", default="")
     q.add_argument("--scene-path", default="", help="the student's scene file at this path (same sha256)")
     q.add_argument("--calib-path", default="", help="the student's calibration file at this path (same sha256)")
@@ -745,6 +812,9 @@ def main(argv=None):
     q.add_argument("--lag-rec", action="store_true", help="record the 20 ms states for image lag (row_lag)")
     q.add_argument("--lag-kmax", type=int, default=0,
                    help="row_lag states per row (default viral.LAG_REC 4 or the student lag_max; implies --lag-rec)")
+    q.add_argument("--floor-raise", default="",
+                   help="the action-layer floor raise ('c0,c1,c2' m or one height; JointEnvConfig.floor_raise); "
+                        "default off")
     q.add_argument("--out", required=True)
     q.set_defaults(fn=cmd_collect)
 
