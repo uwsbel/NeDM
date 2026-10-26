@@ -158,6 +158,11 @@ EOF
            "calibrated table (the tilt correction would lower it again, into the mat). Use live."
       exit 1
     fi
+    if [ "$MODE" = live-tilt ] && [ "$(deploy_get table_frame 2>/dev/null)" = true ]; then   # (v12; the runner too)
+      echo "live-tilt is for students trained on the sim table only: this bundle's student was trained in the table" \
+           "frame (it corrects for the real table itself; the tilt correction would correct twice). Use live."
+      exit 1
+    fi
     T=30; [ "$MODE" != dry ] && T=15
     N=1
     if [ "$MODE" = eval ]; then

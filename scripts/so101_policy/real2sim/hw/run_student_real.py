@@ -30,7 +30,10 @@ table (floor 1.5 mm above sim z = ``--table-z``), ``plane`` for students trained
 that plane). Live refuses another mode than the student's, plane-mode floor stops deeper than 5 / 8 mm below the
 plane (double lowering) and a ``--table-plane c0,c1,c2`` more than 1 mm below the calibrated plane
 (``--allow-floor-mismatch`` overrides), and ``--q-offset-deg`` in plane mode (no override: the mat plane is in the
-calib_v1 joint frame, the offset would move the floor into the mat). The banner prints the floor mode and its numbers.
+calib_v1 joint frame, the offset would move the floor into the mat). Round v12 students (a fixed table plane with the
+flat observed-frame floor, checkpoint ``v8_online.student_floor`` "observed") are ``flat``; like every table-frame
+student they refuse ``--q-offset-deg`` in live (no override: the table correction twice). The banner prints the floor
+mode and its numbers.
 
 Examples (luffy, from the worktree root)
     ~/miniconda3/envs/so101_vision/bin/python scripts/so101_policy/real2sim/hw/run_student_real.py replay \
@@ -409,8 +412,9 @@ def floor_setup(args, calib, meta, gcfg):
     "calib", the calibrated mat plane), --table-z must stay 0; flat: --table-z, no --table-plane. A mode other than the
     student's, plane-mode floor stops deeper than ``H.PLANE_STOP_MIN_M`` (double lowering) or a --table-plane c0,c1,c2
     below the calibrated mat plane (``H.floor_problems``): live refuses (unless --allow-floor-mismatch), dry / replay
-    warn. Plane mode with --q-offset-deg (``H.floor_frame_problems``: the floor in the mat): live refuses with no
-    override, dry / replay warn. -> dict(mode, student_mode, why, plane, table_plane_spec, problems, lines)."""
+    warn. Plane mode with --q-offset-deg (``H.floor_frame_problems``: the floor in the mat), or any --q-offset-deg for
+    a student trained in a table frame (``H.student_table_frame``, also the v12 flat-floor students): live refuses
+    with no override, dry / replay warn. -> dict(mode, student_mode, why, plane, table_plane_spec, problems, lines)."""
     st_mode, why = H.student_floor_mode(meta)
     mode = args.floor_mode
     if mode == "auto":
@@ -435,7 +439,8 @@ def floor_setup(args, calib, meta, gcfg):
         except ValueError:
             calib_plane = None
     live = getattr(args, "mode", "") == "live"
-    hard = H.floor_frame_problems(mode, parse_q_offset(getattr(args, "q_offset_deg", "")))
+    hard = H.floor_frame_problems(mode, parse_q_offset(getattr(args, "q_offset_deg", "")),
+                                  table_frame=H.student_table_frame(meta))
     if hard:
         msg = "floor settings: " + "; ".join(hard)
         if live:
@@ -507,6 +512,7 @@ def run_deploy_json(args):
                     "--table-plane / --table-z and --home from here to every run, and eval_guard as eval's --guard",
                student_sha256=hashlib.sha256(ck_path.read_bytes()).hexdigest(), floor_mode=mode, floor_why=why,
                table_plane="calib" if mode == "plane" else "", table_plane_coef=None if plane is None else list(plane),
+               table_frame=H.student_table_frame(meta),
                table_z=0.0, home_sim_deg=",".join(f"{v:g}" for v in np.round(home, 6)), eval_guard=eg,
                eval_floor_lines=H.floor_lines(mode, why, 0.0, plane, H.GuardConfig.from_dict(eg)))
     out = Path(args.out).expanduser()

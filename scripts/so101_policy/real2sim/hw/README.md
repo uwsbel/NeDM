@@ -35,12 +35,14 @@ the 15 recorded rest poses.
 The action-layer floor must have the clearance above the real mat that the student was trained with (sysid
 `~/so101_r2s_claude/v8/sysid/sysid_v8.json`, coupling rule). The real mat is 8.3-17.5 mm below the sim table at the
 observed cube and plate positions (calibrated plane z = -4.7 mm - 36.4 x + 18.4 y, mm per m; +-3 mm). The bundle
-script reads the mode from the checkpoint (`v8_online.table_bias` present with p > 0 = plane); live mode refuses another mode
-(`--allow-floor-mismatch` overrides). The banner of every run prints the mode and these numbers.
+script reads the mode from the checkpoint (`v8_online.table_bias` present with p > 0 = plane, unless
+`v8_online.student_floor` is `observed` = flat); live mode refuses another mode (`--allow-floor-mismatch` overrides).
+The banner of every run prints the mode and these numbers.
 
 | Student type | Floor mode | Eval settings (`robot_test.sh eval`) | Relative to the real mat at the observed positions | ... over the task area (r 0.15-0.27 m, +-75 deg) |
 |---|---|---|---|---|
 | Trained on the sim table: C1, s28, roll-cap students | `flat` | `--floor-mode flat --table-z 0 --home 0,-5,-15,92,0,30 --amp 0 --guard '{"cmd_floor_m":-0.015,"hard_floor_m":-0.02,"i_time_s":0.2,"i_max_deg":3.0,"i_antiwindup":true}'` (floors as on 10-22 / 23) | floor +9.8 .. +19.0 mm; command stop -6.7 .. +2.5 mm; measured stop -11.7 .. -2.5 mm | floor +5.3 .. +18.6 mm; command stop -11.2 .. +2.1 mm; measured stop -16.2 .. -2.9 mm (the mat is highest at the far +y edge: 3.85 mm below the sim table) |
+| Round v12: trained in the table frame of a fixed plane with the flat floor (checkpoint `v8_online.student_floor` `observed`) | `flat` | as the sim-table students (`deploy.json` `table_frame` true: no `live-tilt` / `--q-offset-deg`) | as the sim-table students (in training the floor was 1.5 mm above z 0 of the arm frame, as here) | as the sim-table students |
 | Trained with the v8 table randomisation (checkpoint `v8_online.table_bias`, p > 0) | `plane` | `--floor-mode plane --table-plane calib --home 0,-5,-15,92,0,30 --amp 0 --guard '{"cmd_floor_m":-0.002,"hard_floor_m":-0.005,"i_time_s":0.2,"i_max_deg":3.0,"i_antiwindup":true}'` | floor +1.5 mm (as in training: 1.5 mm above the true table); command stop -2.0 mm; measured stop -5.0 mm | the same (everywhere on the plane, +-3 mm calibration) |
 
 Plane mode measures the floor stops above the plane, so the flat eval stops (-15 / -20 mm) on top of the plane would
