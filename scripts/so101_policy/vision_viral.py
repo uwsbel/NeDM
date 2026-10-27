@@ -76,7 +76,8 @@ Gripper look (real2sim v12 visual fix, off by default; ``nedm.render.gripper_loo
 bracket albedo, the scene's fitted screws, extra marks, plate top edge; ``viral.online_views_cfg``) and
 ``require_scene_sha256`` refuses a student whose scene file is another one; configs ``viral_r2s_online_v12_visR.json``
 (student config ``viral_r2s_v12_visR_student.json``: the fitted real-look scene real_scene_v2_wb.json, sha256 pinned)
-and ``viral_r2s_online_v12_visH.json`` (D's scene v2, held-out cues excluded). The checkpoint records ``v12_vis``.
+and ``viral_r2s_online_v12_visH.json`` (D's scene v2, held-out cues excluded); ``viral_r2s_online_v12_visR_tbpl.json``
+= visR + tbpl's table keys (frpl teacher). The checkpoint records ``v12_vis``.
 """
 from __future__ import annotations
 

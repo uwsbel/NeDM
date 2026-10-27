@@ -22,6 +22,8 @@
 #   STUDENT_CFG=configs/so101_policy/vision/viral_r2s_v12_visR_student.json and R2S_SCENE=$R2S/data/scene/
 #   real_scene_v2_wb.json (sha256 pinned by both configs), or ONLINE_CFG=viral_r2s_online_v12_visH.json with D's
 #   student config and scene v2 (the default R2S_SCENE); D's teacher, INIT = D
+#   Combined: ONLINE_CFG=viral_r2s_online_v12_visR_tbpl.json (visR + tbpl's fixed plane, table_render, student_floor
+#   observed) with the visR student config and R2S_SCENE, TEACHER_JT = the frpl teacher (matching floor raise)
 #SBATCH -J r2s-online
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x

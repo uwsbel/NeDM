@@ -1351,7 +1351,7 @@ class RealDR:
     ring / centre albedo), extra light or dark marks on the gripper parts in the bottom half of the wrist view and a
     bright plate top edge; needs a scene built with its parts (``RealScene.look_slots`` = :meth:`look_slots`;
     ``viral.load_real_setup`` sets them); draw key ``part_pose`` [n, K, 7]. Its random numbers come from
-    ``draw(..., look_generator=)`` when given (``viral.DRViews``: seed + 919), else from ``generator`` after every
+    ``draw(..., look_generator=)`` when given (``viral.DRViews``: seed + 921), else from ``generator`` after every
     other draw.
 
     Plate thickness (real2sim v8, from studentlab round C, 2026-10-23; OFF by default, drawn after every other draw

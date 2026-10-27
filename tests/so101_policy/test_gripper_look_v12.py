@@ -4,16 +4,20 @@
 ``OnlineDAgger.ckpt_record``) and the shipped configs (``viral_r2s_online_v12_visR.json``,
 ``viral_r2s_online_v12_visH.json``, ``viral_r2s_v12_visR_student.json``).
 
-- Config (no mujoco): defaults off-safe, bad keys and ranges, slot specs, held-out zones, the shipped configs (visR:
-  plate range includes the fitted black and the old grey, all draws; visH: no screws, no edge, plate range above the
-  fitted black, zones = held_out_zones), online-config validation, online_views_cfg, the scene guard, ckpt_record.
+- Config (no mujoco): defaults off-safe, bad keys and ranges (also a zone on a body without a mark surface, the
+  servo-bracket grey band, the per-surface inset), slot specs, held-out zones (plate and, with jaw, the moving-jaw horn
+  screws + hub), the shipped configs (visR: plate range includes the fitted black and the old grey, all draws; visH:
+  no screws, no edge, plate range above the fitted black, servo-bracket grey without the fitted real band, no marks on
+  the servo bracket, zones = held_out_zones(jaw=True); visR_tbpl = visR + tbpl's 3 table keys), online-config
+  validation, online_views_cfg, the scene guard, ckpt_record.
 - Structure (CPU, mujoco for the meshes): no look parts when off (body list, groups and transforms as without the
   field); slot parts after the moving parts and before the cube, group ``look``, hidden by default; movable parts at
   identity; part_pose maps local poses; hidden poses go far below the scene.
 - Draws (CPU): every other draw of a seed unchanged (own generator), only the look targets' colours change; marks lie
   inside their surface outline (inset) and outside every exclusion zone; mark counts within n_marks; screws move in
   their plane by <= jitter, hidden ones are hidden; p = 0 / p = 1; determinism; slot mismatch refused; load_real_setup
-  adds the parts only when on.
+  adds the parts only when on; the servo-bracket grey band is never drawn and leaves every other look draw unchanged;
+  the per-surface inset keeps the marks further inside.
 - Real files (skipped without them): the visR student config pins the real-look scene sha256 and resolves D's crops;
   D's pinned config + the visR config pass pin_real without --allow-scene-change; the sim-check scene lookup
   (lowtable_gate.student_scene) finds the real-look scene by its sha256.
@@ -114,11 +118,21 @@ class Config(unittest.TestCase):
                     {"n_marks": [0, 99]}, {"mark_surfaces": ["no_such_surface"]}, {"mark_tries": 0},
                     {"zones": [{"body": "camera_mount", "lo": [0, 0, 0], "hi": [-1, 0, 0]}]},
                     {"mark_standoff": 0.0001, "mark_thickness": 0.0002}, {"rect_aspect": [0.5, 2.0]},
-                    {"screws": ["a", "a"]}, {"plate_parts": "camera_bracket_plate"}, {"edge_width": 0.0}):
+                    {"screws": ["a", "a"]}, {"plate_parts": "camera_bracket_plate"}, {"edge_width": 0.0},
+                    # review finding 5: a zone on a body that has no mark surface (a typo) is refused
+                    {"zones": [{"body": "camera_mnt", "lo": [0, 0, 0], "hi": [1, 1, 1]}]},
+                    {"mark_surfaces": ["bracket_plate"],
+                     "zones": [{"body": "moving_jaw_so101_v1", "lo": [0, 0, 0], "hi": [1, 1, 1]}]},
+                    {"bracket_albedo_gap": [0.1, 0.3]}, {"bracket_albedo_gap": [0.5, 0.4]},
+                    {"bracket_albedo_gap": [0.25, 0.8]}, {"bracket_albedo": None, "bracket_albedo_gap": [0.3, 0.4]},
+                    {"surface_inset": {"nope": 0.001}}, {"surface_inset": {"moving_jaw": -0.001}},
+                    {"mark_surfaces": ["bracket_plate"], "surface_inset": {"moving_jaw": 0.001}}):
             with self.assertRaises(ValueError, msg=str(bad)):
                 GripperLookDR.from_dict(bad)
         g = GripperLookDR.from_dict({"note": "x", "mark_slots": 3})
         self.assertEqual(g.n_slots, 15)
+        GripperLookDR.from_dict({"bracket_albedo_gap": [0.33, 0.48], "surface_inset": {"moving_jaw": 0.001},
+                                 "zones": [{"body": "moving_jaw_so101_v1", "lo": [0, 0, 0], "hi": [1, 1, 1]}]})
 
     def test_slot_specs(self):
         from nedm.render.gripper_look import GripperLookDR
@@ -147,6 +161,22 @@ class Config(unittest.TestCase):
         for k in ("a", "b"):
             p = np.asarray(V12_EDGE[k])
             self.assertTrue(((p >= np.asarray(z[2]["lo"]) + 0.003 - 1e-6) & (p <= np.asarray(z[2]["hi"]) - 0.003 + 1e-6)).all())
+        # with jaw: the same 3 + the 4 horn screws and the hub on the moving jaw (review finding 1)
+        from nedm.render.gripper_look import V12_JAW_HUB, V12_JAW_SCREWS
+        zj = held_out_zones(0.003, 0.0015, jaw=True)
+        self.assertEqual(zj[:3], z)
+        self.assertEqual(len(zj), 8)
+        for s, zz in zip((*V12_JAW_SCREWS, V12_JAW_HUB), zj[3:]):
+            self.assertEqual(zz["body"], "moving_jaw_so101_v1")
+            c = np.asarray(s["centre"])
+            self.assertTrue(np.allclose(np.asarray(zz["hi"]) - c, s["radius"] + 0.003, atol=2e-6))
+            self.assertTrue(np.allclose(c - np.asarray(zz["lo"]), s["radius"] + 0.003, atol=2e-6))
+        if HAVE_WB:                                            # the constants = the fitted parts of the real-look scene
+            parts = {q["name"]: q for q in json.loads(SCENE_WB.read_text())["geometry"]["parts"]}
+            for k, s in enumerate((*V12_JAW_SCREWS, V12_JAW_HUB)):
+                P = np.asarray(parts[f"jaw_screw{k}_rim" if k < 4 else "jaw_hub"]["polygon"])
+                self.assertTrue(np.allclose(P.mean(0), s["centre"], atol=1e-6))
+                self.assertAlmostEqual(float(np.linalg.norm(P - P.mean(0), axis=1).max()), s["radius"], delta=2e-6)
 
     def test_shipped_configs(self):
         from nedm.render.gripper_look import GripperLookDR, held_out_zones
@@ -176,10 +206,34 @@ class Config(unittest.TestCase):
         self.assertEqual(h.p_screw, 0.0)
         self.assertEqual(h.p_edge, 0.0)
         self.assertGreater(h.plate_albedo[0], 0.065)
-        self.assertEqual([{k: v for k, v in z.items() if k != "what"} for z in h.zones], held_out_zones(0.003, 0.0015))
+        self.assertEqual([{k: v for k, v in z.items() if k != "what"} for z in h.zones],
+                         held_out_zones(0.003, 0.0015, jaw=True))
+        # visH, review finding 1: the servo-bracket grey leaves out the fitted real band (jaw face 0.38, jaw upper
+        # 0.39; the reviewer's range 0.33-0.48) and the servo bracket (all of it inside the zones) has no marks
+        self.assertEqual(tuple(h.bracket_albedo_gap), (0.33, 0.48))
+        self.assertEqual(list(h.mark_surfaces), [x for x in r.mark_surfaces if x != "servo_bracket"])
+        self.assertTrue(set(h.surface_inset) <= {"fixed_jaw_upper", "fixed_jaw_lower", "moving_jaw"})
+        self.assertIsNone(r.bracket_albedo_gap)
+        self.assertEqual(r.surface_inset, {})
         same = {k for k in r.to_dict() if r.to_dict()[k] == h.to_dict()[k]}
-        self.assertTrue({"n_marks", "mark_surfaces", "mark_slots", "mark_size", "mark_light", "mark_dark",
+        self.assertTrue({"n_marks", "mark_slots", "mark_size", "mark_light", "mark_dark",
                          "p_light", "bracket_albedo"} <= same)
+
+    def test_combined_config(self):
+        # viral_r2s_online_v12_visR_tbpl.json = visR + the 3 table keys of tbpl (2026-10-27)
+        from nedm.so101_policy.vision import viral as VI
+        d, r, t = load_online("visR_tbpl"), load_online("visR"), load_online("tbpl")
+        table = ("table_bias", "table_render", "student_floor")
+        self.assertEqual({k: v for k, v in d.items() if k not in ("note",) + table},
+                         {k: v for k, v in r.items() if k != "note"})
+        for k in table:
+            self.assertEqual(d[k], t[k], k)
+        oc = VI.OnlineConfig.from_dict(d)
+        self.assertEqual(oc.student_floor, "observed")
+        self.assertTrue(oc.table_render)
+        self.assertEqual(oc.require_scene_sha256, SHA_WB)
+        self.assertIsNotNone(VI.online_floor_raise(oc))
+        self.assertEqual(VI.online_floor_raise(oc), VI.online_floor_raise(VI.OnlineConfig.from_dict(t)))
 
     def test_online_config_and_views_cfg(self):
         from nedm.so101_policy.vision import viral as VI
@@ -358,7 +412,8 @@ class Structure(unittest.TestCase):
 
     def test_marks_inside_and_counts(self):
         from nedm.render.gripper_look import GripperLookDR, _inside
-        for look in (LOOK_T, {**LOOK_T, "zones": look_h()["zones"], "n_marks": [4, 4], "mark_slots": 3}):
+        for look in (LOOK_T, {**LOOK_T, "zones": look_h()["zones"], "n_marks": [4, 4], "mark_slots": 3},
+                     {**LOOK_T, "surface_inset": {"fixed_jaw_upper": 0.002, "moving_jaw": 0.0015}}):
             sc, real, dr, d, _ = self.draw_pair(look, n=200)
             g = GripperLookDR.from_dict(look)
             specs = g.mark_specs()
@@ -377,7 +432,8 @@ class Structure(unittest.TestCase):
                 rel = p - o
                 self.assertTrue(torch.allclose(rel @ nrm, torch.zeros(len(p), dtype=torch.float64), atol=1e-7))
                 xy = torch.stack([rel @ e1, rel @ e2], -1)              # (the 6-digit axes: 1e-6 from orthonormal)
-                self.assertTrue(_inside(xy, surf["poly2"], spec["radius"] + g.MARK_INSET - 1e-7).all())
+                ins = g.MARK_INSET + g.surface_inset.get(spec["surface"], 0.0)
+                self.assertTrue(_inside(xy, surf["poly2"], spec["radius"] + ins - 1e-7).all())
                 for z in g.zones:
                     if z["body"] != surf["body"]:
                         continue
@@ -389,6 +445,41 @@ class Structure(unittest.TestCase):
                 qm = wxyz(pp[s, sc.look_names.index(f"look_mark{m}"), 3:])
                 qz = qrot(qm, torch.tensor([0.0, 0.0, 1.0], dtype=torch.float64).expand(len(qm), 3))
                 self.assertTrue(torch.allclose(qz, nrm.expand_as(qz), atol=1e-5))
+
+    def test_bracket_gap_and_pairing(self):
+        # review finding 1: the band is never drawn; one draw per world as without the band, so every other look
+        # draw (screws, marks, edge) is the same
+        gap = {**LOOK_T, "bracket_albedo": [0.25, 0.8], "bracket_albedo_gap": [0.33, 0.48], "bracket_tint": 0.0}
+        sc, real, dr, d_gap, _ = self.draw_pair(gap, n=2000)
+        _, _, _, d_nog, _ = self.draw_pair({**gap, "bracket_albedo_gap": None}, n=2000)
+        i = sc.body_names.index("moving_jaw_so101_v1#8")
+        a = d_gap["colors"][:, i, 0].double()
+        self.assertFalse(((a > 0.33 + 1e-6) & (a < 0.48 - 1e-6)).any())
+        self.assertGreater(float((a < 0.33).double().mean()), 0.1)
+        self.assertGreater(float((a > 0.48).double().mean()), 0.5)
+        self.assertLess(float(a.max()), 0.8 + 1e-6)
+        self.assertTrue(torch.equal(d_gap["part_pose"], d_nog["part_pose"]))
+        others = [k for k in range(len(sc.body_names)) if k != i]
+        self.assertTrue(torch.equal(d_gap["colors"][:, others], d_nog["colors"][:, others]))
+
+    def test_surface_inset_moves_marks_inside(self):
+        from nedm.render.gripper_look import GripperLookDR, _inside
+        look = {**LOOK_T, "n_marks": [4, 4], "mark_surfaces": ["fixed_jaw_upper"], "mark_slots": 4,
+                "surface_inset": {"fixed_jaw_upper": 0.003}}
+        sc, real, dr, d, _ = self.draw_pair(look, n=400)
+        g = GripperLookDR.from_dict(look)
+        surf = g.SURFACES["fixed_jaw_upper"]
+        o, nrm, e1 = (torch.tensor(surf[k], dtype=torch.float64) for k in ("origin", "normal", "e1"))
+        e2 = torch.linalg.cross(nrm, e1)
+        n_in = 0
+        for m, spec in enumerate(g.mark_specs()):
+            k = sc.look_names.index(f"look_mark{m}")
+            s = d["part_pose"][:, k, 2] > -50
+            rel = d["part_pose"][s, k, :3] - g.mark_standoff * nrm - o
+            xy = torch.stack([rel @ e1, rel @ e2], -1)
+            self.assertTrue(_inside(xy, surf["poly2"], spec["radius"] + g.MARK_INSET + 0.003 - 1e-7).all())
+            n_in += int(s.sum())
+        self.assertGreater(n_in, 400)
 
     def test_screws(self):
         sc, real, dr, d, _ = self.draw_pair(LOOK_T, n=400)
@@ -431,7 +522,7 @@ class Structure(unittest.TestCase):
         rs1 = VI.load_real_setup(replace(cfg, real_dr={"gripper_look": look_h()}))
         self.assertTrue(rs1.dr.look_on)
         self.assertEqual(rs1.real.look_slots["movable"], [])
-        self.assertEqual(len(rs1.real.look_slots["slots"]), 15)
+        self.assertEqual(len(rs1.real.look_slots["slots"]), 12)        # 4 mark surfaces x 3 (no servo bracket)
         self.assertEqual(rs1.scene_sha256, rs0.scene_sha256)
         with self.assertRaises(ValueError):                    # visR's screws are not in scene v2
             VI.load_real_setup(replace(cfg, real_dr={"gripper_look": look_r()}))

@@ -1,0 +1,140 @@
+{
+ "note": "real2sim round v12 combined student visR + tbpl (2026-10-27, ~/so101_r2s_claude/v12/launch/LAUNCH_students.md 'visual and combined'): viral_r2s_online_v12_visR.json (D's online config + gripper_look + require_scene_sha256 = real_scene_v2_wb.json) with the 3 table keys of viral_r2s_online_v12_tbpl.json: table_bias = ONE fixed table plane under every world, the measured plane of calib_v1 (plane c = [-0.004681260916979778, -0.03640954226125585, 0.01836320115536056], p 1, no random draw), table_render on (the images show the lower table), student_floor observed (the floor is flat in the student's observed frame, as on the robot). Nothing else differs from visR. Labelling teacher: the v12 fine-tune frpl ($R2S/runs/tppo_v12_frpl_s124/ckpt/model_00200.pt, floor raise -calib plane; TEACHER_GATE_v12.md: PASS); the run refuses a teacher with another floor raise. In-run evaluations on this plane, 1,500 steps, 20 s hold cap by default (vision_viral.inrun_eval_setup). Use with STUDENT_CFG=configs/so101_policy/vision/viral_r2s_v12_visR_student.json, R2S_SCENE=$R2S/data/scene/real_scene_v2_wb.json, INIT = D. | visR note: real2sim round v12 visual fix, variant R 'real look + gripper-look randomisation' (2026-10-26, ~/so101_r2s_claude/v12/vis/NOTES.md): D's online config viral_r2s_online_relabel_roll_v8.json (= viral_r2s_online_v12_ctrl.json) with TWO added keys: gripper_look = the per-world look of the gripper parts in the wrist view of the TRAINING renders (nedm.render.gripper_look.GripperLookDR; viral.online_views_cfg: training views only; the student's saved config, the evaluation views and the robot keep the scene's look): camera bracket plate albedo U(0.02, 0.2) (fitted real 0.035, old sim 0.104 x 0.7-1.5), servo bracket (the fitted moving-jaw face overlays jaw_face + jaw_upper) albedo U(0.25, 0.8) (fitted 0.39 / 0.42, old sim moving jaw 0.71), the 6 fitted screws of the scene (2 plate screws, 4 jaw horn screws) each shown with p 0.7, moved +-1 mm in its plane, ring albedo U(0.15, 0.7) and centre U(0.03, 0.2), 0-4 extra light (0.35-0.9, p 0.5) or dark (0.01-0.08) discs / rectangles of 1.5-4 mm (diameter / long side) at random places on the bracket plate, the servo bracket, the fixed jaw (2 faces) and the moving jaw (15 slots, 3 per face), a bright plate top edge strip (1 mm, albedo 0.3-0.9) in 30 % of the worlds; the 20 % nominal slots keep the fitted look; and require_scene_sha256 = real_scene_v2_wb.json (sha256 ab3e30ed: D's scene v2 + the real-look gripper parts fitted to real wrist frames, ~/so101_r2s_claude/v12/scene_wb). Use with STUDENT_CFG=configs/so101_policy/vision/viral_r2s_v12_visR_student.json (scene_sha256 pinned to the same file), R2S_SCENE=$R2S/data/scene/real_scene_v2_wb.json (a byte copy), TEACHER_JT = D's teacher $R2S/runs/tppo_roll_v8_s21/ckpt/model_00200.pt, INIT = D $R2S/runs/v8_roll_s801/ckpt/it_02000.pt, --oset as the v12 controls (iterations=1500 eval_every=750 save_every=250 roll_hi_deg=98). Pair it with viral_r2s_online_v12_ctrl.json (same seeds). | D's note: viral_r2s_online_relabel_v4.json + the wrist-roll cap (real2sim round v8, 2026-10-23): roll_hi_deg 98 (sim deg; the robot guard clamps at 101.2, where the servo reaches only 100.69 deg: a command above ~100.7 winds the guard's integral correction up and the stall rule stops the robot; 98 leaves 2.7 deg for the student's output error; configs/so101_policy/ppo/r2s/teacher_roll_v8.json note) caps every wrist-roll target of the online env, the JT's labels get the same cap (the student never learns a roll command above it), task rows that start above it leave the pool (train_mix45_16k: 1 of 16,384, seed 687570 at 119.9 deg) and the in-run evaluations use it. Teacher: the roll-capped fine-tune (teacher_roll_v8.json) via r2s_online.sbatch TEACHER_JT=<its checkpoint>; the run refuses a JT trained without the cap (vision_viral.py online --allow-uncapped-jt overrides): jt_h110's plans go above 98 in 25 % of the HOME45 episodes, and capped labels alone do not teach another grasp roll (HOME45 lenient 97.6 -> 88.8 %). Log columns roll_over_student / roll_over_teacher = share of the finished episodes whose command went above the cap. | v4 note: Root cause (2026-10-22): the student's step size follows the MEASURED qdot; the real arm is ~5x slower, so the steps shrink and the arm holds still above the plate (robot-like sim: today's student 50 %, 88-94 % with its qdot input x2-3). Track C1: robot dynamics in the student slots (no command delay: it dropped commands and broke the grasp in dyn v2; gain 0.3-1, lag 20-150 ms, sag 0-1.5 deg + the guard's integral correction), the JT labels those worlds with the COMMANDED speed in its qdot observation (relabel_cmd_speed) so its labels keep the nominal pace; robot-like qdot input in half of the worlds, image lag 1-4, 30 s episodes.",
+ "envs": 1024,
+ "teacher_share": 0.5,
+ "noise_share": 0.5,
+ "noise": 1.0,
+ "nominal_share": 0.2,
+ "default_light_p": 0.25,
+ "buffer": 100000,
+ "steps_per_iter": 8,
+ "lr": 0.0001,
+ "lr_backbone": 5e-05,
+ "iterations": 3000,
+ "eval_every": 1000,
+ "save_every": 250,
+ "log_every": 25,
+ "dyn": {
+  "p": 0.8,
+  "d_lo": 0,
+  "d_hi": 0,
+  "jitter": 0.0,
+  "s_lo": 0.3,
+  "s_hi": 1.0,
+  "tau_lo": 0.02,
+  "tau_hi": 0.15,
+  "sag_max_deg": 1.5,
+  "noise_max": 0.0,
+  "i_time_s": 0.2,
+  "i_max_deg": 3.0,
+  "i_e_max_deg": 1.0,
+  "i_v_min": 0.02
+ },
+ "dyn_student_only": true,
+ "qd_robot_p": 0.5,
+ "qd_window": 3,
+ "horizon": 1500,
+ "hold_cap_s": 20.0,
+ "hold_obs_s": 3.5,
+ "lag_range": [
+  1,
+  4
+ ],
+ "relabel_cmd_speed": true,
+ "roll_hi_deg": 98.0,
+ "gripper_look": {
+  "p": 1.0,
+  "plate_parts": [
+   "camera_bracket_plate"
+  ],
+  "plate_tint": 0.06,
+  "bracket_albedo": [
+   0.25,
+   0.8
+  ],
+  "bracket_tint": 0.06,
+  "n_marks": [
+   0,
+   4
+  ],
+  "mark_surfaces": [
+   "bracket_plate",
+   "servo_bracket",
+   "fixed_jaw_upper",
+   "fixed_jaw_lower",
+   "moving_jaw"
+  ],
+  "mark_slots": 3,
+  "mark_size": [
+   0.0015,
+   0.004
+  ],
+  "rect_aspect": [
+   0.4,
+   1.0
+  ],
+  "p_light": 0.5,
+  "mark_light": [
+   0.35,
+   0.9
+  ],
+  "mark_dark": [
+   0.01,
+   0.08
+  ],
+  "mark_tint": 0.08,
+  "mark_standoff": 0.0003,
+  "mark_thickness": 0.0002,
+  "mark_tries": 16,
+  "plate_albedo": [
+   0.02,
+   0.2
+  ],
+  "bracket_parts": [
+   "jaw_face",
+   "jaw_upper"
+  ],
+  "screws": [
+   "plate_screw0",
+   "plate_screw1",
+   "jaw_screw0",
+   "jaw_screw1",
+   "jaw_screw2",
+   "jaw_screw3"
+  ],
+  "p_screw": 0.7,
+  "screw_jitter": 0.001,
+  "screw_ring": [
+   0.15,
+   0.7
+  ],
+  "screw_centre": [
+   0.03,
+   0.2
+  ],
+  "screw_tint": 0.08,
+  "zones": [],
+  "p_edge": 0.3,
+  "edge_width": 0.001,
+  "edge_inset": [
+   0.0,
+   0.0005
+  ],
+  "edge_bright": [
+   0.3,
+   0.9
+  ],
+  "edge_tint": 0.05
+ },
+ "require_scene_sha256": "ab3e30edcf896cfcec8613ce897ecd89c68c1b0cc181a3815fd7c8bdaa8f41bf",
+ "table_bias": {
+  "plane": [
+   -0.004681260916979778,
+   -0.03640954226125585,
+   0.01836320115536056
+  ],
+  "p": 1.0
+ },
+ "table_render": true,
+ "student_floor": "observed"
+}

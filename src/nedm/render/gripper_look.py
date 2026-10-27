@@ -9,7 +9,8 @@ This randomisation does, per world (and episode):
 
 - the albedo of the camera bracket plate (``plate_parts``, grey ``plate_albedo`` x a per-channel tint) and of the
   servo bracket (``bracket_parts``: the moving-jaw face around the horn screws; the moving jaw mesh in a scene without
-  the fitted overlays);
+  the fitted overlays); ``bracket_albedo_gap`` (lo, hi) leaves a grey band out of the servo bracket's range (one
+  uniform draw over the range without the band: the number of random draws stays the same);
 - the fitted screw heads of the scene (``screws``: groups of scene parts named ``<screw>_*``, e.g. the plate screws
   ``plate_screw0`` / ``plate_screw1`` and the jaw horn screws ``jaw_screw0..3`` of real_scene_v2_wb.json): each one
   shown with probability ``p_screw``, moved in its own plane by up to +- ``screw_jitter`` m, ring (``*_head_lo``,
@@ -19,10 +20,13 @@ This randomisation does, per world (and episode):
   ``mark_size`` m; light ``mark_light`` with probability ``p_light``, else dark ``mark_dark``) at random places and
   turns on the surfaces ``mark_surfaces`` (the bracket plate, the servo bracket, the fixed jaw and the moving jaw: the
   parts in the bottom half of the wrist view; geometry :data:`V12_SURFACES`); a mark lies inside its surface (its
-  footprint ``MARK_INSET`` m inside every edge), ``mark_standoff`` m in front of it (towards the wrist camera),
+  footprint ``MARK_INSET`` m + ``surface_inset[surface]`` m inside every edge: an extra inset keeps the marks on a
+  smaller sim mesh, e.g. the scene-v2 jaws under the wider fitted real outlines), ``mark_standoff`` m in front of it
+  (towards the wrist camera),
   ``mark_thickness`` thick, and outside every exclusion zone of its body (``zones``: part-local boxes
   ``{"body", "lo": (3,), "hi": (3,)}`` m in that MJCF body's frame; a mark whose footprint circle reaches into a zone is
-  not placed: the held-out variant keeps the real cues out of training); ``mark_tries`` candidate places per mark, the
+  not placed: the held-out variant keeps the real cues out of training; a zone's body must be the body of one of
+  ``mark_surfaces``); ``mark_tries`` candidate places per mark, the
   first one that fits is used (none fits: the mark is not shown; the number of random draws never depends on the
   outcome);
 - optionally a bright strip along the plate's top edge (``p_edge``; ``edge_width`` m wide, ``edge_inset`` (lo, hi) m
@@ -38,14 +42,14 @@ Renderer side (``nedm.render.so101``): ``RealScene.look_slots`` (set by ``viral.
 ``look``, on moving bodies, hidden until drawn); ``SO101Scene.look_names`` / ``look_index``; the per-world local poses
 ``part_pose`` [n, K, 7] (x y z qx qy qz qw in the part's body frame; z < ``HIDDEN_Z`` / 2 = hidden) of
 :meth:`GripperLookDR.draw`, applied by ``SO101Scene.transforms(part_pose=)``. ``RealDR.draw`` draws it after every
-other draw (also after the base add-ons) on its own generator (``look_generator``, ``viral.DRViews``: seed + 919), so
+other draw (also after the base add-ons) on its own generator (``look_generator``, ``viral.DRViews``: seed + 921), so
 every other draw of a seed is the same with it on or off. Off (``gripper_look`` {} or ``p`` 0): no slot bodies, no
 draws, every array bit for bit as before.
 """
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 
 import numpy as np
 import torch
@@ -109,6 +113,15 @@ V12_EDGE = {"body": "camera_mount", "a": [-0.010424, 0.026461, -0.032272], "b": 
 V12_PLATE_SCREWS = ({"centre": [-0.003453, 0.027063, -0.02839], "radius": 0.002421},
                     {"centre": [0.005378, 0.025226, -0.028899], "radius": 0.002485})
 
+# the four fitted horn screws and the hub of the servo horn on the moving jaw (rim / hub polygon centroid, outer
+# radius; moving_jaw_so101_v1 frame, m; real_scene_v2_wb.json jaw_screw<k>_rim, jaw_hub): the held-out variant keeps
+# its marks away from them (review finding 1, 2026-10-27)
+V12_JAW_SCREWS = ({"centre": [-0.003848, -0.008235, -0.005433], "radius": 0.002366},
+                  {"centre": [0.00538, -0.007568, -0.005458], "radius": 0.002366},
+                  {"centre": [-0.003348, 0.001484, -0.005665], "radius": 0.002365},
+                  {"centre": [0.005854, 0.001795, -0.005682], "radius": 0.002366})
+V12_JAW_HUB = {"centre": [0.001013, -0.001844, -0.00559], "radius": 0.001183}
+
 RING_SUFFIXES = ("_head_lo", "_rim")
 CENTRE_SUFFIXES = ("_head_hi", "_head", "_recess")
 
@@ -122,9 +135,11 @@ def _halton(i: int, base: int) -> float:
     return r
 
 
-def held_out_zones(margin: float = 0.003, edge_width: float = 0.0015) -> list:
-    """Exclusion zones (camera_mount boxes, m) of the held-out variant: ``margin`` around the two fitted plate screws
-    (centre +- (radius + margin)) and around the plate's top edge strip (``edge_width`` wide, the box + margin)."""
+def held_out_zones(margin: float = 0.003, edge_width: float = 0.0015, jaw: bool = False) -> list:
+    """Exclusion zones (part-local boxes, m) of the held-out variant: camera_mount boxes ``margin`` around the two
+    fitted plate screws (centre +- (radius + margin)) and around the plate's top edge strip (``edge_width`` wide, the
+    box + margin); with ``jaw`` also moving_jaw_so101_v1 boxes ``margin`` around the four horn screws and the hub
+    (:data:`V12_JAW_SCREWS`, :data:`V12_JAW_HUB`; after the camera_mount boxes)."""
     out = []
     for s in V12_PLATE_SCREWS:
         c, r = np.asarray(s["centre"]), float(s["radius"]) + margin
@@ -134,6 +149,11 @@ def held_out_zones(margin: float = 0.003, edge_width: float = 0.0015) -> list:
     strip = np.stack([a, b, b + edge_width * d, a + edge_width * d])
     out.append({"body": "camera_mount", "lo": [round(float(v), 6) for v in strip.min(0) - margin],
                 "hi": [round(float(v), 6) for v in strip.max(0) + margin]})
+    if jaw:
+        for s in (*V12_JAW_SCREWS, V12_JAW_HUB):
+            c, r = np.asarray(s["centre"]), float(s["radius"]) + margin
+            out.append({"body": "moving_jaw_so101_v1", "lo": [round(float(v), 6) for v in c - r],
+                        "hi": [round(float(v), 6) for v in c + r]})
     return out
 
 
@@ -145,6 +165,7 @@ class GripperLookDR:
     plate_tint: float = 0.06
     bracket_parts: tuple = ()
     bracket_albedo: tuple | None = (0.25, 0.8)
+    bracket_albedo_gap: tuple | None = None
     bracket_tint: float = 0.06
     screws: tuple = ()
     p_screw: float = 0.7
@@ -164,6 +185,7 @@ class GripperLookDR:
     mark_standoff: float = 0.0003
     mark_thickness: float = 0.0002
     mark_tries: int = 16
+    surface_inset: dict = field(default_factory=dict)
     zones: tuple = ()
     p_edge: float = 0.0
     edge_width: float = 0.001
@@ -209,6 +231,15 @@ class GripperLookDR:
         for name in ("plate_albedo", "bracket_albedo"):
             if getattr(self, name) is not None:
                 rng(name, getattr(self, name), 0.0, 1.0)
+        if self.bracket_albedo_gap is not None:
+            rng("bracket_albedo_gap", self.bracket_albedo_gap, 0.0, 1.0)
+            glo, ghi = (float(x) for x in self.bracket_albedo_gap)
+            if self.bracket_albedo is None:
+                raise ValueError("gripper_look.bracket_albedo_gap: needs bracket_albedo")
+            blo, bhi = (float(x) for x in self.bracket_albedo)
+            if not (blo <= glo < ghi <= bhi and (bhi - blo) - (ghi - glo) > 0):
+                raise ValueError(f"gripper_look.bracket_albedo_gap {list(self.bracket_albedo_gap)}: a band "
+                                 f"lo < hi inside bracket_albedo {list(self.bracket_albedo)} that leaves some range")
         for name in ("screw_ring", "screw_centre", "mark_light", "mark_dark", "edge_bright"):
             rng(name, getattr(self, name), 0.0, 1.0)
         rng("mark_size", self.mark_size, pos=True)
@@ -227,6 +258,9 @@ class GripperLookDR:
         if bad or len(set(self.mark_surfaces)) != len(self.mark_surfaces):
             raise ValueError(f"gripper_look.mark_surfaces {list(self.mark_surfaces)}: distinct names of "
                              f"{sorted(self.SURFACES)}")
+        if not isinstance(self.surface_inset, dict) or any(k not in self.mark_surfaces for k in self.surface_inset) \
+                or any(not float(v) >= 0 for v in self.surface_inset.values()):
+            raise ValueError(f"gripper_look.surface_inset {self.surface_inset}: {{surface of mark_surfaces: m >= 0}}")
         if int(self.mark_slots) < 0 or int(self.mark_tries) < 1:
             raise ValueError("gripper_look: mark_slots >= 0 and mark_tries >= 1")
         lo, hi = (int(x) for x in self.n_marks)
@@ -239,6 +273,10 @@ class GripperLookDR:
             if set(z) - {"body", "lo", "hi", "what"} or not {"body", "lo", "hi"} <= set(z) or len(z["lo"]) != 3 or \
                     len(z["hi"]) != 3 or any(float(a) > float(b) for a, b in zip(z["lo"], z["hi"])):
                 raise ValueError(f"gripper_look.zones {z}: {{'body', 'lo': (x, y, z), 'hi': (x, y, z)}} with lo <= hi")
+            bodies = sorted({self.SURFACES[s]["body"] for s in self.mark_surfaces})
+            if z["body"] not in bodies:              # a typo would silently drop the hold-out (review finding 5)
+                raise ValueError(f"gripper_look.zones {z}: body {z['body']!r} is not the body of a mark surface "
+                                 f"({bodies})")
         for name in ("plate_parts", "bracket_parts"):
             if isinstance(getattr(self, name), str):
                 raise ValueError(f"gripper_look.{name}: a list of scene body names")
@@ -414,6 +452,8 @@ class GripperLookDR:
             P["geo"] = torch.tensor(geo, **f64)
             P["box"] = torch.tensor(box, **f64)
             P["radius"] = torch.tensor([s["radius"] for s in specs], **f64)
+            P["inset"] = torch.tensor([self.MARK_INSET + float(self.surface_inset.get(s["surface"], 0.0))
+                                       for s in specs], **f64)
             P["mark_kl"] = torch.tensor([look.index(f"look_mark{m}") for m in range(M)], dtype=torch.long, device=dev)
             P["mark_ib"] = torch.tensor([names.index(f"look_mark{m}") for m in range(M)], dtype=torch.long, device=dev)
         if self.edge_on:
@@ -442,15 +482,22 @@ class GripperLookDR:
         pose = P["look_pose0"].expand(n, *P["look_pose0"].shape).clone()
         on = u(0.0, 1.0) < float(self.p)                                          # [n]
 
-        def grey(rng, tint, *shape):
-            return u(float(rng[0]), float(rng[1]), *shape, 1) * u(1 - float(tint), 1 + float(tint), *shape, 3)
+        def grey(rng, tint, *shape, gap=None):
+            if gap is None:
+                x = u(float(rng[0]), float(rng[1]), *shape, 1)
+            else:                                    # the range without the band: one draw, shifted past the band
+                w = float(gap[1]) - float(gap[0])
+                x = u(float(rng[0]), float(rng[1]) - w, *shape, 1)
+                x = torch.where(x >= float(gap[0]), x + w, x)
+            return x * u(1 - float(tint), 1 + float(tint), *shape, 3)
 
         # 1. albedo of the bracket plate and of the servo bracket (one grey per world for each)
-        for idx, rng, tint in ((P["plate_idx"], self.plate_albedo, self.plate_tint),
-                               (P["bracket_idx"], self.bracket_albedo, self.bracket_tint)):
+        for idx, rng, tint, gap in ((P["plate_idx"], self.plate_albedo, self.plate_tint, None),
+                                    (P["bracket_idx"], self.bracket_albedo, self.bracket_tint,
+                                     self.bracket_albedo_gap)):
             if idx is None or rng is None:
                 continue
-            g = grey(rng, tint).to(cols.dtype).clamp(0, 1)                         # [n, 3]
+            g = grey(rng, tint, gap=gap).to(cols.dtype).clamp(0, 1)               # [n, 3]
             cols[:, idx] = torch.where(on[:, None, None], g[:, None], cols[:, idx])
         # 2. the fitted screws: shown with p_screw, moved in their plane, ring / centre albedo
         S = P["n_screws"]
@@ -489,7 +536,7 @@ class GripperLookDR:
             A, E = P["A"][:, None], P["E"][:, None]                                   # [M, 1, K, 2]
             dist = (E[..., 0] * (xy[..., None, 1] - A[..., 1]) - E[..., 1] * (xy[..., None, 0] - A[..., 0])) \
                 / E.norm(dim=-1)                                                       # [n, M, T, K], inside > 0
-            ok = (dist >= (rad + self.MARK_INSET)[:, None, None]).all(-1)            # [n, M, T]
+            ok = (dist >= (rad + P["inset"])[:, None, None]).all(-1)                 # [n, M, T]
             p3 = o[:, None] + xy[..., :1] * e1[:, None] + xy[..., 1:] * e2[:, None]  # [n, M, T, 3]
             Z = P["Z"]                                                                 # [M, Zn, 2, 3]
             gap = torch.maximum(torch.maximum(Z[:, None, :, 0] - p3[..., None, :], p3[..., None, :] - Z[:, None, :, 1]),

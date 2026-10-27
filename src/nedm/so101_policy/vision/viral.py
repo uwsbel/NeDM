@@ -79,7 +79,7 @@ Gripper look (v12 visual fix, 2026-10-26, OFF by default, ~/so101_r2s_claude/v12
 (``nedm.render.gripper_look.GripperLookDR``: per world the albedo of the camera bracket plate and the servo bracket,
 the scene's fitted screws shown / moved / recoloured, 0-4 light or dark marks on the gripper parts in the bottom half
 of the wrist view, a bright plate top edge; exclusion zones for a held-out variant); ``load_real_setup`` adds its
-parts to the scene (``RealScene.look_slots``), ``DRViews`` draws it on its own generator (seed + 919) with the draw key
+parts to the scene (``RealScene.look_slots``), ``DRViews`` draws it on its own generator (seed + 921) with the draw key
 ``part_pose`` (nominal draws: the scene's look). In the online loop it is a TRAINING-view option
 (``OnlineConfig.gripper_look``, merged into the training views' ``real_dr`` by ``online_views_cfg``, like
 ``plate_mm``): the student's saved config, its evaluation views and the robot never see it.
@@ -652,7 +652,7 @@ class DRViews:
         self.addon_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 917) if rs.dr.addon_on else None
         # v12 gripper look (RealDR.gripper_look): its own generator as well (None when off: nothing changes)
         self.look_on = bool(getattr(rs.dr, "look_on", False))
-        self.look_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 919) if self.look_on else None
+        self.look_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 921) if self.look_on else None
         self.lights0 = [dict(lt) for lt in rs.real.lights]
         self.models0 = list(sc.camera_models)
         self.intrinsics_dr = float(getattr(self.rdr, "focal", 0.0)) > 0 or float(getattr(self.rdr, "pp_px", 0.0)) > 0
