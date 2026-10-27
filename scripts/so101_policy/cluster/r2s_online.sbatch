@@ -18,6 +18,10 @@
 #   in-run evaluations run on the plane (the robot's flat floor) with the online config's horizon / hold cap by default
 #   (vision_viral.inrun_eval_setup; EXTRA=--no-eval-table-plane / --horizon / --hold-cap-s override).
 #   Online configs: configs/so101_policy/vision/viral_r2s_online_v12_{ctrl,tb05,tb10,tb15,tbpl}.json
+#   Round v12 visual fix (gripper look, training renders only): ONLINE_CFG=viral_r2s_online_v12_visR.json with
+#   STUDENT_CFG=configs/so101_policy/vision/viral_r2s_v12_visR_student.json and R2S_SCENE=$R2S/data/scene/
+#   real_scene_v2_wb.json (sha256 pinned by both configs), or ONLINE_CFG=viral_r2s_online_v12_visH.json with D's
+#   student config and scene v2 (the default R2S_SCENE); D's teacher, INIT = D
 #SBATCH -J r2s-online
 #SBATCH -A dannegrut
 #SBATCH -p mi3501x

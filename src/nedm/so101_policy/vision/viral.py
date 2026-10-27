@@ -75,6 +75,15 @@ base (scene v4 draws the real table clamp at the base) and ``RealDR.base_addon``
 random blocks and cables at the base outline in a share of the worlds; ``load_real_setup`` then adds the slot bodies
 to the scene (``RealScene.addon_slots``), nominal draws keep them hidden; ``DRViews`` draws them on their own
 generator (seed + 917), so the other draws of every per-world reset stay as with them off.
+Gripper look (v12 visual fix, 2026-10-26, OFF by default, ~/so101_r2s_claude/v12/vis): ``RealDR.gripper_look``
+(``nedm.render.gripper_look.GripperLookDR``: per world the albedo of the camera bracket plate and the servo bracket,
+the scene's fitted screws shown / moved / recoloured, 0-4 light or dark marks on the gripper parts in the bottom half
+of the wrist view, a bright plate top edge; exclusion zones for a held-out variant); ``load_real_setup`` adds its
+parts to the scene (``RealScene.look_slots``), ``DRViews`` draws it on its own generator (seed + 919) with the draw key
+``part_pose`` (nominal draws: the scene's look). In the online loop it is a TRAINING-view option
+(``OnlineConfig.gripper_look``, merged into the training views' ``real_dr`` by ``online_views_cfg``, like
+``plate_mm``): the student's saved config, its evaluation views and the robot never see it.
+``OnlineConfig.require_scene_sha256`` makes a run refuse a student whose scene file is not the named one.
 
 - Robot timing and servo in the online loop (``OnlineConfig.dyn`` -> ``joint_env.RobotDynConfig``: command delay with
   jitter, weaker arm servo, command lag, gravity sag, command noise; per world per episode), robot-like qdot inputs
@@ -455,6 +464,9 @@ def load_real_setup(cfg: "ViralConfig", geometry_over: dict | None = None) -> Re
     if dr.addon_on:                         # base add-on randomisation (scene v4 round): its slot bodies in the scene
         from dataclasses import replace as _replace
         real = _replace(real, addon_slots=dr.addon_slots())
+    if getattr(dr, "look_on", False):       # v12 gripper look: its slot parts and movable screws in the scene
+        from dataclasses import replace as _replace
+        real = _replace(real, look_slots=dr.look_slots(real))
     ifx = getattr(real, "image_fx", None)
     if ifx:
         ifx = {k: v for k, v in ifx.items() if k not in ("note", "notes")}
@@ -562,7 +574,8 @@ class DRViews:
     ``RealDR.plate_thickness``; ``plate_on``) the per-world plate thickness ``plate_dz`` [n] as well (visual only;
     the renderer is built with its plate depth; ``render(..., held=)`` [n] bool: cubes the jaws hold are not lifted).
     ``render(..., plane=)`` [n, 3] (real scene without its own table_plane, ``table_render_ok``): every world's table
-    plane (``SO101Scene`` world_plane; v8 ``OnlineConfig.table_render``).
+    plane (``SO101Scene`` world_plane; v8 ``OnlineConfig.table_render``). With the gripper look (v12,
+    ``RealDR.gripper_look``; ``look_on``) the draws carry ``part_pose`` [n, K, 7] (the look parts' local poses).
 
     Per-call state (studentlab image history): ``render(..., keep=True)`` keeps the last call's random light (and
     intrinsics) instead of a new draw (no random numbers used); ``call_id`` counts the changes of the per-call state
@@ -637,6 +650,9 @@ class DRViews:
         # base add-ons (RealDR.base_addon): their own generator, so every other draw (each per-world reset of the
         # online loop) is the same with them on or off (paired arms); None when off (nothing changes)
         self.addon_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 917) if rs.dr.addon_on else None
+        # v12 gripper look (RealDR.gripper_look): its own generator as well (None when off: nothing changes)
+        self.look_on = bool(getattr(rs.dr, "look_on", False))
+        self.look_gen = torch.Generator(device=self.dev).manual_seed(int(seed) + 919) if self.look_on else None
         self.lights0 = [dict(lt) for lt in rs.real.lights]
         self.models0 = list(sc.camera_models)
         self.intrinsics_dr = float(getattr(self.rdr, "focal", 0.0)) > 0 or float(getattr(self.rdr, "pp_px", 0.0)) > 0
@@ -656,6 +672,9 @@ class DRViews:
             d.update(self.rdr.bg_nominal(n, self.cameras, self.res, self.dev))
         if self.plate_on:           # the scene's own plate
             d["plate_dz"] = torch.zeros(n, dtype=torch.float64, device=self.dev)
+        if self.look_on:            # v12: the scene's own gripper look (screws in place, marks and edge hidden)
+            p0 = self.r.scene.look_pose0.to(self.dev)
+            d["part_pose"] = p0.expand(n, *p0.shape).clone()
         return d
 
     def merge_nominal(self, d, nominal):
@@ -665,6 +684,8 @@ class DRViews:
 
     def _draw_real(self, n):
         kw = {"addon_generator": self.addon_gen} if self.addon_gen is not None else {}
+        if self.look_gen is not None:
+            kw["look_generator"] = self.look_gen
         d = self.rdr.draw(self.r.scene, n, self.gen, device=self.dev, res=self.res, bg_prior=self.bg_prior, **kw)
         return {k: v.to(self.dev) for k, v in d.items()}
 
@@ -2071,6 +2092,15 @@ class OnlineConfig:
     # quantize; {} = off, the student's integer lag as before): a lag in ms per world (and camera), drawn again per
     # decision, the images rendered from the interpolated past state and goal; replaces lag_range in this run
     img_lag: dict = field(default_factory=dict)
+    # real2sim v12 visual fix (2026-10-26; {} = off): the gripper-look randomisation of the TRAINING renders
+    # (``nedm.render.gripper_look.GripperLookDR`` dict, ``RealDR.gripper_look``; per world per episode: albedo of the
+    # camera bracket plate and the servo bracket, the scene's fitted screws, extra marks, a bright plate top edge);
+    # the training views get it from ``online_views_cfg`` (as plate_mm), the student's saved config, the evaluation
+    # views and the robot do not; the nominal slots (nominal_share) keep the scene's look
+    gripper_look: dict = field(default_factory=dict)
+    # ... and a guard ("" = off): the run refuses a student whose scene file (sha256, after pin_real) is not this one
+    # (a held-out variant must not train on the fitted real look; a real-look variant must have it)
+    require_scene_sha256: str = ""
 
     @staticmethod
     def from_dict(d):
@@ -2115,7 +2145,23 @@ class OnlineConfig:
             raise ValueError(f"light_redraw_p {d['light_redraw_p']}: a probability in [0, 1]")
         if d.get("roll_hi_deg") is not None:
             d["roll_hi_deg"] = JE.roll_hi_config(d["roll_hi_deg"])          # validate now
+        if d.get("gripper_look"):
+            from nedm.render.gripper_look import GripperLookDR
+            GripperLookDR.from_dict(d["gripper_look"])                         # validate now
+        if d.get("require_scene_sha256") and not (isinstance(d["require_scene_sha256"], str)
+                                                  and len(d["require_scene_sha256"]) == 64):
+            raise ValueError(f"require_scene_sha256 {d['require_scene_sha256']!r}: a sha256 hex string or ''")
         return OnlineConfig(**{k: v for k, v in d.items() if k in known})
+
+
+def check_scene_requirement(cfg: ViralConfig, ocfg: OnlineConfig) -> None:
+    """``OnlineConfig.require_scene_sha256`` (v12 visual fix; '' = no check): the student's scene file (its pinned
+    sha256, after ``pin_real``) must be the named one, else ValueError (e.g. a held-out run on the real-look scene, or a
+    real-look run with the old scene because of a wrong --config / R2S_SCENE)."""
+    want = getattr(ocfg, "require_scene_sha256", "") or ""
+    if want and (cfg.scene_sha256 or "") != want:
+        raise ValueError(f"online config require_scene_sha256 {want[:12]}: the student's scene {cfg.scene!r} has "
+                         f"sha256 {(cfg.scene_sha256 or '-')[:12]} (wrong --config / R2S_SCENE?)")
 
 
 def online_floor_raise(ocfg: OnlineConfig):
@@ -2128,16 +2174,24 @@ def online_floor_raise(ocfg: OnlineConfig):
 
 
 def online_views_cfg(cfg: ViralConfig, ocfg: OnlineConfig) -> ViralConfig:
-    """The student config of the online loop's TRAINING views (``make_views``): ``cfg`` itself, or with
-    ``ocfg.plate_mm`` a copy whose ``real_dr`` adds the plate thickness randomisation (``RealDR.plate_thickness``, m).
-    The student keeps ``cfg`` (its checkpoints and the evaluation views never see the option)."""
-    if not ocfg.plate_mm:
+    """The student config of the online loop's TRAINING views (``make_views``): ``cfg`` itself, or a copy whose
+    ``real_dr`` adds the plate thickness randomisation (``ocfg.plate_mm`` -> ``RealDR.plate_thickness``, m) and / or
+    the gripper look (v12, ``ocfg.gripper_look`` -> ``RealDR.gripper_look``, replacing a student's own). The student
+    keeps ``cfg`` (its checkpoints and the evaluation views never see the options)."""
+    look = dict(getattr(ocfg, "gripper_look", None) or {})
+    if not ocfg.plate_mm and not look:
         return cfg
     if not cfg.scene:
-        raise ValueError("plate_mm: the real scene only (ViralConfig.scene)")
+        raise ValueError("plate_mm / gripper_look: the real scene only (ViralConfig.scene)")
     from dataclasses import replace as _rep
-    lo, hi = (float(v) * 1e-3 for v in ocfg.plate_mm)
-    return _rep(cfg, real_dr=_merge(cfg.real_dr or {}, {"plate_thickness": [lo, hi]}))
+    over = {}
+    if ocfg.plate_mm:
+        lo, hi = (float(v) * 1e-3 for v in ocfg.plate_mm)
+        over["plate_thickness"] = [lo, hi]
+    rdr = _merge(cfg.real_dr or {}, over)
+    if look:
+        rdr["gripper_look"] = look
+    return _rep(cfg, real_dr=rdr)
 
 
 class ReplayBuffer:
@@ -2337,6 +2391,11 @@ class OnlineDAgger:
         if ocfg.plate_mm and not getattr(views, "plate_on", False):
             raise ValueError("plate_mm: the training views need the plate thickness randomisation "
                              "(make_views(online_views_cfg(st.cfg, ocfg), ...))")
+        if getattr(ocfg, "gripper_look", None):
+            from nedm.render.gripper_look import GripperLookDR
+            if GripperLookDR.from_dict(ocfg.gripper_look).on and not getattr(views, "look_on", False):
+                raise ValueError("gripper_look: the training views need the gripper-look randomisation "
+                                 "(make_views(online_views_cfg(st.cfg, ocfg), ...))")
         self.qd_rob = torch.zeros(N, dtype=torch.bool, device=self.dev)     # worlds with the robot-like qdot input
         self.qd_hist = None                                                 # [N, W, 6] q in encoder ticks, 0 = now
         if ocfg.qd_robot_p > 0:
@@ -2569,7 +2628,8 @@ class OnlineDAgger:
         trained with; {} while all of them are off (the old checkpoint layout bit for bit). The evaluation does not
         read it (it renders with ``ViralConfig.lag``); the robot reads ``table_bias`` and ``student_floor`` for its
         floor mode (``hw_lib.student_floor_mode``: table_bias on = the floor above the calibrated mat plane, unless
-        ``student_floor`` "observed" (v12; only written when not the default): the flat arm-frame floor)."""
+        ``student_floor`` "observed" (v12; only written when not the default): the flat arm-frame floor). v12 visual
+        fix: ``v12_vis`` = the gripper look of the training views and the student's scene sha256 (only when on)."""
         rec = {}
         if getattr(self, "il", None) is not None:
             rec["img_lag"] = asdict(self.il)
@@ -2579,7 +2639,11 @@ class OnlineDAgger:
                 rec["student_floor"] = self.o.student_floor
         if getattr(self.o, "plate_mm", ()):
             rec["plate_mm"] = [float(v) for v in self.o.plate_mm]
-        return {"v8_online": rec} if rec else {}
+        out = {"v8_online": rec} if rec else {}
+        if getattr(self.o, "gripper_look", None):       # v12: the training look (its own key; the robot ignores it)
+            out["v12_vis"] = dict(gripper_look=dict(self.o.gripper_look),
+                                  scene_sha256=getattr(self.st.cfg, "scene_sha256", ""))
+        return out
 
     def log_extra(self):
         """Columns of the online log for the robot options that are on (none: {} = the old columns)."""

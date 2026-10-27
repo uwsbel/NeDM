@@ -71,6 +71,12 @@ that plane (table moved, floor 'zero' = flat in the arm frame, renders on the pl
 (``inrun_eval_setup``; ``--no-eval-table-plane`` / ``--horizon`` / ``--hold-cap-s`` override). The checkpoint records
 ``v8_online.student_floor`` and the robot deploys it with the flat floor (``hw_lib.student_floor_mode``). ``eval`` /
 ``collect --floor-raise`` = the raise in the TRUE frame (the student reads the true joints).
+Gripper look (real2sim v12 visual fix, off by default; ``nedm.render.gripper_look``): the online config's
+``gripper_look`` randomises the look of the gripper parts in the wrist view of the TRAINING renders (plate and servo
+bracket albedo, the scene's fitted screws, extra marks, plate top edge; ``viral.online_views_cfg``) and
+``require_scene_sha256`` refuses a student whose scene file is another one; configs ``viral_r2s_online_v12_visR.json``
+(student config ``viral_r2s_v12_visR_student.json``: the fitted real-look scene real_scene_v2_wb.json, sha256 pinned)
+and ``viral_r2s_online_v12_visH.json`` (D's scene v2, held-out cues excluded). The checkpoint records ``v12_vis``.
 """
 from __future__ import annotations
 
@@ -538,6 +544,10 @@ def cmd_online(a):
         k, v = s_.split("=", 1)
         oc[k] = json.loads(v)
     ocfg = VI.OnlineConfig.from_dict(oc)
+    try:                                                    # v12 visual fix: the online config's scene guard
+        VI.check_scene_requirement(st.cfg, ocfg)
+    except ValueError as e:
+        raise SystemExit(str(e)) from None
     jt_roll = check_jt_roll(jt, ocfg.roll_hi_deg, a.allow_uncapped_jt)
     o_raise = VI.online_floor_raise(ocfg)         # v12: student_floor observed (None: the online env's floor at z 0)
     jt_raise = check_jt_floor(jt, o_raise, a.allow_floor_raise_mismatch)
@@ -553,9 +563,13 @@ def cmd_online(a):
     evs = eval_sets(a.eval_tasks, a.eval_n)
     guard(tasks, list(a.eval_tasks) + list(a.guard_tasks or []))
     vcfg = VI.online_views_cfg(st.cfg, ocfg)       # training views: + the online config's plate thickness (v8)
-    if vcfg is not st.cfg:
+    if vcfg is not st.cfg and ocfg.plate_mm:
         log(f"training views: RealDR plate_thickness {vcfg.real_dr['plate_thickness']} m (online config plate_mm; "
             "the evaluation views and the student's config keep the scene's plate)")
+    if vcfg is not st.cfg and ocfg.gripper_look:
+        log(f"training views: RealDR gripper_look {json.dumps(ocfg.gripper_look)} (online config; the evaluation "
+            f"views and the student's config keep the scene's look; scene {st.cfg.scene} sha256 "
+            f"{st.cfg.scene_sha256[:12]})")
     views = VI.make_views(vcfg, ocfg.envs, seed=a.seed, allow_change=a.allow_scene_change, device=a.device)
     etab = None                   # v12 --eval-table-plane: the in-run evaluations on the training plane (robot-like)
     e_plane, e_hor, e_cap = inrun_eval_setup(a, ocfg)    # (student_floor observed: plane, horizon and cap by default)

@@ -510,6 +510,7 @@ class SO101Scene:
             groups[part.get("group", "board")].append(len(bodies))
             bodies.append(mesh)
             mesh_body.append(self.kin.bodies.index(part["body"]))
+        self._init_look(real, bodies, mesh_body, groups, moving)
         self.mesh_body = torch.tensor(mesh_body, device=self.device)
         self.cube_half = 0.5 * float(cfg["cube"]["size_m"])
         v, f = box_mesh([self.cube_half] * 3)
@@ -593,6 +594,57 @@ class SO101Scene:
         self.plane_o = torch.tensor(o, dtype=torch.float64, device=self.device)
         self.plane_q = torch.tensor(qp, dtype=torch.float64, device=self.device)        # w x y z
 
+    def _init_look(self, real, bodies, mesh_body, groups, moving) -> None:
+        """The gripper-look parts (``real.look_slots``, v12; off: ``look_names`` empty, ``look_index`` None and
+        every transform as before): the slot parts after the parts on moving bodies (group ``look``), then
+        ``look_names`` = the movable scene parts + the slots, ``look_index`` [K] their body (= moving mesh) indices,
+        ``look_pose0`` [K, 7] their nominal local poses (movable: identity; slots: hidden)."""
+        look = real.look_slots or {}
+        self.look_names, self.look_index, self.look_pose0 = [], None, None
+        if not look.get("movable") and not look.get("slots"):
+            return
+        for part in look.get("slots", ()):
+            if part["body"] not in moving:
+                raise ValueError(f"look slot {part.get('name')!r}: body {part['body']!r} is not a moving MJCF body")
+            if part.get("group") != "look":
+                raise ValueError(f"look slot {part.get('name')!r}: group must be 'look'")
+            groups["look"].append(len(bodies))
+            bodies.append(self._part_mesh(part, real))
+            mesh_body.append(self.kin.bodies.index(part["body"]))
+        names = [b.name for b in bodies]
+        idx = []
+        for nm in list(look.get("movable", ())) + [p["name"] for p in look.get("slots", ())]:
+            k = [i for i, b in enumerate(names) if b == nm]
+            if len(k) != 1:
+                raise ValueError(f"look part {nm!r}: found {len(k)} times among the moving meshes and parts")
+            idx.append(k[0])
+        self.look_names = [names[i] for i in idx]
+        self.look_index = torch.tensor(idx, dtype=torch.long, device=self.device)
+        pose0 = torch.zeros(len(idx), 7, dtype=torch.float64, device=self.device)
+        pose0[:, 6] = 1.0
+        pose0[len(look.get("movable", ())):, 2] = HIDDEN_Z
+        self.look_pose0 = pose0
+
+    def _look_apply(self, mp, mq, part_pose):
+        """Moving mesh poses (positions [n, M, 3], quaternions [n, M, 4] w x y z) with the look parts' local poses
+        (``part_pose`` [n, K, 7] x y z qx qy qz qw in the body frame, None: ``look_pose0``; z < HIDDEN_Z / 2: the
+        part is hidden far below the scene) applied."""
+        n, K = mp.shape[0], len(self.look_names)
+        lp = self.look_pose0 if part_pose is None else torch.as_tensor(part_pose).to(device=mp.device,
+                                                                                     dtype=torch.float64)
+        lp = lp.reshape(-1, K, 7).expand(n, K, 7)
+        k = self.look_index.to(mp.device)
+        bp, bq = mp[:, k], mq[:, k]
+        lq = wxyz(lp[..., 3:])
+        lq = lq / lq.norm(dim=-1, keepdim=True)
+        wp, wq = bp + qrot(bq, lp[..., :3]), qmul(bq, lq)
+        hid = (lp[..., 2] < HIDDEN_Z / 2)[..., None]
+        wp = torch.where(hid, torch.tensor([0.0, 0.0, HIDDEN_Z], dtype=wp.dtype, device=wp.device), wp)
+        wq = torch.where(hid, torch.tensor([1.0, 0.0, 0.0, 0.0], dtype=wq.dtype, device=wq.device), wq)
+        mp, mq = mp.clone(), mq.clone()
+        mp[:, k], mq[:, k] = wp, wq
+        return mp, mq
+
     @staticmethod
     def _part_mesh(part: dict, real: "RealScene") -> MeshBody:
         """The prism of a ``RealScene.parts`` entry in its body frame, colour ``part["color"]`` or its group's."""
@@ -669,12 +721,18 @@ class SO101Scene:
         return torch.stack([z, z, c[:, 0]], -1), qv / qv.norm(dim=-1, keepdim=True)
 
     def _real_transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None, plate_dz=None,
-                         world_plane=None, cube_held=None):
+                         world_plane=None, cube_held=None, part_pose=None):
         f64 = dict(device=self.device, dtype=torch.float64)
         q = torch.as_tensor(q).to(**f64)
         n = q.shape[0]
         pos, quat = self.kin(q)
-        parts = [torch.cat([pos[:, self.mesh_body], xyzw(quat[:, self.mesh_body])], -1)]
+        if getattr(self, "look_index", None) is None:
+            if part_pose is not None:
+                raise ValueError("part_pose: the scene has no gripper-look parts (RealScene.look_slots)")
+            parts = [torch.cat([pos[:, self.mesh_body], xyzw(quat[:, self.mesh_body])], -1)]
+        else:                               # v12 gripper look: the look parts at their per-world local poses
+            mp, mq = self._look_apply(pos[:, self.mesh_body], quat[:, self.mesh_body], part_pose)
+            parts = [torch.cat([mp, xyzw(mq)], -1)]
         cq = torch.as_tensor(cube_quat).to(**f64)
         cq = cq / cq.norm(dim=-1, keepdim=True)
         cp = torch.as_tensor(cube_pos).to(**f64)
@@ -746,7 +804,7 @@ class SO101Scene:
         return self.scene.body_names
 
     def transforms(self, q, cube_pos, cube_quat, goal_pose=None, env_pose=None, plate_dz=None, world_plane=None,
-                   cube_held=None) -> tuple[torch.Tensor, torch.Tensor]:
+                   cube_held=None, part_pose=None) -> tuple[torch.Tensor, torch.Tensor]:
         """Body transforms [B, bodies, 7] and camera transforms [B, cameras, 7] (x y z, qx qy qz qw; float32).
 
         q [B, 6] rad; cube_pos [B, 3] m; cube_quat [B, 4] w x y z (normalised here); goal_pose None (hidden),
@@ -760,14 +818,16 @@ class SO101Scene:
         (given in the flat model) is sheared by the plane height under it (xy kept) and tilted with the plane; the
         goal plate, floor, mat, walls, strip and ceiling are put on the plane as :meth:`RealScene.on_plane` does; the
         arm, its base, the lab room and the cameras stay (the arm frame); the caller draws the arm at the joints it
-        wants (the student's reading)."""
+        wants (the student's reading). ``part_pose`` (real scene with gripper-look parts, v12) [B, K, 7]: the local
+        poses of :attr:`look_names` in their bodies' frames (``_look_apply``; None: ``look_pose0``)."""
         if self.real is not None:
-            if plate_dz is None and world_plane is None and cube_held is None:
+            if plate_dz is None and world_plane is None and cube_held is None and part_pose is None:
                 return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose)
             return self._real_transforms(q, cube_pos, cube_quat, goal_pose, env_pose, plate_dz, world_plane,
-                                         cube_held)
-        if env_pose is not None or plate_dz is not None or world_plane is not None or cube_held is not None:
-            raise ValueError("env_pose / plate_dz / world_plane / cube_held need the real scene")
+                                         cube_held, part_pose)
+        if env_pose is not None or plate_dz is not None or world_plane is not None or cube_held is not None or \
+                part_pose is not None:
+            raise ValueError("env_pose / plate_dz / world_plane / cube_held / part_pose need the real scene")
         f64 = dict(device=self.device, dtype=torch.float64)
         q = torch.as_tensor(q).to(**f64)
         n = q.shape[0]
@@ -818,9 +878,11 @@ class SO101Scene:
 REAL_VIEWS = ("external", "wrist", "top", "front")      # external, wrist: calibrated; top, front: the 61 deg pinholes
 REAL_CAMERAS = ("external", "wrist")
 REAL_GROUPS = ("printed", "servo", "cube", "plate", "floor", "mat", "walls", "board", "room", "room_floor", "strip",
-               "addon")
+               "addon", "look")
 # "addon": the slots of the base add-on randomisation (RealDR.base_addon, RealScene.addon_slots); empty when it is off,
 # so the group codes of the other groups (bg_dr) and every draw stay as before
+# "look": the mark / edge slots of the gripper-look randomisation (RealDR.gripper_look, RealScene.look_slots; v12);
+# empty when it is off
 SERVO_MAX_MJCF = 0.3       # so101.xml: the sts3215 servo materials (and the wrist camera board) are rgba 0.1 0.1 0.1
 # The real wrist camera's board (black PCB on a black bracket), drawn behind the calibrated wrist camera in its OpenCV
 # frame (x right, y down = towards the jaws, z forward): a w x h x t board whose front face is ``behind`` m behind the
@@ -948,6 +1010,11 @@ class RealScene:
     (:meth:`RealDR.addon_slots`; ``viral.load_real_setup`` sets it from the merged ``dr``). They are the last env bodies
     (group ``addon``, names ``addon_block{k}``, ``addon_cable{k}``, ``addon_flat{k}``, ``addon_drop{k}`` in this
     order), nominally far below the scene.
+    ``look_slots`` (None: none; not read from the scene file; v12 gripper look): ``{"movable": [names of scene parts on
+    moving bodies that get per-world local poses (the fitted screws)], "slots": [part dicts (``parts`` layout, group
+    ``look``, on moving bodies): the mark and edge-strip slots, hidden until drawn]}``
+    (:meth:`nedm.render.gripper_look.GripperLookDR.slots`; ``viral.load_real_setup`` sets it from the merged ``dr``);
+    the slot parts follow the scene's parts on moving bodies (before the cube); :class:`SO101Scene` ``look_names``.
     Colours (linear albedo, Newton multiplies by the light): ``colors[group]`` for REAL_GROUPS. ``lights``: Newton
     lights (``NewtonBackend.set_lights``), shared by all worlds; ``ambient``: Newton's fixed ambient term; ``sky``:
     8-bit colour of rays that hit nothing. ``tone``: per camera a tone map (``camera_fx``: exposure, wb, black, gamma,
@@ -959,7 +1026,8 @@ class RealScene:
     DEFAULT_COLORS = {"printed": (0.92, 0.92, 0.90), "servo": (0.05, 0.05, 0.05), "cube": (0.05, 0.62, 0.22),
                       "plate": (0.85, 0.08, 0.08), "floor": (0.93, 0.93, 0.93), "mat": (0.03, 0.03, 0.03),
                       "walls": (0.93, 0.93, 0.93), "board": (0.03, 0.03, 0.03), "room": (0.04, 0.035, 0.025),
-                      "room_floor": (0.2, 0.18, 0.15), "strip": (1.0, 1.0, 1.0), "addon": (0.5, 0.5, 0.5)}
+                      "room_floor": (0.2, 0.18, 0.15), "strip": (1.0, 1.0, 1.0), "addon": (0.5, 0.5, 0.5),
+                      "look": (0.5, 0.5, 0.5)}
     # A key light from above (shadows) and dimmed shadowless fills from the sides and from below (the light box's
     # diffuse glow and the floor's bounce: Newton has no inter-reflection and a fixed weak ambient, so without them
     # the white walls come out grey and every face turned from the key light near black). Placeholders, not measured.
@@ -1006,6 +1074,7 @@ class RealScene:
     image_fx: dict = field(default_factory=dict)
     source: str = ""
     addon_slots: dict | None = None
+    look_slots: dict | None = None
 
     # keys of the scene file's "geometry" section that map to fields
     GEOMETRY_KEYS = ("mat_corners_xy", "mat_thickness", "floor_xy", "floor_thickness", "walls", "wall_height",
@@ -1276,6 +1345,15 @@ class RealDR:
     SEVERAL calls (e.g. the online loop's per-world resets) with the add-ons on or off; with the shared generator only
     the first call is paired.
 
+    Gripper-look randomisation (v12 visual fix, 2026-10-26; OFF by default, drawn after everything else, also after
+    the base add-ons): ``gripper_look`` (dict of :class:`nedm.render.gripper_look.GripperLookDR` fields; {} = off):
+    per world the albedo of the camera bracket plate and the servo bracket, the scene's fitted screws (shown, moved,
+    ring / centre albedo), extra light or dark marks on the gripper parts in the bottom half of the wrist view and a
+    bright plate top edge; needs a scene built with its parts (``RealScene.look_slots`` = :meth:`look_slots`;
+    ``viral.load_real_setup`` sets them); draw key ``part_pose`` [n, K, 7]. Its random numbers come from
+    ``draw(..., look_generator=)`` when given (``viral.DRViews``: seed + 919), else from ``generator`` after every
+    other draw.
+
     Plate thickness (real2sim v8, from studentlab round C, 2026-10-23; OFF by default, drawn after every other draw
     except the base add-ons): ``plate_thickness`` (lo, hi) m: per world the goal plate's thickness ~ U(lo, hi) (real plate 3.9 mm, sim 1 mm),
     VISUAL ONLY (the physics cube still lands on z = 0): draw key ``plate_dz`` [n] = thickness - the scene's
@@ -1312,6 +1390,20 @@ class RealDR:
     wall_end: float = 0.0
     bg: dict = field(default_factory=dict)
     base_addon: dict = field(default_factory=dict)
+    gripper_look: dict = field(default_factory=dict)
+
+    @property
+    def look_on(self) -> bool:
+        """Gripper look on (``gripper_look`` set with a world probability above 0 and at least one draw)."""
+        return bool(self.gripper_look) and self.look_dr().on
+
+    def look_dr(self):
+        from nedm.render.gripper_look import GripperLookDR
+        return GripperLookDR.from_dict(self.gripper_look)
+
+    def look_slots(self, real: "RealScene") -> dict | None:
+        """The parts the scene ``real`` needs for ``gripper_look`` (``RealScene.look_slots``; None when off)."""
+        return self.look_dr().slots(real) if self.look_on else None
 
     @property
     def addon_on(self) -> bool:
@@ -1384,7 +1476,7 @@ class RealDR:
 
     def draw(self, scene: "SO101Scene", n: int, generator: torch.Generator | None = None, device=None,
              res: int | None = None, bg_prior: torch.Tensor | None = None,
-             addon_generator: torch.Generator | None = None) -> dict:
+             addon_generator: torch.Generator | None = None, look_generator: torch.Generator | None = None) -> dict:
         """Per-world draws for n worlds: ``colors`` [n, bodies, 3], ``cam_offset`` [n, C, 6] (dpos, drot),
         ``env_pose`` [n, n_env, 7] (x y z qx qy qz qw) and, when the scene has a tone map, ``tone`` [n, C, 9]
         (``camera_fx.TONE_KEYS``), for :meth:`SO101Renderer.render_dr`. Random numbers are drawn on the generator's
@@ -1392,7 +1484,7 @@ class RealDR:
         the background layers ``bg_*`` (:mod:`nedm.render.bg_dr`) at the output resolution ``res`` (default: the
         student view's output size); ``bg_prior`` [Cb, res, res]: placement weights of their clutter and spots
         (:meth:`SO101Renderer.bg_prior`; None: uniform). ``addon_generator``: the base add-on draws' own generator
-        (None: ``generator``; class docstring)."""
+        (None: ``generator``; class docstring). ``look_generator``: the gripper-look draws' own generator (v12)."""
         gdev = self._gen_device(generator)
         dev = torch.device(device or scene.device)
 
@@ -1403,7 +1495,7 @@ class RealDR:
         base = torch.tensor([m.color for m in scene.scene.bodies], dtype=torch.float64, device=dev)
         cols = base.expand(n, *base.shape).clone()
         for g, idx in scene.groups.items():
-            if not idx or g == "addon":             # the add-on slots get their colours from base_addon (last draw)
+            if not idx or g in ("addon", "look"):   # the slots get their colours from base_addon / gripper_look
                 continue
             lo, hi = self.bright.get(g, (1.0, 1.0))
             ti = self.tint.get(g, 0.0)
@@ -1479,6 +1571,18 @@ class RealDR:
                     return (lo + (hi - lo) * torch.rand(n, *shape, device=adev, generator=addon_generator,
                                                         dtype=torch.float64)).to(dev)
             self.addon_dr().draw(scene, n, ua, dev, out)
+        if self.look_on:                        # v12 gripper look: after everything else (class docstring)
+            if getattr(scene, "look_index", None) is None:
+                raise ValueError("RealDR.gripper_look: the scene has no look parts (build it with "
+                                 "RealScene(look_slots=RealDR.look_slots(real)); viral.load_real_setup does it)")
+            ul = u
+            if look_generator is not None:
+                ldev = self._gen_device(look_generator)
+
+                def ul(lo, hi, *shape):
+                    return (lo + (hi - lo) * torch.rand(n, *shape, device=ldev, generator=look_generator,
+                                                        dtype=torch.float64)).to(dev)
+            self.look_dr().draw(scene, n, ul, dev, out)
         return out
 
     def _floor_draw(self, scene, env, names, u, dev) -> None:
@@ -1776,7 +1880,7 @@ class SO101Renderer:
 
     def render(self, q, cube_pos, cube_quat, goal_pose=None, depth: bool = False, copy: bool = True,
                env_pose=None, cam_offset=None, tone=None, segment: bool = False, hdr: bool = False, bg=None,
-               plate_dz=None, world_plane=None, cube_held=None):
+               plate_dz=None, world_plane=None, cube_held=None, part_pose=None):
         """rgb [B, C, H, W, 3] uint8 (cameras in :attr:`cameras` order), and with ``depth`` also z-depth [B, C, H, W]
         float32 (m along the camera axis, 0 = nothing hit). Inputs as :meth:`SO101Scene.transforms`, any device and
         float dtype, B <= num_worlds. ``copy=False`` returns a view of the renderer's buffer (overwritten by the next
@@ -1790,10 +1894,11 @@ class SO101Renderer:
         background layers (``bg_*`` of :meth:`RealDR.draw`, rows = B) of the ``bg_cameras``, applied to the linear
         colour before the tone map (the ``hdr`` output stays the renderer's own). ``plate_dz`` [B] (renderer built with
         ``plate_depth``): the per-world plate thickness (:meth:`SO101Scene._plate_shift`); ``cube_held`` [B]: held
-        cubes (no plate lift); ``world_plane`` [B, 3]: per-world table planes (:meth:`SO101Scene.transforms`)."""
-        if plate_dz is not None or world_plane is not None or cube_held is not None:
-            tkw = {k: v for k, v in dict(plate_dz=plate_dz, world_plane=world_plane, cube_held=cube_held).items()
-                   if v is not None}
+        cubes (no plate lift); ``world_plane`` [B, 3]: per-world table planes; ``part_pose`` [B, K, 7]: the
+        gripper-look parts' local poses (v12; :meth:`SO101Scene.transforms`)."""
+        if plate_dz is not None or world_plane is not None or cube_held is not None or part_pose is not None:
+            tkw = {k: v for k, v in dict(plate_dz=plate_dz, world_plane=world_plane, cube_held=cube_held,
+                                         part_pose=part_pose).items() if v is not None}
             body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose, env_pose=env_pose, **tkw)
         elif env_pose is None:
             body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose)
@@ -1896,7 +2001,8 @@ class SO101Renderer:
 
     def render_dr(self, q, cube_pos, cube_quat, goal_pose=None, draw: dict | None = None, **kw):
         """:meth:`render` with per-world randomisation ``draw`` (:meth:`RealDR.draw`: colors [B, bodies, 3],
-        cam_offset [B, C, 6], env_pose [B, n_env, 7], tone [B, C, 9], background layers ``bg_*``, plate_dz [B]; any
+        cam_offset [B, C, 6], env_pose [B, n_env, 7], tone [B, C, 9], background layers ``bg_*``, plate_dz [B],
+        part_pose [B, K, 7] (gripper look); any
         key may be missing: a missing key means its nominal value, also for the colours), or the nominal scene with
         None. Newton colours are per world (rows beyond B repeat row 0)."""
         if draw is None or draw.get("colors") is None:
@@ -1917,6 +2023,8 @@ class SO101Renderer:
             kw["bg"] = {k: draw[k] for k in ("bg_tex", "bg_low", "bg_mat", "bg_par")}
         if draw.get("plate_dz") is not None:
             kw["plate_dz"] = draw["plate_dz"]
+        if draw.get("part_pose") is not None:      # v12 gripper look (RealDR.gripper_look)
+            kw["part_pose"] = draw["part_pose"]
         return self.render(q, cube_pos, cube_quat, goal_pose, env_pose=draw.get("env_pose"),
                            cam_offset=draw.get("cam_offset"), **kw)
 
