@@ -451,7 +451,8 @@ EOF
     if study_tree optional; then
         EQ="$OUT/nrd_strip/equiv"; mkdir -p "$EQ"
         N_EQ=$(tiny_or 4 64)
-        if [ -f "$A/nrd_data/policy_v3/unified_data.npz" ]; then     # as the release: validation episodes of the 4 parts
+        if [ -f "$A/nrd_data/policy_v3/unified_data.npz" ]; then     # as the release: 64 validation episodes of each part
+            N_EQ=64        # (also in smoke: the per-family task metrics need every scored family with 1 s windows)
             [ -f "$EQ/data/subsets.json" ] || "$PY" -I scripts/so101_pick_place/nrd/subsets.py "$EQ/data" "$N_EQ" \
                 production_plus="$A/nrd_data/production_plus" noisy_v1="$A/nrd_data/noisy_v1" \
                 expert_v2="$A/nrd_data/expert_v2" policy_v3="$A/nrd_data/policy_v3" > "$EQ/subsets.log"
