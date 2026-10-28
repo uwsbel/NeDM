@@ -1,8 +1,0 @@
-{
- "note": "Tolerance ladder v3 (build4_ppo2.md, 2026-10-12 00:10): curriculum_tol_v2 with std_reset false at every promotion. In the kinematic-world sweep both CARRY-macro runs (kE, kF) collapsed right after the promotion to 15 mm (validation 67 / 71 % at 30 mm -> 7 / 11 % at 15 mm, 10 iterations later): the promotion raised the move std from 0.18 back to 0.3 (train_cfg std_reset), and with the CARRY macro a[0:2] x 0.32 m turns that into about 10 cm of carry-target noise. The default-carry run kC did not collapse (89.6 -> 95.1 %).",
- "stages": [
-  {"name": "tol30", "task": {"tol_xy": 0.030, "tol_yaw": 0.5235987755982988}, "promote": 0.6, "min_iters": 20},
-  {"name": "tol15", "task": {"tol_xy": 0.015, "tol_yaw": 0.2617993877991494}, "promote": 0.75, "min_iters": 20, "std_reset": false},
-  {"name": "tol10", "task": {"tol_xy": 0.010, "tol_yaw": 0.17453292519943295}, "std_reset": false}
- ]
-}

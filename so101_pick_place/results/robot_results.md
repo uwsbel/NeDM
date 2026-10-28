@@ -1,6 +1,6 @@
 # SO101 robot results (from the raw logs)
 
-Source: the session logs of the Hub folder `robot/logs/<session>/` (`session.json`: typed outcome; `ep_NN/episode_live.{json,npz}`), counted by `scripts/so101_pick_place/robot/build_results.py`. Place = the person at the robot typed `p` (cube on the plate). Cube / plate positions and directions: `results/robot/stress_episodes.json` (an image + kinematics estimate; the script that wrote it was not found and is not released).
+Source: the session logs of the Hub folder `robot/logs/<session>/` (`session.json`: typed outcome; `ep_NN/episode_live.{json,npz}`), counted by `scripts/so101_pick_place/robot/build_results.py` in the [pinned Hugging Face source release](../README.md#release-and-reproduction). Place = the person at the robot typed `p` (cube on the plate). Cube / plate positions and directions: `results/robot/stress_episodes.json` (an image + kinematics estimate; the script that wrote it was not found and is not released).
 
 ## Students
 

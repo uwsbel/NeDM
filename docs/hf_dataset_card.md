@@ -799,68 +799,37 @@ dataset revision you used (`cba82611210e401dc0155cb78fcf456a385ecef4`).
 
 ## Part E: SO101 pick and place
 
-### What it is
+Follow-on work to the paper. CPU MuJoCo arm-and-cube dynamics were distilled into a contact NRD, then a state
+teacher and a camera student were trained inside it. The student placed a cube on a plate on a real SO101 arm
+in **36/50 stress-test episodes (72 %; Wilson 95 % interval 58–83 %)**. No real image was a training sample;
+real recordings informed calibration, later training rounds and student selection.
 
-Follow-on work to the paper, not part of it. A camera policy (the "student") for a real SO101 arm picks a 30 mm cube
-and places it on a plate. Every training step ran inside a contact NRD of the arm and the cube (the design of Part C,
-trained on CPU MuJoCo 3.15.0 episodes): a state teacher trained with PPO in the NRD, then the student trained in the
-NRD with ray-traced images of a calibrated copy of the real scene (online DAgger). No real image was a training
-sample. On the real arm the student placed the cube in 36 of 50 stress-test episodes (72 %; 95 % interval 58–83 %).
-The training, the results and the commands are in
-[`so101_pick_place/` of the code repository](https://github.com/uwsbel/NeDM/tree/main/so101_pick_place).
+The NeDM [study summary](https://github.com/uwsbel/NeDM/tree/main/so101_pick_place) contains results and limitations.
+The implementation, configs and full training guide are hosted here under
+[`so101_pick_place/code/`](https://huggingface.co/datasets/harryzhang1018/NeDM/tree/main/so101_pick_place/code).
 
-### Layout
-
-| Path | Contents |
+| Path under `so101_pick_place/` | Contents |
 |---|---|
-| `so101_pick_place/nrd/c1_s62/`, `nrd/c0_s62/` | The policy NRD (every teacher and student stage ran in it) and its base: `best.pt` loads with `nedm.contact_nrd.model.load_model`; `original/best.pt` is the file as trained (two training-only heads more); the training records |
-| `so101_pick_place/nrd_data/` | The 4 NRD training data parts (93,494 episodes; `unified_data.npz`, `system.json`, `manifest.json`), and the 7 PPO policies behind `policy_v3` |
-| `so101_pick_place/nrd_test/` | The sealed scripted test set (3,050 episodes) |
-| `so101_pick_place/teacher/`, `student/` | Every teacher (T0-T6) and student (S0-S5) checkpoint of the chain with its run record; the teacher's expert data |
-| `so101_pick_place/rl_inputs/` | Task sets, start banks, geometry, the task sets of the sim checks |
-| `so101_pick_place/results/` | The sealed NRD test, the sim-check results and selection rules, the per-episode robot results |
-| `so101_pick_place/robot/` | Raw logs of 19 robot sessions (102 policy episodes), 52 videos of the student's input images, 2 LeRobot teleop recordings |
-| `so101_pick_place/bundle/` | The folder installed on the robot computer, and its tarball |
-| `so101_pick_place/scene_calib/`, `provenance/` | Camera calibration, scene and servo fit (also in the code repository); code snapshots that are in no commit |
-| `so101_pick_place/release_manifest.json` | Size and SHA-256 of every file; provenance (commits, runs, sources) |
+| `code/` | Browsable source, configs, requirements, full study README, source manifest and `source.tar.gz` overlay; start with `code/REPRODUCE.md` |
+| `nrd/`, `nrd_data/`, `nrd_test/` | Base and policy NRDs, 93,494 training episodes and the 3,050-episode scripted test |
+| `teacher/`, `student/`, `rl_inputs/` | Training-chain checkpoints, run records, expert data, task sets and geometry |
+| `results/` | NRD evaluations, simulation checks, selection rules and robot result records |
+| `robot/` | 19 session logs, 52 videos and two LeRobot calibration/replay recordings |
+| `bundle/`, `scene_calib/`, `provenance/` | Tested robot bundle, scene and servo calibration, available historical code snapshots |
+| `release_manifest.json` | Original 503-file data manifest: sizes, SHA-256 values and stage provenance |
 
-Total 13.3 GB (NRD data 10.6 GB).
+The original data release is about 13.3 GB, unchanged. The NeDM study's compact `release_manifest.json` pins the
+source revision and original data revision separately. Download the source archive using the checksum-verified
+command in the study summary, apply it over its pinned base Git checkout, then follow the full archived README.
+The restored `scripts/so101_pick_place/reproduce.sh` downloads the data and checks every selected file's size
+and SHA-256. Its `full --steps download,robot` command rebuilds result tables from archived logs.
 
-### What the files contain
+Limits: one robot and lab; operator-labelled placements; student selection used robot screening; the stress
+protocol was not fixed in advance. tb10 failed its original frozen sim rule and there is no sealed student test.
+The NRD's 0.22/4.13 mm median/p95 1 s cube error scores 2,000 selected-family episodes; p95 over all 3,050 is
+4.61 mm. That scripted NRD test was previously used on an older design. Videos are the logged 112 px student
+inputs. Some historical stages permit recipe-only reruns. Robot logs contain the previously released lab
+images, paths and USB identifiers.
 
-- NRD data (`unified_data.npz`, uncompressed): `arm` [N, 601, 12] (6 joint angles, 6 joint rates), `cube` [N, 601,
-  13] (position, quaternion wxyz, velocity, angular velocity), `action` [N, 601, 6] (joint position targets),
-  `contacts` [N, 600, 3] (fixed jaw - cube, moving jaw - cube, cube - table), `lengths`, `splits` (0 train,
-  1 validation, 2 test), `family`, `phase`, contact force, impulse and depth, ids, seeds and outcome fields. Records
-  are 10 ms apart, episodes 4 s.
-- Checkpoints: PyTorch files. Teachers: MLP state policies with privileged inputs. Students: two ResNet18 image
-  encoders (external camera crop and wrist camera, 224 x 224 RGB), joint angles and rates, a chunk of 10 joint
-  targets as output.
-- Robot logs: per session `session.json` (command line, typed outcome per episode) and `first_frames.npz`; per
-  episode `episode_live.json` (setup, guard, latency, outcome) and `episode_live.npz` (50 Hz joints and commands,
-  each policy query with its action chunk and the two input images at 112 px).
-
-### Download and use
-
-```bash
-scripts/so101_pick_place/reproduce.sh full --steps download   # in the code repository; checks every SHA-256
-```
-
-The code repository's `so101_pick_place/release_manifest.json` pins the Hub revision; `--with-nrd-data` and
-`--with-robot` add the large folders. The MuJoCo Menagerie SO101 model is not in this dataset: the code repository
-fetches it at a pinned revision.
-
-### Known limitations
-
-- **One robot, one lab, one cube and plate.** The outcome is typed by the operator; the stress protocol was not fixed
-  in advance, and the student was chosen with robot results.
-- **The NRD test set has only scripted families** and is not fully blind (run once before on an older NRD design).
-- **Lab content.** The robot logs hold lab background images, the robot computer's user path and the USB adapter
-  serial. The videos show the student's input images as logged on the robot (112 px; the student sees 224 px);
-  there is no full-resolution video.
-
-### License and citation
-
-BSD-3-Clause, the same as Part A and the code. The MuJoCo Menagerie model is not hosted here. The SO101 pick and place
-has no publication yet: please cite the NeDM paper (Part A) and name the dataset revision you used (the
-`hf_revision` of `so101_pick_place/release_manifest.json` in the code repository).
+BSD-3-Clause, as for Part A and the code. The MuJoCo Menagerie model remains fetched from its pinned upstream
+revision. This study has no publication yet; cite the NeDM paper and the data and source revisions used.

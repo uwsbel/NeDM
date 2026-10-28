@@ -1,1 +1,0 @@
-{"starts": "artifacts/so101_pick_place/rl_inputs/banks/bank_pp_split0.npz", "task": {"hold_cap_s": 2.5}, "note": "training-only: at most 2.5 s held in the air (evaluation rule 3.5 s)"}
