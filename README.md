@@ -61,6 +61,15 @@ type, a hand-written footstep controller 0–28 %. The policies, RL inputs, MuJo
 in the `g1_footstep_rl/` folder of the Hugging Face dataset; the code is in `src/nedm/g1_footstep_rl/`,
 `scripts/g1_footstep_rl/` and `configs/g1_footstep_rl/`.
 
+**Follow-on work, not part of the paper:** [`so101_pick_place/`](so101_pick_place/README.md)
+trains a camera policy for a real SO101 arm only inside a contact NRD of the arm and a cube: a state
+teacher with PPO, then a camera student with online DAgger on ray-traced images of a calibrated copy of
+the real scene. With no real image in training, the student placed the cube on the plate in 36 of 50
+episodes of a stress test on the real arm (72 %; 95 % interval 58–83 %). The NRD, its data and sealed
+test set, every teacher and student checkpoint, the robot bundle, the robot logs and videos are in the
+`so101_pick_place/` folder of the Hugging Face dataset; the code is in `src/nedm/so101_policy/`,
+`src/nedm/render/`, `src/nedm/contact_nrd/collect/`, `scripts/so101_pick_place/` and `scripts/so101_policy/`.
+
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
 Start there.

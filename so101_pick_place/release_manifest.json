@@ -1,0 +1,2021 @@
+{
+ "schema": "nedm-so101-pick-place-release/1",
+ "repo_id": "harryzhang1018/NeDM",
+ "prefix": "so101_pick_place/",
+ "hf_revision": "PENDING",
+ "note": "Pinned copy of so101_pick_place/release_manifest.json on the Hub (that file also holds the provenance: code commits, run records, sources). hf_revision = the Hub commit that adds this manifest; the data files come in the commit before it. Released student: student/s5_v12_tb10_s1210/it_01000.pt (sha256 6458a4f7...). NRD of every policy stage: nrd/c1_s62/best.pt (main-compatible copy; original/best.pt = the file the study used). scripts/so101_pick_place/download.py checks the size and sha256 of every file.",
+ "files": {
+  "so101_pick_place/README.md": {
+   "bytes": 14021,
+   "sha256": "9526f018840e1f5531ff35905d86f20f3e93efc220e666000b18e7ac81b46b67"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10.tar.gz": {
+   "bytes": 23280447,
+   "sha256": "5a229cddccc8a683da0083dc981ab4bc9faf7515285eb8726cea6b909e01522c"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/MANIFEST.txt": {
+   "bytes": 4273,
+   "sha256": "fcba1454a402a53651c7fd56441ff108e54b0b0c27a90dd86dd178b73c18791e"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/QDGAIN_TEST.md": {
+   "bytes": 6541,
+   "sha256": "87becae0ad0bb8bb1af7a79e4e4c91361f053f7478d405cb0fa75c05ca4e970f"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/assets/calib_v1.json": {
+   "bytes": 39147,
+   "sha256": "3b7a2124d1b56bd6049a682a4eb29e9f4cef62818f4a420665171bbe31e0410f"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/assets/deploy.json": {
+   "bytes": 1587,
+   "sha256": "d29074110d67a79c003c4e324bf4a9dcc75273f5381ca09a72e58dd4d104deaf"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/assets/kin_points_v1.npz": {
+   "bytes": 153922,
+   "sha256": "32dcf834a1dc3d31b1e6082bf0f2f6c80056861bd97a8856b0d8e4f733365f64"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/assets/student.pt": {
+   "bytes": 24555983,
+   "sha256": "6458a4f791d1052148bb8f7621413259342a7018757668fde244cfc098f99f5c"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/robot_test.sh": {
+   "bytes": 10556,
+   "sha256": "313e5d82a11f3a38dec96cdd052900d332dda7a87b427612cc0296159c4c46b4"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/scripts/so101_policy/real2sim/hw/README.md": {
+   "bytes": 21445,
+   "sha256": "bf635927181c43646541ea968892f23e0cd2412fb52f64a035ff2418d865d600"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/scripts/so101_policy/real2sim/hw/hw_lib.py": {
+   "bytes": 66600,
+   "sha256": "958cc71178723cc352f21114d0ec58d5862f682c51decdd199a0a04b0844fb16"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/scripts/so101_policy/real2sim/hw/run_student_real.py": {
+   "bytes": 66625,
+   "sha256": "90c629574ac17579ce2cdfa7baf975985c34c7d95cbf2fad3519288fde9700c4"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/__init__.py": {
+   "bytes": 38,
+   "sha256": "0b92e78ad52036c9e3c282ced58aadf360940c587b126ce5b4bb8a1974cfad12"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/render/student_view.py": {
+   "bytes": 5678,
+   "sha256": "1f2093327df62a87f0759bf19648ae088ccfd5ae9a16d2f6a053cd74c5223ba9"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/__init__.py": {
+   "bytes": 123,
+   "sha256": "9f3d9faf9d8c2b7874f9b4f4cb80b05bf828a5ea6e83c2b3cf4a05bc9d3649f3"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/cube_symmetry.py": {
+   "bytes": 7224,
+   "sha256": "c2b3b99c67c8b91597d426fb0f5c6ef502b22e993def9f493032c13fd96c15c5"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/data_round.py": {
+   "bytes": 75670,
+   "sha256": "8c606bd4c25b3f19fbe89aa48c87df3e6ab0105c399d483e4bd39eb7159e1fc0"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/decoder.py": {
+   "bytes": 91166,
+   "sha256": "fddfa91c60ca78e937e3dddc48d0c43fefb7b304b4d32d61b2c5762025b90640"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/expert.py": {
+   "bytes": 24722,
+   "sha256": "ae0129f3678ca6a9e7df2bfda46411c3eec2a1d449ac0c83b7796e3c22e9ab84"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/joint_env.py": {
+   "bytes": 125701,
+   "sha256": "549c84a5856f293b8a2b95fdfffd761238e5d796250c1f007771ad1a29b0a2e5"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/joint_teacher.py": {
+   "bytes": 34658,
+   "sha256": "4e4b439ddd6934d31fe23d23852923c2df41b64e83f15faf591e346ff3beba9e"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/kin.py": {
+   "bytes": 25198,
+   "sha256": "20388d992ffaf8f1e49b2a3e1bb1e6b0fadf39b0d292019c9aa3e945e4a44d4d"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/kin_world.py": {
+   "bytes": 18954,
+   "sha256": "390a57f15430954bca16ee1fd5c8e4f1250dc581972677c3e821a92a5f060514"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/mjwarp_env.py": {
+   "bytes": 41059,
+   "sha256": "416500a0101034fa64ef8f338c0072b4c51871e8e0cf52be01cbcdb0c45952cd"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/mujoco_env.py": {
+   "bytes": 50038,
+   "sha256": "9c2daf8375068f07a5a3989a5e19d76c0f35ec9aee09c894634e6cd875f11dbc"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/nrd_sim.py": {
+   "bytes": 35963,
+   "sha256": "bc7a402a66b30092b7e1549f8484677cea9d0988e2846bae64a1bca22350e682"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/ppo.py": {
+   "bytes": 28858,
+   "sha256": "b026e361f0f285112000d6533770d5478b2e6a11a3885b65af4af8d9f41118be"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/table.py": {
+   "bytes": 7639,
+   "sha256": "9e8f1a316dfc404aa1e921e65031f09b282a7ebfbf199207161157872d08e638"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/table_bias.py": {
+   "bytes": 19848,
+   "sha256": "70eeb69db57d6c58fb2028e6f51aff214a17337dd11ef8bd86bf0dc45cb136c9"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/task.py": {
+   "bytes": 70955,
+   "sha256": "bf05c91dfc0090fef3203e1704b788930e7412832e6974c39088893b812d033b"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vec_env.py": {
+   "bytes": 40373,
+   "sha256": "deedc6239b51ffbbc86dfecd066135bb7323dfd3cb50f7eb2aadecf4e2d163eb"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/__init__.py": {
+   "bytes": 359,
+   "sha256": "61fc1f756e386e006acf692806a94c828857754c43516ba6fa8c559a06bd04d0"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/act7.py": {
+   "bytes": 16006,
+   "sha256": "731ca7508aa6348d5947eb30349f5701f651e3e655ca78fcd43d52b79d8d0f5b"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/dataset.py": {
+   "bytes": 12492,
+   "sha256": "f9537fa7607b70857cd30083c94488156cc76b1bd642a4d80965a2f29c7333af"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/demos.py": {
+   "bytes": 13630,
+   "sha256": "dcd6af52209c8e47ffd46286aa3f2a37641c3464740425bc20f0f20c5630cdbf"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/perstep.py": {
+   "bytes": 21219,
+   "sha256": "76caa665585b33e83ed8baa69232e4cd5cc1d99ad2011f555250cda0c39dc7fb"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/rollout.py": {
+   "bytes": 23354,
+   "sha256": "600df4aa64f3baf86ce7cc43acc8d9d4eb784bf28de50f405e7a8a3a0fbc479b"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/student.py": {
+   "bytes": 17174,
+   "sha256": "686e3813a933fc9e3a56c4365b12b32d5c84b768e6411ca24795eeac21dc27f8"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/teacher.py": {
+   "bytes": 18395,
+   "sha256": "bb2c80ce5b2c4c6a08d3a6ac7c145b9652c33e5f094d3046b518061f0babceb3"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/tray.py": {
+   "bytes": 72013,
+   "sha256": "ab7cbe9d052a069936780c29c32df5a2bf907778e65b50e332b67ca1b2fcd8fd"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/vision/viral.py": {
+   "bytes": 179050,
+   "sha256": "c0708f0ad8a254badedb4ccb2a4af99c7515e3467327f7b2f63973a846fcb957"
+  },
+  "so101_pick_place/bundle/so101_hw_v13_tb10/src/nedm/so101_policy/world.py": {
+   "bytes": 2197,
+   "sha256": "8650e24eca6a19d2c0a578822b4ce0cd63daddcc216ebdd43e9f27742d44e576"
+  },
+  "so101_pick_place/nrd/c0_s62/best.pt": {
+   "bytes": 10886175,
+   "sha256": "01c44cd0424d4f0bee47c18bd29a58ef0465c184a2f309df509f2555b733b007"
+  },
+  "so101_pick_place/nrd/c0_s62/complete.json": {
+   "bytes": 1293,
+   "sha256": "f00e1d55030bc8b460ba09c58a88ae448dddc6ab3fd90b045cec569ab10c9e43"
+  },
+  "so101_pick_place/nrd/c0_s62/contact_scale.json": {
+   "bytes": 2340,
+   "sha256": "0f32dcbe3993eda89b1f53adb7d41e376f003bae01ba14f6f5e79bd662098b8c"
+  },
+  "so101_pick_place/nrd/c0_s62/core_validation.json": {
+   "bytes": 1372,
+   "sha256": "40a2c0af7e42e3758761da42a4ef8f5bd0523745da7ef01f5cdb57eff1027a49"
+  },
+  "so101_pick_place/nrd/c0_s62/original/best.pt": {
+   "bytes": 10902283,
+   "sha256": "c2b44e7f89e617d51bdbad0e5001dc86b169b01220422c52f39e4efad7c853ab"
+  },
+  "so101_pick_place/nrd/c0_s62/run_config.json": {
+   "bytes": 3348,
+   "sha256": "e07929cb4a15d009445f01c6eb3881e185140213938f04507f7f833eb7a55338"
+  },
+  "so101_pick_place/nrd/c0_s62/train_log.jsonl": {
+   "bytes": 23646,
+   "sha256": "e1e0461ab727837931ebe1aba5710aa4e62f02af53544d61ef4d7e90c4b70a6c"
+  },
+  "so101_pick_place/nrd/c0_s62/validation.json": {
+   "bytes": 5934837,
+   "sha256": "9fe323f9b7c8505fc8f77bf6e213eea43d44ec07e5dc9ea6ebc411977de76f93"
+  },
+  "so101_pick_place/nrd/c1_s62/best.pt": {
+   "bytes": 10893663,
+   "sha256": "2d1a24926d463c5432a8dcb6897c05fe1082f04095c773ec914dd53986d66abc"
+  },
+  "so101_pick_place/nrd/c1_s62/complete.json": {
+   "bytes": 1952,
+   "sha256": "b22e7b2038606ec3b40236a8cde2801d3c38c7d34b6bc5dce60e94933e36755d"
+  },
+  "so101_pick_place/nrd/c1_s62/contact_scale.json": {
+   "bytes": 2340,
+   "sha256": "0f32dcbe3993eda89b1f53adb7d41e376f003bae01ba14f6f5e79bd662098b8c"
+  },
+  "so101_pick_place/nrd/c1_s62/core_validation.json": {
+   "bytes": 1378,
+   "sha256": "f0fb4b1f6dbc9a8925988df63ff1cb8b9c5f871bd9284b79152e8d6fc60ef5ee"
+  },
+  "so101_pick_place/nrd/c1_s62/original/best.pt": {
+   "bytes": 10909835,
+   "sha256": "f45ee8be2c1bb1e60876b2868746632b2c7d84c9d7fb746b6c70b32975c31237"
+  },
+  "so101_pick_place/nrd/c1_s62/run_config.json": {
+   "bytes": 5031,
+   "sha256": "88f32d33b17650adca2726a069afc840b7de54369299f7fbdbef0c85574d0b75"
+  },
+  "so101_pick_place/nrd/c1_s62/train_log.jsonl": {
+   "bytes": 15359,
+   "sha256": "98fa797d20fd27092a044f8c866a7bc73dbf4b1376c794e7fe929a3eb08414a5"
+  },
+  "so101_pick_place/nrd/c1_s62/validation.json": {
+   "bytes": 15046209,
+   "sha256": "6214836fa900b0a9fa1e2ebf5e2df429fd296d354eb9da1c220570baf2f0c8b8"
+  },
+  "so101_pick_place/nrd_data/expert_v2/manifest.json": {
+   "bytes": 20982,
+   "sha256": "3a532ca30a013d9ee90ef68c96a1685dcc59ea8f48b8b2507f782178ce4b7f34"
+  },
+  "so101_pick_place/nrd_data/expert_v2/system.json": {
+   "bytes": 23300,
+   "sha256": "3ca0f9ff57eeb54b4a45c4c8e429aa6ce08c25bef21c7b1e06f394f7f6bdb3eb"
+  },
+  "so101_pick_place/nrd_data/expert_v2/unified_data.npz": {
+   "bytes": 3025938686,
+   "sha256": "54419a2dd8ebb9df037eacf684ca97c30fc85919af14a4a20067b277af7383ab"
+  },
+  "so101_pick_place/nrd_data/noisy_v1/manifest.json": {
+   "bytes": 29508,
+   "sha256": "42a94d43bc08ba04f7194a89b6ebad5336ffaf0c6a697314672f8fd6503e3522"
+  },
+  "so101_pick_place/nrd_data/noisy_v1/system.json": {
+   "bytes": 21069,
+   "sha256": "27fbf0d3d21f767ecf8b41f54bbd758aeb687238c48e371edeaf184397170ad2"
+  },
+  "so101_pick_place/nrd_data/noisy_v1/unified_data.npz": {
+   "bytes": 1130646550,
+   "sha256": "08be0218b65a329a4e6aab5d054c1b78b7c0d5c5dd1b714497452656d78f9810"
+  },
+  "so101_pick_place/nrd_data/policy_v3/manifest.json": {
+   "bytes": 25244,
+   "sha256": "c94c62dde473733a38885394376c1cd09e15bbd5b6aec0ae9dd60141b1b20540"
+  },
+  "so101_pick_place/nrd_data/policy_v3/policies/kCa_kC_00060.pt": {
+   "bytes": 5100533,
+   "sha256": "6644b08722775e1469c83c422a539f9c593b03bfbd64eed52d8f80a5f98ed506"
+  },
+  "so101_pick_place/nrd_data/policy_v3/policies/kCb_kC_s2_00059.pt": {
+   "bytes": 5100917,
+   "sha256": "cceba11c3456466bb4bdbfa2a3cbdcfda3ec03af57eb3495d02f3be533d694fa"
+  },
+  "so101_pick_place/nrd_data/policy_v3/policies/kCc_kC_s3_00060.pt": {
+   "bytes": 5100917,
+   "sha256": "737fe261d2bafd24e83ec06be0f1de2718e1e8f060e8efc479bab4338016a4e1"
+  },
+  "so101_pick_place/nrd_data/policy_v3/policies/nRa_nR2_s62_a_00160.pt": {
+   "bytes": 5100981,
+   "sha256": "c147e0d4b3806368921b13fd3c853c1d166007e0f28b6cf01f258472279ae1c4"
+  },
+  "so101_pick_place/nrd_data/policy_v3/policies/nRc_nR2_s62_c_00155.pt": {
+   "bytes": 5100981,
+   "sha256": "1248f306e0ff60fcca2566ea0f74001117c47acff06e1cd7e7427571df2c8c95"
+  },
+  "so101_pick_place/nrd_data/policy_v3/policies/w5a_w5_dc_00121.pt": {
+   "bytes": 5035509,
+   "sha256": "fb098936c4f3b64085211c3cbe52c5f9ea8da8e54e8ecaaddb915bc0e6b9dbe9"
+  },
+  "so101_pick_place/nrd_data/policy_v3/policies/w5b_w5_dc_s2_00123.pt": {
+   "bytes": 5035253,
+   "sha256": "4b965ca9b6fe4ad6447104e02efee484feab7f1fc32a8d6f40b3e43480e22456"
+  },
+  "so101_pick_place/nrd_data/policy_v3/system.json": {
+   "bytes": 24573,
+   "sha256": "a7066c3690b22de6212d6f3e70a11ce71d0485f20a0da02cebf8ce2a2cf449d8"
+  },
+  "so101_pick_place/nrd_data/policy_v3/unified_data.npz": {
+   "bytes": 2174340578,
+   "sha256": "74b8912a9da91537f55769d67fb29d9a31783069c4be38b2ee07772e3491d765"
+  },
+  "so101_pick_place/nrd_data/production_plus/extra_manifest.json": {
+   "bytes": 24220,
+   "sha256": "49571b925d178a0a5c96216d08e732032320079020d2f0b7af0fa222f096da4d"
+  },
+  "so101_pick_place/nrd_data/production_plus/manifest.json": {
+   "bytes": 263,
+   "sha256": "662f887d9018708ecb6c5cd25f336a7bcabde499b8f3c27d2e425d0da4ad8737"
+  },
+  "so101_pick_place/nrd_data/production_plus/production_manifest.json": {
+   "bytes": 35621,
+   "sha256": "86df9afbc73c304747919dcc8d4683a3ba140bc2d5e5cc4446a612717845fbe8"
+  },
+  "so101_pick_place/nrd_data/production_plus/system.json": {
+   "bytes": 18470,
+   "sha256": "8d96d4aaea77a1a4482f46a33ec9278ae97eaf4498c215f0216c3a56f4ea5b5f"
+  },
+  "so101_pick_place/nrd_data/production_plus/unified_data.npz": {
+   "bytes": 4239906914,
+   "sha256": "b454d8fb2a23732edafc064b58d0577f7131aeadda2ba0d66fddfd226bb948be"
+  },
+  "so101_pick_place/nrd_test/manifest.json": {
+   "bytes": 34493,
+   "sha256": "65d1430ff9ca1f18e86e67a3288905009215990475511de7bef5c4ede651eb21"
+  },
+  "so101_pick_place/nrd_test/system.json": {
+   "bytes": 18470,
+   "sha256": "8d96d4aaea77a1a4482f46a33ec9278ae97eaf4498c215f0216c3a56f4ea5b5f"
+  },
+  "so101_pick_place/nrd_test/unified_data.npz": {
+   "bytes": 344851750,
+   "sha256": "657e3b471849340dc17eb130fb6441ba981084d687755b4517f3fd44bbeae4b8"
+  },
+  "so101_pick_place/provenance/code_v16_base_nrd.tar.gz": {
+   "bytes": 517756,
+   "sha256": "67e57422e9da110896576935eedf71a130949549ed041815eaa3c283e9b4d82b"
+  },
+  "so101_pick_place/provenance/code_v16_base_nrd_sha256.txt": {
+   "bytes": 16315,
+   "sha256": "867f299b75fd3b8e38d4807a1d46946a7c8850bb51dfa33137ac8955ac41aea2"
+  },
+  "so101_pick_place/provenance/round2_expert_v2_code.tar.gz": {
+   "bytes": 896958,
+   "sha256": "2866ec3acfbb1fbe58b375a533524f0200c2f0abb7ab0424ea1d8d799e9bce3e"
+  },
+  "so101_pick_place/provenance/round2_expert_v2_code_sha256.txt": {
+   "bytes": 33685,
+   "sha256": "7548e5098d2e41039a75076c1461263fe86f91eac7a279019ccb8c7881838c18"
+  },
+  "so101_pick_place/results/nrd/sealed_test.json": {
+   "bytes": 13729783,
+   "sha256": "f3df465e76d9fd2b7ec5407933b6263c1f8c5d48a3103e7825767181d980c20a"
+  },
+  "so101_pick_place/results/nrd/sealed_test.txt": {
+   "bytes": 83084,
+   "sha256": "736a7dd9d6da034341b3fe3bbd3cffbe8f6039420403c42c51a765b641cfcea3"
+  },
+  "so101_pick_place/results/nrd/summary_all.json": {
+   "bytes": 7258,
+   "sha256": "00dde13180ac222148e90de679c2d5f626517d73c5287cd630fd6bf9fd63105f"
+  },
+  "so101_pick_place/results/nrd/summary_all.md": {
+   "bytes": 1999,
+   "sha256": "8a574a55fc6cff0e5c752e00ba56aa3b2b721b5f9b6e11ab48b08eb065c061c9"
+  },
+  "so101_pick_place/results/nrd/summary_selected.json": {
+   "bytes": 7242,
+   "sha256": "49fe212229fc6fa78dd07242fb946f4dc9fd21464e6ac59a53de8eb124d730eb"
+  },
+  "so101_pick_place/results/nrd/summary_selected.md": {
+   "bytes": 1989,
+   "sha256": "cae37edc151da6f47100a67cec4d245cce165f71fe7f37b0324ac86e5639c05f"
+  },
+  "so101_pick_place/results/nrd/validation_rescore.json": {
+   "bytes": 12960388,
+   "sha256": "87f1d12d1233398103ed3c57a03c0cfaca01385379abe43ab44981df8bf87739"
+  },
+  "so101_pick_place/results/nrd/validation_rescore.txt": {
+   "bytes": 83063,
+   "sha256": "4f27e761b3e8cf134dc4fdd036534ad70bc7b951eee40b481f6883173bb98f54"
+  },
+  "so101_pick_place/results/robot/ROBOT_20261027.md": {
+   "bytes": 1949,
+   "sha256": "3af613d2bf6b3f00a66a18dd5b4170511041a520dc8f40af2b201100b6784f15"
+  },
+  "so101_pick_place/results/robot/STRESS_tb10_20261027.md": {
+   "bytes": 1476,
+   "sha256": "fdec2cbe6696b087db1b88eb19019b6c3213a7c1937d1757c3a946a9711ecb45"
+  },
+  "so101_pick_place/results/robot/results.json": {
+   "bytes": 70275,
+   "sha256": "dc6aa66306602d59b512c2e28ec30b5c2dc8b9925b3195ab17ac444315dfd319"
+  },
+  "so101_pick_place/results/robot/results.md": {
+   "bytes": 15029,
+   "sha256": "4c5bf3c43032b907bae593f8a39a6433e489ec01a09247acaf4b659e5c6fb0a1"
+  },
+  "so101_pick_place/results/robot/stress_episodes.json": {
+   "bytes": 26908,
+   "sha256": "4d49c1f64ecc2ace3e145e659497f718d0e7ee1442ebb390a130063b106e8dc7"
+  },
+  "so101_pick_place/results/sim_checks/D_reference.json": {
+   "bytes": 3437,
+   "sha256": "08f4198e0680991893d2770e99085df1b6747b5eddedc5da5ef1c6c8384c971f"
+  },
+  "so101_pick_place/results/sim_checks/LAB_PICK_RULE_v13.md": {
+   "bytes": 1872,
+   "sha256": "4d8e1abde9e295c51da12ea69bef8624ff81f2207a234bd460239f1f800303f0"
+  },
+  "so101_pick_place/results/sim_checks/LAB_PLAN_v13.md": {
+   "bytes": 4366,
+   "sha256": "9c20a4d973009a247a4c000182e64311b75e2f48a1391437b20bd939acbe7c7d"
+  },
+  "so101_pick_place/results/sim_checks/SELECTION_RESULT_v12.json": {
+   "bytes": 10243,
+   "sha256": "bd719ced5944bac8be96ec98015be71ebfca9ff6d1f1de33c6d0f40fcd46d726"
+  },
+  "so101_pick_place/results/sim_checks/SELECTION_RESULT_v12.md": {
+   "bytes": 17310,
+   "sha256": "0dbb33e6b8b4a1d73bdb8dc6c0af914f32b29eba3c3ae51b8ef2f876c3b39d9a"
+  },
+  "so101_pick_place/results/sim_checks/SELECTION_v12.md": {
+   "bytes": 12205,
+   "sha256": "41a74ca24aa2dbcdad51d7c8cb3af52eafffd1f9796529f326d36888af743d9b"
+  },
+  "so101_pick_place/results/sim_checks/v12_tb10_s1210_it1000.json": {
+   "bytes": 6274,
+   "sha256": "71152cae8924f9049dd0d98ad7153de56409639ac68942aefea0f58a225fdb58"
+  },
+  "so101_pick_place/rl_inputs/banks/bank_pp_h45mix.npz": {
+   "bytes": 10455360,
+   "sha256": "9e911360354bece69cb36754a14e16113e1a45e82100a5ebc72a3974cfe43b2f"
+  },
+  "so101_pick_place/rl_inputs/banks/bank_pp_s0.npz": {
+   "bytes": 5445192,
+   "sha256": "fccf9543b25b96ccbdca88d332e6c1a02eb8eb0705976e9c7f731ae10fb35025"
+  },
+  "so101_pick_place/rl_inputs/banks/bank_pp_split0.npz": {
+   "bytes": 5040878,
+   "sha256": "0f78f4bc5859121a046c876f4866d5669ef65cfbd4a9cfe4da9f06031e80b23d"
+  },
+  "so101_pick_place/rl_inputs/check_tasks/all280.json": {
+   "bytes": 152622,
+   "sha256": "3456fc5fb190fa6ccdaf76b42d303100b2322bed7d511a70c860f486612d28bc"
+  },
+  "so101_pick_place/rl_inputs/check_tasks/h68.json": {
+   "bytes": 37531,
+   "sha256": "a846560c3debb40b813a8a964bb32f1f68b45200b3257810849a0ae17ccd2705"
+  },
+  "so101_pick_place/rl_inputs/check_tasks/h68.npz": {
+   "bytes": 26387,
+   "sha256": "887478818f0576571fe2b1ec70674c1a1c97c32102a0cccd9af7f1dbacfb9349"
+  },
+  "so101_pick_place/rl_inputs/check_tasks/jit224.npz": {
+   "bytes": 88551,
+   "sha256": "ea9709bf3ecdf33269e745622d58734d7a1b25fd0a75c9aa1195ab2a1f77467a"
+  },
+  "so101_pick_place/rl_inputs/geometry/kin_points_v1.npz": {
+   "bytes": 153922,
+   "sha256": "32dcf834a1dc3d31b1e6082bf0f2f6c80056861bd97a8856b0d8e4f733365f64"
+  },
+  "so101_pick_place/rl_inputs/geometry/task_geom_v2.npz": {
+   "bytes": 337622,
+   "sha256": "330c37748ecab12061f227ca0ffdfffdafeabf7060836f672b59948377284bf9"
+  },
+  "so101_pick_place/rl_inputs/tasks/dev100.npz": {
+   "bytes": 39233,
+   "sha256": "507f078b7b1c0b37f1f67ecd79dc20ec60de24556d9d517541d0629e33f08a6c"
+  },
+  "so101_pick_place/rl_inputs/tasks/fresh100.npz": {
+   "bytes": 39233,
+   "sha256": "2090bef43c7340924654111d601d7ceddc37b704a610611d198955f0821d2786"
+  },
+  "so101_pick_place/rl_inputs/tasks/home45_dev100.npz": {
+   "bytes": 41365,
+   "sha256": "f817bc4468c92158fe45b23f530ea1906ba2bdd47261a8d04766c26bb79c050a"
+  },
+  "so101_pick_place/rl_inputs/tasks/home45_fresh100.npz": {
+   "bytes": 41365,
+   "sha256": "761bc699cecedfddca984afa1790f50702f5fdf450b39aca413e49b7632b3691"
+  },
+  "so101_pick_place/rl_inputs/tasks/home_dev100.npz": {
+   "bytes": 41365,
+   "sha256": "b6d208768cacb8a1f5b276ce73e096b0776f5260b68d439698b58bf4bbf01596"
+  },
+  "so101_pick_place/rl_inputs/tasks/train_mix45_16k.npz": {
+   "bytes": 5903316,
+   "sha256": "48c7d732c85d1bbb9b2bbd5f78ca6470274d1b7e7c61f75e3dd667a3c7fd6be8"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate/data/chunk-000/file-000.parquet": {
+   "bytes": 123692,
+   "sha256": "d348e36bcb290a1303daa27c0b70029c45b14e9637e1661a7fba47d68734452b"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate/meta/episodes/chunk-000/file-000.parquet": {
+   "bytes": 59039,
+   "sha256": "d2ec0021040200c2725d4aaa5d373df2f19a4cedd27c61745bf30a5749acab26"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate/meta/info.json": {
+   "bytes": 3691,
+   "sha256": "002f32cdfe89cf766f25c3b469eb773666ae32308acfb4e4b1cd29a4c6ed2258"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate/meta/stats.json": {
+   "bytes": 13039,
+   "sha256": "192c7a3e80b165ce10f288e18886fbf3142b78dbeacebf0dbfc81738e41972df"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate/meta/tasks.parquet": {
+   "bytes": 2255,
+   "sha256": "bd6d63a6fdd6622d42e867b8640b6752f97e8f252e704e944f91817a50e44635"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate/videos/observation.images.external/chunk-000/file-000.mp4": {
+   "bytes": 14079988,
+   "sha256": "dc865477081a981730cd156271f128fb29a2744c3fbfc4322a67aca68eb00ce6"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate/videos/observation.images.wrist/chunk-000/file-000.mp4": {
+   "bytes": 15251861,
+   "sha256": "5d73e6c4101e89cefb69740e03a6124d4b3607f0b85a12c8f9a0872423dc2374"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate_1/data/chunk-000/file-000.parquet": {
+   "bytes": 343802,
+   "sha256": "47806e0d24139b012f417ac72a18ae9892c002f29aba5938cc970b2c868acca7"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate_1/meta/episodes/chunk-000/file-000.parquet": {
+   "bytes": 66484,
+   "sha256": "7e705c354d59130b022c1876c2f25c78b7e205e3e3ad1b09daa3e4e3bcce2ee4"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate_1/meta/info.json": {
+   "bytes": 3693,
+   "sha256": "5fbe8bb4413faf7e0fa979603b0ea0dee5f9adff30a58156186bb4b3d7f9004e"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate_1/meta/stats.json": {
+   "bytes": 13025,
+   "sha256": "130cda659eeffc37e9b2e24772987c19c0f9c77cfc8a53e62dd1cea4feac38da"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate_1/meta/tasks.parquet": {
+   "bytes": 2255,
+   "sha256": "bd6d63a6fdd6622d42e867b8640b6752f97e8f252e704e944f91817a50e44635"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate_1/videos/observation.images.external/chunk-000/file-000.mp4": {
+   "bytes": 42649127,
+   "sha256": "967808097979dfdb6a90419fe357a5039f83178757ba45542665570dd9a1c97a"
+  },
+  "so101_pick_place/robot/lerobot_recordings/green_cube_red_plate_1/videos/observation.images.wrist/chunk-000/file-000.mp4": {
+   "bytes": 48566599,
+   "sha256": "80081f24ea9960c7ea3323ed35364781542245505bd8805baa975ed82d113125"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_01/episode_live.json": {
+   "bytes": 5859,
+   "sha256": "8c8e7b09f18aabf6ff6a7010eb3694aed9c8cd5197cbbebec57516bea718c459"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_01/episode_live.npz": {
+   "bytes": 8829778,
+   "sha256": "6eeb8ff501e647ead09d1c2e3d8a9bf007c5194c91c328151b0fad29d263d87f"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_02/episode_live.json": {
+   "bytes": 5854,
+   "sha256": "a54be509882ebc9ddb12e6febf0db8bc25199a1e09c4c5eae1dfbafc885d3b4e"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_02/episode_live.npz": {
+   "bytes": 9496183,
+   "sha256": "058a437d471e958a96642ff05eb0efcec7aa646e9268eab6b727576d404c1293"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_03/episode_live.json": {
+   "bytes": 5909,
+   "sha256": "36506ae22c4abb9a47f60b98e0b46c4ff349287ad2fff4fe158fe31973eb975f"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_03/episode_live.npz": {
+   "bytes": 12405507,
+   "sha256": "6acb7ce130224bbc471794748c4eb965a85048f81fea3da2e34718e25a38b141"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_04/episode_live.json": {
+   "bytes": 5914,
+   "sha256": "ee507b17aec243f7998bc10b190d178d347daa93f2eab9c54fc7bd2bd67e2485"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/ep_04/episode_live.npz": {
+   "bytes": 14110853,
+   "sha256": "3cf42ee9c7d670a22a8992da789a672456b601a66947cc64a10022e67e46696b"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/first_frames.npz": {
+   "bytes": 489497,
+   "sha256": "ff870f4a03f74750d2c7c6c3924bf1e3ff6559a2663e476b86211d89f242b919"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_202249/session.json": {
+   "bytes": 2381,
+   "sha256": "702c037749fe676f3c77dcc1da54c435a0b13bb17e09293509055d5d0ab2f27e"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_01/episode_live.json": {
+   "bytes": 5849,
+   "sha256": "26f0960afc2e6cab5e41311e61648eed86b5b52e3492d7c193802fc2ec046f3f"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_01/episode_live.npz": {
+   "bytes": 8859429,
+   "sha256": "f3c5bd796d702d934d4d4f4fbc8b73c9f23274a0f1be1b29acca3bf27486fbff"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_02/episode_live.json": {
+   "bytes": 5907,
+   "sha256": "cef0d589b65cbca26410f22faf696297c17f01bc2186cdb529ae9c922e7c148f"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_02/episode_live.npz": {
+   "bytes": 12951573,
+   "sha256": "40d5d5f2432d46a672a19370a761a8717aab365a5138b7f125175202b253d701"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_03/episode_live.json": {
+   "bytes": 5870,
+   "sha256": "102e7a550d659abe99e59c3a8bbdedaef63813b7c01252c67dbee1f3b701bb67"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_03/episode_live.npz": {
+   "bytes": 8724105,
+   "sha256": "094e7204639c241da66ddc512cb155397e481cbf2f95fb7fdb627d2167a88202"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_04/episode_live.json": {
+   "bytes": 5867,
+   "sha256": "fb9c9baad3f6699b905d2b109665e57f7f9cae70e8c878ff671fb08d981d8fed"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/ep_04/episode_live.npz": {
+   "bytes": 13506287,
+   "sha256": "11c9c587f7ebf5fc80ec0e4a07553ff2004dcb019e43591644281197da450a3b"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/first_frames.npz": {
+   "bytes": 494551,
+   "sha256": "cf4102eb7fec63de91fd0b48314b0f60f46ac2326874f87c186284a69f2618c2"
+  },
+  "so101_pick_place/robot/logs/eval_20261024_205852/session.json": {
+   "bytes": 2320,
+   "sha256": "4d52f1848fc19ceded5d1cd56824d22d3fa06466269c0fc47e458e5722c74cba"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_01/episode_live.json": {
+   "bytes": 5860,
+   "sha256": "55bcbb4b56b74c68f9d32696932b50f2d2c17f99bfe626a79a7273ba2f240bae"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_01/episode_live.npz": {
+   "bytes": 8943184,
+   "sha256": "aec4506bdf59763137e39b4bed256b038be158b8e20880a621a674ceece82b42"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_02/episode_live.json": {
+   "bytes": 5855,
+   "sha256": "c83c666a35a2f7117440043e4e51e3df1f46c88a30451590aa69787bdd464189"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_02/episode_live.npz": {
+   "bytes": 10059822,
+   "sha256": "961f3ca8e77651b47c97f82f47fd00efda2f5544c5747cacbab07188aebc9827"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_03/episode_live.json": {
+   "bytes": 5865,
+   "sha256": "cf9abe78bdb2cbb13725a914848f6300027b6c5224d1c5be4aa0816bce5e03e1"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_03/episode_live.npz": {
+   "bytes": 12066755,
+   "sha256": "1ee1e4bc4d0ea87da98b2099b7a7d8139c29fe5420cff9d9885bc559410b7577"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_04/episode_live.json": {
+   "bytes": 5862,
+   "sha256": "0c6598c1a3489149f449a9c4a8893d5869fa859367e169ad2bf06253c086cff5"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/ep_04/episode_live.npz": {
+   "bytes": 9276179,
+   "sha256": "2a6ae6fc326733226b6bcd1a7b70b18fa3ee64ffb5d4d85f5c4978e7855f83a4"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/first_frames.npz": {
+   "bytes": 494480,
+   "sha256": "d33f386faee29b5b6e5b9b61b19b1a72965e3f31207034cb049a2598c2ca5c23"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_192402/session.json": {
+   "bytes": 2267,
+   "sha256": "169813e68ad904b663473cef411dd63340d2baf67a3a4fa35ee82f68f135674d"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_01/episode_live.json": {
+   "bytes": 5859,
+   "sha256": "122accf7dde3a3e70d150c6ba99ee03cc8500a372982b989eafee897ffc02b06"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_01/episode_live.npz": {
+   "bytes": 9069784,
+   "sha256": "0f058962490d3e6281cab7744199a67351045326bea2da706228d78115d3fc45"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_02/episode_live.json": {
+   "bytes": 5866,
+   "sha256": "e8e99c3bd81dce31f0f19e6cc1c64ddbb5acbea8a55594beb597643708b9db3a"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_02/episode_live.npz": {
+   "bytes": 8150746,
+   "sha256": "e61ec3b9827515061cbff54d87d2d8223b58b5b56b811a039cd0ac98ac459d8b"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_03/episode_live.json": {
+   "bytes": 5861,
+   "sha256": "65252d31a524ffc0040a9666cbda324f03747e3f84436a0374a3cce4ae7d3858"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_03/episode_live.npz": {
+   "bytes": 9005282,
+   "sha256": "1cd7b034cbf475c022591d647975fdacf427237d1af6fe1186cae7552d8c1af3"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_04/episode_live.json": {
+   "bytes": 5878,
+   "sha256": "acd187e675a2adf51ccb012d1ef8cb615459a8b4829690361a85d76ab716fc48"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/ep_04/episode_live.npz": {
+   "bytes": 9384059,
+   "sha256": "b01a1a4f60f04f0b153f215067d62c40af4f167ac78aa814b71d9922313714ed"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/first_frames.npz": {
+   "bytes": 503003,
+   "sha256": "bb76716f08517d209920bb93073434177d884d961722d0ab14dac73156a380e0"
+  },
+  "so101_pick_place/robot/logs/eval_20261025_194447/session.json": {
+   "bytes": 2283,
+   "sha256": "1415927e4c9fb139baf2985de0e47af545fbba3cc9f573d723920a77fce61c00"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_01/episode_live.json": {
+   "bytes": 5859,
+   "sha256": "0c55c92fdce6c4a74cca3eda9838291578333aabb7af692d12939ec621b6049e"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_01/episode_live.npz": {
+   "bytes": 9359107,
+   "sha256": "aae81155b818c033345c37f68c077362666aeb5d8485dda3100a3f262630f090"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_02/episode_live.json": {
+   "bytes": 5862,
+   "sha256": "a31efa3825b4b3bfaef6cf8ac479ffc9f82414616a5f713a940006e79569a3fc"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_02/episode_live.npz": {
+   "bytes": 9291215,
+   "sha256": "045328ec81593c5e8ca38d91ec0206c459fe89ec2a3e5a39591347e1e0ea6d23"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_03/episode_live.json": {
+   "bytes": 5854,
+   "sha256": "9bc3e6c629818d68af8bb4e8edeeb5c25f14b341e6961417e14e3f1dbc79edc8"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_03/episode_live.npz": {
+   "bytes": 9987339,
+   "sha256": "35a5c5e7b77bd174a7012b077c5d963adbed16013115a18d158a080b07bdb4e7"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_04/episode_live.json": {
+   "bytes": 5864,
+   "sha256": "6e8a5a448160fe63851cdc0d4199fef088b570859fabdda43e97fda2b801f6d3"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/ep_04/episode_live.npz": {
+   "bytes": 13738852,
+   "sha256": "f7a50a7cdc5663e3175ee851e95e2165616cabb378984f5140af6a36e4369e63"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/first_frames.npz": {
+   "bytes": 511489,
+   "sha256": "d757a0aadda2b0e36e340fcd74872518a39ba767699c496f25aaa313332d4262"
+  },
+  "so101_pick_place/robot/logs/eval_20261026_131348/session.json": {
+   "bytes": 2276,
+   "sha256": "6115702eca3f5567c3a48809979188c7b2cee1bd4014ab98b266c055bac5b4e8"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_01/episode_live.json": {
+   "bytes": 5862,
+   "sha256": "de8184225d2bb15d49e0bba036f9f05757d638ce2b765a81cfc54a780ef7db0b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_01/episode_live.npz": {
+   "bytes": 14199576,
+   "sha256": "a828f9605e25246de5cd59ea1ee07dac49dce4b965bd2bd0dfbddc443836b4b5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_02/episode_live.json": {
+   "bytes": 5881,
+   "sha256": "283c8b68f5fed7e72d0fce616be0e7de692ece3e2324c8b66089dec085dcd203"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_02/episode_live.npz": {
+   "bytes": 10511655,
+   "sha256": "1f4c2a42336ea34af6e0073ff7d27667c98fe2db466c567973757bdea2e8c3a8"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_03/episode_live.json": {
+   "bytes": 5864,
+   "sha256": "27ba29bf3b2fd74dadfd9d01229f9e4b81f3c28326e3e8f3c600e33f48f42431"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_03/episode_live.npz": {
+   "bytes": 8449644,
+   "sha256": "0a500eb1c067a7cda96ae23c0041cd522f24f44bf928b621193dc27331656665"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_04/episode_live.json": {
+   "bytes": 5864,
+   "sha256": "41dcf9f262ccbb0510171c46f22f0d6fac14cbb4897fd89580e7a5f9a8facf74"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/ep_04/episode_live.npz": {
+   "bytes": 9031729,
+   "sha256": "e2151ab7944a5df975929d548643dc5694d5b646f3d5bfa13814a9a3325eb096"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/first_frames.npz": {
+   "bytes": 520157,
+   "sha256": "31a56134f3e28ae07e06fd3d510a4d7ed24698595d67c818f8d3523966b4b76d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133039/session.json": {
+   "bytes": 2307,
+   "sha256": "6ee0f38476c1e213be3312c3c2bc26fd38f9785bec6315ccfc89f6fe546e47f3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_01/episode_live.json": {
+   "bytes": 5843,
+   "sha256": "c75a8aefaa8d4d770d00ff034d979672f88d9028e2732fae318f4e915ae0305b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_01/episode_live.npz": {
+   "bytes": 8096670,
+   "sha256": "954046310d616bd917573e5ac647f6a84915fc688659fac5a5b01edb87db7f0b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_02/episode_live.json": {
+   "bytes": 5893,
+   "sha256": "95c883c764813dfef61c08fa34f05c89a9719404aa5198bbf5f4fa4d0f9c9271"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_02/episode_live.npz": {
+   "bytes": 13833527,
+   "sha256": "a1176a38d7a395ff40d1ffb2058e9f9109e045a341805b2bdbe91b691249201b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_03/episode_live.json": {
+   "bytes": 5894,
+   "sha256": "2f4dcebf6f75dd221f0a70ead5c7de0af0b98281d704a5e50ae203c8357a924d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_03/episode_live.npz": {
+   "bytes": 11964826,
+   "sha256": "e8114423c10ee4c6bffa828a43713011c4bf44aa4c10a7c7d3cfaf99af59fed8"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_04/episode_live.json": {
+   "bytes": 5858,
+   "sha256": "49a92795c1f22eea9f912d3b6e5825b71c5b4b364709a38f66a623cd919467db"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/ep_04/episode_live.npz": {
+   "bytes": 8777904,
+   "sha256": "e66ef7fc0e5bf31bc379d05404f8d470a4e29d3a0c9d80b76b806bd0ff063df2"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/first_frames.npz": {
+   "bytes": 508446,
+   "sha256": "8c808427c86c45c7a1de18fb908623099da9681806086bcdd67882283455a8a8"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133521/session.json": {
+   "bytes": 2345,
+   "sha256": "59009b97a6700d81703e4bcc3c758ce9383d6b93128af4a59d724160e5c05ed5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_01/episode_live.json": {
+   "bytes": 5864,
+   "sha256": "48cf9455b54e8dacbba1f294fd1dc9195ec6a87811742be748099074c8b2e5b8"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_01/episode_live.npz": {
+   "bytes": 11460947,
+   "sha256": "d6b8fd36be3a66e3e8375a5497beed6f9cf4c9949dae0b6b1d36c37d70a173a2"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_02/episode_live.json": {
+   "bytes": 5870,
+   "sha256": "ab20eb5a67bb81e0685ff2b65db349e619f88a59c06b52bfe687d512b98fecc3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_02/episode_live.npz": {
+   "bytes": 11378997,
+   "sha256": "71eb88c1e4b858ef80cb09529c602c0970013d49e8fd43e532b8e9e39ee3a8ee"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_03/episode_live.json": {
+   "bytes": 5902,
+   "sha256": "41ee3323373a1bad791ff2bbaa82a4ec27857b2eb9fb7278fc2bbf19f6122b2f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_03/episode_live.npz": {
+   "bytes": 9976320,
+   "sha256": "e2827de69b6fb0c1c68e336635ece41acaa01ac7473a9271ca2e9bf7a25da140"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_04/episode_live.json": {
+   "bytes": 5861,
+   "sha256": "1fcd4a2012a906d156f43c08b474b1928002bf68518656632704f4939fcc11f3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/ep_04/episode_live.npz": {
+   "bytes": 8672021,
+   "sha256": "06b6d35b37d6429073192fb79be4979ca6bf0459f16225703f44c33aae2f470d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/first_frames.npz": {
+   "bytes": 508294,
+   "sha256": "5f978b772cb570dbd50ec871792222db4beb92c779e403e922a27a0093ea0889"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_133953/session.json": {
+   "bytes": 2307,
+   "sha256": "927a30ec06089cd43867d20f896cabe70317f7e323c19ca952f7859c704dab3b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_01/episode_live.json": {
+   "bytes": 6177,
+   "sha256": "1b0a7f5e509eee4ae8c3666e5dab761769e058a148815533044cc98beaa35e57"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_01/episode_live.npz": {
+   "bytes": 5869280,
+   "sha256": "20a388c2dbc0d8ec23f25490e33f6187274239a117614ba1cd84ab3a2e4e9e13"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_02/episode_live.json": {
+   "bytes": 6162,
+   "sha256": "d7fa18d371b3f4e242208d8f84ff48bd58a98fe7ddb04117531e30e9c52f12e9"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_02/episode_live.npz": {
+   "bytes": 14820168,
+   "sha256": "5e9cfe5cdaa4b7968bb9881009a0c45d4b308f6c47688ee24253208e4755e096"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_03/episode_live.json": {
+   "bytes": 6188,
+   "sha256": "ca45be35b41072c78a803e1ba3be21b57b51ab398b6cd140efaee678b073cfca"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_03/episode_live.npz": {
+   "bytes": 8644779,
+   "sha256": "687898529300233c8bbc8e27763cd1d2f3abd690c691522e0d94e03ee6344749"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_04/episode_live.json": {
+   "bytes": 6185,
+   "sha256": "d804ba92dd61c9686584fabe9c57ee5c8d0b6cb7db72f5cd381fb7ecdc38a2ed"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/ep_04/episode_live.npz": {
+   "bytes": 14794748,
+   "sha256": "6a32144a899f61b029d896cc26b8fb22391548c29f82d2f7dcbd00fa522efdc7"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/first_frames.npz": {
+   "bytes": 506761,
+   "sha256": "c8c2f979a2157c21c19f4c44a2d075349f28dd6ed655b48c09c046e54d2f1e5b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134411/session.json": {
+   "bytes": 2297,
+   "sha256": "48f8ddc1d01ab8bdfc0c6530cee512c1243d9a4dcbcefe39fbe641678bf1910d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_01/episode_live.json": {
+   "bytes": 6137,
+   "sha256": "61f1526c107908dc060c27b3bb67c4f59207fbdd645c79375dbe7603b6d0fc7d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_01/episode_live.npz": {
+   "bytes": 7090484,
+   "sha256": "3a8a45707a09403be51d36f6e8074240e570ab514532edf4b59af607f0f16390"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_02/episode_live.json": {
+   "bytes": 6134,
+   "sha256": "2a55561ec1d05ae274a7ca4253337e6f6e3013eb68f26ed638c5bb117d9e2529"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_02/episode_live.npz": {
+   "bytes": 7222084,
+   "sha256": "070a272d36c7556ed8ca91d43a218a983542457f0caf5a259659842f3018ffd9"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_03/episode_live.json": {
+   "bytes": 6147,
+   "sha256": "b8db8d250a1ac2e8dfd8633296ababcf013fcc5ca0089dde704004f3b851627e"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_03/episode_live.npz": {
+   "bytes": 10505955,
+   "sha256": "35c42fcf5f48661f8b0607693db28e2229638667f94d8caa0034e0454f9dfc08"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_04/episode_live.json": {
+   "bytes": 6147,
+   "sha256": "8cc4b51fd65948fa4d3adeb4a06b7155b735e96d6d6d70f97a72f225cc5ecab9"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/ep_04/episode_live.npz": {
+   "bytes": 10607176,
+   "sha256": "dc33ab22b264771fbbf46197bc98d391932cf6cb0eb2108232d6687cd693900f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/first_frames.npz": {
+   "bytes": 517190,
+   "sha256": "86c7ffe48709528c99073b0c1f1a55a731b7eff227c5274b03b66c3c5e8f09a3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_134903/session.json": {
+   "bytes": 2281,
+   "sha256": "7dd9ba457920963529a0c98a897541575bdfaf152f46659f33dedf8e9688c5ea"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_01/episode_live.json": {
+   "bytes": 5876,
+   "sha256": "77f74f92df38a1e8d5484c805d743828237142ba3fcfced1662aec39771e5add"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_01/episode_live.npz": {
+   "bytes": 9387924,
+   "sha256": "216eb8bf715ee1c01d9296503d31fe01609c92f83f7b3d76568411cfee904cb1"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_02/episode_live.json": {
+   "bytes": 5858,
+   "sha256": "391a51cba7acd4848576496bc3270b92fa99c0adc1e2e9d0c3efa4eeb48478f7"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_02/episode_live.npz": {
+   "bytes": 9607738,
+   "sha256": "2bbb9a7a0166d82a68ac2f48ff514bebdba9be9e06463d73cb12dea82f1d75a0"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_03/episode_live.json": {
+   "bytes": 5867,
+   "sha256": "8c77ae7bb78c0752275ea2c21e95ffce0876cfe8d9cf5e25422756e486103b3f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_03/episode_live.npz": {
+   "bytes": 9657203,
+   "sha256": "147efeaae8026d9736937c963451ac933bb7201424eb4117960bfe1457be922b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_04/episode_live.json": {
+   "bytes": 5860,
+   "sha256": "527c3ed0abdcce120c847184655056231bb864bfdcaf7a9ca65a2b3915fe4ef1"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/ep_04/episode_live.npz": {
+   "bytes": 10010561,
+   "sha256": "778dca3a1964486907dd68d106a0f852e2ee935648e93ce42dbdd410424d0a54"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/first_frames.npz": {
+   "bytes": 520121,
+   "sha256": "3baa5419e9dd0d32b1efb3fa66928abfb017a1cfbab786e92974ff66baf17c96"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135259/session.json": {
+   "bytes": 2290,
+   "sha256": "032cbe65dac0dfa1c0ef9dcf45c12948238d916231fd1c8b741e4af7940f9ff9"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_01/episode_live.json": {
+   "bytes": 6146,
+   "sha256": "0f82ece986d0b6e9914db3f2d701fe6044c5ec209dda1010a5d068da5427c8f5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_01/episode_live.npz": {
+   "bytes": 5296091,
+   "sha256": "4288da99e2ab527c9f0f71681b486c6295cde67bcf05df003899cd494b3902c3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_02/episode_live.json": {
+   "bytes": 6161,
+   "sha256": "17344ffc26263057f71ddb0528311da3cc35a5704c983a2e423e61e889b98097"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_02/episode_live.npz": {
+   "bytes": 6108185,
+   "sha256": "4077a0014ecbf15ff0a2d593a4a8a221c4d90d70df745e1ef806b5c65e4d10a2"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_03/episode_live.json": {
+   "bytes": 6163,
+   "sha256": "e801d332035c94b56757911f61a9b19c99aa965222e5b45705ba22d9d4951301"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_03/episode_live.npz": {
+   "bytes": 6871913,
+   "sha256": "84ed4f65b1c4d55f3fb7d225609c05d53275af94122d8328e6460330ad31ed94"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_04/episode_live.json": {
+   "bytes": 6153,
+   "sha256": "d1b1b9767625b193a4b3257a45c6a04a84214976428bf8c45195d64fc312c841"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/ep_04/episode_live.npz": {
+   "bytes": 8413669,
+   "sha256": "6dd618a69988709a97afb3c9bf52c51bb2190c2c4c195a2363a323a82df1d548"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/first_frames.npz": {
+   "bytes": 497017,
+   "sha256": "47fcb0e25477d7aa29bb5132159e7a033ae8249b6e366f03fccd7f8cd79e77ae"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_135657/session.json": {
+   "bytes": 2313,
+   "sha256": "115f4d594c90dcd1d7258cdd56e2fb756568cc33aa9109b0d15694113ec923ca"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_01/episode_live.json": {
+   "bytes": 5865,
+   "sha256": "96c31ee685f7d0b7f66517a79133cafc51fa03ca1bd033b602d78f5449e38b8f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_01/episode_live.npz": {
+   "bytes": 8262708,
+   "sha256": "03c3fb87752c29c42e3868e83b293fdb2ddc520fbaba83a5dbe7fac0dd36c217"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_02/episode_live.json": {
+   "bytes": 5873,
+   "sha256": "0d1499f377584d77d594a626da110069fb449dfa56b5beb5d7a2d57c6a7c59b4"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_02/episode_live.npz": {
+   "bytes": 9966683,
+   "sha256": "435baecb51ae091d15c89ff6560866e9225940ca2f682044856cb100a7be281a"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_03/episode_live.json": {
+   "bytes": 5847,
+   "sha256": "769a36cc006c52f22f533ec5034e8577162fbbbca0d644902d1864cc59ae8575"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_03/episode_live.npz": {
+   "bytes": 7517045,
+   "sha256": "1efa49a19281b6b111f98762b2cae073fe9128fbbe15692a7bc713e71d6795fa"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_04/episode_live.json": {
+   "bytes": 5884,
+   "sha256": "03ec20101f88667db5e52d16f03c862e9d4033f13e55ca49c1d4634f387fa40b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/ep_04/episode_live.npz": {
+   "bytes": 14824560,
+   "sha256": "834833cfcb1bee6aaea415dcc7d8a0e0b60f6c5c2aa4dbc3a69f3e1c1761a293"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/first_frames.npz": {
+   "bytes": 500059,
+   "sha256": "3033786675a4c102d46940402640e5b8caecde87a69db7d902f11dca0fce0e6e"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_140036/session.json": {
+   "bytes": 2318,
+   "sha256": "dab313aa11679cd24b88d0711baf8e461afde9750ea2bd93594af6e0ee540d2b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_01/episode_live.json": {
+   "bytes": 6151,
+   "sha256": "c77f21963a47e40bf697f79ad6cbe5a549712313cdd56ca4ad656bb456a39b1f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_01/episode_live.npz": {
+   "bytes": 5944265,
+   "sha256": "02fd84a70e16c614f288a199f74939e2abf4995e9ce5643e09bd7e96b79426cf"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_02/episode_live.json": {
+   "bytes": 6145,
+   "sha256": "dd02f24eb23595415e134a4d4897ea3f771b720482addaedd972d8d9623da2e6"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_02/episode_live.npz": {
+   "bytes": 5688204,
+   "sha256": "cb1c8c72d7823109655d4e63ef4f46e1f691137106f84d2e22ca73fa6e15c567"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_03/episode_live.json": {
+   "bytes": 6162,
+   "sha256": "d5c20e6c96d60ae59bebbfb1a32db957a6847c757424782b8365efbbdc1b1841"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_03/episode_live.npz": {
+   "bytes": 7179763,
+   "sha256": "558618282a9d4c2699053b9811e79de7a8f84e493ffb16ef71f1f275376d8d73"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_04/episode_live.json": {
+   "bytes": 6152,
+   "sha256": "0a93a3b36d53ac019c3bdb40377769a23642182790f35f505a2c5de7ce7aa7ba"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_04/episode_live.npz": {
+   "bytes": 5599220,
+   "sha256": "319a1642dcb917f37bec5d8b0f0a2c21e376e2b13507823ab303aaf15137e3ed"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_05/episode_live.json": {
+   "bytes": 6223,
+   "sha256": "67fb9d82bf9fed30be35c5207ef85bfdd3e12b4bc71ad37a7decb738a157529e"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_05/episode_live.npz": {
+   "bytes": 8526892,
+   "sha256": "773de39e47c5b26a3f320b2e3ac2e7b4c0f2a6ef1a6404a895c0665b3372ac1f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_06/episode_live.json": {
+   "bytes": 6160,
+   "sha256": "60a5ba550b636de4584edcb8186bc73e64cefbea9827fdf0c61abbe4a4e34723"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_06/episode_live.npz": {
+   "bytes": 13121594,
+   "sha256": "caf191a5bdcb46974c09b51bbdb10a88c84572d4ad884c2e7cfd55021ded7f1b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_07/episode_live.json": {
+   "bytes": 6155,
+   "sha256": "9a6bf0194f098961aa07584feca8b8236f5ce569f14a0813eb648f381c7a69aa"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_07/episode_live.npz": {
+   "bytes": 8566840,
+   "sha256": "701dbe2a44e1405911ae6705bee0d5966066ebc8e21b1e24681cfe7241d9f425"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_08/episode_live.json": {
+   "bytes": 6154,
+   "sha256": "dfdbc412c8360f93918d696919d8b332f52557efcbfa0024e94d35e0eee1f1ef"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_08/episode_live.npz": {
+   "bytes": 5629984,
+   "sha256": "bd08265090504ef5c8eb7e1afcc8370a31cefaf00c71e16dd1a874d6c2795606"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_09/episode_live.json": {
+   "bytes": 6164,
+   "sha256": "78b4cd7a7ed53dc7d4afe2ddb2a0957ce24bf1a3c0e1fa70e1fee011ed033574"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_09/episode_live.npz": {
+   "bytes": 12091180,
+   "sha256": "92c563694be559db896778aaddbd67c5847752b5656e63c593bfca9c16e71f8a"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_10/episode_live.json": {
+   "bytes": 6157,
+   "sha256": "0f2d50cdb9e079a3e835687ddbc245423f0552fe2a4104944440e390e425c2b0"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/ep_10/episode_live.npz": {
+   "bytes": 6076766,
+   "sha256": "7b7c5aadc6fc095116d1f70675268750c812e6a1a20e837e3def56dbf0e37758"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/first_frames.npz": {
+   "bytes": 509168,
+   "sha256": "51ad998114e528adf5a283f0ea5c554de1caab64df4f7a3e67fc67779c10bc90"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_145520/session.json": {
+   "bytes": 3929,
+   "sha256": "19fbf1662a3fd078bf698054a3729cb76bb4fdf2a7b0432fcb26ede4ffcc4c62"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/ep_01/episode_live.json": {
+   "bytes": 6165,
+   "sha256": "0efb46fd1e5a8c7773b865b1b46203a801e1a4e3b6397695fa0a947fbe17bd7d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/ep_01/episode_live.npz": {
+   "bytes": 6062562,
+   "sha256": "2360fd5dce93cc5200c97bcd9a29a66bc7116b198cb45a3c5f83a325143506a7"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/ep_02/episode_live.json": {
+   "bytes": 6161,
+   "sha256": "585ec5ff2b28ceb5e3aafc4ad1c3578e2ca195c153d833a2ab7d056d4bef2c77"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/ep_02/episode_live.npz": {
+   "bytes": 5166469,
+   "sha256": "506ffc2f6c03c9523efd90a11b32962d16eeb6c3d7cc9cb33b474d6c9d0b3190"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/ep_03/episode_live.json": {
+   "bytes": 4416,
+   "sha256": "403976cf835f32bc3424b711aeee644cf51da695a238ae2f0f5aba173e314c4d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/ep_03/episode_live.npz": {
+   "bytes": 2482,
+   "sha256": "ca0c20af8871763c44cb47109aa39fb05c0b336db91f9843ac02fb20eb13fd42"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/first_frames.npz": {
+   "bytes": 518667,
+   "sha256": "818b4f406efeedafa6c7f45c1c269b712af9c29ffcde0b767f49a5cd60c784cc"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_150916/session.json": {
+   "bytes": 1744,
+   "sha256": "dea539aa0a4152aa6609ae65d04a728d96181daaa3521fe4b4c7bee1d280ad0a"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_01/episode_live.json": {
+   "bytes": 6166,
+   "sha256": "1ec691a4d9bb3e3d1a4f26e0bd8cf2491c9a965d3d9d711628ab9ae79b027427"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_01/episode_live.npz": {
+   "bytes": 5745740,
+   "sha256": "38ae77f464c773acee3e5ce1e0eb610b8d1902468e1755a3b681cffa71f8bf68"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_02/episode_live.json": {
+   "bytes": 6156,
+   "sha256": "a87214f77dedfd65dc54f1e4af9d01fd8930a2a18095a22bdb0def7f07ef9943"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_02/episode_live.npz": {
+   "bytes": 5910204,
+   "sha256": "e735548dd38ab53a37c7709cfaad975107b3dc90ae142ba4f89530e2740b1c39"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_03/episode_live.json": {
+   "bytes": 6139,
+   "sha256": "b8c70e05f586b215990a870e6cbf2801d00690478897ddc01d8ac5d1d7b36d52"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_03/episode_live.npz": {
+   "bytes": 6317168,
+   "sha256": "e464796a71ba53348ba0e08f3900fb38e4b61816e129e0d03c1738b80f2c55ec"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_04/episode_live.json": {
+   "bytes": 6153,
+   "sha256": "1509256dfd104cdf692fd6cbfa05857f80b98f510add8fa913e671235b455e79"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_04/episode_live.npz": {
+   "bytes": 5887279,
+   "sha256": "249ce25c6010c931bbb74fe849286dd62408fe04bef79b55c4f76ff76df36fe3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_05/episode_live.json": {
+   "bytes": 6163,
+   "sha256": "92fba5238b8051cf64e8325668a821b8a4e3d3807634ce05b7b4ff678d799075"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_05/episode_live.npz": {
+   "bytes": 13604404,
+   "sha256": "4668c595f44610d161a5f114f9a57a4f02b5c1e68ff298bd03d3b8ba54c45037"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_06/episode_live.json": {
+   "bytes": 6137,
+   "sha256": "ad359186e4ca46754ea3ddd6443e5738299fa4c660287526dcd757e56cdfee5d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_06/episode_live.npz": {
+   "bytes": 5288714,
+   "sha256": "a11cc59ca167d1fa76d1fec0a9774daca100c6982c028d5a1d934d1740effbe0"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_07/episode_live.json": {
+   "bytes": 6158,
+   "sha256": "ac4c64c842de0a79f3b95637f215cd923a24b6a56cc477849d1649c54c0448d4"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_07/episode_live.npz": {
+   "bytes": 14643435,
+   "sha256": "950ea6b15ea5920554829619ff4af138af4f9c08d88f9b325cbbb0670b747da5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_08/episode_live.json": {
+   "bytes": 6172,
+   "sha256": "19056e263e5022093731e848061109c15f7e32ba8f4655f49896c31f6216c05b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/ep_08/episode_live.npz": {
+   "bytes": 13280264,
+   "sha256": "0bfe39cf3e45c1d94a8eff715463e43a9842788f53a206ed9f862e450556fee4"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/first_frames.npz": {
+   "bytes": 515632,
+   "sha256": "28a3b531cd0f60f596b9f412ff4222c2be8df71e607b625e6ff258bcb39cffd3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151136/session.json": {
+   "bytes": 3331,
+   "sha256": "621ecbdedbe657a83dd3d68b39ad84e154711c28acab76165b1667c833db3dee"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_01/episode_live.json": {
+   "bytes": 6179,
+   "sha256": "0426c6b884ea5ca57eae36b51f6ff4be0d54812f7dec531d91c57dea9d899d5a"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_01/episode_live.npz": {
+   "bytes": 7001541,
+   "sha256": "9caf53fc7bccf4d41f19b885e408fbd262e5566f648e418a7f8dd62ede641963"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_02/episode_live.json": {
+   "bytes": 6160,
+   "sha256": "75624db4e11fc62c64f6167df7d8a2c0ba177241d13f79fa9a737a42787b0f8f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_02/episode_live.npz": {
+   "bytes": 5736934,
+   "sha256": "fbea3558af99a50ebebd98d9e55c0f558cb55dc07528e3a48f8ae3bc6aa78956"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_03/episode_live.json": {
+   "bytes": 6148,
+   "sha256": "af7b3ddb31016c5b73b2d70de3f3ef00c69d712c701186ee257c05c4c86577c8"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_03/episode_live.npz": {
+   "bytes": 6104888,
+   "sha256": "0965e405fac9fcb0703d60bee67dba61a11222361a6bd58e135ec6f97af7aba1"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_04/episode_live.json": {
+   "bytes": 6135,
+   "sha256": "372d8dfb91bf23a9022d7173f41769fb2f2d69c556ff553998143cabfe005128"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_04/episode_live.npz": {
+   "bytes": 14711339,
+   "sha256": "5ad92548b1d04cd962a799cf3acda08026c9f80b3d518ce948b6a2ccf0618f41"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_05/episode_live.json": {
+   "bytes": 6143,
+   "sha256": "a5511f01bbf55ff9d8e22b8ec410bfb8fa12caf7c95cb908d43dbc3b7d4796fb"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_05/episode_live.npz": {
+   "bytes": 6646022,
+   "sha256": "4aa0bc4e7a74618ed13de08f35a6e81c01accb0c125052bc606ff84e52247d4b"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_06/episode_live.json": {
+   "bytes": 6263,
+   "sha256": "1e28d6d79605909a87f933aa489649d0d1758b49b5f87d7dff2cf7467c278d9f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_06/episode_live.npz": {
+   "bytes": 13804156,
+   "sha256": "509b0180fd848a346f1c6880f75713d28a9324153630863cd5d8a5b5bb184e22"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_07/episode_live.json": {
+   "bytes": 6155,
+   "sha256": "b069e620ca362a73ca9a20c90718a1cd5a03b70928e662a5f33185cd94fce9a0"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_07/episode_live.npz": {
+   "bytes": 6103574,
+   "sha256": "f594a094e354f11bcc7c49cd2d40497b4771c240d298bbfb66974b9da1b8aef5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_08/episode_live.json": {
+   "bytes": 6140,
+   "sha256": "c3060b992b94facdfa83efe8a3703c47e2af04861a1448762bee313ad19ea7a6"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_08/episode_live.npz": {
+   "bytes": 13634730,
+   "sha256": "95e4bf2bbea69f44eeb244ebc06f3a24bc849363abe1af0f302e8713b8fa51a5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_09/episode_live.json": {
+   "bytes": 6176,
+   "sha256": "9c99ea926d6eec5e604ea9a3803562e5f0f848d625aa2c3bbb7f703c902a6bf7"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_09/episode_live.npz": {
+   "bytes": 10396322,
+   "sha256": "03024a938dc9bdf6c4fb729d635d91cba691ce8856dedc1032741a853338ac52"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_10/episode_live.json": {
+   "bytes": 6156,
+   "sha256": "6a7be6e19e37deefbce709d3569eafb067b7d216a0629138afffe148ea15c08a"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/ep_10/episode_live.npz": {
+   "bytes": 11223575,
+   "sha256": "fe5816fdce9600b1c5d72736a23cbda3808a1a016f8326c395208874a8ff3507"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/first_frames.npz": {
+   "bytes": 513581,
+   "sha256": "0e84435ff479a8935b40f1cb25c9d08cb929659d18dd088e630d8ca1bd6e679c"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_151953/session.json": {
+   "bytes": 3906,
+   "sha256": "3aeb6099a6a1b4d54851fee7d8bd7663695b643398cc528f7ec54042f9775b5d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_01/episode_live.json": {
+   "bytes": 6154,
+   "sha256": "65d97520b800db5444afef6cdf0e77513b847b2a67cb4b01714e50bd869850b5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_01/episode_live.npz": {
+   "bytes": 6329535,
+   "sha256": "fa585552615e0c08b234235d7d721d65f71b5a5cf364e76e50e59aa90ad38e55"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_02/episode_live.json": {
+   "bytes": 6150,
+   "sha256": "eea0970e7c9837819d5f09dc7ab51eea0366f6b00cdf23f6f3a8a12226ffe860"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_02/episode_live.npz": {
+   "bytes": 5786878,
+   "sha256": "37246380aa9d553dfc2017599dd6659ee3b2d3dcf3ff5b157dd07e3a5140f3ac"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_03/episode_live.json": {
+   "bytes": 6156,
+   "sha256": "310320df332c1c95d93bbc12d7fac8ba8eca1a0f3b9de19a6906ae59cdd38e41"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_03/episode_live.npz": {
+   "bytes": 4873824,
+   "sha256": "f8c767535a70067e07f7a2db1fcaa79f9d454941f91631cb5b065947ec4abe49"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_04/episode_live.json": {
+   "bytes": 6148,
+   "sha256": "c76fbaff0b791fab7733d1a8bbf8586d9189942816aae185558034b6059e4cc7"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_04/episode_live.npz": {
+   "bytes": 8414107,
+   "sha256": "79fa062d29d7e04c9e7653a04af089d61d8b362720635e1d11510050b30e2306"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_05/episode_live.json": {
+   "bytes": 6150,
+   "sha256": "5af2c0f60b449e634bea0349a75ab09e01f924e46c19d5d5d360f06bdb3f7aa0"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_05/episode_live.npz": {
+   "bytes": 14361164,
+   "sha256": "2c50c7a41d0ec52b5a430b0ef372df72b6c02ddfb94829185aa058c744a1a52f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_06/episode_live.json": {
+   "bytes": 6140,
+   "sha256": "f2f6e960ee52ad6aa1d74f62e971252735f58cb2d3eca4f54157b05afbe21ee6"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_06/episode_live.npz": {
+   "bytes": 6357044,
+   "sha256": "1c15ad6972a0f265dd1eadc461978f1b39dac1f3a1d6ddc74bb4cb02cc66038d"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_07/episode_live.json": {
+   "bytes": 6138,
+   "sha256": "734d72cc7bea0b4c962255b433b36b448f5ba19cf8c5517f84548ef8f3248f96"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_07/episode_live.npz": {
+   "bytes": 7096209,
+   "sha256": "aab472092db30da77f6e50d75664415df5c39a5ed041b08451e596153ab2ba62"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_08/episode_live.json": {
+   "bytes": 6156,
+   "sha256": "06164d3eb64d9e0756d77cc82aa2cf53f1cc060e1653fd88a13aebccf97de575"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_08/episode_live.npz": {
+   "bytes": 11262499,
+   "sha256": "7159051f01a5eb350b3de2879516ed04e219c36c9854bf3bbaabad646dff7ab0"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_09/episode_live.json": {
+   "bytes": 6155,
+   "sha256": "a3af9a30167138e497d375f230b2907a7af36790b8f237227ab7107f22902b08"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_09/episode_live.npz": {
+   "bytes": 7038859,
+   "sha256": "83dc70f8dc86e4a60885efc90c35f37db8f19d1210a94560fa82d95289c28c7f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_10/episode_live.json": {
+   "bytes": 6169,
+   "sha256": "dabffd897905a3cd2b7eb62e8a282561edecd1fcf3123ccf88d152139821b7e4"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/ep_10/episode_live.npz": {
+   "bytes": 5952938,
+   "sha256": "4bfc64d2f686d986a5a2f7565145894a643def17f077a50bf726b01c2411f324"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/first_frames.npz": {
+   "bytes": 509859,
+   "sha256": "97cc64b193a773d7640c43514573500bb7afb71cd768b879918175471379e993"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153045/session.json": {
+   "bytes": 3845,
+   "sha256": "7c0b2282826912524fdb3acd2543896190335c2059a73ecf66e74b3457ac1159"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_01/episode_live.json": {
+   "bytes": 6159,
+   "sha256": "cb2e906479efeabcea1fefa60e066778827991ef308bd472704ec620d6ea83c5"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_01/episode_live.npz": {
+   "bytes": 5799074,
+   "sha256": "1cbf3d50a4581098d1fbca74f18cbfe4e8e484715bb912f86756976fe142d1db"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_02/episode_live.json": {
+   "bytes": 6152,
+   "sha256": "8abbeebcfbfb940d5628720e1a376129ffabbb55fa2041cb803246f94f294638"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_02/episode_live.npz": {
+   "bytes": 13822166,
+   "sha256": "8e63e25524f72420e57a9faad37e4addb438a94d0ff8cf99935010300f10e744"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_03/episode_live.json": {
+   "bytes": 6148,
+   "sha256": "9539abf071129ce5fe41579ed7b5a2894c2465552116963b5abdfd1bab9ba939"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_03/episode_live.npz": {
+   "bytes": 13807602,
+   "sha256": "6c64fbb86e7405648b2c85d8185874faf311dd21cf11b5f6df035bd84dd19b1a"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_04/episode_live.json": {
+   "bytes": 6158,
+   "sha256": "3122f145509b45012c5ef6413b6db22844a519973225dbab50ce49dbb80a6252"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_04/episode_live.npz": {
+   "bytes": 13756623,
+   "sha256": "a49ac0e2c57e0d299e03c97bb3f6bf417e135ea0a0a7fbbf29889710aceeca9e"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_05/episode_live.json": {
+   "bytes": 6174,
+   "sha256": "d10c2e0bb296beeaaf13af28fcef59ae6effa78e94dd91600dd12f25fe5379da"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_05/episode_live.npz": {
+   "bytes": 7530684,
+   "sha256": "5db071784d83aefd3014c88e8341c2e9a481f3e1d005eab0be328d934e5fb9b3"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_06/episode_live.json": {
+   "bytes": 6152,
+   "sha256": "003b8814655f4c684fd995faa299390a2c1c68114299646519fb29d529be6826"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_06/episode_live.npz": {
+   "bytes": 9423509,
+   "sha256": "c734ef866ba3251dee726cb9cdd6c975adb2aca3cf69efd98bab5d2da82d15ef"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_07/episode_live.json": {
+   "bytes": 6174,
+   "sha256": "222729b7abd014ead63c3d287d289d936a19beea6d0618c04a8e84c8de16fdad"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_07/episode_live.npz": {
+   "bytes": 6601580,
+   "sha256": "081ba7f1d084b419dc922e6b644130aac60d4ab8af08c1e67511df1d1072a636"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_08/episode_live.json": {
+   "bytes": 6170,
+   "sha256": "448aeefc9ce93f5edf59b8c7e6f966df317d52975e0b32f267867b742d6283de"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_08/episode_live.npz": {
+   "bytes": 14314305,
+   "sha256": "db775f0f6c924073f3f4b1ebe1feec0570c96ee6e4be91f3e674616113fc4769"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_09/episode_live.json": {
+   "bytes": 6135,
+   "sha256": "ac4c2a4400a53451dbb491732f1b5a9f0eb3a662d278d2551fee0eee9c945d08"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_09/episode_live.npz": {
+   "bytes": 5723215,
+   "sha256": "d64f1edefb1dedd01ece86a1eaee0c8733cf0e9f052512be87731c3d332543bb"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_10/episode_live.json": {
+   "bytes": 6152,
+   "sha256": "08b2b493caee3687dfad0a6164abef51feccfe7a1cbea17b69bda0496fbf199f"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/ep_10/episode_live.npz": {
+   "bytes": 6043293,
+   "sha256": "21a73bfd3ebb5b900148e1506bc626346906224c13ed7abe011ee15a154b5c2c"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/first_frames.npz": {
+   "bytes": 513967,
+   "sha256": "1b37ef5b44d4e2f2d6ae18dd97f85b3b9b5315b1b3c476008289f9a5ce6d812e"
+  },
+  "so101_pick_place/robot/logs/eval_20261027_153943/session.json": {
+   "bytes": 3813,
+   "sha256": "a0c42ba3d8e188a4f076750e0aa7e7b58b8e2da7f6054e6d0231df454efb6f9f"
+  },
+  "so101_pick_place/robot/videos/screening_20261027_4x.mp4": {
+   "bytes": 11445403,
+   "sha256": "10491bb1a85653428eff0509fe7a2a76c5259a7cb4a961decaf28e5103805b8a"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_01.mp4": {
+   "bytes": 585423,
+   "sha256": "9d4bce4c410a6fec4e26472b65e0e4b2b9a65750b6d1416d6c243995a10162fe"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_02.mp4": {
+   "bytes": 566372,
+   "sha256": "66f4787a5d9307c01be2ad98645ad52a64b2b9222ccf9e7e7869b5de442e7b6f"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_03.mp4": {
+   "bytes": 724641,
+   "sha256": "7ae10ca9283898bd2fbb2ab3d9c92ff316cdbeb87bab7c257a50548c07868dee"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_04.mp4": {
+   "bytes": 537116,
+   "sha256": "29fa7c7adb182f4eb70a0430f4f8fab94aff1f38bb53993ecbc8306da70f5c43"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_05.mp4": {
+   "bytes": 660453,
+   "sha256": "b35b6b1ff969e205f069d6aadc44f4e2fc4bd88b27965e37189257477c8db7af"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_06.mp4": {
+   "bytes": 1202626,
+   "sha256": "d9c466a493dc729c8dc6cd6b6561e1b79387944ef5c63bcee76dd00a7d693c7c"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_07.mp4": {
+   "bytes": 867803,
+   "sha256": "616d8d06f1c1b8ba2eff4e053380654f32101577e6b7aa7faf1571d0c944330d"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_08.mp4": {
+   "bytes": 546246,
+   "sha256": "a2b419ee3a120167fc4bb80ef55fbdcd43473941a426b87ec73bd2a7d6a64e2e"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_09.mp4": {
+   "bytes": 1047881,
+   "sha256": "272b6d0928c906547f2097b1511ff69d392e9fb0d3d416b3cee6e2f5207bb8c6"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_145520_ep_10.mp4": {
+   "bytes": 595166,
+   "sha256": "f648c731ca83df94383ca685e46ee8743a3777a228583fb175a336ec10cc50f7"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_150916_ep_01.mp4": {
+   "bytes": 609565,
+   "sha256": "a5304877894bdcb63a0962aab8b6826cd890312cd29efcc3bf3e9d06d06aba0b"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_150916_ep_02.mp4": {
+   "bytes": 510615,
+   "sha256": "25b53121b63de068468ce207a85342c474681c280f4c8e01fb9a5bba0ce81635"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_01.mp4": {
+   "bytes": 542312,
+   "sha256": "12e66e3a3449a04c59f106ddf4c74b17a7933dbc7f5ac9497ba008d53593363f"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_02.mp4": {
+   "bytes": 573450,
+   "sha256": "c0162e11cdcd8f084a1fea3f14c3740e35f92617da3e8b1df894be89c4f2c143"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_03.mp4": {
+   "bytes": 641864,
+   "sha256": "bcb452d831173a712d0d2c5e9616916cde90e16d61d79dfc55b42bc97c0aa114"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_04.mp4": {
+   "bytes": 587340,
+   "sha256": "370ef7b4e1b199634cc13a8ae608e17b981b78d90b3da0796d1bfe834942aa6f"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_05.mp4": {
+   "bytes": 1018545,
+   "sha256": "b03670946d6f30a32f7956668a84df1578db1bfa936f30b5da6d8c6b2e9f21c3"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_06.mp4": {
+   "bytes": 519939,
+   "sha256": "ec36ce228a6546488879c4c879a76da9b25e5acdcdd0823ae90bc350720aca0d"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_07.mp4": {
+   "bytes": 1089975,
+   "sha256": "44dff0cede4c6ca8451fa8e494f1d8f28aa1bef58ddd9df290424fdde167b723"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151136_ep_08.mp4": {
+   "bytes": 740302,
+   "sha256": "8ed725fbaae1e2005f6987559a35e7d6a33090fc133c56fb87da548ded0f7fd0"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_01.mp4": {
+   "bytes": 650846,
+   "sha256": "442c739223d5cf42bcf66d0749c82095329325814e7427cac71bdc307d199e88"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_02.mp4": {
+   "bytes": 565355,
+   "sha256": "3e5d775fb1706530bc4589aed4c12845381adbc517890522d130855a9a2a22d1"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_03.mp4": {
+   "bytes": 645966,
+   "sha256": "967f69489c089601211cb428c5834b5cfa849b4581df0ec56d34c48758bac720"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_04.mp4": {
+   "bytes": 1027366,
+   "sha256": "e5d0309e9db4650ad78395d72044ed865f773d299015b96a0253cde250e9bf13"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_05.mp4": {
+   "bytes": 630670,
+   "sha256": "513509b31a79d3d3b2e9216fc89bd5b22c0bf3a3a6037a99d6df0a157cf63916"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_06.mp4": {
+   "bytes": 1059006,
+   "sha256": "723a9b0fba4b8907fe4bfe5795a246324d99511c3994b17d77d6865b3d6940aa"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_07.mp4": {
+   "bytes": 600255,
+   "sha256": "f7407cb60f7f1ad4d70382ebdfead845e0f57b61d7ecf2d36ec1c74b86b32b75"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_08.mp4": {
+   "bytes": 1175210,
+   "sha256": "4cc7ab7f9c653c111ddc8b6db55c1bb18d98ad0608f0b5fe795f1b942c0dbaa2"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_09.mp4": {
+   "bytes": 914004,
+   "sha256": "07c9091f5d51a25d80a69f3fdec06a544778c101d26b687e1462316e15b3be94"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_151953_ep_10.mp4": {
+   "bytes": 1087000,
+   "sha256": "1d69f7f44c1fa9eef5b8e17bb1b9ea141484987a9436b7190a28b83a5f85e547"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_01.mp4": {
+   "bytes": 639503,
+   "sha256": "704d7e4a71b08f32ec02bf4a03f80565969b416e1f250565fbb5105231397a12"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_02.mp4": {
+   "bytes": 576161,
+   "sha256": "8ea47a6cb3bdf31b1a0640937f76557636354aaf6a9edf470107ca076d2b63b6"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_03.mp4": {
+   "bytes": 493714,
+   "sha256": "a06aac70414148584905cd953b7fd30b8b96c372378b6e0897a14513305dc9c3"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_04.mp4": {
+   "bytes": 793105,
+   "sha256": "be609672f71aff74ffedd1aee18e737ba1a11b266384e81d82a6619d6ff6a80e"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_05.mp4": {
+   "bytes": 974745,
+   "sha256": "7e7720f86f0f1b536fd2ef98976d55da497ec27e15775b6228151b2917259afc"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_06.mp4": {
+   "bytes": 618853,
+   "sha256": "73b29bbb0ccda05eccc8092f0bf3f29e046aaa3a5cfb9bbaad7c49a91dea953e"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_07.mp4": {
+   "bytes": 715899,
+   "sha256": "b9250fd67a283fb9bd79f52ae7df1e8b6d306ab787cf4cba5619513e3293500e"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_08.mp4": {
+   "bytes": 1025536,
+   "sha256": "a76212aeb6ce172a5f322450850f20f98ffb8f456640860eae4ca24e779a50d8"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_09.mp4": {
+   "bytes": 689717,
+   "sha256": "a61e8f6454c09f006b584eba1776c78e2ac4256dbf762283f9e5040d6014ff64"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153045_ep_10.mp4": {
+   "bytes": 568890,
+   "sha256": "d57aa44ada14f9bf76bf12529ea74ed12e998dfd552a1d25db46cbcc4eca4262"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_01.mp4": {
+   "bytes": 550619,
+   "sha256": "f73768f2d66b618172e5a0c1b0fcf7fdf6c1cfdab174926533b7ccb8d76e3087"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_02.mp4": {
+   "bytes": 1132770,
+   "sha256": "6f38283e3cee3e7807de57a3107ac8538b1a121c20475f6e9e7ee4ca2f94bc73"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_03.mp4": {
+   "bytes": 954560,
+   "sha256": "1bbb426de553859b09cf8a2c0f7c577236a6f512f2f1861a45f90bd7eca0e1ba"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_04.mp4": {
+   "bytes": 915490,
+   "sha256": "26a2961e6a45a74b155a1b2cb8648270da8fef16ce420c9f166941857af48de5"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_05.mp4": {
+   "bytes": 727017,
+   "sha256": "4d03a147da075a8b582b54b9b8fa872bc769107282c3bef499b104f31898e3f9"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_06.mp4": {
+   "bytes": 931635,
+   "sha256": "763538f22eebff276e602620850d956bd0d1393f56c3436ba2b57a12b5cd9e07"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_07.mp4": {
+   "bytes": 651558,
+   "sha256": "9726bdb2bc243556eadc1607a8276491d60ae2b22356c9f530792041046efa10"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_08.mp4": {
+   "bytes": 880756,
+   "sha256": "de59aa8be4565b07d667efaec174a625b076b59c1a21fe6df6250a9aed5aeb5e"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_09.mp4": {
+   "bytes": 566377,
+   "sha256": "341e5918e9b83edce313727c9a91d656026717ac1ae27eedc066592f9d793ace"
+  },
+  "so101_pick_place/robot/videos/stress_tb10/eval_20261027_153943_ep_10.mp4": {
+   "bytes": 575450,
+   "sha256": "c77759bbe4484c3e51d15a1bf0d912d057c4788729b2cbad5e408378fe072d5a"
+  },
+  "so101_pick_place/robot/videos/tb10_stress_20261027_4x.mp4": {
+   "bytes": 15990495,
+   "sha256": "bdaf925dcb48fb68d451bc84341ae20733981d282334cacdcd1c07ceb2261750"
+  },
+  "so101_pick_place/scene_calib/calib_v1.json": {
+   "bytes": 39147,
+   "sha256": "3b7a2124d1b56bd6049a682a4eb29e9f4cef62818f4a420665171bbe31e0410f"
+  },
+  "so101_pick_place/scene_calib/dyn_fit_d2q.json": {
+   "bytes": 888,
+   "sha256": "68a96d77b506bc75d368a4e6412f89b7f7f2c22585281a7b764acda7661f6918"
+  },
+  "so101_pick_place/scene_calib/parts_override_v2.json": {
+   "bytes": 18479,
+   "sha256": "3840ca99745839ff693dca975f9853720176ab61b3b7d751a42995e0e5366217"
+  },
+  "so101_pick_place/scene_calib/real_scene_v2.json": {
+   "bytes": 8654,
+   "sha256": "4bce0b8dd6f22b5499b556275bca0bf248d1e96b1cd3babf169b34a8cb539d82"
+  },
+  "so101_pick_place/scene_calib/so101_follower_lerobot_calib.json": {
+   "bytes": 915,
+   "sha256": "c2b8953fadcc1af32fa7a96c6b5e7a8031fff3100868c1afc2f95ee19437afc2"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/args.json": {
+   "bytes": 1454,
+   "sha256": "1ea8f2aff0f301c7bdb4532325c7cd1f739225258a6c1a5f383c6feb8e3b11d0"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/progress.jsonl": {
+   "bytes": 6330,
+   "sha256": "d76fca6303c297c1ac3c9937181ae5f0c69c0e24637436ff7cd0b857dbeed958"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/r0/meta.json": {
+   "bytes": 2872,
+   "sha256": "5df1980c2dc9947f8789eaaf32f80eb44c12ddbd15d8d719eac887f53ee98d9f"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/r0/train_summary.json": {
+   "bytes": 144,
+   "sha256": "5b00c8aa8f062784ffeb86f4a1ab002bffbb02427cc2c93546f50ea0bb83c826"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/r1/meta.json": {
+   "bytes": 3013,
+   "sha256": "b97862146459e2a8252ef73baf18dfe6a377aa28c703c957963d5c0989bdfaf8"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/r1/train_summary.json": {
+   "bytes": 144,
+   "sha256": "60bd6b67ad84d24732a60b58f9741ac7bf4de2d85e30f6f6f4d663372a043f93"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/r2/last.pt": {
+   "bytes": 24544351,
+   "sha256": "3fe3fb5a05170e2911bbf4e59f960dde73c39e27f7d5aadeeafca6478e170595"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/r2/meta.json": {
+   "bytes": 3087,
+   "sha256": "1659610092c5c7da8e485e8abcf4e014c0d761a38de793e24b040dd6c5f3f376"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/r2/train_summary.json": {
+   "bytes": 142,
+   "sha256": "2b9bb2a67bb438abd2b6f0352d1fd2ca043626f9a6312f191512642b9190a6cb"
+  },
+  "so101_pick_place/student/s0_v2_start_s2/real_pin.json": {
+   "bytes": 366,
+   "sha256": "0e7cf9735966a8534be939f7b22310e704c7f570faeb3d4da6db55394230a426"
+  },
+  "so101_pick_place/student/s1_v2_online_s18/args.json": {
+   "bytes": 1332,
+   "sha256": "3583b2733796971d7c9fdcca1c7d9aa0b10c305dd639a3b32ed6a9aed7c06c24"
+  },
+  "so101_pick_place/student/s1_v2_online_s18/curve.csv": {
+   "bytes": 11658,
+   "sha256": "98b9d77f11f4202877ef5a274ad68debc95ad6a99bfa338cc8fbab7535e98ca5"
+  },
+  "so101_pick_place/student/s1_v2_online_s18/it_03000.pt": {
+   "bytes": 24555727,
+   "sha256": "8fe355c7afbc0ff1dd93af70dd0ab76ff68102f5ce538f4df2a1d01d7b060264"
+  },
+  "so101_pick_place/student/s1_v2_online_s18/meta.json": {
+   "bytes": 3307,
+   "sha256": "01e9791312d133115752a15752c466e33492812704dc91e5be553b62631353a1"
+  },
+  "so101_pick_place/student/s1_v2_online_s18/progress.jsonl": {
+   "bytes": 5363,
+   "sha256": "70610f6e53da467d83713da774557780fa648493f15f2468909a65f042e59f55"
+  },
+  "so101_pick_place/student/s2_v2_online2_s28/args.json": {
+   "bytes": 1341,
+   "sha256": "6dce4b1fc4203f2986b050e1736618126795e30f18680b3bb10c0326b38b1996"
+  },
+  "so101_pick_place/student/s2_v2_online2_s28/curve.csv": {
+   "bytes": 11695,
+   "sha256": "e77165dab958fa88702abef2c8bc43b6990faf398696ea6ecb1dbeedd701d058"
+  },
+  "so101_pick_place/student/s2_v2_online2_s28/it_03000.pt": {
+   "bytes": 24555727,
+   "sha256": "68d08d0ba9144b16d436a10bcc4cef4eb287f3fc40aebc55dbfbd3780fc8f7a0"
+  },
+  "so101_pick_place/student/s2_v2_online2_s28/meta.json": {
+   "bytes": 3324,
+   "sha256": "d8715bc039a79dc3345e5333f4284fc7df0e91de78a0e9da7616a50d009417be"
+  },
+  "so101_pick_place/student/s2_v2_online2_s28/progress.jsonl": {
+   "bytes": 5083,
+   "sha256": "83bbe61ce78c561dd9f7fb577150073979075adda22c099bfd92b1c03e9e86ca"
+  },
+  "so101_pick_place/student/s3_v4_relabel_s63/args.json": {
+   "bytes": 1371,
+   "sha256": "c9d5c63eac6c51cc43e151fe8405c934fe8e9052b2d1652415482bdf2a5b8bb1"
+  },
+  "so101_pick_place/student/s3_v4_relabel_s63/curve.csv": {
+   "bytes": 17715,
+   "sha256": "5f95797f80f6bba93d63ab198b7e60f769c3716166aaf795a15b438512631613"
+  },
+  "so101_pick_place/student/s3_v4_relabel_s63/it_02000.pt": {
+   "bytes": 24555727,
+   "sha256": "ceebbd2fc17aa3df8a14bebaf6dd9babd4ed3acf84536b470db420b1c638e06c"
+  },
+  "so101_pick_place/student/s3_v4_relabel_s63/meta.json": {
+   "bytes": 4361,
+   "sha256": "d97098e56a96058919e369ea5eedd15c247c7deb7b5aa1be81c3056a5d801002"
+  },
+  "so101_pick_place/student/s3_v4_relabel_s63/progress.jsonl": {
+   "bytes": 5205,
+   "sha256": "ca51473d9ccb659c33926ef892ca372e2a2bc94ab601747662415f953be71342"
+  },
+  "so101_pick_place/student/s4_v8_roll_s801/args.json": {
+   "bytes": 1472,
+   "sha256": "5b30a730f86ca32082cc232162767a3f885a813cc67798f06981b83fa1e0934e"
+  },
+  "so101_pick_place/student/s4_v8_roll_s801/curve.csv": {
+   "bytes": 12949,
+   "sha256": "296f54ac058b5285673278f949814db76e0b62de9709eae23109c8a9334608b7"
+  },
+  "so101_pick_place/student/s4_v8_roll_s801/it_02000.pt": {
+   "bytes": 24555727,
+   "sha256": "d9a35bfc23abde45472e05b1be3ed0de90108d17c3484e31511a669be5ab7a1b"
+  },
+  "so101_pick_place/student/s4_v8_roll_s801/meta.json": {
+   "bytes": 4797,
+   "sha256": "140a23de5302829a69cbf7e88aa1e814966e462897db934689621ed99cc77987"
+  },
+  "so101_pick_place/student/s4_v8_roll_s801/progress.jsonl": {
+   "bytes": 4026,
+   "sha256": "ed25d0cae4a8e3656b9b724862b4df47178797c53866822392cd299c6d4d7220"
+  },
+  "so101_pick_place/student/s5_v12_tb10_s1210/args.json": {
+   "bytes": 1594,
+   "sha256": "723cac29a47c7c195cab28d9d48119d50c0e88c27aabe5ea7022f744091e9797"
+  },
+  "so101_pick_place/student/s5_v12_tb10_s1210/curve.csv": {
+   "bytes": 12068,
+   "sha256": "1aad3b525f6ded507e420dd25d5e52b8c39db6893c142effd016be145b1281af"
+  },
+  "so101_pick_place/student/s5_v12_tb10_s1210/it_01000.pt": {
+   "bytes": 24555983,
+   "sha256": "6458a4f791d1052148bb8f7621413259342a7018757668fde244cfc098f99f5c"
+  },
+  "so101_pick_place/student/s5_v12_tb10_s1210/meta.json": {
+   "bytes": 5364,
+   "sha256": "c8a170dc83687d09fb7630aeaea779f06623fc7131fb94766d1a3a639fa48896"
+  },
+  "so101_pick_place/student/s5_v12_tb10_s1210/progress.jsonl": {
+   "bytes": 4095,
+   "sha256": "2aaf9526d5e190bf7d7b28a807768b0d046a173d6d2e58b5afb7a7a259bf56dd"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/curriculum.json": {
+   "bytes": 986,
+   "sha256": "f74d2a360f57b1f10e256aee36239018fd023844eb155c42e670388ab06aedac"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/done.json": {
+   "bytes": 1066,
+   "sha256": "77316f4b263968ad6b272d308d3133d1d4a74f4c96ba4b98c32b92297c02af36"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/env_cfg.json": {
+   "bytes": 1013,
+   "sha256": "753173eccf6feced3e1fb50bb7c27785000f70d6e540c0b8d55240f44eb9a71b"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/env_resolved.json": {
+   "bytes": 4806,
+   "sha256": "632f923ac3f1f650fb58160a6d3a39b7571087d877d58bc792dbdd586a8c87d0"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/learning_curve.csv": {
+   "bytes": 72854,
+   "sha256": "168cb13802ca5278f68e9c62a86c7914e03973f48cf41ed2eb788e33aac85c05"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/manifest.json": {
+   "bytes": 9450,
+   "sha256": "95f17c11069bfb78a3342600a070dc0615ace7f78b8af4bcfb0f42baa64d8ea8"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/model_00171.pt": {
+   "bytes": 5101045,
+   "sha256": "8069d5b39162931ee5ae3db874afed8899526ad92313746f207907766c973cc9"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/train_cfg.json": {
+   "bytes": 831,
+   "sha256": "5024a4665b61bdd7e49cdf9a39aa889d0dba0ea456512695432f3c32d84665b6"
+  },
+  "so101_pick_place/teacher/t0_nC1_s62_b/val_history.json": {
+   "bytes": 13390,
+   "sha256": "78dc86b34b2c43489d88947275c768bf33d964fce212e54b1d38fe7d2e81d269"
+  },
+  "so101_pick_place/teacher/t1_expert_data/e0_n1.npz": {
+   "bytes": 272580029,
+   "sha256": "14e19d1f849bd44a8adb22f83366e0eb40ca3acb62e33dc3f313c0c51a3cc708"
+  },
+  "so101_pick_place/teacher/t1_expert_data/e1_n2.npz": {
+   "bytes": 283795005,
+   "sha256": "55335841256cc06089d32e76d5d5bfd3e446f5a0e5d99e0a4e538ab880336dc9"
+  },
+  "so101_pick_place/teacher/t1_expert_data/e2_n15.npz": {
+   "bytes": 276651132,
+   "sha256": "ed5cdcc4bdf7d85458d741d754652305ce5b5851cc7b92967fe3d3474e1c939e"
+  },
+  "so101_pick_place/teacher/t2_bc_all/args.json": {
+   "bytes": 584,
+   "sha256": "aeaed90f1fc32c093784ab5ecedfa96fca2c0981d523a7f1dcd13bdbf04275f3"
+  },
+  "so101_pick_place/teacher/t2_bc_all/bc.pt": {
+   "bytes": 5670373,
+   "sha256": "95df5ff78c2632b38cb4bbe258c8c5283fa4abc511f4ff83caa8b25b2b7eb1cd"
+  },
+  "so101_pick_place/teacher/t2_bc_all/bc_curve.csv": {
+   "bytes": 3235,
+   "sha256": "30fc9506b129c28ff86c97b46acee0c449f104ad79d9883092b3c8d0c59390ca"
+  },
+  "so101_pick_place/teacher/t2_bc_all/codec.npz": {
+   "bytes": 788,
+   "sha256": "80d55b165de435c3b9f7df5203648db2d7cfebc0ef44613b96cdbccb7bf4e199"
+  },
+  "so101_pick_place/teacher/t3_jt_b140/args.json": {
+   "bytes": 877,
+   "sha256": "519a50c9e025ab27a529a5c873d0f9a0c5310f0c2563350fa6f307670e6a2769"
+  },
+  "so101_pick_place/teacher/t3_jt_b140/cmdline.txt": {
+   "bytes": 743,
+   "sha256": "df494967e3da3e8fdb8fb073302c0605e0740e5d15c5347cd8c6268d20abb6f3"
+  },
+  "so101_pick_place/teacher/t3_jt_b140/learning_curve.csv": {
+   "bytes": 96453,
+   "sha256": "f95cb2c78a3931f7d35e08628c4399ed30853502f5472016e64c93ed8f618cab"
+  },
+  "so101_pick_place/teacher/t3_jt_b140/model_00140.pt": {
+   "bytes": 17078389,
+   "sha256": "41693858e88b2607e2ae6cf1ab575e03f9f1682e55fa9599a298cd48589df992"
+  },
+  "so101_pick_place/teacher/t4_jt_h110/args.json": {
+   "bytes": 885,
+   "sha256": "a183efca0ad6f2207d45f11d4b80d171853cc783653868e80864ebdcac4bed1f"
+  },
+  "so101_pick_place/teacher/t4_jt_h110/cmdline.txt": {
+   "bytes": 751,
+   "sha256": "b2b26a9e3d8fb451dbbbe9471eb394f032ca5ab904ac477b0783143dd8a17bd8"
+  },
+  "so101_pick_place/teacher/t4_jt_h110/learning_curve.csv": {
+   "bytes": 43668,
+   "sha256": "76448b6377393fa34c3c0459a62032d48717c6aa6096dbe6a9b1e48525c34d3e"
+  },
+  "so101_pick_place/teacher/t4_jt_h110/model_00110.pt": {
+   "bytes": 17078453,
+   "sha256": "0c1b61428f829459cce0aa2a0dfd9bd69c08f2625f055b768875f2760c7a4b84"
+  },
+  "so101_pick_place/teacher/t5_tppo_roll_v8_s21/args.json": {
+   "bytes": 890,
+   "sha256": "d39784de3557c18ad37ac474fdf34653384eb2058cf58b3a0d50775e18753dbb"
+  },
+  "so101_pick_place/teacher/t5_tppo_roll_v8_s21/dev_evals.jsonl": {
+   "bytes": 7997,
+   "sha256": "feb0f009a4551f077c9ce217c0199f0ccaa74f06ae98353e97ca8a7d46585d85"
+  },
+  "so101_pick_place/teacher/t5_tppo_roll_v8_s21/learning_curve.csv": {
+   "bytes": 72248,
+   "sha256": "bf1fa2995747a96f028fdecbef9c87cc19367dbeb7fa2b63c65e470096e54baa"
+  },
+  "so101_pick_place/teacher/t5_tppo_roll_v8_s21/model_00200.pt": {
+   "bytes": 17078517,
+   "sha256": "c4ea842c94226300b48d52d5c7a49c995d31bc452c10b37a1e947ca787d55420"
+  },
+  "so101_pick_place/teacher/t6_tppo_v12_fr10_s122/args.json": {
+   "bytes": 997,
+   "sha256": "8be75f9e369e6ef726ef3c61ee773a11abe429ce309e727c3dc3bdac49f2fb64"
+  },
+  "so101_pick_place/teacher/t6_tppo_v12_fr10_s122/dev_evals.jsonl": {
+   "bytes": 15955,
+   "sha256": "98182bb5ba9255439b1e9e40872ea3b63132ad0c649acc13526094f6eaf6bf2e"
+  },
+  "so101_pick_place/teacher/t6_tppo_v12_fr10_s122/learning_curve.csv": {
+   "bytes": 72032,
+   "sha256": "08ab2cbde1210c8aa5db0d3b4f7b0d720c5c5ddd47f8354306495e34b7aaeab3"
+  },
+  "so101_pick_place/teacher/t6_tppo_v12_fr10_s122/model_00200.pt": {
+   "bytes": 17078581,
+   "sha256": "069cd8961217a29684a08683220a31a9af14bf5e97b7faf9aba9f4c905d06692"
+  }
+ }
+}

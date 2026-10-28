@@ -59,14 +59,16 @@ configs:
     data_files: raw/tracked/episodes.parquet
 ---
 
-# NeDM datasets: the paper, the traversing study, the contact NRD and the G1 footstep policy
+# NeDM datasets: the paper, the traversing study, the contact NRD, the G1 footstep policy and the SO101 pick and place
 
 This repository holds separate releases. **Part A** is the set of datasets behind the NeDM paper, unchanged since its
 release (Hub tag `paper-v1`). **Part B**, everything under `traversing/`, holds the drives, training files, models and
 evaluation records of the traversing study, follow-on work that is not part of the paper. **Part C**, everything under
 `contact_nrd/`, holds the training data, test sets and models of the contact NRD, also follow-on work. **Part D**,
 everything under `g1_footstep_rl/`, holds the policies, RL inputs and MuJoCo results of a G1 footstep policy trained in
-the contact NRD, also follow-on work.
+the contact NRD, also follow-on work. **Part E**, everything under `so101_pick_place/`, holds the NRD, data,
+checkpoints and real-robot records of an SO101 pick-and-place camera policy trained only in a contact NRD, also
+follow-on work.
 
 Contents:
 
@@ -75,6 +77,7 @@ Contents:
 - [Part B: traversing study](#part-b-traversing-study): `traversing/`
 - [Part C: contact NRD](#part-c-contact-nrd): `contact_nrd/`
 - [Part D: G1 footstep policy](#part-d-g1-footstep-policy): `g1_footstep_rl/`
+- [Part E: SO101 pick and place](#part-e-so101-pick-and-place): `so101_pick_place/`
 
 ## Part A: datasets of the paper
 
@@ -793,3 +796,70 @@ pinned upstream commit (OpenHomie, commit `33071f79`), which has its own license
 BSD-3-Clause, the same as Part A and the code. HOMIE is not hosted here; it is fetched from its pinned upstream commit,
 under its own license. The G1 footstep policy has no publication yet: please cite the NeDM paper (Part A) and name the
 dataset revision you used (`cba82611210e401dc0155cb78fcf456a385ecef4`).
+
+## Part E: SO101 pick and place
+
+### What it is
+
+Follow-on work to the paper, not part of it. A camera policy (the "student") for a real SO101 arm picks a 30 mm cube
+and places it on a plate. Every training step ran inside a contact NRD of the arm and the cube (the design of Part C,
+trained on CPU MuJoCo 3.15.0 episodes): a state teacher trained with PPO in the NRD, then the student trained in the
+NRD with ray-traced images of a calibrated copy of the real scene (online DAgger). No real image was a training
+sample. On the real arm the student placed the cube in 36 of 50 stress-test episodes (72 %; 95 % interval 58–83 %).
+The training, the results and the commands are in
+[`so101_pick_place/` of the code repository](https://github.com/uwsbel/NeDM/tree/main/so101_pick_place).
+
+### Layout
+
+| Path | Contents |
+|---|---|
+| `so101_pick_place/nrd/c1_s62/`, `nrd/c0_s62/` | The policy NRD (every teacher and student stage ran in it) and its base: `best.pt` loads with `nedm.contact_nrd.model.load_model`; `original/best.pt` is the file as trained (two training-only heads more); the training records |
+| `so101_pick_place/nrd_data/` | The 4 NRD training data parts (93,494 episodes; `unified_data.npz`, `system.json`, `manifest.json`), and the 7 PPO policies behind `policy_v3` |
+| `so101_pick_place/nrd_test/` | The sealed scripted test set (3,050 episodes) |
+| `so101_pick_place/teacher/`, `student/` | Every teacher (T0-T6) and student (S0-S5) checkpoint of the chain with its run record; the teacher's expert data |
+| `so101_pick_place/rl_inputs/` | Task sets, start banks, geometry, the task sets of the sim checks |
+| `so101_pick_place/results/` | The sealed NRD test, the sim-check results and selection rules, the per-episode robot results |
+| `so101_pick_place/robot/` | Raw logs of 19 robot sessions (102 policy episodes), 52 videos of the student's input images, 2 LeRobot teleop recordings |
+| `so101_pick_place/bundle/` | The folder installed on the robot computer, and its tarball |
+| `so101_pick_place/scene_calib/`, `provenance/` | Camera calibration, scene and servo fit (also in the code repository); code snapshots that are in no commit |
+| `so101_pick_place/release_manifest.json` | Size and SHA-256 of every file; provenance (commits, runs, sources) |
+
+Total 13.3 GB (NRD data 10.6 GB).
+
+### What the files contain
+
+- NRD data (`unified_data.npz`, uncompressed): `arm` [N, 601, 12] (6 joint angles, 6 joint rates), `cube` [N, 601,
+  13] (position, quaternion wxyz, velocity, angular velocity), `action` [N, 601, 6] (joint position targets),
+  `contacts` [N, 600, 3] (fixed jaw - cube, moving jaw - cube, cube - table), `lengths`, `splits` (0 train,
+  1 validation, 2 test), `family`, `phase`, contact force, impulse and depth, ids, seeds and outcome fields. Records
+  are 10 ms apart, episodes 4 s.
+- Checkpoints: PyTorch files. Teachers: MLP state policies with privileged inputs. Students: two ResNet18 image
+  encoders (external camera crop and wrist camera, 224 x 224 RGB), joint angles and rates, a chunk of 10 joint
+  targets as output.
+- Robot logs: per session `session.json` (command line, typed outcome per episode) and `first_frames.npz`; per
+  episode `episode_live.json` (setup, guard, latency, outcome) and `episode_live.npz` (50 Hz joints and commands,
+  each policy query with its action chunk and the two input images at 112 px).
+
+### Download and use
+
+```bash
+scripts/so101_pick_place/reproduce.sh full --steps download   # in the code repository; checks every SHA-256
+```
+
+The code repository's `so101_pick_place/release_manifest.json` pins the Hub revision; `--with-nrd-data` and
+`--with-robot` add the large folders. The MuJoCo Menagerie SO101 model is not in this dataset: the code repository
+fetches it at a pinned revision.
+
+### Known limitations
+
+- **One robot, one lab, one cube and plate.** The outcome is typed by the operator; the stress protocol was not fixed
+  in advance, and the student was chosen with robot results.
+- **The NRD test set has only scripted families** and is not fully blind (run once before on an older NRD design).
+- **Lab content.** The robot logs hold lab background images, the robot computer's user path and the USB adapter
+  serial. The videos are the student's 112 px input images; there is no full-resolution video.
+
+### License and citation
+
+BSD-3-Clause, the same as Part A and the code. The MuJoCo Menagerie model is not hosted here. The SO101 pick and place
+has no publication yet: please cite the NeDM paper (Part A) and name the dataset revision you used (the
+`hf_revision` of `so101_pick_place/release_manifest.json` in the code repository).
