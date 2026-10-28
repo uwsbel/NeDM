@@ -366,6 +366,7 @@ workstation, not the real arm (`requirements-so101-pick-place.txt`, section 2).
    14 files (11 code modules with the changes of section "Code", 2 doc files with a header that marks them as study
    notes, the build time in `deploy.json`), has 2 small new modules (`paths.py`, `npz_rows.py`) and lacks 7 study
    modules that the robot never loads. Its replay outputs are bit-equal to those of the tested folder (smoke run).
+   The Hub keeps no file modes: use the `.tar.gz`, or run `chmod +x robot_test.sh` in the downloaded folder.
 2. Copy it to the robot computer; check `sed -n '4,$p' MANIFEST.txt | sha256sum -c --quiet` in the folder.
 3. LeRobot motor calibration: the robot needs its own (`lerobot-calibrate`, in
    `~/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json`);

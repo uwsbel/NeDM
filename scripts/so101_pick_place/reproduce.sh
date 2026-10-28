@@ -351,7 +351,9 @@ study_tree() {       # study_tree [optional]: a git worktree of commit f6f05c21c
         [ "${1:-}" = optional ] && return 1
         die "commit f6f05c21c not found: git fetch origin so101-pick-place-study"
     fi
-    git -C "$CODE" worktree add --quiet --detach "$ST" f6f05c21c
+    # no LFS files: the training code needs none of the .pt files that f6f05c21c tracks under artifacts/
+    GIT_LFS_SKIP_SMUDGE=1 git -C "$CODE" worktree add --quiet --detach "$ST" f6f05c21c || {
+        [ "${1:-}" = optional ] && return 1; die "git worktree add of commit f6f05c21c failed"; }
     # f6f05c21c tracks files under artifacts/: link only the data folder of this release into it
     mkdir -p "$ST/artifacts"
     ln -sfn "$CODE/artifacts/so101_pick_place" "$ST/artifacts/so101_pick_place"
@@ -759,7 +761,8 @@ EOF
     REC="$A/robot/lerobot_recordings"
     for b in "$BUNDLE" "$A/bundle/so101_hw_v13_tb10"; do
         tag=$([ "$b" = "$BUNDLE" ] && echo built || echo released)
-        [ "$tag" = released ] && { rm -rf "$F/released_bundle"; cp -r "$b" "$F/released_bundle"; b="$F/released_bundle"; }
+        [ "$tag" = released ] && { rm -rf "$F/released_bundle"; cp -r "$b" "$F/released_bundle"; b="$F/released_bundle"
+                                 chmod +x "$b/robot_test.sh"; }   # the Hub keeps no file modes
         (cd "$b" && sed -n '4,$p' MANIFEST.txt | sha256sum -c --quiet) || die "$tag bundle: MANIFEST.txt check failed"
         echo "$tag bundle: MANIFEST OK"
         if [ "$tag" = built ]; then
