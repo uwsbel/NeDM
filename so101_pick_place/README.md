@@ -363,9 +363,9 @@ workstation, not the real arm (`requirements-so101-pick-place.txt`, section 2).
 
 1. Take the tested folder `bundle/so101_hw_v13_tb10/` (or its `.tar.gz`) from the Hub, or build it:
    `reproduce.sh full --steps download,bundle,fake`. A bundle built from this branch differs from the tested folder in
-   the adapted modules and path defaults of section "Code", in 2 doc files and in the build time in `deploy.json`, has
-   2 small new modules (`paths.py`, `npz_rows.py`) and lacks 7 study modules that the robot never loads. Its replay
-   outputs are bit-equal to those of the tested folder (smoke run).
+   14 files (11 code modules with the changes of section "Code", 2 doc files with a header that marks them as study
+   notes, the build time in `deploy.json`), has 2 small new modules (`paths.py`, `npz_rows.py`) and lacks 7 study
+   modules that the robot never loads. Its replay outputs are bit-equal to those of the tested folder (smoke run).
 2. Copy it to the robot computer; check `sed -n '4,$p' MANIFEST.txt | sha256sum -c --quiet` in the folder.
 3. LeRobot motor calibration: the robot needs its own (`lerobot-calibrate`, in
    `~/.cache/huggingface/lerobot/calibration/robots/so_follower/so101_follower.json`);

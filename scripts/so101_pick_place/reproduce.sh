@@ -351,7 +351,7 @@ study_tree() {       # study_tree [optional]: a git worktree of commit f6f05c21c
         [ "${1:-}" = optional ] && return 1
         die "commit f6f05c21c not found: git fetch origin so101-pick-place-study"
     fi
-    git -C "$CODE" worktree add --detach "$ST" f6f05c21c > /dev/null
+    git -C "$CODE" worktree add --quiet --detach "$ST" f6f05c21c
     # f6f05c21c tracks files under artifacts/: link only the data folder of this release into it
     mkdir -p "$ST/artifacts"
     ln -sfn "$CODE/artifacts/so101_pick_place" "$ST/artifacts/so101_pick_place"
