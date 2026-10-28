@@ -1,9 +1,9 @@
 """Copy N episodes of one split (default splits == 1, the validation episodes; evenly spaced over the rows of that
 split) of each NRD data part into a small data folder (unified_data.npz with every per-episode array sliced,
-system.json copied). N = 0: every episode of the split. --split all: N episodes evenly spaced over all rows (smoke
-training runs need train and validation rows).
+system.json copied). N = 0: every episode of the split. --split family: the first N train and the first N validation
+episodes of every family (smoke training runs need both splits in every family).
 
-    python -I subsets.py OUT N [--split 1|2|all] name=PART_DIR [name=PART_DIR ...]
+    python -I subsets.py OUT N [--split 1|2|family] name=PART_DIR [name=PART_DIR ...]
 
 Release checks of the SO101 pick-and-place study (so101_pick_place/README.md, "The NRD"; reproduce.sh steps nrd_val,
 nrd_strip and the smoke of nrd_train). The release used: N = 64 of each of the 4 parts (original-vs-main check) and
@@ -41,8 +41,14 @@ def main():
             files = list(p.files)
             splits = p["splits"]
             total = len(splits)
-            val = np.arange(total) if split == "all" else np.flatnonzero(splits == int(split))
-            pick = val if n == 0 or n >= len(val) else val[np.linspace(0, len(val) - 1, n).round().astype(np.int64)]
+            if split == "family":
+                fam_all = p["family"]
+                val = np.sort(np.concatenate([np.flatnonzero((fam_all == f) & (splits == sp))[:n]
+                                              for f in np.unique(fam_all) for sp in (0, 1)]))
+                pick = val
+            else:
+                val = np.flatnonzero(splits == int(split))
+                pick = val if n == 0 or n >= len(val) else val[np.linspace(0, len(val) - 1, n).round().astype(np.int64)]
             assert len(np.unique(pick)) == len(pick), "not enough episodes"
             arrays = {}
             for k in files:                       # one array at a time (the large parts are several GB)

@@ -30,7 +30,7 @@
 #                counts compared with the released manifests
 #   nrd_train    base NRD and fine-tune with the training code of commit f6f05c21c (branch so101-pick-place-study;
 #                a git worktree under OUT; main's train.py lacks its options); needs --with-nrd-data. Smoke: --smoke
-#                runs of the training code on 24 episodes of each data part
+#                runs of the training code on 4 train + 4 validation episodes of every family of each data part
 #   nrd_strip    scripts/so101_pick_place/nrd/strip_ckpt.py: the main-compatible file of an NRD of the training code
 #                (geometry heads removed). Released originals: the result is compared with the released best.pt. Own
 #                nrd_train runs: OUT/nrd_main/<run>/best.pt; with --parents own the policy stages then run in the own
@@ -369,10 +369,10 @@ if has_step nrd_train; then
     study_tree
     SMOKE_FLAG=()
     ND="$A/nrd_data"
-    if [ "$TINY" = 1 ]; then      # --smoke runs of the training code on 24 episodes of each part (train + validation rows)
+    if [ "$TINY" = 1 ]; then      # --smoke runs of the training code on 4 train + 4 validation episodes per family
         SMOKE_FLAG=(--smoke)
         ND="$OUT/nrd_data_smoke"
-        [ -f "$ND/subsets.json" ] || "$PY" -I scripts/so101_pick_place/nrd/subsets.py "$ND" 24 --split all \
+        [ -f "$ND/subsets.json" ] || "$PY" -I scripts/so101_pick_place/nrd/subsets.py "$ND" 4 --split family \
             production_plus="$A/nrd_data/production_plus" noisy_v1="$A/nrd_data/noisy_v1" \
             expert_v2="$A/nrd_data/expert_v2" policy_v3="$A/nrd_data/policy_v3" > "$OUT/nrd_data_smoke.log"
     fi
