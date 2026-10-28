@@ -55,7 +55,7 @@
 #   summary      the numbers of this run next to the released ones
 #
 # Modes
-#   smoke  every step of full with tiny sizes (about 3 min on one RTX 5090 once the files are local): a setup check
+#   smoke  every step of full with tiny sizes (about 5 min on one RTX 5090 once the files are local): a setup check
 #   full   setup, download, geometry, nrd, nrd_collect, nrd_strip, nrd_test, t6, s5, simcheck, bundle, fake, summary
 #          (default): the last teacher and student stages from the released parents (T5, S4), the sim checks, the
 #          bundle. About 2 GPU-h (t6 0.8, s5 0.5 + its in-run evaluations, simcheck 21 evaluations) + CPU

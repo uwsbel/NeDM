@@ -27,7 +27,7 @@ imageio-ffmpeg==0.6.0
 # 2. Robot computer only (Jetson AGX Orin, conda env "lerobot"; README "Deploy"). The steps of section 1 need none of
 #    these except opencv; the bundle carries the kin points, so the robot computer needs no mujoco, warp or newton:
 #      pip install lerobot==0.6.1 opencv-python pyarrow     (with the torch / torchvision of the Jetson)
-#    The Orin reported LeRobot 0.6.2: that is the version string of LeRobot's GitHub main branch after the v0.6.1 tag,
+#    The study's notes record LeRobot 0.6.2 on the Orin: the version string of LeRobot's GitHub main branch after v0.6.1,
 #    not a PyPI release (PyPI's latest is 0.6.1, checked 2026-10-27), so the Orin had a source install of LeRobot
 #    whose commit was not recorded. PyPI lerobot 0.6.1 ran the replay and the fake robot on the workstation; it was
 #    not run on the real arm. A source install of LeRobot's main branch also reports 0.6.2, but its commit will differ.

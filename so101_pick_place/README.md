@@ -15,7 +15,7 @@ No real image was a training sample. Real data set the simulator, the training w
 - the camera calibration and the look of the scene (from two LeRobot teleop recordings) and the table height;
 - from S3 on, robot-like servo ranges in the student's training worlds (speed, lag and sag, set from robot timing
   logs), the wrist-roll limit of 98 deg (T5 / S4: from the motor range and two robot stalls) and the 10 mm lower
-  table (T6 / S5: from the robot's measured floor);
+  table (T6 / S5: the measured real mat is 8-17 mm below the sim table at the cube and plate positions);
 - a fitted servo model (used only in the sim checks) and the choice of the student for the robot test.
 
 Each fine-tune round (S3, T5 / S4, T6 / S5) answered failures of the student before it on the robot. Section
@@ -292,7 +292,7 @@ Paths of committed code are on the study branch. The exact command lines of thes
 # install the torch / torchvision build for your GPU first (https://pytorch.org; tested: 2.12.0+cu130, 2.10.0+rocm7.1)
 pip install -r requirements-so101-pick-place.txt     # not requirements.txt: it pins torch 2.8.0
 
-scripts/so101_pick_place/reproduce.sh smoke   # setup check, tiny sizes: about 4 min on one RTX 5090 (files local)
+scripts/so101_pick_place/reproduce.sh smoke   # setup check, tiny sizes: about 5 min on one RTX 5090 (files local)
 scripts/so101_pick_place/reproduce.sh full    # T6 and S5 from the released T5 / S4 (study: 0.8 + 0.5 GPU-h), the sim checks (21 runs), the bundle
 scripts/so101_pick_place/reproduce.sh chain --with-nrd-data   # every stage from scratch (about 22 GPU-h)
 scripts/so101_pick_place/reproduce.sh full --steps download,nrd_test                    # the sealed NRD test
@@ -354,9 +354,9 @@ PYTHONPATH=src python -m nedm.contact_nrd.test --data artifacts/so101_pick_place
 ## Deploy on the robot
 
 The robot computer (Jetson AGX Orin, conda env `lerobot`: torch, torchvision, numpy, opencv-python, pyarrow, LeRobot)
-needs no MuJoCo, Warp or Newton: the bundle carries the kin points (the collision points of the arm). The Orin
-reported LeRobot 0.6.2: the version string of LeRobot's GitHub main branch after the v0.6.1 tag, so a source install
-whose commit was not recorded (not a PyPI release). PyPI `lerobot==0.6.1` ran the replay and the fake robot on the
+needs no MuJoCo, Warp or Newton: the bundle carries the kin points (the collision points of the arm). The study's
+notes record LeRobot 0.6.2 on the Orin: the version string of LeRobot's GitHub main branch after the v0.6.1 tag, so a
+source install whose commit was not recorded (not a PyPI release). PyPI `lerobot==0.6.1` ran the replay and the fake robot on the
 workstation, not the real arm (`requirements-so101-pick-place.txt`, section 2).
 [`scripts/so101_policy/real2sim/hw/README.md`](../scripts/so101_policy/real2sim/hw/README.md) holds study notes of
 2026-10-24 (older students, the study's paths); the steps below are the current guide.
