@@ -36,10 +36,12 @@ student they refuse ``--q-offset-deg`` in live (no override: the table correctio
 than 0 (no override: the floor they were trained with is 1.5 mm above arm z 0). The banner prints the floor mode and
 its numbers.
 
-Examples (luffy, from the worktree root)
-    ~/miniconda3/envs/so101_vision/bin/python scripts/so101_policy/real2sim/hw/run_student_real.py replay \
-        --student ~/so101_policy/runs/viral/final_student_o17_it03000.pt \
-        --episodes green_cube_red_plate_1:0 --out ~/so101_r2s_claude/hw/replay_test
+Examples (from the repository root, files of the release under artifacts/so101_pick_place/)
+    python scripts/so101_policy/real2sim/hw/run_student_real.py replay \
+        --student artifacts/so101_pick_place/student/s5_v12_tb10_s1210/it_01000.pt \
+        --data-root artifacts/so101_pick_place/robot/lerobot_recordings \
+        --lerobot-calib configs/so101_pick_place/so101_follower_lerobot_calib.json \
+        --episodes green_cube_red_plate_1:0 --out ~/so101_hw_runs/replay_test
     ... run_student_real.py live --backend fake --auto-confirm ...      # the robot loop on a simulated servo
 """
 from __future__ import annotations
