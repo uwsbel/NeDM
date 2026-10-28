@@ -1,0 +1,627 @@
+{
+ "version": "real_scene_v2",
+ "calib": "/home/harry/so101_r2s_claude/calib/calib_v1.json",
+ "student_view": {
+  "external": {
+   "crop": [
+    52,
+    103,
+    288,
+    288
+   ],
+   "out": [
+    224,
+    224
+   ],
+   "interp": "area"
+  },
+  "wrist": {
+   "crop": [
+    0,
+    0,
+    640,
+    480
+   ],
+   "out": [
+    224,
+    224
+   ],
+   "interp": "area"
+  }
+ },
+ "geometry": {
+  "floor_xy": [
+   -0.045,
+   0.59,
+   -0.456,
+   0.457
+  ],
+  "walls": [
+   [
+    [
+     -0.045,
+     0.457
+    ],
+    [
+     0.59,
+     0.457
+    ],
+    0.53
+   ],
+   [
+    [
+     0.59,
+     0.457
+    ],
+    [
+     0.59,
+     -0.456
+    ],
+    0.38
+   ]
+  ],
+  "wall_thickness": 0.005,
+  "strip": {
+   "from": [
+    0.585,
+    -0.42,
+    0.33
+   ],
+   "to": [
+    0.585,
+    0.42,
+    0.43
+   ],
+   "size": [
+    0.03,
+    0.01
+   ]
+  },
+  "room": {
+   "center": [
+    0.3,
+    0.0,
+    0.6
+   ],
+   "half": [
+    2.5,
+    2.5,
+    1.8
+   ],
+   "floor_z": -0.75
+  },
+  "ceiling": null,
+  "table_plane": null,
+  "mat_thickness": 0.001,
+  "plate_thickness": 0.001,
+  "parts": [
+   {
+    "name": "camera_bracket_plate",
+    "body": "camera_mount",
+    "group": "board",
+    "polygon": [
+     [
+      0.013618,
+      0.025993,
+      -0.007363
+     ],
+     [
+      -0.007618,
+      0.030169,
+      -0.006955
+     ],
+     [
+      -0.011829,
+      0.022939,
+      -0.03436
+     ],
+     [
+      0.012955,
+      0.017344,
+      -0.037294
+     ]
+    ],
+    "offset": [
+     0.000541,
+     0.002832,
+     -0.00083
+    ]
+   }
+  ]
+ },
+ "colors": {
+  "printed": [
+   0.713,
+   0.6798,
+   0.6153
+  ],
+  "servo": [
+   0.1196,
+   0.1331,
+   0.1162
+  ],
+  "cube": [
+   0.06,
+   0.361,
+   0.1295
+  ],
+  "plate": [
+   0.6544,
+   0.0844,
+   0.0855
+  ],
+  "floor": [
+   0.85,
+   0.85,
+   0.85
+  ],
+  "mat": [
+   0.0796,
+   0.0837,
+   0.0814
+  ],
+  "walls": [
+   0.6021,
+   0.5967,
+   0.5836
+  ],
+  "board": [
+   0.1038,
+   0.0912,
+   0.0908
+  ],
+  "room": [
+   0.1637,
+   0.1546,
+   0.0971
+  ],
+  "room_floor": [
+   0.1356,
+   0.131,
+   0.0932
+  ],
+  "strip": [
+   0.2689,
+   0.2689,
+   0.2689
+  ]
+ },
+ "light": {
+  "lights": [
+   {
+    "type": "point",
+    "position": [
+     0.55,
+     0.0,
+     0.39
+    ],
+    "shadow": false
+   },
+   {
+    "type": "directional",
+    "direction": [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    "shadow": false,
+    "intensity": 0.2331,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     -1.0,
+     0.0,
+     -0.35
+    ],
+    "shadow": false,
+    "intensity": 0.2322,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     1.0,
+     0.0,
+     -0.35
+    ],
+    "shadow": false,
+    "intensity": 0.152,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     0.0,
+     -1.0,
+     -0.35
+    ],
+    "shadow": false,
+    "intensity": 0.6659,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     0.0,
+     1.0,
+     -0.35
+    ],
+    "shadow": false,
+    "intensity": 0.4755,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "shadow": false,
+    "intensity": 0.6029,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     -1.0,
+     -1.0,
+     -1.0
+    ],
+    "shadow": false,
+    "intensity": 0.2813,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     -1.0,
+     1.0,
+     -1.0
+    ],
+    "shadow": false,
+    "intensity": 0.2956,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     1.0,
+     -1.0,
+     -1.0
+    ],
+    "shadow": false,
+    "intensity": 0.2438,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     1.0,
+     1.0,
+     -1.0
+    ],
+    "shadow": false,
+    "intensity": 0.2614,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     -1.0,
+     -1.0,
+     1.0
+    ],
+    "shadow": false,
+    "intensity": 0.9642,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     -1.0,
+     1.0,
+     1.0
+    ],
+    "shadow": false,
+    "intensity": 0.5733,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     1.0,
+     -1.0,
+     1.0
+    ],
+    "shadow": false
+   },
+   {
+    "type": "directional",
+    "direction": [
+     1.0,
+     -1.0,
+     1.0
+    ],
+    "shadow": false
+   },
+   {
+    "type": "directional",
+    "direction": [
+     1.0,
+     -1.0,
+     1.0
+    ],
+    "shadow": false,
+    "intensity": 0.2441,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "type": "directional",
+    "direction": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "shadow": false,
+    "intensity": 0.5668,
+    "center": [
+     0.25,
+     0.0,
+     0.0
+    ]
+   }
+  ],
+  "ambient": true,
+  "shadows": false,
+  "sky": [
+   20,
+   20,
+   20
+  ]
+ },
+ "tone": {
+  "external": {
+   "exposure": 0.39731,
+   "wb": [
+    0.90161,
+    1.0,
+    0.92806
+   ],
+   "black": [
+    -0.02908,
+    -0.04135,
+    -0.04141
+   ],
+   "gamma": 1.35405,
+   "vignette": 2.1107
+  },
+  "wrist": {
+   "exposure": 0.48968,
+   "wb": [
+    0.98961,
+    1.0,
+    0.96236
+   ],
+   "black": [
+    -0.04404,
+    -0.0359,
+    -0.04162
+   ],
+   "gamma": 1.05565,
+   "vignette": 0.18174
+  }
+ },
+ "fit": {
+  "source": "/home/harry/so101_r2s_claude/scene/out/fit_B5.json",
+  "config": "B",
+  "rms_nominal_fit": 26.994945526123047,
+  "rms_nominal_heldout": 27.508882522583008,
+  "frame_exposure_log_std": [
+   0.03232957050204277,
+   0.0951780155301094
+  ]
+ },
+ "dr": {
+  "bright": {
+   "printed": [
+    0.85,
+    1.15
+   ],
+   "servo": [
+    0.7,
+    1.5
+   ],
+   "cube": [
+    0.8,
+    1.2
+   ],
+   "plate": [
+    0.8,
+    1.2
+   ],
+   "floor": [
+    0.9,
+    1.08
+   ],
+   "mat": [
+    0.7,
+    1.5
+   ],
+   "walls": [
+    0.8,
+    1.12
+   ],
+   "board": [
+    0.7,
+    1.5
+   ],
+   "room": [
+    0.2,
+    2.5
+   ],
+   "room_floor": [
+    0.2,
+    2.5
+   ],
+   "strip": [
+    1.0,
+    1.0
+   ]
+  },
+  "tint": {
+   "printed": 0.04,
+   "servo": 0.08,
+   "cube": 0.08,
+   "plate": 0.08,
+   "floor": 0.03,
+   "mat": 0.1,
+   "walls": 0.04,
+   "board": 0.08,
+   "room": 0.45,
+   "room_floor": 0.45,
+   "strip": 0.0
+  },
+  "cam_pos": {
+   "external": 0.008,
+   "wrist": 0.003
+  },
+  "cam_rot": {
+   "external": 0.026,
+   "wrist": 0.035
+  },
+  "mat_xy": 0.01,
+  "mat_yaw": 0.052,
+  "wall_xy": 0.02,
+  "light_deg": 15.0,
+  "light_pos": 0.05,
+  "exposure": {
+   "external": [
+    0.8,
+    1.35
+   ],
+   "wrist": [
+    0.7,
+    1.7
+   ]
+  },
+  "wb": {
+   "external": 0.06,
+   "wrist": 0.06
+  },
+  "black": [
+   -0.01,
+   0.01
+  ],
+  "gamma": [
+   0.85,
+   1.25
+  ],
+  "vignette": {
+   "external": [
+    -0.8,
+    0.8
+   ],
+   "wrist": [
+    -0.2,
+    0.8
+   ]
+  },
+  "focal": 0.03,
+  "pp_px": 3.0,
+  "focal_levels": 7
+ },
+ "image_fx": {
+  "nominal_blur_px": 0.55,
+  "nominal_chroma_px": {
+   "external": 2.0,
+   "wrist": 0.0
+  },
+  "p_noise": 0.8,
+  "noise": [
+   0.002,
+   0.012
+  ],
+  "p_blur": 0.3,
+  "blur_px": [
+   0.2,
+   0.8
+  ],
+  "p_motion": 0.2,
+  "motion_px": [
+   1.0,
+   3.0
+  ],
+  "p_jpeg": 0.8,
+  "jpeg_quality": [
+   50,
+   95
+  ]
+ },
+ "render": {
+  "supersample": 1
+ },
+ "notes": [
+  {
+   "doc": "/home/harry/so101_r2s_claude/docs/scene_match.md",
+   "geometry": "training geometry: table / mat top at z = 0 (sim physics), plate 1 mm. The paired real-state check used the measured table plane (geometry.table_plane = 'calib') and the plate thickness of calib_v1 (3.9 mm).",
+   "load": "RealScene.from_path(this file); RealDR.from_scene(real); camera_fx.ImageFX.from_dict(real.image_fx) (random effects only: the renderer applies the nominal blur / chroma itself)",
+   "student_view": "the real-robot code must use this student_view (hw_lib.view_specs reads the dict it is given)"
+  },
+  "v2 (2026-10-22, main session, after ~/so101_r2s_claude/scene/REVIEW.md sec. 3): v1 + room / room_floor nominal colour darker and more yellow (x 0.8, 0.75, 0.55 per channel; review: real room darker and more yellow than 81 % of the draws), room brightness 0.2-2.5 and tint +-0.45, wider tone-map exposure (external 0.8-1.35, wrist 0.7-1.7: clipped highlights, real wrist frames have 9.4 % pixels >= 245) and gamma 0.85-1.25 (real contrast at rank 0.81 / 0.93 of the v1 draws). Geometry, lights, nominal tone map and image_fx unchanged."
+ ]
+}

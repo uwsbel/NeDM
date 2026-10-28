@@ -1,0 +1,25 @@
+# Extra Python packages of the SO101 pick-and-place release (so101_pick_place/README.md). Not part of the paper's
+# environment: requirements.txt and environment*.yml are unchanged.
+#
+# 1. Training, sim checks, bundle build (one GPU; scripts/so101_pick_place/reproduce.sh)
+#      pip install -r requirements.txt -r requirements-so101-pick-place.txt
+#    torch: requirements.txt pins torch 2.8.0 / torchvision 0.23.0, but this study never ran on that pin. Tested:
+#      torch 2.12.0+cu130, torchvision 0.27.1+cu130, Python 3.12.15 (RTX 5090; local runs, smoke runs, the sealed
+#      NRD test), torch 2.10.0+rocm7.1, torchvision 0.25.0+rocm (AMD MI350X / MI300X; every training job).
+#      Install the torch build for your GPU first (https://pytorch.org), then this file.
+#    AMD GPUs: do NOT install warp-lang from PyPI (that wheel is CUDA only). The renderer ran on AMD's ROCm port of
+#      Warp 1.13.0, built from source (scripts/render/hpcfund/build_warp_rocm.sbatch on the branch
+#      so101-pick-place-study), with newton installed with --no-deps.
+mujoco==3.15.0          # CPU MuJoCo: the NRD data collector, the scene, the evaluations and sim checks
+scipy==1.18.1           # MuJoCo worlds (rotations), the collector
+warp-lang==1.13.0       # ray-traced camera images of the student (with newton; pinned as a pair)
+newton==1.2.0
+trimesh==5.1.1          # mesh files of the renderer
+imageio==2.38.1         # videos (optional)
+imageio-ffmpeg==0.6.0
+# numpy came with torch: 2.5.4 (RTX 5090), 2.4.3 / 2.5.4 (AMD). pillow, pyarrow, huggingface_hub: requirements.txt.
+#
+# 2. Robot computer only (Jetson AGX Orin, conda env "lerobot"; README "Deploy"). Not needed for the steps above;
+#    the bundle carries the kin points, so the robot computer needs no mujoco, warp or newton:
+#      pip install lerobot==0.6.2 opencv-python pyarrow     (with the torch / torchvision of the Jetson)
+#    lerobot 0.6.2 ran on the Orin; 0.6.1 and opencv-python-headless 4.13.0 on the workstation (replay, fake robot).
