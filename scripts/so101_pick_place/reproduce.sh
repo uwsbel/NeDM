@@ -128,6 +128,7 @@ case "$MODE" in
 esac
 case "$PARENTS" in own|released) ;; *) die "--parents must be own or released" ;; esac
 [ "$WITH_ROBOT" = 1 ] && [[ ",$STEPS," != *",robot,"* ]] && STEPS="$STEPS,robot"
+[[ ",$STEPS," == *",robot,"* ]] && WITH_ROBOT=1     # the robot step needs the robot logs in the download
 for s in ${STEPS//,/ }; do [[ " $ALL_STEPS " == *" $s "* ]] || die "unknown step $s ($ALL_STEPS)"; done
 has_step() { case ",$STEPS," in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
 

@@ -184,6 +184,10 @@ def main():
     p.add_argument("--bundles", default="", help="optional folder with local bundle copies (checked against the record)")
     a = p.parse_args()
     LOGS, OUT, STRESS_JSON, BUNDLE_DIR = a.logs, a.out, a.stress, a.bundles or None
+    missing = [s for s in STRESS + SCREEN if not glob.glob(f"{LOGS}/{s}/ep_*/episode_live.json")]
+    if missing:
+        sys.exit(f"robot logs not found in {LOGS} ({len(missing)} sessions, e.g. {missing[0]}): download the robot "
+                 f"group (reproduce.sh --with-robot, or download.py --groups robot)")
     load_bundles(a.students or os.path.join(os.path.dirname(os.path.abspath(a.stress)), "results.json"))
     os.makedirs(OUT, exist_ok=True)
     stress_list = json.load(open(STRESS_JSON))
