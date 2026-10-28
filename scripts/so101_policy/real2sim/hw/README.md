@@ -1,5 +1,9 @@
 # SO101 camera student on the real robot
 
+> Study notes of 2026-10-22 to 10-24 (older students, the study's paths and tests that are not in this release),
+> kept because the robot bundle carries this file. The current guide is "Deploy on the robot" in
+> `so101_pick_place/README.md`.
+
 Status 2026-10-24: eval sessions on the robot on 2026-10-22 / 23 (logs `~/so101_r2s_claude/robot_logs`); the
 changes of 2026-10-24 (next section) ran only on the fake robot and in replay. First status (2026-10-22, before the
 robot): student for the robot: `robot_v2_s28_it03000.pt` (AMD `runs/v2_online2_s28/ckpt/it_03000.pt`; cameras

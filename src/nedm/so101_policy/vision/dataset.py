@@ -62,10 +62,11 @@ def proprio(q, dec_obs):
 
 
 class Views:
-    """The student's cameras: ``SO101Renderer`` (Madrona by default; NVIDIA, one per process) for up to num_worlds states
-    per call. ``render(q, cube_pos, cube_quat, goal_pose[n, 3]) -> uint8 [n, C, H, W, 3]`` on cuda."""
+    """The student's cameras: ``SO101Renderer`` (Newton backend; the study's Madrona default is not part of this
+    release) for up to num_worlds states per call. ``render(q, cube_pos, cube_quat, goal_pose[n, 3]) -> uint8
+    [n, C, H, W, 3]`` on cuda."""
 
-    def __init__(self, num_worlds, res=RES, cameras=CAMERAS, backend="madrona", top_eye=TOP_EYE, top_target=TOP_TARGET,
+    def __init__(self, num_worlds, res=RES, cameras=CAMERAS, backend="newton", top_eye=TOP_EYE, top_target=TOP_TARGET,
                  shadows=True, goal="plate"):
         from nedm.render.so101 import SO101Renderer
         self.r = SO101Renderer(int(num_worlds), width=int(res), height=int(res), backend=backend, cameras=tuple(cameras),

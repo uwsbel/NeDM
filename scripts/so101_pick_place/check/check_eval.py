@@ -40,13 +40,10 @@ PLANE = (-0.00468, -0.03641, 0.01836)
 PLATE = 0.0039031332928005
 STUDENTS = {"D": DATA / "student/s4_v8_roll_s801/it_02000.pt", "tb10": DATA / "student/s5_v12_tb10_s1210/it_01000.pt"}
 SCENE_DIRS = [CONF, WB] + [Path(p) for p in os.environ.get("CHECK_SCENE_DIRS", "").split(":") if p]
-BASE = {"v2": Path(os.environ.get("CHECK_BASE_V2", str(CONF / "real_scene_v2.json"))),
-        "v4": Path(os.environ.get("CHECK_BASE_V4", str(CONF / "real_scene_v4.json")))}      # v4: not released
-BASE_SHA = {"v2": "4bce0b8dd6f22b5499b556275bca0bf248d1e96b1cd3babf169b34a8cb539d82",
-            "v4": "3e862c06395c6122587683dbbfc2d3d2bfb858e6c6ac47e51812634dd4f3fbef"}
-RL_PARTS = {"v2": WB / "parts_override_v2.json", "v4": WB / "parts_override_v4.json"}           # v4: not released
-RL_SHA = {"v2": "3840ca99745839ff693dca975f9853720176ab61b3b7d751a42995e0e5366217",
-          "v4": "b1c96039a1614ccf38caf6aad84d8fd8dc1715d22ff8de21a047680e69bd2de3"}
+BASE = {"v2": Path(os.environ.get("CHECK_BASE_V2", str(CONF / "real_scene_v2.json")))}
+BASE_SHA = {"v2": "4bce0b8dd6f22b5499b556275bca0bf248d1e96b1cd3babf169b34a8cb539d82"}
+RL_PARTS = {"v2": WB / "parts_override_v2.json"}
+RL_SHA = {"v2": "3840ca99745839ff693dca975f9853720176ab61b3b7d751a42995e0e5366217"}
 REC = dict(on=False, delta=[], q=[], chunk=[], exec=[])
 
 
@@ -81,7 +78,9 @@ def find_scene(ck):
 
 def family(scene):
     names = [p.get("name", "") for p in json.loads(Path(scene).read_text())["geometry"].get("parts", [])]
-    return "v4" if any(n.startswith("base_clamp") for n in names) else "v2"
+    if any(n.startswith("base_clamp") for n in names):
+        raise SystemExit(f"{scene}: a scene of the study's v4 family (not part of this release)")
+    return "v2"
 
 
 def arm_parts(arm, fam):

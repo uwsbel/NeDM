@@ -1,6 +1,6 @@
-"""PPO for the SO101 + cube goal pick-and-place policy in any training world: the grasp NRD (``--world nrd``), the
-kinematic control world (``kin``) or MuJoCo Warp (``mjwarp``, conda env so101_mjwarp). Env: ``nedm.so101_policy.
-vec_env`` (decoder v2, task rules, observation, reward); algorithm: ``nedm.so101_policy.ppo`` (G1 PPO adapted).
+"""PPO for the SO101 + cube goal pick-and-place policy in the grasp NRD (``--world nrd``; the study's kinematic and
+MuJoCo Warp worlds are not part of this release). Env: ``nedm.so101_policy.vec_env`` (decoder v2, task rules,
+observation, reward); algorithm: ``nedm.so101_policy.ppo`` (G1 PPO adapted).
 
     PYTHONPATH=src python -P scripts/so101_policy/train_ppo.py train --world nrd --ckpt ~/so101_policy/ckpt/nrd_r1_s61.pt \
         --out RUN [--env-cfg configs/so101_policy/ppo/env_v1.json] [--train-cfg configs/so101_policy/ppo/train_v1.json] \
@@ -331,7 +331,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("train")
-    p.add_argument("--world", choices=("nrd", "kin", "mjwarp"), default="nrd")
+    p.add_argument("--world", choices=("nrd",), default="nrd")
     p.add_argument("--ckpt", nargs="*", help="NRD checkpoint(s)")
     p.add_argument("--members", nargs="*", help="GraspNrdSim members (default split)")
     p.add_argument("--starts", help="start bank: data dir or .npz (default: production_plus split 0)")

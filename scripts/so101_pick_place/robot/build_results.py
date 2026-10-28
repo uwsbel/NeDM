@@ -2,18 +2,23 @@
 
 Reads the raw session logs (session.json + ep_*/episode_live.{json,npz}) and writes results.json / results.md.
 Student identity = the bundle folder in ep_*/episode_live.json setup.kin_points (/home/sbel/<bundle>/assets/...);
-the checkpoint and sha256 of each bundle come from the local copy of that bundle (MANIFEST.txt, assets/student.pt).
+the logs hold no checkpoint hash. The checkpoint and sha256 of each bundle are the study's record of its local copy of
+that bundle (MANIFEST.txt, assets/student.pt), read from the released results.json (--students).
 Place = session.json episodes[].place (the "p" letter typed by the person at the robot); re-checked against the typed
 code and against ep_*/episode_live.json outcome.
 
     python3 build_results.py --logs <Hub robot/logs> --stress <Hub results/robot/stress_episodes.json> --out DIR \
-        [--bundles DIR]
+        [--students <Hub results/robot/results.json>] [--bundles DIR]
 
-Ported from the study's ~/so101_r2s_claude/release/robot/scripts/build_results.py: the folders are arguments. Only
-the tb10 bundle is released (bundle/so101_hw_v13_tb10/ on the Hub), so the bundle line, checkpoint and student.pt
-sha256 of each robot bundle come from the record below (= the study's results.json "students"); with --bundles DIR
-(a folder that holds <bundle>/MANIFEST.txt and <bundle>/assets/student.pt) a bundle found there is read and checked
-against the record. The output equals the released results.json / results.md except the source paths it names.
+Ported from the study's release script (the folders are arguments). Only the tb10 bundle is released
+(bundle/so101_hw_v13_tb10/ on the Hub), so the bundle line, checkpoint and student.pt sha256 of each robot bundle come
+from the "students" record of the released results.json (default: next to --stress); with --bundles DIR (a folder
+that holds <bundle>/MANIFEST.txt and <bundle>/assets/student.pt) a bundle found there is read and checked against the
+record. The results.json written equals the released one except the source paths it names; results.md has the Hub
+checkpoint paths in place of the study's local ones.
+
+The cube / plate positions, the direction labels and the end distances come from stress_episodes.json: an image +
+kinematics analysis of the study whose script was not found (it is not released). This script only reads them.
 """
 import argparse
 import glob
@@ -26,44 +31,36 @@ import sys
 import numpy as np
 
 LOGS = OUT = STRESS_JSON = BUNDLE_DIR = None        # set by main() from the arguments
+BUNDLES = {}                                        # bundle -> (label, record): main() fills it from --students
 
 STRESS = ["eval_20261027_145520", "eval_20261027_150916", "eval_20261027_151136", "eval_20261027_151953",
           "eval_20261027_153045", "eval_20261027_153943"]
 SCREEN = ["eval_20261027_133039", "eval_20261027_133521", "eval_20261027_133953", "eval_20261027_134411",
           "eval_20261027_134903", "eval_20261027_135259", "eval_20261027_135657", "eval_20261027_140036"]
 
-# bundle folder on the robot computer -> (label, record of the study's local bundle copy: MANIFEST.txt line 1, line 2
-# checkpoint, sha256 of assets/student.pt)
-BUNDLES = {
-    "so101_hw_v8_roll801": ("D", dict(
-        built="built 2026-10-24T03:58:36-05:00 from /home/harry/.t3/worktrees/NeDM-push-ppo/r2s-v8 (git ddb08332d 0 changed files under the copied paths)",
-        student_ckpt_local="/home/harry/so101_r2s_claude/ckpt/v8/v8_roll_s801/it_02000.pt",
-        student_sha256="d9a35bfc23abde45472e05b1be3ed0de90108d17c3484e31511a669be5ab7a1b")),
-    "so101_hw_v13_tb10": ("tb10", dict(
-        built="built 2026-10-27T09:32:46-05:00 from /home/harry/.t3/worktrees/NeDM-push-ppo/r2s-v12-vis (git 2b6dc4d8d 0 changed files under the copied paths)",
-        student_ckpt_local="/home/harry/so101_r2s_claude/ckpt/v12/students/v12_tb10_s1210/it_01000.pt",
-        student_sha256="6458a4f791d1052148bb8f7621413259342a7018757668fde244cfc098f99f5c")),
-    "so101_hw_v13_visR500": ("visR500", dict(
-        built="built 2026-10-27T09:32:40-05:00 from /home/harry/.t3/worktrees/NeDM-push-ppo/r2s-v12-vis (git 2b6dc4d8d 0 changed files under the copied paths)",
-        student_ckpt_local="/home/harry/so101_r2s_claude/ckpt/v12/students/v12_visR_s1231/it_00500.pt",
-        student_sha256="516eb659f6720066212a2ed54ab8e6805928fdd66f8bf2634349f1dd0144280b")),
-    "so101_hw_v13q_visR_s1304_it750": ("visR_s1304_it750", dict(
-        built="built 2026-10-27T12:11:44-05:00 from /home/harry/.t3/worktrees/NeDM-push-ppo/r2s-v12-vis (git 2b6dc4d8d 0 changed files under the copied paths)",
-        student_ckpt_local="/home/harry/so101_r2s_claude/ckpt/v13/quick/v13_visR_s1304/it_00750.pt",
-        student_sha256="7485a7088b3be705399ea28c73f3d26163892ea50e9ebe477b7af2e2f4e45efa")),
-    "so101_hw_v13q_visRtb05_s1301_it500": ("visRtb05_s1301_it500", dict(
-        built="built 2026-10-27T11:56:00-05:00 from /home/harry/.t3/worktrees/NeDM-push-ppo/r2s-v12-vis (git 2b6dc4d8d 0 changed files under the copied paths)",
-        student_ckpt_local="/home/harry/so101_r2s_claude/ckpt/v13/quick/v13_visRtb05_s1301/it_00500.pt",
-        student_sha256="3886e4b90e18d24acefda6a3d3c1595263f7a1f54ca964cfa60a94b6ac152798")),
-    "so101_hw_v13_tb05": ("tb05", dict(
-        built="built 2026-10-27T09:32:44-05:00 from /home/harry/.t3/worktrees/NeDM-push-ppo/r2s-v12-vis (git 2b6dc4d8d 0 changed files under the copied paths)",
-        student_ckpt_local="/home/harry/so101_r2s_claude/ckpt/v12/students/v12_tb05_s1205/it_01500.pt",
-        student_sha256="2dea35124ca7a701c475fbfac68ab6f0d719804ff0ba1a836017f0c9cab4fd49")),
-    "so101_hw_v13_visR0_250": ("visR0_250", dict(
-        built="built 2026-10-27T09:32:50-05:00 from /home/harry/.t3/worktrees/NeDM-push-ppo/r2s-v12-vis (git 2b6dc4d8d 0 changed files under the copied paths)",
-        student_ckpt_local="/home/harry/so101_r2s_claude/ckpt/v13vis/visR0_s1231/it_00250.pt",
-        student_sha256="85a1983beb3840211d79e87c7dbd72cfd605714042507ec392e2d9f3d69f9e16")),
-}
+# bundle folder on the robot computer -> label; the record of each bundle (MANIFEST.txt line 1, checkpoint, sha256 of
+# assets/student.pt) is the "students" block of the released results.json
+LABELS = {"so101_hw_v8_roll801": "D", "so101_hw_v13_tb10": "tb10", "so101_hw_v13_visR500": "visR500",
+          "so101_hw_v13q_visR_s1304_it750": "visR_s1304_it750",
+          "so101_hw_v13q_visRtb05_s1301_it500": "visRtb05_s1301_it500", "so101_hw_v13_tb05": "tb05",
+          "so101_hw_v13_visR0_250": "visR0_250"}
+# the released checkpoints on the Hub (the other robot students are not released)
+HUB_CKPT = {"tb10": "student/s5_v12_tb10_s1210/it_01000.pt", "D": "student/s4_v8_roll_s801/it_02000.pt"}
+# plain names of the screened students (results/sim_checks/LAB_PLAN_v13.md on the Hub)
+PLAIN = {"tb10": "lower table 10 mm, 1,000 steps (released)", "D": "previous robot student (released)",
+         "visR500": "visual fix, seed 1231, 500 steps", "visR_s1304_it750": "visual fix, seed 1304, 750 steps",
+         "visRtb05_s1301_it500": "visual fix + 5 mm lower table, 500 steps", "tb05": "lower table 5 mm, 1,500 steps",
+         "visR0_250": "real-look gripper, no randomisation, 250 steps"}
+
+
+def load_bundles(students_json):
+    """BUNDLES from the "students" block of the released results.json (label -> bundle, built, checkpoint, sha256)."""
+    rec = json.load(open(students_json))["students"]
+    for name, label in LABELS.items():
+        r = rec[label]
+        if r["bundle"] != name:
+            raise SystemExit(f"{students_json}: student {label} has bundle {r['bundle']}, expected {name}")
+        BUNDLES[name] = (label, {k: r[k] for k in ("built", "student_ckpt_local", "student_sha256")})
 
 
 def sha256(p):
@@ -182,9 +179,12 @@ def main():
     p.add_argument("--logs", required=True, help="robot/logs of the Hub folder (one folder per session)")
     p.add_argument("--stress", required=True, help="results/robot/stress_episodes.json of the Hub folder")
     p.add_argument("--out", required=True, help="folder for results.json and results.md")
+    p.add_argument("--students", default="", help="the released results/robot/results.json (its 'students' record; "
+                   "default: results.json next to --stress)")
     p.add_argument("--bundles", default="", help="optional folder with local bundle copies (checked against the record)")
     a = p.parse_args()
     LOGS, OUT, STRESS_JSON, BUNDLE_DIR = a.logs, a.out, a.stress, a.bundles or None
+    load_bundles(a.students or os.path.join(os.path.dirname(os.path.abspath(a.stress)), "results.json"))
     os.makedirs(OUT, exist_ok=True)
     stress_list = json.load(open(STRESS_JSON))
     sidx = {s["id"]: s for s in stress_list}
@@ -253,16 +253,22 @@ def main():
     # ---- markdown
     L = []
     L.append("# SO101 robot results (from the raw logs)\n")
-    L.append(f"Source: `{LOGS}/<session>/session.json` (typed outcome) and "
-             "`ep_NN/episode_live.{json,npz}`. Built by `scripts/build_results.py`. Place = the person at the robot "
-             "typed `p` (cube on the plate).\n")
+    L.append("Source: the session logs of the Hub folder `robot/logs/<session>/` (`session.json`: typed outcome; "
+             "`ep_NN/episode_live.{json,npz}`), counted by `scripts/so101_pick_place/robot/build_results.py`. "
+             "Place = the person at the robot typed `p` (cube on the plate). Cube / plate positions and directions: "
+             "`results/robot/stress_episodes.json` (an image + kinematics estimate; the script that wrote it was not "
+             "found and is not released).\n")
     L.append("## Students\n")
-    L.append("| Label | Bundle on the robot computer | Checkpoint (local copy of the bundle) | student.pt sha256 (first 16) |")
-    L.append("|---|---|---|---|")
+    L.append("| Label | Student | Bundle on the robot computer | Checkpoint on the Hub | student.pt sha256 (first 16) |")
+    L.append("|---|---|---|---|---|")
     for b in binfo.values():
-        L.append(f"| {b['label']} | {b['bundle']} | {b['student_ckpt_local'].replace('/home/harry', '~')} "
+        L.append(f"| {b['label']} | {PLAIN.get(b['label'], '')} | {b['bundle']} | "
+                 f"{('`' + HUB_CKPT[b['label']] + '`') if b['label'] in HUB_CKPT else 'not released'} "
                  f"| {b['student_sha256'][:16]} |")
     L.append("")
+    L.append("The logs do not record a checkpoint hash: the student of each session is known from the bundle folder "
+             "named in the logs (`setup.kin_points`) and the study's local copy of that bundle; the files on the robot "
+             "computer were not compared with `MANIFEST.txt`.\n")
     L.append("## Totals\n")
     L.append("| Student | Test | Places | Rate | 95 % (Wilson) |")
     L.append("|---|---|---|---|---|")

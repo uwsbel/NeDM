@@ -7,7 +7,7 @@
 #
 #   scripts/so101_policy/real2sim/hw/make_orin_bundle.sh <student.pt> [out_dir] [calib_v1.json]
 #   HOME_SIM_DEG=a,b,c,d,e,f ...   another HOME (sim deg; default hw_lib.ROBOT_HOME_SIM_DEG = 0,-5,-15,92,0,30)
-#   PYTHON=<python with torch> ... the Python that reads the checkpoint (default the so101_vision env)
+#   PYTHON=<python with torch> ... the Python that reads the checkpoint (default python3)
 set -euo pipefail
 HW="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HW/../../../.." && pwd)"
@@ -15,8 +15,7 @@ CKPT="${1:?usage: make_orin_bundle.sh <student.pt> [out_dir] [calib_v1.json]}"
 OUT="${2:-$ROOT/artifacts/so101_pick_place_repro/bundle/so101_hw}"
 CALIB="${3:-$ROOT/configs/so101_pick_place/calib_v1.json}"
 POINTS="${SO101_KIN_POINTS:-$ROOT/artifacts/so101_pick_place/rl_inputs/geometry/kin_points_v1.npz}"
-PY="${PYTHON:-$HOME/miniconda3/envs/so101_vision/bin/python}"
-[ -x "$PY" ] || PY=python3
+PY="${PYTHON:-python3}"
 
 [ -f "$CKPT" ] || { echo "student checkpoint $CKPT missing"; exit 1; }
 [ -f "$POINTS" ] || { echo "kin points $POINTS missing"; exit 1; }

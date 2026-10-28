@@ -856,7 +856,8 @@ fetches it at a pinned revision.
   in advance, and the student was chosen with robot results.
 - **The NRD test set has only scripted families** and is not fully blind (run once before on an older NRD design).
 - **Lab content.** The robot logs hold lab background images, the robot computer's user path and the USB adapter
-  serial. The videos are the student's 112 px input images; there is no full-resolution video.
+  serial. The videos show the student's input images as logged on the robot (112 px; the student sees 224 px);
+  there is no full-resolution video.
 
 ### License and citation
 

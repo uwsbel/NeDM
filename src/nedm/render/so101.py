@@ -23,10 +23,8 @@ from the calibration contract, a crop box of the real 640 x 480 image per camera
 
 The student crop (``nedm.render.student_view``) is the same code the real-robot script uses (``hw_lib``).
 
-Madrona:
-one renderer per process, NVIDIA only (luffy: ``source ~/so101_policy/runs/render/madrona_luffy/env_luffy.sh``),
-7-20x faster than Newton on recorded states (luffy 5090, 2026-10-11); its engine start aborts the whole process (C++
-FATAL, CUDA out of memory / out of resources at the first launch) when other jobs fill the GPU: retry the process.
+Backend: Newton / Warp (``backend="newton"``). The study also had a Madrona backend; it is not part of this release
+(the ``madrona`` branches below are not reachable: ``nedm.render.backends.BACKENDS``).
 
 Frames and units: world z up, table top at z = 0, arm base frame = world frame (as in the collector's scene,
 ``nedm.contact_nrd.collect.so101_grasp.build_spec``). Joint angles in rad, in ``so101.xml`` order (jaw = joint 5),
@@ -1398,8 +1396,8 @@ class RealDR:
         return bool(self.gripper_look) and self.look_dr().on
 
     def look_dr(self):
-        from nedm.render.gripper_look import GripperLookDR
-        return GripperLookDR.from_dict(self.gripper_look)
+        raise NotImplementedError("RealDR.gripper_look (nedm.render.gripper_look) "
+                                  "is not part of this release (study branch so101-pick-place-study)")
 
     def look_slots(self, real: "RealScene") -> dict | None:
         """The parts the scene ``real`` needs for ``gripper_look`` (``RealScene.look_slots``; None when off)."""
@@ -1411,8 +1409,8 @@ class RealDR:
         return bool(self.base_addon) and self.addon_dr().on
 
     def addon_dr(self):
-        from nedm.render.base_addon import BaseAddonDR
-        return BaseAddonDR.from_dict(self.base_addon)
+        raise NotImplementedError("RealDR.base_addon (nedm.render.base_addon) "
+                                  "is not part of this release (study branch so101-pick-place-study)")
 
     def addon_slots(self) -> dict | None:
         """The slot bodies the scene needs for ``base_addon`` (``RealScene.addon_slots``; None when off)."""
@@ -1439,8 +1437,8 @@ class RealDR:
         return bool(self.bg) and float(self.bg.get("p", 1.0)) > 0
 
     def bg_dr(self):
-        from nedm.render.bg_dr import BgDR
-        return BgDR.from_dict(self.bg)
+        raise NotImplementedError("RealDR.bg (nedm.render.bg_dr) "
+                                  "is not part of this release (study branch so101-pick-place-study)")
 
     def bg_cameras(self, cameras: Sequence[str]) -> tuple:
         """The cameras (in ``cameras`` order) that get the background layers (none when off)."""
@@ -1450,8 +1448,7 @@ class RealDR:
         """Background layers of n worlds without randomisation ({} when off), for nominal draws."""
         if not self.bg_on:
             return {}
-        from nedm.render.bg_dr import BgDR
-        return BgDR.nominal(n, len(self.bg_cameras(cameras)), res, device or "cpu")
+        return self.bg_dr()
 
     @classmethod
     def from_dict(cls, d: dict | None) -> "RealDR":
@@ -1681,8 +1678,8 @@ class SO101Renderer:
     """Images of ``num_worlds`` SO101 worlds per call from the ``cameras`` (names from VIEWS, default front + wrist),
     with Kyle's batch renderer.
 
-    ``backend``: ``"madrona"`` (NVIDIA, always ``cuda:0``; one renderer per process) or ``"newton"`` (Warp: NVIDIA,
-    AMD, CPU; ``device`` = a Warp device, default the GPU if there is one). All cameras share one resolution
+    ``backend``: ``"newton"`` (Warp: NVIDIA, AMD, CPU; ``device`` = a Warp device, default the GPU if there is one;
+    the study's ``"madrona"`` backend is not part of this release). All cameras share one resolution
     (``width`` x ``height``, e.g. 224 x 224 for ACT) and the wrist camera's field of view (fovy 61 deg, ``so101.xml``).
     Calls with fewer than ``num_worlds`` rows are padded (the extra worlds repeat row 0) and the outputs cut back.
 
@@ -1989,15 +1986,10 @@ class SO101Renderer:
         return out[0] if len(out) == 1 else tuple(out)
 
     def _apply_bg(self, x, gid, bg):
-        """Background layers on the linear colour x [m, C, Hs, Ws, 3] of the bg cameras (:func:`bg_dr.apply_bg`)."""
-        from nedm.render.bg_dr import apply_bg
-        codes = {g: i for i, g in enumerate(REAL_GROUPS)}
-        out = list(x.unbind(1))
-        for j, cam in enumerate(self.bg_cameras):
-            c = self.cameras.index(cam)
-            out[c] = apply_bg(x[:, c], gid[:, c], {k: v[:, j] for k, v in bg.items()}, codes, self._bg_dark_codes,
-                              self.ss, self._cos_theta[c])
-        return torch.stack(out, 1)
+        """Background layers on the bg cameras: the study's ``bg_dr`` module is not part of this release (study
+        branch so101-pick-place-study)."""
+        raise NotImplementedError("background layers (nedm.render.bg_dr) "
+                                  "are not part of this release (study branch so101-pick-place-study)")
 
     def render_dr(self, q, cube_pos, cube_quat, goal_pose=None, draw: dict | None = None, **kw):
         """:meth:`render` with per-world randomisation ``draw`` (:meth:`RealDR.draw`: colors [B, bodies, 3],

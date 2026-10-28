@@ -31,7 +31,6 @@ from __future__ import annotations
 import hashlib
 import json
 import time
-from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -92,18 +91,12 @@ def make_env(world, B, device="cuda", ckpt=None, workers=0, mj_python=None, deco
 
 
 class ExpertAct:
-    """The FSM expert as an act_fn of ``vec_env.run_episodes`` (as ``eval_policy.ExpertAct``)."""
+    """The study's FSM expert as an act_fn of ``vec_env.run_episodes``: its module (``expert.py``) is not part of
+    this release (study branch so101-pick-place-study)."""
 
     def __init__(self, cfg=None):
-        self.cfg, self.ex = dict(cfg or {}), None
-
-    def reset(self, env):
-        from nedm.so101_policy.expert import ExpertConfig, PickPlaceExpert
-        self.ex = PickPlaceExpert(env.dec, replace(ExpertConfig(), **self.cfg))
-        self.ex.reset(torch.arange(env.B, device=env.dev), env.ws, env.task.goal_xy.clone(), env.task.goal_yaw.clone())
-
-    def __call__(self, obs, env):
-        return self.ex.act(env.ws), True
+        raise NotImplementedError("the FSM expert (nedm.so101_policy.expert) "
+                                  "is not part of this release (study branch so101-pick-place-study)")
 
 
 class DecisionRecorder:

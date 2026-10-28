@@ -6,7 +6,7 @@
     frames.depth_torch()        # (1024, 1, 128, 128), on the device, no copy
 
 The scene, poses and cameras need only torch and trimesh. The drawing is done by a backend,
-``BatchRenderer(..., backend="newton")`` or ``"madrona"``, imported when a renderer is built.
+``BatchRenderer(..., backend="newton")`` (Newton / Warp), imported when a renderer is built.
 """
 
 from nedm.render import cameras

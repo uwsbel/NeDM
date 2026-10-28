@@ -17,7 +17,7 @@ floor (``floor_guard``: the decoder's floor rule in joint space, lowest gripper 
 measured pose is already lower). Stateless: it needs only the measured q and the robot's kinematics, so the label stays
 a function of the state.
 
-``JointVecEnv``: B worlds (``vec_env.make_world``: nrd, kin, mjwarp, mujoco) + ``task.PickPlaceTask`` with build8's
+``JointVecEnv``: B worlds (``vec_env.make_world``: nrd, mujoco) + ``task.PickPlaceTask`` with build8's
 macro-free rules (``tray.LOG_ONLY`` log only) + the lenient success tracker (``attach_lenient``). PPO interface of
 ``ppo.PPO`` (num_envs, num_obs, num_actions, steps_per_decision, reset, step -> obs, reward, done, extras with
 action_mask / time_outs / final_obs / episode, gen, ep_count, resolved). ``step(a, targets=...)`` takes absolute

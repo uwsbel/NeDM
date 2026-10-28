@@ -65,7 +65,8 @@ run)
   O=$ROOT/runs/gates/local/$NAME; mkdir -p "$O" "$ROOT/logs"
   T0=$(date +%s)
   echo "[$(date +%T)] run_gates $NAME $CKPT $REF" | tee -a "$O/gates.log"
-  list "$REF" | while read -r dyn run args; do
+  FAIL=0
+  while read -r dyn run args; do
     if [ -n "${ONLY:-}" ] && [[ ",$ONLY," != *",$run,"* ]]; then continue; fi
     [ -f "$O/$run.npz" ] && { echo "skip $run (exists)" >> "$O/gates.log"; continue; }
     if [ -n "${TASK_ROWS:-}" ]; then        # smoke: the first TASK_ROWS rows of the task file
@@ -83,8 +84,10 @@ run)
     rc=$?
     rm -f "$O/_rows_${run}.npz"
     echo "[$(date +%T)] $run rc $rc wall $(( $(date +%s) - t )) s" | tee -a "$O/gates.log"
-  done
-  echo "[$(date +%T)] run_gates $NAME done, wall $(( $(date +%s) - T0 )) s" | tee -a "$O/gates.log";;
+    [ "$rc" = 0 ] || FAIL=$((FAIL + 1))
+  done < <(list "$REF")
+  echo "[$(date +%T)] run_gates $NAME done, wall $(( $(date +%s) - T0 )) s, $FAIL failed" | tee -a "$O/gates.log"
+  [ "$FAIL" = 0 ] || { echo "run_gates: $FAIL evaluations failed (logs: $ROOT/logs/gates_${NAME}_*.log)" >&2; exit 1; };;
 summary)
   NAME=${2:?name}; ROOT=${3:?root}; REFN=${4:-D}
   mkdir -p "$ROOT/out/gates/local"

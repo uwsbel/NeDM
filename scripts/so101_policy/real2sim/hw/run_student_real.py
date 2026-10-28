@@ -1183,7 +1183,7 @@ def main(argv=None):
                     "measure above that plane (--floor-mode)")
     ap.add_argument("--guard", default="", help="GuardConfig overrides as JSON")
     ap.add_argument("--thumb-res", type=int, default=112, help="logged student input images (px; 0 = full)")
-    ap.add_argument("--out", default="", help="output folder (default ~/so101_r2s_claude/hw/<mode>_<time>)")
+    ap.add_argument("--out", default="", help="output folder (default ~/so101_hw_runs/<mode>_<time>, as robot_test.sh)")
     ap.add_argument("--lerobot-calib", default="", help="LeRobot calibration json for the joint limits (replay/fake)")
     # replay
     ap.add_argument("--data-root", default=str(DEFAULT_DATA_ROOT))
@@ -1212,7 +1212,7 @@ def main(argv=None):
             raise SystemExit("deploy-json needs --out <bundle>/assets/deploy.json")
         return run_deploy_json(args)
     if not args.out:
-        args.out = str(Path("~/so101_r2s_claude/hw").expanduser() / f"{args.mode}_{time.strftime('%Y%m%d_%H%M%S')}")
+        args.out = str(Path("~/so101_hw_runs").expanduser() / f"{args.mode}_{time.strftime('%Y%m%d_%H%M%S')}")
     if args.mode == "replay":
         return run_replay(args)
     return run_robot(args, live=args.mode == "live")

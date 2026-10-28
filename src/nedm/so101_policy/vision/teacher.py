@@ -49,10 +49,6 @@ DEMO_START0 = 510_000
 ROBOT_KEYS = ("q", "qd", "tcp", "grip_x", "grip_z", "goal_xy", "goal_yaw4", "macro", "decoder")
 SRC = {"teacher": 0, "noisy": 1, "student": 2}
 REC_KEYS = ("obs", "q", "cube_pos", "cube_quat", "label", "executed", "src", "mode")
-TEACHERS = {     # build4_ppo2.md (CPU MuJoCo, 256 gate2 tasks, deterministic)
-    "mj_w5dc": "~/so101_policy/runs/ppo2/mjwarp/w5_dc/ckpt/model_00121.pt",     # MuJoCo Warp, 96.5 %
-    "kin_kC": "~/so101_policy/runs/ppo2/amd_ckpt/kC_00060.pt",                  # kinematic world, 93.0 %
-}
 
 
 def check_seeds(seeds):

@@ -1,18 +1,20 @@
 # SO101 robot results (from the raw logs)
 
-Source: `~/so101_r2s_claude/robot_logs/<session>/session.json` (typed outcome) and `ep_NN/episode_live.{json,npz}`. Built by `scripts/build_results.py`. Place = the person at the robot typed `p` (cube on the plate).
+Source: the session logs of the Hub folder `robot/logs/<session>/` (`session.json`: typed outcome; `ep_NN/episode_live.{json,npz}`), counted by `scripts/so101_pick_place/robot/build_results.py`. Place = the person at the robot typed `p` (cube on the plate). Cube / plate positions and directions: `results/robot/stress_episodes.json` (an image + kinematics estimate; the script that wrote it was not found and is not released).
 
 ## Students
 
-| Label | Bundle on the robot computer | Checkpoint (local copy of the bundle) | student.pt sha256 (first 16) |
-|---|---|---|---|
-| tb10 | so101_hw_v13_tb10 | ~/so101_r2s_claude/ckpt/v12/students/v12_tb10_s1210/it_01000.pt | 6458a4f791d10521 |
-| D | so101_hw_v8_roll801 | ~/so101_r2s_claude/ckpt/v8/v8_roll_s801/it_02000.pt | d9a35bfc23abde45 |
-| visR500 | so101_hw_v13_visR500 | ~/so101_r2s_claude/ckpt/v12/students/v12_visR_s1231/it_00500.pt | 516eb659f6720066 |
-| visR_s1304_it750 | so101_hw_v13q_visR_s1304_it750 | ~/so101_r2s_claude/ckpt/v13/quick/v13_visR_s1304/it_00750.pt | 7485a7088b3be705 |
-| visRtb05_s1301_it500 | so101_hw_v13q_visRtb05_s1301_it500 | ~/so101_r2s_claude/ckpt/v13/quick/v13_visRtb05_s1301/it_00500.pt | 3886e4b90e18d24a |
-| tb05 | so101_hw_v13_tb05 | ~/so101_r2s_claude/ckpt/v12/students/v12_tb05_s1205/it_01500.pt | 2dea35124ca7a701 |
-| visR0_250 | so101_hw_v13_visR0_250 | ~/so101_r2s_claude/ckpt/v13vis/visR0_s1231/it_00250.pt | 85a1983beb384021 |
+| Label | Student | Bundle on the robot computer | Checkpoint on the Hub | student.pt sha256 (first 16) |
+|---|---|---|---|---|
+| tb10 | lower table 10 mm, 1,000 steps (released) | so101_hw_v13_tb10 | `student/s5_v12_tb10_s1210/it_01000.pt` | 6458a4f791d10521 |
+| D | previous robot student (released) | so101_hw_v8_roll801 | `student/s4_v8_roll_s801/it_02000.pt` | d9a35bfc23abde45 |
+| visR500 | visual fix, seed 1231, 500 steps | so101_hw_v13_visR500 | not released | 516eb659f6720066 |
+| visR_s1304_it750 | visual fix, seed 1304, 750 steps | so101_hw_v13q_visR_s1304_it750 | not released | 7485a7088b3be705 |
+| visRtb05_s1301_it500 | visual fix + 5 mm lower table, 500 steps | so101_hw_v13q_visRtb05_s1301_it500 | not released | 3886e4b90e18d24a |
+| tb05 | lower table 5 mm, 1,500 steps | so101_hw_v13_tb05 | not released | 2dea35124ca7a701 |
+| visR0_250 | real-look gripper, no randomisation, 250 steps | so101_hw_v13_visR0_250 | not released | 85a1983beb384021 |
+
+The logs do not record a checkpoint hash: the student of each session is known from the bundle folder named in the logs (`setup.kin_points`) and the study's local copy of that bundle; the files on the robot computer were not compared with `MANIFEST.txt`.
 
 ## Totals
 

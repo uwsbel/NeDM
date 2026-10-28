@@ -6,8 +6,8 @@
  "note": "Pinned copy of so101_pick_place/release_manifest.json on the Hub (that file also holds the provenance: code commits, run records, sources). hf_revision = the Hub commit that adds this manifest; the data files come in the commit before it. Released student: student/s5_v12_tb10_s1210/it_01000.pt (sha256 6458a4f7...). NRD of every policy stage: nrd/c1_s62/best.pt (main-compatible copy; original/best.pt = the file the study used). scripts/so101_pick_place/download.py checks the size and sha256 of every file.",
  "files": {
   "so101_pick_place/README.md": {
-   "bytes": 14021,
-   "sha256": "9526f018840e1f5531ff35905d86f20f3e93efc220e666000b18e7ac81b46b67"
+   "bytes": 15533,
+   "sha256": "b65763a8a38ff0bf0d9d85c3f881a867945ecbb30579cfc6c9433e6c0b394cc8"
   },
   "so101_pick_place/bundle/so101_hw_v13_tb10.tar.gz": {
    "bytes": 23280447,

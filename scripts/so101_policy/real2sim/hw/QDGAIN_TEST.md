@@ -1,5 +1,8 @@
 # Robot test: joint-speed input gain (`--qd-gain`)
 
+> Historical test plan of 2026-10-22 for an option that the released student does not use (kept because the
+> robot bundle carries this file).
+
 Written 2026-10-22 evening for an agent that guides the user at the SO101 robot (proxy, Jetson AGX Orin). The user runs
 every command at the robot. The agent explains, reads the outputs and the logs, and keeps the rules below.
 

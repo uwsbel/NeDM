@@ -7,8 +7,6 @@ Worlds (``WORLDS``; all take 6 joint targets per 20 ms and return a ``world.Worl
 | kind | class | device | training starts (``EnvConfig.starts``) |
 |---|---|---|---|
 | nrd | ``nrd_sim.GraspNrdSim`` (checkpoints ``ckpts``, ``members``) | CUDA (CPU works) | bank, exact resting history |
-| kin | ``kin_world.KinWorld`` (kinematic control: no learned dynamics) | CUDA / CPU | bank |
-| mjwarp | ``mjwarp_env.MjwarpWorlds`` (MuJoCo Warp, conda env ``so101_mjwarp``) | CUDA | bank, exact reset (``warmup=False``) |
 | mujoco | ``mujoco_env.MujocoWorlds`` (CPU MuJoCo, the ground truth; ``mj_workers`` processes) | CPU | evaluation only (tasks with the collector warm-up) |
 
 One ``step(actions)`` = one decision:
@@ -106,7 +104,7 @@ from nedm.so101_policy.kin import SO101Kin
 from nedm.so101_policy.paths import DATA
 from nedm.so101_policy.world import WorldState
 
-WORLDS = ("nrd", "kin", "mjwarp", "mujoco")
+WORLDS = ("nrd", "mujoco")     # the study's kin and mjwarp worlds are not part of this release (so101-pick-place-study)
 ACTION_DIM = 6
 ACTION_GROUPS = (("move", 4), ("trigger", 1), ("lift", 1))          # + ("abort", 1) with decoder abort_action
 GEOM_NPZ = DATA / "rl_inputs" / "geometry" / "task_geom_v2.npz"     # with the self-contact arrays (no MuJoCo)
@@ -266,12 +264,8 @@ def make_world(cfg: EnvConfig, B: int, device, kin=None, geom=None, share=None):
             members = cfg.members
         return GraspNrdSim(ck, num_envs=B, device=device, members=members,
                            cuda_graph=bool(cfg.nrd_cuda_graph) and torch.device(device).type == "cuda")
-    if kind == "kin":
-        from nedm.so101_policy.kin_world import KinWorld
-        return KinWorld(B, device, kin=kin, geom=geom)
-    if kind == "mjwarp":
-        from nedm.so101_policy.mjwarp_env import MjwarpWorlds
-        return MjwarpWorlds(B, device=str(device), **cfg.mjwarp)
+    if kind in ("kin", "mjwarp"):
+        raise ValueError(f"world {kind!r} is not part of this release (study branch so101-pick-place-study)")
     if kind == "mujoco":
         from nedm.so101_policy.mujoco_env import MujocoWorlds
         return MujocoWorlds(B, workers=cfg.mj_workers, python=cfg.mj_python)

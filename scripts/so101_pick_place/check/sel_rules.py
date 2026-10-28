@@ -1,5 +1,5 @@
-"""Addendum B of SELECTION_v12.md as pure functions (no file I/O), shared by gates_summary.py and rank_selection.py
-and tested by test_sel_rules.py (python -m unittest).
+"""Addendum B of SELECTION_v12.md (results/sim_checks/ on the Hub) as pure functions (no file I/O), used by
+gates_summary.py.
 
 - names: v12_<arm>_s<seed> (a run) and v12_<arm>_s<seed>_it<1000|1500> (a checkpoint); "visR" is a prefix of
   "visRtbpl", so the arm is matched as a whole token between "v12_" and "_s<digits>".

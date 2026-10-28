@@ -7,14 +7,11 @@ A backend is constructed with the scene and the image settings, and has one meth
 
 from __future__ import annotations
 
-BACKENDS = ("newton", "madrona")
+BACKENDS = ("newton",)    # the study's Madrona backend is not part of this release (so101-pick-place-study)
 
 
 def make(name: str):
     if name == "newton":
         from nedm.render.backends.newton import NewtonBackend
         return NewtonBackend
-    if name == "madrona":
-        from nedm.render.backends.madrona import MadronaBackend
-        return MadronaBackend
     raise ValueError(f"unknown renderer backend {name!r}, choose from {BACKENDS}")
