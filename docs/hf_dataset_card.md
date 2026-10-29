@@ -59,14 +59,16 @@ configs:
     data_files: raw/tracked/episodes.parquet
 ---
 
-# NeDM datasets: the paper, the traversing study, the contact NRD and the G1 footstep policy
+# NeDM datasets: the paper, the traversing study, the contact NRD, the G1 footstep policy and the SO101 pick and place
 
 This repository holds separate releases. **Part A** is the set of datasets behind the NeDM paper, unchanged since its
 release (Hub tag `paper-v1`). **Part B**, everything under `traversing/`, holds the drives, training files, models and
 evaluation records of the traversing study, follow-on work that is not part of the paper. **Part C**, everything under
 `contact_nrd/`, holds the training data, test sets and models of the contact NRD, also follow-on work. **Part D**,
 everything under `g1_footstep_rl/`, holds the policies, RL inputs and MuJoCo results of a G1 footstep policy trained in
-the contact NRD, also follow-on work.
+the contact NRD, also follow-on work. **Part E**, everything under `so101_pick_place/`, holds the NRD, data,
+checkpoints and real-robot records of an SO101 pick-and-place camera policy trained only in a contact NRD, also
+follow-on work.
 
 Contents:
 
@@ -75,6 +77,7 @@ Contents:
 - [Part B: traversing study](#part-b-traversing-study): `traversing/`
 - [Part C: contact NRD](#part-c-contact-nrd): `contact_nrd/`
 - [Part D: G1 footstep policy](#part-d-g1-footstep-policy): `g1_footstep_rl/`
+- [Part E: SO101 pick and place](#part-e-so101-pick-and-place): `so101_pick_place/`
 
 ## Part A: datasets of the paper
 
@@ -793,3 +796,40 @@ pinned upstream commit (OpenHomie, commit `33071f79`), which has its own license
 BSD-3-Clause, the same as Part A and the code. HOMIE is not hosted here; it is fetched from its pinned upstream commit,
 under its own license. The G1 footstep policy has no publication yet: please cite the NeDM paper (Part A) and name the
 dataset revision you used (`cba82611210e401dc0155cb78fcf456a385ecef4`).
+
+## Part E: SO101 pick and place
+
+Follow-on work to the paper. CPU MuJoCo arm-and-cube dynamics were distilled into a contact NRD, then a state
+teacher and a camera student were trained inside it. The student placed a cube on a plate on a real SO101 arm
+in **36/50 stress-test episodes (72 %; Wilson 95 % interval 58–83 %)**. No real image was a training sample;
+real recordings informed calibration, later training rounds and student selection.
+
+The NeDM [study summary](https://github.com/uwsbel/NeDM/tree/main/so101_pick_place) contains results and limitations.
+The implementation, configs and full training guide are hosted here under
+[`so101_pick_place/code/`](https://huggingface.co/datasets/harryzhang1018/NeDM/tree/main/so101_pick_place/code).
+
+| Path under `so101_pick_place/` | Contents |
+|---|---|
+| `code/` | Browsable source, configs, requirements, full study README, source manifest and `source.tar.gz` overlay; start with `code/REPRODUCE.md` |
+| `nrd/`, `nrd_data/`, `nrd_test/` | Base and policy NRDs, 93,494 training episodes and the 3,050-episode scripted test |
+| `teacher/`, `student/`, `rl_inputs/` | Training-chain checkpoints, run records, expert data, task sets and geometry |
+| `results/` | NRD evaluations, simulation checks, selection rules and robot result records |
+| `robot/` | 19 session logs, 52 videos and two LeRobot calibration/replay recordings |
+| `bundle/`, `scene_calib/`, `provenance/` | Tested robot bundle, scene and servo calibration, available historical code snapshots |
+| `release_manifest.json` | Original 503-file data manifest: sizes, SHA-256 values and stage provenance |
+
+The original data release is about 13.3 GB, unchanged. The NeDM study's compact `release_manifest.json` pins the
+source revision and original data revision separately. Download the source archive using the checksum-verified
+command in the study summary, apply it over its pinned base Git checkout, then follow the full archived README.
+The restored `scripts/so101_pick_place/reproduce.sh` downloads the data and checks every selected file's size
+and SHA-256. Its `full --steps download,robot` command rebuilds result tables from archived logs.
+
+Limits: one robot and lab; operator-labelled placements; student selection used robot screening; the stress
+protocol was not fixed in advance. tb10 failed its original frozen sim rule and there is no sealed student test.
+The NRD's 0.22/4.13 mm median/p95 1 s cube error scores 2,000 selected-family episodes; p95 over all 3,050 is
+4.61 mm. That scripted NRD test was previously used on an older design. Videos are the logged 112 px student
+inputs. Some historical stages permit recipe-only reruns. Robot logs contain the previously released lab
+images, paths and USB identifiers.
+
+BSD-3-Clause, as for Part A and the code. The MuJoCo Menagerie model remains fetched from its pinned upstream
+revision. This study has no publication yet; cite the NeDM paper and the data and source revisions used.

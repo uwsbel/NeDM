@@ -61,6 +61,13 @@ type, a hand-written footstep controller 0–28 %. The policies, RL inputs, MuJo
 in the `g1_footstep_rl/` folder of the Hugging Face dataset; the code is in `src/nedm/g1_footstep_rl/`,
 `scripts/g1_footstep_rl/` and `configs/g1_footstep_rl/`.
 
+**Follow-on work, not part of the paper:** [`so101_pick_place/`](so101_pick_place/README.md)
+reports a camera policy trained inside a contact NRD and tested on a real SO101 arm. After robot screening,
+the released student placed a cube on a plate in 36/50 stress-test episodes (72 %; Wilson 95 % interval
+58–83 %). No real image was used as a training sample; real recordings informed calibration and later
+training rounds. This repository holds the results and limitations. The source, configs, reproduction
+instructions, data, checkpoints and robot evidence are in the pinned Hugging Face `so101_pick_place/` release.
+
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
 Start there.

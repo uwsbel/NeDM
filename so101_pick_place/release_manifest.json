@@ -1,0 +1,39 @@
+{
+  "schema": "nedm-so101-pick-place-results/2",
+  "repo_id": "harryzhang1018/NeDM",
+  "repo_type": "dataset",
+  "prefix": "so101_pick_place/",
+  "hf_revision": "dcb873bc5da3da8ad5abdec6137c77ef46038f43",
+  "data_manifest": {
+    "path": "so101_pick_place/release_manifest.json",
+    "bytes": 257036,
+    "sha256": "46d21683fa777bed95ccedfa18c0f45c825bf844f07dd336588951d0076c7add",
+    "files": 503,
+    "note": "Full file list and provenance stay on Hugging Face; the original downloader uses this pinned release."
+  },
+  "code": {
+    "hf_revision": "6039542eea5eb96bd925f64dcdaf94d647d5d67c",
+    "source_commit": "9363774e428a844540c525d3a6458beeb3e39e4d",
+    "base_commit": "dacc64968c006340393f60e7f1e15a2b65fc4aa7",
+    "guide": "so101_pick_place/code/REPRODUCE.md",
+    "manifest": {
+      "path": "so101_pick_place/code/source_manifest.json",
+      "bytes": 18542,
+      "sha256": "146817c26d093609be22898b7290b806ba30c4865a587d3aaadea766d79e0a93"
+    },
+    "archive": {
+      "path": "so101_pick_place/code/source.tar.gz",
+      "bytes": 619041,
+      "sha256": "2531bc3caf20ae213336f3fac184e5c16a09384e0e1c0246288ea8afefd8746f"
+    },
+    "note": "Unchanged original PR files as a source overlay. Apply to base_commit in a Git clone; historical NRD steps fetch so101-pick-place-study."
+  },
+  "released_student": {
+    "path": "so101_pick_place/student/s5_v12_tb10_s1210/it_01000.pt",
+    "sha256": "6458a4f791d1052148bb8f7621413259342a7018757668fde244cfc098f99f5c"
+  },
+  "policy_nrd": {
+    "path": "so101_pick_place/nrd/c1_s62/best.pt",
+    "sha256": "2d1a24926d463c5432a8dcb6897c05fe1082f04095c773ec914dd53986d66abc"
+  }
+}
