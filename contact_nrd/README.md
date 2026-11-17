@@ -140,5 +140,6 @@ source campaign and its seed.
 | `src/nedm/contact_nrd/train.py` | Training (all stages, resume) |
 | `src/nedm/contact_nrd/test.py` | Scores of one or more checkpoints on a test folder |
 | `src/nedm/contact_nrd/download.py` | Download from Hugging Face and SHA-256 check |
+| `src/nedm/contact_nrd/arch_ablation/`, `scripts/contact_nrd/arch_ablation/` | Architecture ablation of this design, one network or three, transformer or MLP: [`arch_ablation/`](arch_ablation/README.md) |
 | `configs/contact_nrd/evaluation/` | The G1 `evaluation` block and its README (every metric, term and scale) |
 | `tests/contact_nrd/test_regression.py` | The first three cases train and test as with the release code `41be3ef` (needs a GPU and the released data; one logged diagnostic, `push_kept_fraction`, now counts the training pushes only) |

@@ -108,7 +108,7 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `src/nedm/hmmwv/` | Study Case I: HMMWV scene builders and data collectors (`hmmwv_data`, `hmmwv_crm`); the vectorized NN-ROM tracking environment, its Chrono-backed twins and the reference sets (`rl/`) |
 | `src/nedm/tracked_arm/` | Study Case II: M113 and arm data collectors (`tracked_vehicle_data`, `arm_data`); the 4-DOF gripper arm imported from SolidWorks (`arm_model/`); the goal and arm environments, arm forward kinematics and the clearance shield (`rl/`) |
 | `src/nedm/traversing/` | Traversing study code: model training (`training/`) and the Chrono evaluation class (`evaluation/`) |
-| `src/nedm/contact_nrd/` | Contact NRD: the three networks, training, test scores and the data download |
+| `src/nedm/contact_nrd/` | Contact NRD: the three networks, training, test scores and the data download; its architecture ablation (`arch_ablation/`) |
 | `src/nedm/so101_push_rl/` | SO101 push-T PPO inside the contact NRD: the NRD environment, action decoder, arm kinematics, reward and rules |
 | `src/nedm/g1_footstep_rl/` | G1 footstep PPO inside the contact NRD: courses and scorer, the NRD environment, the HOMIE copy, leg kinematics, the MuJoCo scene and runner, the hand-written footstep baseline (H-FS) |
 | `configs/hmmwv/`, `configs/tracked_arm/` | Collection and training configs |
@@ -116,7 +116,7 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `configs/so101_push_rl/` | Environment config, the two PPO curricula and the arm and T settings |
 | `configs/g1_footstep_rl/` | Environment config, PPO curriculum, MuJoCo scene and HOMIE sources of the G1 footstep study |
 | `traversing/` | Traversing study documents, results and release manifest |
-| `contact_nrd/` | Contact NRD design, results, the four study cases, the G1 data format and release manifest |
+| `contact_nrd/` | Contact NRD design, results, the four study cases, the G1 data format and release manifest; its architecture ablation ([`arch_ablation/`](contact_nrd/arch_ablation/README.md)) |
 | `so101_push_rl/` | SO101 push-T PPO study: results, the NRD it used and release manifest |
 | `g1_footstep_rl/` | G1 footstep PPO study: results, training, the NRD and HOMIE, release manifest |
 | `go2_sand_finetune/` | Go2 sand fine-tune study: results, limits, real-robot status and the pinned release manifest (code, data and checkpoints are on Hugging Face) |
