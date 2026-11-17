@@ -68,6 +68,15 @@ the released student placed a cube on a plate in 36/50 stress-test episodes (72 
 training rounds. This repository holds the results and limitations. The source, configs, reproduction
 instructions, data, checkpoints and robot evidence are in the pinned Hugging Face `so101_pick_place/` release.
 
+**Follow-on work, not part of the paper:** [`go2_sand_finetune/`](go2_sand_finetune/README.md)
+fine-tunes a Unitree Go2 velocity policy with PPO only inside a learned NRD of the robot on sand and on rigid ground.
+The NRD learned from Chrono CRM sand episodes and MuJoCo rigid-ground episodes of the unchanged base policy. In a
+held-out Chrono sand test, the released policy (V2n s81) decreased the lateral stuck time to 0.214 of the base policy
+value. It did not pass the pre-registered gates for falls, wrong-way motion on soft sand and power, and it is released
+as experimental. The study author reported that it performed well on a real Go2, with a small jitter at some stops
+after lateral motion. There is no robot log. The data, the NRD, the policy, the code and the evaluation records are in
+the pinned Hugging Face `go2_sand_finetune/` release.
+
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
 Start there.
@@ -110,6 +119,7 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `contact_nrd/` | Contact NRD design, results, the four study cases, the G1 data format and release manifest |
 | `so101_push_rl/` | SO101 push-T PPO study: results, the NRD it used and release manifest |
 | `g1_footstep_rl/` | G1 footstep PPO study: results, training, the NRD and HOMIE, release manifest |
+| `go2_sand_finetune/` | Go2 sand fine-tune study: results, limits, real-robot status and the pinned release manifest (code, data and checkpoints are on Hugging Face) |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
 
 `scripts/` is organised by study (`core/`, `hmmwv/`, `tracked_arm/`, `traversing/`, `so101_push_rl/`,
