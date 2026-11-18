@@ -1,0 +1,50 @@
+{
+  "schema": "nedm-go2-sand-finetune-release/1",
+  "repo_id": "harryzhang1018/NeDM",
+  "repo_type": "dataset",
+  "prefix": "go2_sand_finetune/",
+  "hf_revision": "ee97b73e395e690659a50b45db8a32bda97a9575",
+  "hub_manifest": {
+    "path": "go2_sand_finetune/release_manifest.json",
+    "hf_revision": "aacf0f7c49217f1538bf3e16608784047e783ace",
+    "bytes": 158001,
+    "sha256": "b802fa70dce78845e7d9224dba434830df98d5a5e652fbac0f883f58b0f1f1eb",
+    "files": 832,
+    "note": "The Hub manifest at this path and revision lists every file of go2_sand_finetune/ under 'files' as {repo_path: {bytes, sha256}}, with the lineage and provenance. 'files' here is that count. The listed files are at hf_revision."
+  },
+  "released_policy": {
+    "name": "V2n s81",
+    "onnx": {
+      "path": "go2_sand_finetune/policy/v2n_s81/deploy/legged_rl_deploy_package/policy.onnx",
+      "sha256": "1419d9722698c23a04b8805dd15f6eb25710e1f11860ffbad0cb1a63159674e9"
+    },
+    "checkpoint": {
+      "path": "go2_sand_finetune/policy/v2n_s81/run/model_299.pt",
+      "sha256": "cdb54fb5a963a46fd5b1c4369404af6c5574c7abd9f29e5f471331004215ce01"
+    },
+    "label": "NOT_CONFIRMED (held-out Chrono suite; gates G2, G3, S1)",
+    "hardware": "user report only, 2026-11-10 to 2026-11-11; no robot log"
+  },
+  "nrd": {
+    "loader": {
+      "path": "go2_sand_finetune/nrd/fresh_b/export/nrd_v3_FRESH-b_loader.pt",
+      "sha256": "501c9b8da022caf9594ad9cd7c50a7eda1e00424e5d4c9c7c8add65ee788848c"
+    }
+  },
+  "base_policy": {
+    "checkpoint": {
+      "path": "go2_sand_finetune/teacher/model_10000.pt",
+      "sha256": "7ee303f98c48044d792c884edeeedacb58142aece8af56de6f0ba58fb6c9723c"
+    },
+    "onnx": {
+      "path": "go2_sand_finetune/teacher/deploy/policy.onnx",
+      "sha256": "c58a3494b22604b5aa67640ec6ebabe0c6c277d85b072dc9e76c3191e2dfdd45"
+    }
+  },
+  "deploy_package": {
+    "repo": "https://github.com/harryzhang1018/legged_rl_deploy",
+    "pull_request": 3,
+    "merge_commit": "8b4146716e2bf989c0f76b072679b10222c23cee",
+    "path": "policies/go2/nrd_finetune_lateral_v2n_seed81/velocity/"
+  }
+}

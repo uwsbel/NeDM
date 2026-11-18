@@ -59,7 +59,7 @@ configs:
     data_files: raw/tracked/episodes.parquet
 ---
 
-# NeDM datasets: the paper, the traversing study, the contact NRD, the G1 footstep policy and the SO101 pick and place
+# NeDM datasets: the paper, the traversing study, the contact NRD, the G1 footstep policy, the SO101 pick and place and the Go2 sand finetune
 
 This repository holds separate releases. **Part A** is the set of datasets behind the NeDM paper, unchanged since its
 release (Hub tag `paper-v1`). **Part B**, everything under `traversing/`, holds the drives, training files, models and
@@ -68,7 +68,9 @@ evaluation records of the traversing study, follow-on work that is not part of t
 everything under `g1_footstep_rl/`, holds the policies, RL inputs and MuJoCo results of a G1 footstep policy trained in
 the contact NRD, also follow-on work. **Part E**, everything under `so101_pick_place/`, holds the NRD, data,
 checkpoints and real-robot records of an SO101 pick-and-place camera policy trained only in a contact NRD, also
-follow-on work.
+follow-on work. **Part F**, everything under `go2_sand_finetune/`, holds the sand and rigid-ground data, the NRD, the
+base policy, the fine-tuned policy V2n s81, the code archives and the simulation evaluations of a Go2 velocity policy
+fine-tuned with PPO only inside a learned sand NRD, also follow-on work.
 
 Contents:
 
@@ -78,6 +80,7 @@ Contents:
 - [Part C: contact NRD](#part-c-contact-nrd): `contact_nrd/`
 - [Part D: G1 footstep policy](#part-d-g1-footstep-policy): `g1_footstep_rl/`
 - [Part E: SO101 pick and place](#part-e-so101-pick-and-place): `so101_pick_place/`
+- [Part F: Go2 sand finetune](#part-f-go2-sand-finetune): `go2_sand_finetune/`
 
 ## Part A: datasets of the paper
 
@@ -833,3 +836,81 @@ images, paths and USB identifiers.
 
 BSD-3-Clause, as for Part A and the code. The MuJoCo Menagerie model remains fetched from its pinned upstream
 revision. This study has no publication yet; cite the NeDM paper and the data and source revisions used.
+
+## Part F: Go2 sand finetune
+
+### What it is
+
+Follow-on work to the paper, not part of it. A Unitree Go2 velocity policy (from `unitree_rl_mjlab`) stalled when it
+walked sideways on sand. PPO fine-tuned it only inside a neural reduced dynamics model (NRD) of the Go2 on CRM sand
+and on rigid ground. The NRD has the core, collision and contact networks of Part C. It learned from Project Chrono
+CRM episodes and MuJoCo rigid-ground episodes of the unchanged base policy. The released policy is V2n s81
+(ONNX SHA-256 `1419d972…`). In a held-out Chrono sand suite, it decreased the lateral stuck time to 0.214 of the base
+policy value (9 of 9 blocks better). It did not pass the pre-registered gates for falls (5 of 72 realistic episodes,
+base policy 0), wrong-way motion on soft sand and power (1.66 times the base value). Its label is NOT_CONFIRMED. The
+study author ran it on a real Go2 and reported that it performed well, with a small jitter at some stops after lateral
+motion. There is no robot log, only the author's report. The results, limits and the pinned manifest are in
+[`go2_sand_finetune/` of the code repository](https://github.com/uwsbel/NeDM/tree/main/go2_sand_finetune). The
+files are byte-exact copies of the study files, plus generated code archives, log archives, job records and documents.
+
+### Layout
+
+| Path under `go2_sand_finetune/` | Contents |
+|---|---|
+| `README.md` | The study card: layout, lineage, how to examine the files, limits |
+| `data/rigid_prod_v2/`, `data/crm_prod/` | Older base-policy data: MuJoCo rigid plane (10,443 pieces, 9.06 h) and Chrono CRM (3,489 pieces, 5.94 h) |
+| `data/lateral_crm_v2_hip/`, `data/lateral_crm_v2_cuda/` | New lateral Chrono CRM data of the base policy, two Chrono builds (730 pieces, 1.84 h; 149 pieces, 0.38 h) |
+| `data/lateral_crm_v2_test_hip/` | Held-out lateral test (105 pieces, 0.27 h). Never used for training |
+| `data/lateral_crm_v2_slim_diag/` | Diagnostics of each lateral episode: feet, center of mass, relief, surface maps, swing-lift signal |
+| `data/splits/`, `data/plans/`, `data/reports/`, `data/aux/` | Split manifests, collection plans, collection and validation reports, the raw rigid test shard that the export checks read |
+| `teacher/` | The base policy: PPO checkpoint, deploy ONNX and configs, training parameters and job record |
+| `nrd/fresh_b/` | The NRD: last checkpoint, resume state, stage-end checkpoints, loader export, training logs, lineage |
+| `nrd/gates/`, `nrd/reports/` | Pre-registered NRD gates, the waiver, gate results and NRD reports |
+| `policy/v2n_s81/run/`, `policy/v2n_s81/deploy/` | The PPO run (config, recipe, logs, checkpoints) and the deploy ONNX, config, parity and provenance |
+| `policy/inputs/` | PPO inputs: recipes, start groups, OOD reference |
+| `eval/`, `videos/` | Chrono suites, MuJoCo rigid and C++ deploy checks, fall audit, selection; Chrono and MuJoCo videos |
+| `code/` | Source archives of each step, `source_manifest.json`, `REPRODUCE.md` and browsable key scripts |
+| `reports/` | Study reports, verification reports and the hardware note |
+| `release_manifest.json` | Size and SHA-256 of every file; lineage |
+
+Total approximately 5.5 GB, of which the data are 5.0 GB.
+
+### What the files contain
+
+- `unified_data.npz` (uncompressed NumPy, one in each of the five episode folders `rigid_prod_v2`, `crm_prod`,
+  `lateral_crm_v2_hip`, `lateral_crm_v2_cuda` and `lateral_crm_v2_test_hip`): `robot` [N, 1001, 37] (base position,
+  quaternion wxyz, 12 joint angles, base velocity, base angular velocity, 12 joint rates), `action` [N, 1001, 12]
+  (joint position targets), `contacts` [N, 1000, 4] (four feet), `command` [N, 1001, 3], `ground_features` [N, 3],
+  `soil` [N, 4], `lengths`, `splits` and more arrays for each record and each episode. Records are 10 ms apart; the
+  NRD step is 20 ms. `system.json` gives the channels, the families and the contact rule. `manifest.json` gives the
+  raw shards with their SHA-256, the code hashes and the counts.
+- The NRD loader export (`nrd/fresh_b/export/`) is a PyTorch checkpoint with `model_config`, `system`, `masks` and
+  `model_state_dict`. It loads with the `go2nrd` loader in `code/`.
+- `model_299.pt` is an RSL-RL checkpoint (`actor_state_dict`, `critic_state_dict`, `optimizer_state_dict`). The deploy
+  `policy.onnx` takes `obs` [1, 47] and gives `actions` [1, 12], with the observation normalization embedded.
+
+### Download and use
+
+The code repository's `go2_sand_finetune/README.md` has a download block that examines the size and the SHA-256 of
+each file against `release_manifest.json`. You cannot load the files with `datasets.load_dataset`. Read them with
+NumPy, PyTorch or ONNX Runtime. `code/REPRODUCE.md` tells how to rebuild each step from the source archives.
+
+### Known limitations
+
+- **Simulation results only.** The real-robot test exists only as a report of the study author, with no log, no video
+  and no record of the ONNX that ran.
+- **NOT_CONFIRMED.** V2n s81 did not pass the held-out gates for falls (all on medium uneven sand), soft-sand wrong-way
+  motion and power. The NRD missed 2 rigid accuracy rules and was used through a written waiver of the study
+  coordinator, made during the study.
+- **Seed dependence.** Only 1 of 4 NRD seeds of the same recipe met the main NRD gate.
+- **Study soils.** The soil levels are study levels, not measured sand. Only the feet and calves of the Chrono robot
+  touch the particles.
+- **Statistical reproduction.** Chrono CRM, NRD training and PPO are not bit-deterministic across machines.
+- **Local paths.** The files keep the paths of the study workstation and of the two clusters.
+
+### License and citation
+
+BSD-3-Clause, the same as Part A and the code. Upstream projects keep their own licenses (`unitree_rl_mjlab`: Apache
+License 2.0; the Unitree Go2 model files and the `legged_rl_deploy` code in the archives: their upstream licenses).
+The study has no publication yet: please cite the NeDM paper (Part A) and name the dataset revision you used
+(`ee97b73e395e690659a50b45db8a32bda97a9575`).
